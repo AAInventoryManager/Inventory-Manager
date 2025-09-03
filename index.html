@@ -40,6 +40,7 @@
       border-bottom:1px solid var(--border);
       position:sticky;top:0;background:var(--bg);z-index:20;text-align:center;
     }
+.ver{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#0d1420;color:#9fb3c8;font-size:12px;border:1px solid var(--border);vertical-align:middle}
     h1{font-size:24px;margin:0}
     main{padding:12px;max-width:1100px;margin:0 auto}
     .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
@@ -97,7 +98,7 @@
   </style>
 </head>
 <body>
-  <header><h1>Don's Inventory Tracker</h1></header>
+  <header><h1>Don's Inventory Tracker <span class="ver" id="verBadge"></span></h1></header>
 
   <main>
     <section class="card">
@@ -205,6 +206,7 @@
     // ========================
     const DB_KEY='inv.single.inline.mobile.v1';
     const state={items:[], updatedAt:null, _filter:'', _undoStack:[]};
+    const APP_VERSION = '1.0.0';
 
     const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
     const toKey=s=>(s||'').trim().toUpperCase();
@@ -223,6 +225,9 @@
         return true;
       });
     }
+
+    // Shallow clone of items for optimistic-UI rollback
+    function snapshotItems(){ return state.items.map(it => ({...it})); }
 
     // ========================
     // Supabase (cloud sync) — optional
@@ -335,7 +340,73 @@
       if(!el) return;
       el.textContent = state.updatedAt? `Last Update: ${new Date(state.updatedAt).toLocaleString(undefined,{hour12:true})}` : '';
       const fb=$('filterBox'); if(fb) fb.value = state._filter || '';
+      const vb=$('verBadge'); if(vb) vb.textContent = APP_VERSION;
     }
+
+    // -------- Partial-optimistic DOM helpers --------
+function tbodyEl(){ return document.querySelector('#invTable tbody'); }
+function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) || null; }
+function cellEl(tr, col){ return tr?.querySelector(`td[data-col="${col}"]`) || null; }
+function buildRowHTML(it){
+  return (
+    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
+    '<td data-col="name">'+escapeHtml(it.name||'')+'</td>'+
+    '<td data-col="desc">'+escapeHtml(it.desc||'')+'</td>'+
+    '<td data-col="qty" class="qty">'+toInt(it.qty,0)+'</td>'
+  );
+}
+// Insert a row into the table in sorted position by name
+function insertRowSorted(it){
+  const tb = tbodyEl(); if(!tb) return;
+  const empty = tb.querySelector('tr[data-empty="1"]'); if(empty) empty.remove();
+  const trs = Array.from(tb.querySelectorAll('tr[data-id]'));
+  const k = toKey(it.name);
+  let anchor = null;
+  for(const tr of trs){
+    const nm = tr.querySelector('td[data-col="name"]')?.textContent || '';
+    if(toKey(nm) > k){ anchor = tr; break; }
+  }
+  const tr = document.createElement('tr');
+  tr.dataset.id = it.id;
+  tr.innerHTML = buildRowHTML(it);
+  if(anchor) tb.insertBefore(tr, anchor); else tb.appendChild(tr);
+  enableInlineEditing(); // attach listeners to the new row
+}
+// Reposition existing row if its name changed
+function repositionRowByName(id){
+  const tb = tbodyEl(); if(!tb) return;
+  const tr = rowElById(id); if(!tr) return;
+  const it = state.items.find(x=> x.id===id); if(!it) return;
+  tr.innerHTML = buildRowHTML(it); // refresh cells
+  const others = Array.from(tb.querySelectorAll('tr[data-id]')).filter(x=> x!==tr);
+  const k = toKey(it.name);
+  let anchor = null;
+  for(const r of others){
+    const nm = r.querySelector('td[data-col="name"]')?.textContent || '';
+    if(toKey(nm) > k){ anchor = r; break; }
+  }
+  if(anchor) tb.insertBefore(tr, anchor); else tb.appendChild(tr);
+  enableInlineEditing();
+}
+// Update just one cell
+function updateCellDisplay(id, col, value){
+  const tr = rowElById(id); if(!tr) return;
+  const td = cellEl(tr, col); if(!td) return;
+  td.textContent = (col==='qty') ? toInt(value,0) : String(value||'');
+}
+// Ensure an empty-state row exists when there are no data rows
+function ensureEmptyState(){
+  const tb = tbodyEl(); if(!tb) return;
+  const hasRows = tb.querySelector('tr[data-id]') !== null;
+  const existingEmpty = tb.querySelector('tr[data-empty="1"]');
+  if(!hasRows && !existingEmpty){
+    const tr=document.createElement('tr'); tr.setAttribute('data-empty','1');
+    tr.innerHTML = '<td colspan="4" style="padding:16px;text-align:center;color:var(--muted)">No items yet. Use <b>Import File</b> or <b>Paste Data</b> above, or <b>Add Item</b> to create one.</td>';
+    tb.appendChild(tr);
+  } else if(hasRows && existingEmpty){
+    existingEmpty.remove();
+  }
+}
     function renderTable(){
       const tbody=$('#invTable').querySelector('tbody'); tbody.innerHTML='';
       const term=(state._filter||'').trim().toLowerCase();
@@ -422,30 +493,34 @@
 
       const commit = async () => {
         let v = inp.value;
+        // Build validation and normalized values
         try{
-          if(SB.ready){
-            if(col==='name'){
-              v=String(v).trim(); if(!v) throw Error('Name required');
-              await sbUpdateFields(id, { name:v });
-            }else if(col==='desc'){
-              await sbUpdateFields(id, { desc:String(v).trim() });
-            }else if(col==='qty'){
-              const q=toInt(v,-1); if(q<0) throw Error('Qty must be integer ≥ 0');
-              await sbUpdateFields(id, { qty:q });
-            }
-          }else{
-            if(col==='name'){
-              v=String(v).trim(); if(!v) throw Error('Name required');
-              if(toKey(v)!==toKey(it.name) && state.items.some(x=> x!==it && toKey(x.name)===toKey(v))) throw Error('Duplicate name');
-              it.name=v;
-            }else if(col==='desc'){
-              it.desc=String(v).trim();
-            }else if(col==='qty'){
-              const q=toInt(v,-1); if(q<0) throw Error('Qty must be integer ≥ 0'); it.qty=q;
-            }
-            setUpdated(); save();
+          const snapshot = { name: it.name, desc: it.desc, qty: it.qty };
+          if(col==='name'){
+            v=String(v).trim(); if(!v) throw Error('Name required');
+            // Prevent local dupes (case-insensitive)
+            if(toKey(v)!==toKey(it.name) && state.items.some(x=> x!==it && toKey(x.name)===toKey(v))) throw Error('Duplicate name');
+            // Optimistic update
+            it.name = v; setUpdated(); save(); renderTable();
+            if(SB.ready){ await sbUpdateFields(id, { name:v }); }
+          }else if(col==='desc'){
+            const nv = String(v).trim();
+            it.desc = nv; setUpdated(); save(); renderTable();
+            if(SB.ready){ await sbUpdateFields(id, { desc:nv }); }
+          }else if(col==='qty'){
+            const q=toInt(v,-1); if(q<0) throw Error('Qty must be integer ≥ 0');
+            it.qty = q; setUpdated(); save(); renderTable();
+            if(SB.ready){ await sbUpdateFields(id, { qty:q }); }
           }
-        }catch(e){ toast(e.message); cancel(); }
+          // success: leave cell as rendered
+        }catch(e){
+          // rollback UI on error
+          it.name = snapshot?.name ?? it.name;
+          it.desc = snapshot?.desc ?? it.desc;
+          it.qty  = toInt(snapshot?.qty ?? it.qty,0);
+          save(); renderTable();
+          toast(e.message);
+        }
       };
 
       inp.addEventListener('keydown', e=>{
@@ -528,15 +603,37 @@
     $('btnPreviewCancel').addEventListener('click', ()=>{ state._pendingImport=null; show('previewModal', false); });
     $('btnPreviewApply').addEventListener('click', async ()=>{
       const imp = state._pendingImport||[]; state._pendingImport=null; show('previewModal', false);
+      if(!imp.length){ toast('Nothing to import'); return; }
+
+      // Build optimistic merge (set semantics): add new or set qty/desc on existing
+      const snap = snapshotItems();
       try{
+        const index=new Map(state.items.map(it=>[toKey(it.name), it]));
+        for(const r of imp){
+          const k=toKey(r.name); if(!k) continue;
+          const ex=index.get(k);
+          const name=String(r.name||'').trim();
+          const desc=String(r.desc||'').trim();
+          const qty =toInt(r.qty,0);
+          if(!ex){
+            const it={ id:crypto.randomUUID(), name, desc, qty };
+            state.items.push(it); index.set(k,it);
+          }else{
+            if(desc) ex.desc = desc;
+            ex.qty = qty;
+          }
+        }
+        dedupe(); setUpdated(); save(); render();
+
         if(SB.ready){
           await sbUpsertMany(imp);
-          toast('Import applied');
-        }else{
-          const res=mergeSet(imp);
-          toast(`Imported ${res.total}: added ${res.added}, updated ${res.updated}`);
         }
-      }catch(e){ toast(e.message || 'Import failed'); }
+        toast('Import applied');
+      }catch(e){
+        // rollback on failure
+        state.items = snap; save(); render();
+        toast(e.message || 'Import failed');
+      }
     });
 
     $('btnExportCsv').addEventListener('click', ()=>{
@@ -558,32 +655,60 @@
       const qty  = toInt($('addQty').value,-1);
       if(!name){ toast('Item name required'); return; }
       if(qty<=0){ toast('Qty must be > 0'); return; }
+
+      // Optimistic add
+      const snap = snapshotItems();
+      const newId = crypto.randomUUID();
+      if(state.items.some(x=> toKey(x.name)===toKey(name))){ toast('Duplicate item'); return; }
+      state.items.push({id:newId, name, desc, qty});
+      setUpdated(); save();
+      insertRowSorted({id:newId, name, desc, qty});
+      ensureEmptyState();   
+
       try{
         if(SB.ready){
-          await sbAddItem(name, desc, qty);
-        }else{
-          if(state.items.some(x=> toKey(x.name)===toKey(name))){ toast('Duplicate item'); return; }
-          state.items.push({id:crypto.randomUUID(), name, desc, qty});
-          setUpdated(); save();
+          // send same id so realtime doesn't duplicate (if you prefer server-generated ids, adjust accordingly)
+          const { error } = await SB.client.from('items').insert([{ id:newId, name, description:desc||'', qty }]);
+          if(error) throw error;
         }
-      }catch(e){ toast(e.message || 'Cloud add failed'); return; }
+      }catch(e){
+        // rollback on failure
+        state.items = snap; save(); render();
+        toast(e.message || 'Cloud add failed');
+        return;
+      }
       $('addName').value=''; $('addDesc').value=''; $('addQty').value='';
       show('addOneModal', false);
       toast('Item added');
     }
 
-    // Delete selected rows
+    // Delete selected rows (optimistic UI with rollback on error)
     $('btnDeleteSelected').addEventListener('click', async ()=>{
       const boxes = Array.from(document.querySelectorAll('.rowChk:checked'));
-      if(boxes.length===0){ toast('No items selected'); return; }
-      if(!confirm(`Delete ${boxes.length} item(s)?`)) return;
-      const ids = boxes.map(b=> b.dataset.id).filter(Boolean);
-      try{
-        if(SB.ready){ await sbDeleteMany(ids); }
-        else{ state.items = state.items.filter(it=> !ids.includes(it.id)); setUpdated(); save(); }
-        const m=$('chkAll'); if(m){ m.checked=false; m.indeterminate=false; }
+      if (boxes.length === 0) { toast('No items selected'); return; }
+      if (!confirm(`Delete ${boxes.length} item(s)?`)) return;
+
+      const ids = boxes.map(b => b.dataset.id).filter(Boolean);
+
+      // Optimistic UI: remove locally right away, keep snapshot to roll back on failure
+      const snapshot = state.items.slice();
+      state.items = state.items.filter(it => !ids.includes(it.id));
+      setUpdated(); save();
+      ids.forEach(id => { const tr = rowElById(id); if(tr && tr.parentNode) tr.parentNode.removeChild(tr); });
+      ensureEmptyState();
+
+      try {
+        if (SB.ready) {
+          await sbDeleteMany(ids);
+        }
+        // success path: reset master checkbox and notify
+        const m = $('chkAll'); if (m) { m.checked = false; m.indeterminate = false; }
         toast('Deleted');
-      }catch(e){ toast(e.message || 'Delete failed'); }
+      } catch (e) {
+        // rollback on error
+        state.items = snapshot; save(); renderTable(); // full redraw only on rollback
+        toast(e.message || 'Delete failed');
+      }
     });
 
     // Master checkbox + indeterminate state
@@ -808,7 +933,7 @@
       if(SB.ready){ await sbLoadSnapshot(); sbStartRealtime(); }
 
       if('serviceWorker' in navigator){
-        navigator.serviceWorker.register('./sw.js?v=9', { scope: './' }).catch(console.warn);      }
+        navigator.serviceWorker.register('./sw.js?v=10', { scope: './' }).catch(console.warn);      }
     });
   </script>
 </body>
