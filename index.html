@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0b0f14" />
-  <link rel="manifest" href="./manifest.webmanifest?v=2" />
+  <link rel="manifest" href="./manifest.webmanifest?v=3" />
   <link rel="icon" href="./favicon.ico" />
   <title>Don's Inventory Tracker</title>
 
@@ -40,6 +40,9 @@
       border-bottom:1px solid var(--border);
       position:sticky;top:0;background:var(--bg);z-index:20;text-align:center;
     }
+.status{margin-top:8px;display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;background:#0d1420;color:#9fb3c8}
+.status.online{color:#06230e;background:#0f2d18;border-color:#1b5432}
+.status.offline{color:#2e0a0a;background:#2a1212;border-color:#5a1c1c}
 .ver{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#0d1420;color:#9fb3c8;font-size:12px;border:1px solid var(--border);vertical-align:middle}
     h1{font-size:24px;margin:0}
     main{padding:12px;max-width:1100px;margin:0 auto}
@@ -98,7 +101,10 @@
   </style>
 </head>
 <body>
-  <header><h1>Don's Inventory Tracker <span class="ver" id="verBadge"></span></h1></header>
+  <header>
+    <h1>Don's Inventory Tracker <span class="ver" id="verBadge"></span></h1>
+    <div id="statusBar" class="status">Checking server…</div>
+  </header>
 
   <main>
     <section class="card">
@@ -205,14 +211,15 @@
     // ========================
     const DB_KEY='inv.single.inline.mobile.v1';
     const state={items:[], updatedAt:null, _filter:''};
-    const APP_VERSION = '1.0.0';
+    const APP_VERSION = '1.0.1';
 
     const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
     const toKey=s=>(s||'').trim().toUpperCase();
     function toInt(v,f=0){const n=Number(v); if(!Number.isFinite(n))return f; const i=Math.floor(n); return i<0?f:i;}
     function setUpdated(){ state.updatedAt=new Date().toISOString(); }
-    function save(){ localStorage.setItem(DB_KEY, JSON.stringify(state)); render(); }
-    function load(){ const raw=localStorage.getItem(DB_KEY); if(raw){ try{const p=JSON.parse(raw); if(p&&Array.isArray(p.items)) Object.assign(state,p);}catch{}} }
+    // Persist only UI prefs; never persist items
+    function save(){ const prefs={updatedAt:state.updatedAt,_filter:state._filter}; localStorage.setItem(DB_KEY, JSON.stringify(prefs)); render(); }
+    function load(){ const raw=localStorage.getItem(DB_KEY); if(raw){ try{const p=JSON.parse(raw); if(p){ if(typeof p._filter==='string') state._filter=p._filter; if(p.updatedAt) state.updatedAt=p.updatedAt; } }catch{}} }
     function dedupe(){
       const seen=new Set();
       state.items=state.items.filter(it=>{
@@ -231,13 +238,37 @@
     // ========================
     // Supabase (cloud sync) — optional
     // ========================
-    const SB = { client:null, ready:false };
+    const SB = { client:null, ready:false, connected:false };
     function sbInit(){
       const url = window.SB_URL, key = window.SB_ANON;
       if(!url || !key || SB.client){ return; }
       SB.client = window.supabase.createClient(url, key);
       SB.ready = true;
     }
+    function updateStatusBar(){
+      const el=$('statusBar'); if(!el) return;
+      if(SB.connected){
+        el.textContent='Server Status = Connected';
+        el.classList.add('online'); el.classList.remove('offline');
+      }else{
+        el.textContent='Offline – Edits cannot be made until Connected';
+        el.classList.add('offline'); el.classList.remove('online');
+      }
+    }
+    async function checkServerHealth(){
+      if(!SB.ready){ SB.connected=false; updateStatusBar(); return false; }
+      try{
+        const { error } = await SB.client
+          .from('items')
+          .select('id', { head:true, count:'exact' })
+          .limit(1);
+        if(error) throw error;
+        SB.connected = true;
+      }catch(e){ SB.connected=false; }
+      updateStatusBar();
+      return SB.connected;
+    }
+    function isOnline(){ return SB.ready && SB.connected; }
     async function sbLoadSnapshot(){
       if(!SB.ready) return;
       const { data, error } = await SB.client
@@ -461,6 +492,7 @@ function ensureEmptyState(){
 
 
     function startCellEdit(td){
+      if(!isOnline()){ toast('Offline – edits disabled'); return; }
       if(td.querySelector('input')) return;
       const col=td.getAttribute('data-col'); if(!col) return;
       const tr=td.closest('tr'); const id=tr.dataset.id; const it=state.items.find(x=> x.id===id); if(!it) return;
@@ -483,17 +515,16 @@ function ensureEmptyState(){
             const nv = String(v).trim();
             if(!nv) throw Error('Name required');
             if(toKey(nv)!==toKey(it.name) && state.items.some(x=> x!==it && toKey(x.name)===toKey(nv))) throw Error('Duplicate name');
-            // Non-optimistic: write to server first when available
-            if(SB.ready){ await sbUpdateFields(id, { name:nv }); }
-            it.name = nv; setUpdated(); save(); renderTable();
+            await sbUpdateFields(id, { name:nv });
+            await sbLoadSnapshot();
           }else if(col==='desc'){
             const nv = String(v).trim();
-            if(SB.ready){ await sbUpdateFields(id, { desc:nv }); }
-            it.desc = nv; setUpdated(); save(); renderTable();
+            await sbUpdateFields(id, { desc:nv });
+            await sbLoadSnapshot();
           }else if(col==='qty'){
             const q=toInt(v,-1); if(q<0) throw Error('Qty must be integer ≥ 0');
-            if(SB.ready){ await sbUpdateFields(id, { qty:q }); }
-            it.qty = q; setUpdated(); save(); renderTable();
+            await sbUpdateFields(id, { qty:q });
+            await sbLoadSnapshot();
           }
         }catch(e){
           // Revert the cell UI without changing local state
@@ -512,14 +543,16 @@ function ensureEmptyState(){
     // ========================
     // Import / Paste / Export
     // ========================
-    $('btnImport').addEventListener('click', ()=> $('#fileImport').click());
+    $('btnImport').addEventListener('click', ()=> { if(!isOnline()){ toast('Offline – edits disabled'); return; } $('#fileImport').click(); });
     $('#fileImport').addEventListener('change', async ev=>{
+      if(!isOnline()){ ev.target.value=''; toast('Offline – edits disabled'); return; }
       const f=ev.target.files[0]; if(!f) return; await handleFile(f); ev.target.value='';
     });
 
-    $('btnPaste').addEventListener('click', ()=>{ $('#pasteArea').value=''; show('pasteModal', true); });
+    $('btnPaste').addEventListener('click', ()=>{ if(!isOnline()){ toast('Offline – edits disabled'); return; } $('#pasteArea').value=''; show('pasteModal', true); });
     $('btnPasteCancel').addEventListener('click', ()=> show('pasteModal', false));
     $('btnPasteApply').addEventListener('click', ()=>{
+      if(!isOnline()){ toast('Offline – edits disabled'); return; }
       const text=$('#pasteArea').value||''; if(!text.trim()){ toast('Nothing to import'); return; }
       const rows=parseDelimitedSmart(text); const items=rowsToItems(rows);
       if(!items.length){ toast('Could not detect headers or rows'); return; }
@@ -531,12 +564,13 @@ function ensureEmptyState(){
     drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.style.background='#0e1621'; });
     drop.addEventListener('dragleave', ()=>{ drop.style.background=''; });
     drop.addEventListener('drop', async e=>{
-      e.preventDefault(); drop.style.background=''; const f=e.dataTransfer.files[0]; if(f) await handleFile(f);
+      e.preventDefault(); drop.style.background=''; if(!isOnline()){ toast('Offline – edits disabled'); return; } const f=e.dataTransfer.files[0]; if(f) await handleFile(f);
     });
 
-    $('#fileImportModal').addEventListener('change', async ev=>{ const f=ev.target.files[0]; if(f) await handleFile(f); ev.target.value=''; });
+    $('#fileImportModal').addEventListener('change', async ev=>{ if(!isOnline()){ ev.target.value=''; toast('Offline – edits disabled'); return; } const f=ev.target.files[0]; if(f) await handleFile(f); ev.target.value=''; });
 
     async function handleFile(f){
+      if(!isOnline()){ toast('Offline – edits disabled'); return; }
       try{
         const items=await parseAnyFile(f);
         if(!items.length){ toast('No rows found in file'); return; }
@@ -581,38 +615,14 @@ function ensureEmptyState(){
     }
     $('btnPreviewCancel').addEventListener('click', ()=>{ state._pendingImport=null; show('previewModal', false); });
     $('btnPreviewApply').addEventListener('click', async ()=>{
+      if(!isOnline()){ toast('Offline – edits disabled'); return; }
       const imp = state._pendingImport||[]; state._pendingImport=null; show('previewModal', false);
       if(!imp.length){ toast('Nothing to import'); return; }
-
-      // Build optimistic merge (set semantics): add new or set qty/desc on existing
-      const snap = snapshotItems();
       try{
-        const index=new Map(state.items.map(it=>[toKey(it.name), it]));
-        for(const r of imp){
-          const k=toKey(r.name); if(!k) continue;
-          const ex=index.get(k);
-          const name=String(r.name||'').trim();
-          const desc=String(r.desc||'').trim();
-          const qty =toInt(r.qty,0);
-          if(!ex){
-            const it={ id:crypto.randomUUID(), name, desc, qty };
-            state.items.push(it); index.set(k,it);
-          }else{
-            if(desc) ex.desc = desc;
-            ex.qty = qty;
-          }
-        }
-        dedupe(); setUpdated(); save(); render();
-
-        if(SB.ready){
-          await sbUpsertMany(imp);
-        }
+        await sbUpsertMany(imp);
+        await sbLoadSnapshot();
         toast('Import applied');
-      }catch(e){
-        // rollback on failure
-        state.items = snap; save(); render();
-        toast(e.message || 'Import failed');
-      }
+      }catch(e){ toast(e.message || 'Import failed'); }
     });
 
     $('btnExportCsv').addEventListener('click', ()=>{
@@ -624,11 +634,12 @@ function ensureEmptyState(){
     });
 
     // Add-one modal
-    $('btnAddOne').addEventListener('click', ()=>{ show('addOneModal', true); $('addName').focus(); });
+    $('btnAddOne').addEventListener('click', ()=>{ if(!isOnline()){ toast('Offline – edits disabled'); return; } show('addOneModal', true); $('addName').focus(); });
     $('btnAddCancel').addEventListener('click', ()=> show('addOneModal', false));
     $('btnAddSave').addEventListener('click', saveAddOne);
     $('addQty').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); saveAddOne(); }});
     async function saveAddOne(){
+      if(!isOnline()){ toast('Offline – edits disabled'); return; }
       const name = String(($('addName').value||'').trim());
       const desc = String(($('addDesc').value||'').trim());
       const qty  = toInt($('addQty').value,-1);
@@ -637,19 +648,8 @@ function ensureEmptyState(){
       if(state.items.some(x=> toKey(x.name)===toKey(name))){ toast('Duplicate item'); return; }
 
       try{
-        let newId;
-        if(SB.ready){
-          // server-first create
-          newId = await sbAddItem(name, desc, qty);
-        } else {
-          // offline/local mode fallback
-          newId = crypto.randomUUID();
-        }
-        // Only now update local state/UI
-        state.items.push({id:newId, name, desc, qty});
-        setUpdated(); save();
-        insertRowSorted({id:newId, name, desc, qty});
-        ensureEmptyState();
+        await sbAddItem(name, desc, qty);
+        await sbLoadSnapshot();
         $('addName').value=''; $('addDesc').value=''; $('addQty').value='';
         show('addOneModal', false);
         toast('Item added');
@@ -659,6 +659,7 @@ function ensureEmptyState(){
     }
 
     $('btnDeleteSelected').addEventListener('click', async ()=>{
+      if(!isOnline()){ toast('Offline – edits disabled'); return; }
       const boxes = Array.from(document.querySelectorAll('.rowChk:checked'));
       if (boxes.length === 0) { toast('No items selected'); return; }
       if (!confirm(`Delete ${boxes.length} item(s)?`)) return;
@@ -666,22 +667,8 @@ function ensureEmptyState(){
       const ids = boxes.map(b => b.dataset.id).filter(Boolean);
 
       try {
-        let res = {deleted:0, requested:ids.length};
-        if (SB.ready) {
-          // Server-first delete
-          res = await sbDeleteMany(ids);
-        } else {
-          // Local-only mode: treat as success
-          res = {deleted: ids.length, requested: ids.length};
-        }
-        // Apply local changes only after success
-        state.items = state.items.filter(it => !ids.includes(it.id));
-        setUpdated(); save();
-        // Remove rows from DOM
-        ids.forEach(id => { const tr = rowElById(id); if(tr && tr.parentNode) tr.parentNode.removeChild(tr); });
-        ensureEmptyState();
-        // Optional one-shot reconcile to be 100% sure
-        if (SB.ready) { await sbLoadSnapshot(); }
+        const res = await sbDeleteMany(ids);
+        await sbLoadSnapshot();
         toast('Deleted '+res.deleted+'/'+res.requested);
         const m = $('chkAll'); if (m) { m.checked = false; m.indeterminate = false; }
       } catch (e) {
@@ -903,15 +890,21 @@ function ensureEmptyState(){
 
     // Boot
     document.addEventListener('DOMContentLoaded', async ()=>{
-      load(); dedupe(); save(); render();
-      const fb=$('filterBox'); if(fb){ fb.value=state._filter||''; fb.addEventListener('input', ()=>{ state._filter=fb.value; renderTable(); }); }
+      load(); render();
+      const fb=$('filterBox'); if(fb){ fb.value=state._filter||''; fb.addEventListener('input', ()=>{ state._filter=fb.value; renderTable(); save(); }); }
 
-      // Supabase: if URL/key provided, initialize + load + subscribe
+      // Supabase init and health check
       sbInit();
-      if (SB.ready) { await sbLoadSnapshot(); sbStartRealtime(); toast('Live sync enabled'); }
+      await checkServerHealth();
+      if (isOnline()) { await sbLoadSnapshot(); sbStartRealtime(); }
+
+      // Keep the status fresh
+      window.addEventListener('online', checkServerHealth);
+      window.addEventListener('offline', checkServerHealth);
+      setInterval(checkServerHealth, 15000);
 
       if('serviceWorker' in navigator){
-        navigator.serviceWorker.register('./sw.js?v=11', { scope: './' }).catch(console.warn);      }
+        navigator.serviceWorker.register('./sw.js?v=12', { scope: './' }).catch(console.warn);      }
     });
   </script>
 </body>

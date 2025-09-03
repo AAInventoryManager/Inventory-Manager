@@ -1,7 +1,8 @@
 {
   "name": "Don's Inventory Tracker",
-  "short_name": "Inventory",
-  "start_url": "./Material%20Tracker.html",
+  "short_name": "Don's Inv",
+  "version": "1.0.1",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0b0f14",
   "theme_color": "#0b0f14",
