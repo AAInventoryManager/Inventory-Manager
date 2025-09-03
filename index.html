@@ -109,7 +109,6 @@
         <button class="btn" id="btnExportCsv">Export File</button>
         <button class="btn" id="btnAddOne">Add Item</button>
         <button class="btn" id="btnDeleteSelected">Delete Selected</button>
-        <button class="btn" id="btnUndo" disabled>Undo</button>
         <input id="filterBox" type="text" placeholder="Filter items…" aria-label="Filter items" />
         <span class="spacer"></span>
         <span class="time" id="lastUpdate" aria-live="polite"></span>
@@ -205,7 +204,7 @@
     // State & persistence
     // ========================
     const DB_KEY='inv.single.inline.mobile.v1';
-    const state={items:[], updatedAt:null, _filter:'', _undoStack:[]};
+    const state={items:[], updatedAt:null, _filter:''};
     const APP_VERSION = '1.0.0';
 
     const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
@@ -347,7 +346,7 @@
     // Rendering & inline edit
     // ========================
     function escapeHtml(s){ return String(s).replace(/[&<>]/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
-    function render(){ renderTable(); renderKpis(); refreshUndo(); }
+    function render(){ renderTable(); renderKpis(); }
     function renderKpis(){
       const el=$('lastUpdate');
       if(!el) return;
@@ -450,14 +449,6 @@ function ensureEmptyState(){
       }
       enableInlineEditing();
     }
-    function refreshUndo(){
-    const b=$('btnUndo');
-    const n = state._undoStack.length;
-    if(b){
-    b.disabled = n===0;
-    b.textContent = n>0 ? `Undo (${n})` : 'Undo';
-    }
-    }
 
     function enableInlineEditing(){
       const tbody=$('#invTable').querySelector('tbody');
@@ -468,44 +459,6 @@ function ensureEmptyState(){
       });
     }
 
-    function pushUndo(it, col, oldVal){
-      state._undoStack.push({ id: it.id, col, old: oldVal, when: Date.now() });
-      if(state._undoStack.length > 5) state._undoStack.shift();
-      refreshUndo();
-      }
-      
-     function doUndo(){
-      const u = state._undoStack.pop();
-      if(!u){ refreshUndo(); return; }
-      const it = state.items.find(x=> x.id===u.id);
-      if(!it){ refreshUndo(); return; }
-
-      // Apply rollback to model
-      if(u.col==='name') it.name = String(u.old);
-      else if(u.col==='desc') it.desc = String(u.old);
-      else if(u.col==='qty') it.qty = toInt(u.old,0);
-
-      setUpdated();
-      // Persist without triggering a full render
-      try{ localStorage.setItem(DB_KEY, JSON.stringify(state)); }catch{}
-
-      // Update just what's needed in the DOM
-      if(u.col==='name'){
-        repositionRowByName(it.id);
-      } else if(u.col==='desc'){
-        updateCellDisplay(it.id, 'desc', it.desc||'');
-      } else if(u.col==='qty'){
-        updateCellDisplay(it.id, 'qty', toInt(it.qty,0));
-      }
-      ensureEmptyState();
-
-      // UI chrome
-      refreshUndo();
-      renderKpis();
-      toast('Undone');
-}
-
-    $('btnUndo').addEventListener('click', doUndo);
 
     function startCellEdit(td){
       if(td.querySelector('input')) return;
@@ -514,7 +467,6 @@ function ensureEmptyState(){
       const fb = $('filterBox'); if (fb) fb.value = '';
       state._filter = '';
       const oldVal = (col==='qty'? String(toInt(it.qty,0)) : String(col==='name'?it.name:(it.desc||'')));
-      pushUndo(it, col, (col==='qty'? toInt(it.qty,0) : (col==='name'? it.name : (it.desc||''))));
       const inp=document.createElement('input');
       inp.type = (col==='qty')? 'number' : 'text';
       if(col==='qty'){ inp.min='0'; inp.step='1'; inp.inputMode='numeric'; inp.pattern='[0-9]*'; inp.setAttribute('enterkeyhint','done'); }
@@ -526,33 +478,27 @@ function ensureEmptyState(){
 
       const commit = async () => {
         let v = inp.value;
-        // Build validation and normalized values
         try{
-          const snapshot = { name: it.name, desc: it.desc, qty: it.qty };
           if(col==='name'){
-            v=String(v).trim(); if(!v) throw Error('Name required');
-            // Prevent local dupes (case-insensitive)
-            if(toKey(v)!==toKey(it.name) && state.items.some(x=> x!==it && toKey(x.name)===toKey(v))) throw Error('Duplicate name');
-            // Optimistic update
-            it.name = v; setUpdated(); save(); renderTable();
-            if(SB.ready){ await sbUpdateFields(id, { name:v }); }
+            const nv = String(v).trim();
+            if(!nv) throw Error('Name required');
+            if(toKey(nv)!==toKey(it.name) && state.items.some(x=> x!==it && toKey(x.name)===toKey(nv))) throw Error('Duplicate name');
+            // Non-optimistic: write to server first when available
+            if(SB.ready){ await sbUpdateFields(id, { name:nv }); }
+            it.name = nv; setUpdated(); save(); renderTable();
           }else if(col==='desc'){
             const nv = String(v).trim();
-            it.desc = nv; setUpdated(); save(); renderTable();
             if(SB.ready){ await sbUpdateFields(id, { desc:nv }); }
+            it.desc = nv; setUpdated(); save(); renderTable();
           }else if(col==='qty'){
             const q=toInt(v,-1); if(q<0) throw Error('Qty must be integer ≥ 0');
-            it.qty = q; setUpdated(); save(); renderTable();
             if(SB.ready){ await sbUpdateFields(id, { qty:q }); }
+            it.qty = q; setUpdated(); save(); renderTable();
           }
-          // success: leave cell as rendered
         }catch(e){
-          // rollback UI on error
-          it.name = snapshot?.name ?? it.name;
-          it.desc = snapshot?.desc ?? it.desc;
-          it.qty  = toInt(snapshot?.qty ?? it.qty,0);
-          save(); renderTable();
-          toast(e.message);
+          // Revert the cell UI without changing local state
+          cancel();
+          toast(e.message || 'Update failed');
         }
       };
 
@@ -688,34 +634,30 @@ function ensureEmptyState(){
       const qty  = toInt($('addQty').value,-1);
       if(!name){ toast('Item name required'); return; }
       if(qty<=0){ toast('Qty must be > 0'); return; }
-
-      // Optimistic add
-      const snap = snapshotItems();
-      const newId = crypto.randomUUID();
       if(state.items.some(x=> toKey(x.name)===toKey(name))){ toast('Duplicate item'); return; }
-      state.items.push({id:newId, name, desc, qty});
-      setUpdated(); save();
-      insertRowSorted({id:newId, name, desc, qty});
-      ensureEmptyState();   
 
       try{
+        let newId;
         if(SB.ready){
-          // send same id so realtime doesn't duplicate (if you prefer server-generated ids, adjust accordingly)
-          const { error } = await SB.client.from('items').insert([{ id:newId, name, description:desc||'', qty }]);
-          if(error) throw error;
+          // server-first create
+          newId = await sbAddItem(name, desc, qty);
+        } else {
+          // offline/local mode fallback
+          newId = crypto.randomUUID();
         }
+        // Only now update local state/UI
+        state.items.push({id:newId, name, desc, qty});
+        setUpdated(); save();
+        insertRowSorted({id:newId, name, desc, qty});
+        ensureEmptyState();
+        $('addName').value=''; $('addDesc').value=''; $('addQty').value='';
+        show('addOneModal', false);
+        toast('Item added');
       }catch(e){
-        // rollback on failure
-        state.items = snap; save(); render();
         toast(e.message || 'Cloud add failed');
-        return;
       }
-      $('addName').value=''; $('addDesc').value=''; $('addQty').value='';
-      show('addOneModal', false);
-      toast('Item added');
     }
 
-    // Delete selected rows (optimistic UI with rollback on error)
     $('btnDeleteSelected').addEventListener('click', async ()=>{
       const boxes = Array.from(document.querySelectorAll('.rowChk:checked'));
       if (boxes.length === 0) { toast('No items selected'); return; }
@@ -723,26 +665,26 @@ function ensureEmptyState(){
 
       const ids = boxes.map(b => b.dataset.id).filter(Boolean);
 
-      // Optimistic UI: remove locally right away, keep snapshot to roll back on failure
-      const snapshot = state.items.slice();
-      state.items = state.items.filter(it => !ids.includes(it.id));
-      setUpdated(); save();
-      ids.forEach(id => { const tr = rowElById(id); if(tr && tr.parentNode) tr.parentNode.removeChild(tr); });
-      ensureEmptyState();
-
       try {
+        let res = {deleted:0, requested:ids.length};
         if (SB.ready) {
-          const res = await sbDeleteMany(ids);
-          // One-time reconciliation to ensure both devices are consistent
-          await sbLoadSnapshot();
-          toast('Deleted '+res.deleted+'/'+res.requested);
+          // Server-first delete
+          res = await sbDeleteMany(ids);
         } else {
-          toast('Deleted');
+          // Local-only mode: treat as success
+          res = {deleted: ids.length, requested: ids.length};
         }
+        // Apply local changes only after success
+        state.items = state.items.filter(it => !ids.includes(it.id));
+        setUpdated(); save();
+        // Remove rows from DOM
+        ids.forEach(id => { const tr = rowElById(id); if(tr && tr.parentNode) tr.parentNode.removeChild(tr); });
+        ensureEmptyState();
+        // Optional one-shot reconcile to be 100% sure
+        if (SB.ready) { await sbLoadSnapshot(); }
+        toast('Deleted '+res.deleted+'/'+res.requested);
         const m = $('chkAll'); if (m) { m.checked = false; m.indeterminate = false; }
       } catch (e) {
-        // rollback on error
-        state.items = snapshot; save(); renderTable(); // full redraw only on rollback
         toast(e.message || 'Delete failed');
       }
     });
@@ -969,7 +911,7 @@ function ensureEmptyState(){
       if (SB.ready) { await sbLoadSnapshot(); sbStartRealtime(); toast('Live sync enabled'); }
 
       if('serviceWorker' in navigator){
-        navigator.serviceWorker.register('./sw.js?v=10', { scope: './' }).catch(console.warn);      }
+        navigator.serviceWorker.register('./sw.js?v=11', { scope: './' }).catch(console.warn);      }
     });
   </script>
 </body>
