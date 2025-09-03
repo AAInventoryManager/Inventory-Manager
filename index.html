@@ -70,9 +70,6 @@
     .drop{
       border:1px dashed var(--border);border-radius:10px;padding:12px;text-align:center;color:var(--muted)
     }
-    /* low-stock highlighting */
-    tr.low td { background: rgba(255, 107, 107, 0.08); }
-    tr.low td.qty { color: #ff6b6b; font-weight: 700; }
     .btn:disabled{ opacity:.55; cursor:not-allowed }
     @media (max-width:640px){
       .toolbar{gap:6px}
@@ -194,7 +191,7 @@
     // State & persistence
     // ========================
     const DB_KEY='inv.single.inline.mobile.v1';
-    const state={items:[], updatedAt:null, _filter:'', lowThreshold:5, _undo:null};
+    const state={items:[], updatedAt:null, _filter:'', _undo:null};
 
     const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
     const toKey=s=>(s||'').trim().toUpperCase();
@@ -242,8 +239,6 @@
 
       for(const it of items){
         const tr=document.createElement('tr'); tr.dataset.id=it.id;
-        const isLow = toInt(it.qty,0) <= toInt(state.lowThreshold,0);
-        tr.className = isLow ? 'low' : '';
         tr.innerHTML =
           '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
           '<td data-col="name">'+escapeHtml(it.name||'')+'</td>'+
