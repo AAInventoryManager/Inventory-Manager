@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0f14" />
+  <link rel="manifest" href="./manifest.webmanifest">
+  <title>Don's Inventory Tracker</title>
+  <style>
+    :root{
+      --bg:#24292d;--fg:#eaeff7;--muted:#a9b4c0;--accent:#5aa9ff;
+      --card:#000000;--border:#1f2a36
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:var(--bg);color:var(--fg)
+    }
+    header{
+      padding:calc(14px + env(safe-area-inset-top)) 16px 14px;
+      border-bottom:1px solid var(--border);
+      position:sticky;top:0;background:var(--bg);z-index:20;
+      text-align:center;
+    }
+    h1{font-size:24px;margin:0}
+    main{padding:12px;max-width:1100px;margin:0 auto}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .toolbar .spacer{flex:1}
+    .btn{
+      cursor:pointer;border:1px solid var(--border);background:#101826;color:#fff;
+      padding: clamp(10px, 2.2vw, 12px) clamp(12px, 3vw, 14px);
+      border-radius:10px;font-weight:600;
+      font-size: clamp(14px, 2.8vw, 16px);
+      line-height:1.1; white-space:nowrap; min-height:44px
+    }
+    .btn.primary{background:var(--accent);color:#06121f;border-color:transparent}
+    .muted{color:var(--muted);font-size:12px}
+    .time{font-size:12px;color:var(--muted)}
+    .scroll{overflow:auto;max-height:70vh;border-radius:10px;position:relative;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+    table{width:100%;border-collapse:collapse;font-size:15px}
+    thead th{
+      text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);
+      padding:12px;position:sticky;top:0;background:var(--card);z-index:7;box-shadow:0 2px 0 rgba(0,0,0,.2)
+    }
+    tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+    td.qty{text-align:right;font-variant-numeric:tabular-nums}
+    th.sel, td.sel{ width:42px; text-align:center }
+    input[type=text],input[type=number],textarea{
+      width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);
+      background:#0d131b;color:#fff;font-size:16px
+    }
+    #filterBox{
+      flex:1; min-width:160px; max-width:320px;
+      padding:12px;border-radius:10px;border:1px solid var(--border);
+      background:#0d131b;color:#eaeff7;font-size:16px
+    }
+    td.editing{padding:6px}
+    .toast{
+      position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#0d1420;
+      border:1px solid var(--border);color:var(--fg);padding:10px 14px;border-radius:10px;
+      box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:100;display:none
+    }
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200}
+    .modal .box{
+      max-width:580px;margin:10vh auto;background:var(--card);border:1px solid var(--border);
+      border-radius:14px;padding:14px
+    }
+    .drop{
+      border:1px dashed var(--border);border-radius:10px;padding:12px;text-align:center;color:var(--muted)
+    }
+    @media (max-width:640px){
+      .toolbar{gap:6px}
+      .toolbar .btn{flex:1}
+      .scroll{max-height:calc(100vh - 240px)}
+    }
+    @media (max-width:360px){
+      .toolbar{gap:4px}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Don's Inventory Tracker</h1>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="toolbar" role="toolbar" aria-label="Inventory actions">
+        <input type="file" id="fileImport" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.docx,.doc" style="display:none" />
+        <button class="btn" id="btnImport">Import File</button>
+        <button class="btn" id="btnPaste">Paste Data</button>
+        <button class="btn" id="btnExportCsv">Export File</button>
+        <button class="btn" id="btnAddOne">Add Item</button>
+        <button class="btn" id="btnDeleteSelected">Delete Selected</button>
+        <input id="filterBox" type="text" placeholder="Filter items…" aria-label="Filter items" />
+        <span class="spacer"></span>
+        <span class="time" id="lastUpdate" aria-live="polite"></span>
+      </div>
+
+      <div class="scroll" id="tableWrap">
+        <table id="invTable" role="grid" aria-label="Inventory table">
+          <thead>
+            <tr>
+              <th class="sel"><input type="checkbox" id="chkAll" aria-label="Select all"></th>
+              <th scope="col">Item</th>
+              <th scope="col">Description</th>
+              <th scope="col" class="qty">Qty</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="muted" style="margin-top:8px">
+        Tap any cell to edit inline; <kbd>Enter</kbd> saves, <kbd>Esc</kbd> cancels.
+      </div>
+    </section>
+  </main>
+
+  <!-- Paste/Import modal -->
+  <div id="pasteModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <h2 style="margin:0 0 10px;font-size:16px;">Paste Data</h2>
+      <div class="muted" style="margin-bottom:10px;">
+        Provide columns <code>Item, Description, Qty</code>. Headers optional; Qty optional (defaults to 0).
+        Tabs, commas, or multi-space columns are accepted. You may also drop or choose a file.
+      </div>
+      <div class="drop" id="dropZone">Drop a CSV/TSV/TXT/JSON/XLSX/XLS/DOCX file here, or choose below.</div>
+      <input type="file" id="fileImportModal" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.docx,.doc" style="display:block;margin:10px 0;" />
+      <textarea id="pasteArea" rows="8" placeholder="Item, Description, Qty"></textarea>
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <span id="pasteInfo" class="muted" style="margin-right:auto"></span>
+        <button class="btn" id="btnPasteCancel">Cancel</button>
+        <button class="btn primary" id="btnPasteApply">Import</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add-one modal -->
+  <div id="addOneModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <h2 style="margin:0 0 10px;font-size:16px;">Add Item</h2>
+      <div style="display:grid; grid-template-columns:1fr; gap:8px;">
+        <label class="muted">Item (unique)</label>
+        <input id="addName" type="text" placeholder="Item" autocapitalize="off" autocomplete="off" spellcheck="false" />
+        <label class="muted">Description (optional)</label>
+        <input id="addDesc" type="text" placeholder="Description" />
+        <label class="muted">Qty (integer > 0)</label>
+        <input id="addQty" type="number" min="1" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
+      </div>
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <button class="btn" id="btnAddCancel">Cancel</button>
+        <button class="btn primary" id="btnAddSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // ========================
+    // State & persistence
+    // ========================
+    const DB_KEY='inv.single.inline.mobile.v1';
+    const state={items:[], updatedAt:null, _filter:''};
+
+    const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
+    const toKey=s=>(s||'').trim().toUpperCase();
+    function toInt(v,f=0){const n=Number(v); if(!Number.isFinite(n))return f; const i=Math.floor(n); return i<0?f:i;}
+    function setUpdated(){ state.updatedAt=new Date().toISOString(); }
+    function save(){ localStorage.setItem(DB_KEY, JSON.stringify(state)); render(); }
+    function load(){ const raw=localStorage.getItem(DB_KEY); if(raw){ try{const p=JSON.parse(raw); if(p&&Array.isArray(p.items)) Object.assign(state,p);}catch{}} }
+    function dedupe(){
+      const seen=new Set();
+      state.items=state.items.filter(it=>{
+        const k=toKey(it.name); if(!k) return false;
+        if(seen.has(k)) return false;
+        seen.add(k);
+        if(!it.id) it.id=crypto.randomUUID();
+        it.qty = toInt(it.qty,0);
+        return true;
+      });
+    }
+
+    // ========================
+    // Rendering & inline edit
+    // ========================
+    function escapeHtml(s){ return String(s).replace(/[&<>]/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+    function render(){ renderTable(); renderKpis(); }
+    function renderKpis(){
+      const el=$('lastUpdate');
+      if(!el) return;
+      el.textContent = state.updatedAt? `Last Update: ${new Date(state.updatedAt).toLocaleString(undefined,{hour12:true})}` : '';
+      const fb=$('filterBox'); if(fb) fb.value = state._filter || '';
+    }
+
+    function renderTable(){
+      const tbody=$('#invTable').querySelector('tbody'); tbody.innerHTML='';
+      const term=(state._filter||'').trim().toLowerCase();
+
+      let items=[...state.items].sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
+      if(term){
+        items = items.filter(it=>{
+          const name=(it.name||'').toLowerCase();
+          const desc=(it.desc||'').toLowerCase();
+          const qty = String(toInt(it.qty,0));
+          return name.includes(term) || desc.includes(term) || qty.includes(term);
+        });
+      }
+
+      for(const it of items){
+        const tr=document.createElement('tr'); tr.dataset.id=it.id;
+        tr.innerHTML =
+          '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
+          '<td data-col="name">'+escapeHtml(it.name||'')+'</td>'+
+          '<td data-col="desc">'+escapeHtml(it.desc||'')+'</td>'+
+          '<td data-col="qty" class="qty">'+toInt(it.qty,0)+'</td>';
+        tbody.appendChild(tr);
+      }
+      enableInlineEditing();
+    }
+
+    function enableInlineEditing(){
+      const tbody=$('#invTable').querySelector('tbody');
+      tbody.querySelectorAll('td').forEach(td=>{
+        if(td.classList.contains('sel')) return; // skip checkbox column
+        td.addEventListener('click', ()=> startCellEdit(td));
+        td.addEventListener('dblclick', ()=> startCellEdit(td));
+      });
+    }
+
+    function startCellEdit(td){
+      if(td.querySelector('input')) return;
+      const col=td.getAttribute('data-col'); if(!col) return;
+      const tr=td.closest('tr'); const id=tr.dataset.id; const it=state.items.find(x=> x.id===id); if(!it) return;
+      const fb = $('filterBox'); if (fb) fb.value = '';
+      state._filter = '';
+      const oldVal = (col==='qty'? String(toInt(it.qty,0)) : String(col==='name'?it.name:(it.desc||'')));
+      const inp=document.createElement('input');
+      inp.type = (col==='qty')? 'number' : 'text';
+      if(col==='qty'){ inp.min='0'; inp.step='1'; inp.inputMode='numeric'; inp.pattern='[0-9]*'; inp.setAttribute('enterkeyhint','done'); }
+      inp.value = oldVal; inp.autocapitalize='off'; inp.autocomplete='off'; inp.spellcheck=false;
+      td.classList.add('editing'); td.innerHTML=''; td.appendChild(inp);
+      setTimeout(()=>{ inp.focus(); inp.select(); }, 0);
+
+      const commit=()=>{
+        let v=inp.value;
+        try{
+          if(col==='name'){
+            v=String(v).trim(); if(!v) throw Error('Name required');
+            if(toKey(v)!==toKey(it.name) && state.items.some(x=> x!==it && toKey(x.name)===toKey(v))) throw Error('Duplicate name');
+            it.name=v;
+          }else if(col==='desc'){
+            it.desc=String(v).trim();
+          }else if(col==='qty'){
+            const q=toInt(v,-1); if(q<0) throw Error('Qty must be integer ≥ 0'); it.qty=q;
+          }
+          setUpdated(); save();
+        }catch(e){ toast(e.message); cancel(); }
+      };
+      const cancel=()=>{ td.classList.remove('editing'); td.innerHTML = (col==='qty')? toInt(it.qty,0) : escapeHtml(col==='name'?it.name:(it.desc||'')); };
+
+      inp.addEventListener('keydown', e=>{
+        if(e.key==='Enter'){ e.preventDefault(); commit(); }
+        if(e.key==='Escape'){ e.preventDefault(); cancel(); }
+      });
+      inp.addEventListener('blur', commit);
+    }
+
+    // ========================
+    // Import / Paste / Export
+    // ========================
+    $('btnImport').addEventListener('click', ()=> $('#fileImport').click());
+    $('#fileImport').addEventListener('change', async ev=>{
+      const f=ev.target.files[0]; if(!f) return; await handleFile(f); ev.target.value='';
+    });
+
+    $('btnPaste').addEventListener('click', ()=>{ $('#pasteArea').value=''; show('pasteModal', true); });
+    $('btnPasteCancel').addEventListener('click', ()=> show('pasteModal', false));
+    $('btnPasteApply').addEventListener('click', ()=>{
+      const text=$('#pasteArea').value||''; if(!text.trim()){ toast('Nothing to import'); return; }
+      const rows=parseDelimitedSmart(text); const items=rowsToItems(rows);
+      if(!items.length){ toast('Could not detect headers or rows'); return; }
+      const res=mergeSet(items); toast(`Imported ${res.total}: added ${res.added}, updated ${res.updated}`); show('pasteModal', false);
+    });
+
+    const drop=$('#dropZone');
+    drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.style.background='#0e1621'; });
+    drop.addEventListener('dragleave', ()=>{ drop.style.background=''; });
+    drop.addEventListener('drop', async e=>{
+      e.preventDefault(); drop.style.background=''; const f=e.dataTransfer.files[0]; if(f) await handleFile(f);
+    });
+
+    $('#fileImportModal').addEventListener('change', async ev=>{ const f=ev.target.files[0]; if(f) await handleFile(f); ev.target.value=''; });
+
+    async function handleFile(f){
+      try{
+        const items=await parseAnyFile(f);
+        if(!items.length){ toast('No rows found in file'); return; }
+        const res=mergeSet(items);
+        toast(`Imported ${res.total}: added ${res.added}, updated ${res.updated}`);
+        show('pasteModal', false);
+      }catch(err){ toast(err.message||'Import failed'); }
+    }
+
+    $('btnExportCsv').addEventListener('click', ()=>{
+      const rows=[["Item","Description","Qty"]];
+      for(const it of state.items){ rows.push([it.name||'', it.desc||'', String(toInt(it.qty,0))]); }
+      const csv = rows.map(r=> r.map(v=> '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='inventory.csv'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    // Add-one
+    $('btnAddOne').addEventListener('click', ()=>{ show('addOneModal', true); $('addName').focus(); });
+    $('btnAddCancel').addEventListener('click', ()=> show('addOneModal', false));
+    $('btnAddSave').addEventListener('click', saveAddOne);
+    $('addQty').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); saveAddOne(); }});
+
+    function saveAddOne(){
+      const name = String(($('addName').value||'').trim());
+      const desc = String(($('addDesc').value||'').trim());
+      const qty  = toInt($('addQty').value,-1);
+      if(!name){ toast('Item name required'); return; }
+      if(qty<=0){ toast('Qty must be > 0'); return; }
+      if(state.items.some(x=> toKey(x.name)===toKey(name))){ toast('Duplicate item'); return; }
+      state.items.push({id:crypto.randomUUID(), name, desc, qty});
+      setUpdated(); save();
+      $('addName').value=''; $('addDesc').value=''; $('addQty').value='';
+      show('addOneModal', false);
+      toast('Item added');
+    }
+
+    // Delete selected rows
+    $('btnDeleteSelected').addEventListener('click', ()=>{
+      const boxes = Array.from(document.querySelectorAll('.rowChk:checked'));
+      if(boxes.length===0){ toast('No items selected'); return; }
+      if(!confirm(`Delete ${boxes.length} item(s)?`)) return;
+      const ids = boxes.map(b=> b.dataset.id);
+      state.items = state.items.filter(it=> !ids.includes(it.id));
+      setUpdated(); save();
+      const m=$('chkAll'); if(m){ m.checked=false; m.indeterminate=false; }
+      toast('Deleted');
+    });
+
+    // Master checkbox and indeterminate state sync
+    document.addEventListener('change', (e)=>{
+      if(e.target && e.target.id==='chkAll'){
+        const on = e.target.checked;
+        document.querySelectorAll('.rowChk').forEach(cb=> cb.checked=on);
+      }
+      if(e.target && e.target.classList && e.target.classList.contains('rowChk')){
+        const all = document.querySelectorAll('.rowChk');
+        const checked = document.querySelectorAll('.rowChk:checked');
+        const m = $('chkAll');
+        if(m){
+          m.checked = (checked.length===all.length && all.length>0);
+          m.indeterminate = (checked.length>0 && checked.length<all.length);
+        }
+        if (state._filter) {
+          state._filter = '';
+          const fb = $('filterBox'); if (fb) fb.value = '';
+          renderTable();
+        }
+      }
+    });
+
+    // ========================
+    // Parsing helpers
+    // ========================
+    function parseDelimitedSmart(text){
+      const firstLine=(text.split(/\r?\n/)[0]||'');
+      let delim='\t';
+      const tabScore=(firstLine.split('\t').length-1);
+      const commaScore=(firstLine.split(',').length-1);
+      const spaceScore=((firstLine.match(/\s{2,}/g)||[]).length);
+      if(commaScore>tabScore && commaScore>=spaceScore) delim=','; else if(spaceScore>tabScore && spaceScore>commaScore) delim='  ';
+
+      const rows=[]; let row=[]; let field=''; let inQ=false; let i=0; const N=text.length;
+      const isDelim=(ch,pk)=> delim==='\t'? ch==='\t' : (delim===','? ch===',' : (ch===' ' && pk===' '));
+      while(i<N){
+        const ch=text[i], pk=text[i+1];
+        if(ch==='"'){ if(inQ && pk==='"'){ field+='"'; i+=2; continue; } inQ=!inQ; i++; continue; }
+        if(!inQ && (isDelim(ch,pk) || ch==='\n')){
+          row.push(field); field='';
+          if(delim==='  ' && ch===' ' && pk===' '){ while(text[i]===' ') i++; continue; }
+          if(ch==='\n'){ rows.push(row); row=[]; }
+          i++; continue;
+        }
+        if(ch==='\r'){ i++; continue; }
+        field+=ch; i++;
+      }
+      if(field.length||row.length){ row.push(field); rows.push(row); }
+      return rows.filter(r=> r.some(c=> String(c).trim().length));
+    }
+
+    function rowsToItems(rows){
+      if(!rows||!rows.length) return [];
+      const canon=s=> toKey(String(s).replace(/[^A-Za-z0-9]+/g,'').trim());
+      const hdrsRaw=rows[0]||[]; const hdrs=hdrsRaw.map(canon);
+      const idxFromHdr=names=>{ for(const n of names){ const i=hdrs.indexOf(n); if(i>=0) return i; } return -1; };
+
+      let iItem=idxFromHdr(['ITEM','NAME']);
+      let iDesc=idxFromHdr(['DESCRIPTION','DESC']);
+      let iQty = idxFromHdr(['QTY','QUANTITY','COUNT','QUANTITYONHAND']);
+
+      const hasHeader=(iItem>=0);
+      if(!hasHeader){ iItem=0; iDesc=1; iQty=2; }
+
+      const start=hasHeader?1:0; const out=[];
+      for(let r=start;r<rows.length;r++){
+        const row=rows[r]||[];
+        const name=String((row[iItem]!==undefined? row[iItem] : '')).trim(); if(!name) continue;
+        const desc=String((iDesc>=0 && row[iDesc]!==undefined? row[iDesc] : '')).trim();
+        const qtyV=(iQty>=0 && row[iQty]!==undefined)? row[iQty] : 0; const qty=toInt(qtyV,0);
+        out.push({name, desc, qty});
+      }
+      return out;
+    }
+
+    async function ensureXlsx(){
+      if(window.XLSX) return;
+      await new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+        s.onload=res; s.onerror=()=>rej(Error('Failed to load XLSX parser'));
+        document.head.appendChild(s);
+      });
+    }
+    async function ensureDocx(){
+      if(window.mammoth) return;
+      await new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js';
+        s.onload=res; s.onerror=()=>rej(Error('Failed to load DOCX parser'));
+        document.head.appendChild(s);
+      });
+    }
+
+    async function parseDocx(file){
+      await ensureDocx();
+      const buf = await file.arrayBuffer();
+      const result = await window.mammoth.convertToHtml({arrayBuffer: buf});
+      const html = result && result.value ? result.value : '';
+      if(!html) return [];
+
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+
+      const tables = tmp.querySelectorAll('table');
+      const items = [];
+      if(tables.length){
+        tables.forEach(tbl=>{
+          const rows = Array.from(tbl.querySelectorAll('tr'))
+            .map(tr => Array.from(tr.children).map(td => td.textContent.trim()));
+          const parsed = rowsToItems(rows);
+          parsed.forEach(r=> items.push(r));
+        });
+        if(items.length) return items;
+      }
+
+      const lines = Array.from(tmp.querySelectorAll('p'))
+        .map(p=> p.textContent.replace(/\u00a0/g,' ').trim())
+        .filter(s=> s.length);
+      if(lines.length){
+        if(lines.some(l=>/[\t,]/.test(l))){
+          const text = lines.join('\n');
+          return rowsToItems(parseDelimitedSmart(text));
+        }
+        const rows = [];
+        for(let i=0;i<lines.length;i++){
+          const a = lines[i];
+          const b = (i+1 < lines.length) ? lines[++i] : '';
+          rows.push([a, b, '0']);
+        }
+        return rowsToItems(rows);
+      }
+      return [];
+    }
+
+    async function parseAnyFile(file){
+      const ext=(file.name.split('.').pop()||'').toLowerCase();
+      if(ext==='json'){
+        const t=await file.text();
+        try{
+          const p=JSON.parse(t);
+          if(Array.isArray(p.items)) return p.items.map(it=>({name:String(it.name||'').trim(), desc:String(it.desc||''), qty:toInt(it.qty,0)}));
+          if(Array.isArray(p)) return p.map(it=>({name:String(it.Item||it.name||'').trim(), desc:String(it.Description||it.desc||''), qty:toInt(it.Qty||it.qty,0)}));
+        }catch{}
+        return [];
+      }
+      if(ext==='docx' || ext==='doc'){
+        try { return await parseDocx(file); }
+        catch(e){ console.warn('DOCX parse failed', e); return []; }
+      }
+      if(ext==='csv'||ext==='tsv'||ext==='txt'){
+        const t=await file.text(); return rowsToItems(parseDelimitedSmart(t));
+      }
+      if(ext==='xlsx'||ext==='xls'){
+        await ensureXlsx();
+        const buf=await file.arrayBuffer();
+        const wb=XLSX.read(buf,{type:'array'});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const aoa=XLSX.utils.sheet_to_json(ws,{header:1,raw:true});
+        return rowsToItems(aoa);
+      }
+      return [];
+    }
+
+    // ========================
+    // Merge semantics
+    // ========================
+    function mergeSet(imported){
+      const index=new Map(state.items.map(it=>[toKey(it.name), it]));
+      let added=0, updated=0;
+      for(const r of imported){
+        const k=toKey(r.name); if(!k) continue;
+        let it=index.get(k);
+        if(!it){
+          it={id:crypto.randomUUID(), name:r.name.trim(), desc:(r.desc||'').trim(), qty:toInt(r.qty,0)};
+          state.items.push(it); index.set(k,it); added++;
+        }else{
+          if(r.desc && r.desc.trim()) it.desc=r.desc.trim();
+          it.qty=toInt(r.qty,0);
+          updated++;
+        }
+      }
+      dedupe(); setUpdated(); save();
+      return {added, updated, total:imported.length};
+    }
+
+    // ========================
+    // Utilities
+    // ========================
+    function show(id,on=true){ const el=$(id); if(el) el.style.display = on? 'block':'none'; }
+    function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._tmr); t._tmr=setTimeout(()=> t.style.display='none', 2000); }
+
+    // Keyboard-aware scroll area size on iOS
+    document.addEventListener('focusin', (e)=>{
+      if(e.target.matches('input,textarea')){
+        document.querySelector('.scroll')?.style.setProperty('max-height','60vh');
+      }
+    });
+    document.addEventListener('focusout', (e)=>{
+      if(e.target.matches('input,textarea')){
+        document.querySelector('.scroll')?.style.setProperty('max-height','70vh');
+      }
+    });
+
+    // Boot + Service Worker
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      load(); dedupe(); save(); render();
+      const fb=$('filterBox'); if(fb){ fb.value=state._filter||''; fb.addEventListener('input', ()=>{ state._filter=fb.value; renderTable(); }); }
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(console.warn);
+      }
+    });
+  </script>
+</body>
+</html>
