@@ -285,8 +285,20 @@
       if(error) throw error;
     }
     async function sbDeleteMany(ids){
-      const { error } = await SB.client.from('items').delete().in('id', ids);
-      if(error) throw error;
+      const requested = Array.isArray(ids) ? ids.filter(Boolean) : [];
+      if(requested.length===0) return { deleted:0, requested:0 };
+      const { data, error } = await SB.client
+        .from('items')
+        .delete()
+        .in('id', requested)
+        .select('id'); // return deleted rows for verification
+      if (error) throw error;
+      const deleted = (data||[]).map(r=> r.id);
+      const missing = requested.filter(id => !deleted.includes(id));
+      if (missing.length){
+        throw new Error('Server did not delete some ids: '+missing.join(', '));
+      }
+      return { deleted: deleted.length, requested: requested.length };
     }
     async function sbUpsertMany(rows){
       // Load existing rows to build a case-insensitive index by name
@@ -699,11 +711,14 @@ function ensureEmptyState(){
 
       try {
         if (SB.ready) {
-          await sbDeleteMany(ids);
+          const res = await sbDeleteMany(ids);
+          // One-time reconciliation to ensure both devices are consistent
+          await sbLoadSnapshot();
+          toast('Deleted '+res.deleted+'/'+res.requested);
+        } else {
+          toast('Deleted');
         }
-        // success path: reset master checkbox and notify
         const m = $('chkAll'); if (m) { m.checked = false; m.indeterminate = false; }
-        toast('Deleted');
       } catch (e) {
         // rollback on error
         state.items = snapshot; save(); renderTable(); // full redraw only on rollback
