@@ -18,6 +18,12 @@
     window.SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudG1iYXhleWxnbHBvc3B0c3V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MTQ2NjEsImV4cCI6MjA3MjQ5MDY2MX0.vDTzhL0Q-iDZShWu2hcaYOavPLltY31OThXj-ohBjAc";
   </script>
 
+  <script>
+  // Lightweight observability: log JS errors so users can screenshot
+  window.addEventListener('error', e => console.log('JS Error:', e.message, e.error));
+  window.addEventListener('unhandledrejection', e => console.log('Promise Rejection:', e.reason));
+  </script>
+
   <style>
     :root{
       --bg:#24292d;--fg:#eaeff7;--muted:#a9b4c0;--accent:#5aa9ff;
@@ -198,7 +204,7 @@
     // State & persistence
     // ========================
     const DB_KEY='inv.single.inline.mobile.v1';
-    const state={items:[], updatedAt:null, _filter:'', _undo:null};
+    const state={items:[], updatedAt:null, _filter:'', _undoStack:[]};
 
     const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
     const toKey=s=>(s||'').trim().toUpperCase();
@@ -343,6 +349,12 @@
           return name.includes(term) || desc.includes(term) || qty.includes(term);
         });
       }
+      if(items.length===0){
+      const tr=document.createElement('tr');
+      tr.innerHTML = '<td colspan="4" style="padding:16px;text-align:center;color:var(--muted)">No items yet. Use <b>Import File</b> or <b>Paste Data</b> above, or <b>Add Item</b> to create one.</td>';
+      tbody.appendChild(tr);
+      return;
+      }
       for(const it of items){
         const tr=document.createElement('tr'); tr.dataset.id=it.id;
         tr.innerHTML =
@@ -354,7 +366,14 @@
       }
       enableInlineEditing();
     }
-    function refreshUndo(){ const b=$('btnUndo'); if(b) b.disabled = !state._undo; }
+    function refreshUndo(){
+    const b=$('btnUndo');
+    const n = state._undoStack.length;
+    if(b){
+    b.disabled = n===0;
+    b.textContent = n>0 ? `Undo (${n})` : 'Undo';
+    }
+    }
 
     function enableInlineEditing(){
       const tbody=$('#invTable').querySelector('tbody');
@@ -365,15 +384,23 @@
       });
     }
 
-    function pushUndo(it, col, oldVal){ state._undo = { id: it.id, col, old: oldVal, when: Date.now() }; refreshUndo(); }
-    function doUndo(){
-      const u=state._undo; if(!u) return;
-      const it=state.items.find(x=> x.id===u.id); if(!it){ state._undo=null; refreshUndo(); return; }
+    function pushUndo(it, col, oldVal){
+      state._undoStack.push({ id: it.id, col, old: oldVal, when: Date.now() });
+      if(state._undoStack.length > 5) state._undoStack.shift();
+      refreshUndo();
+      }
+      
+     function doUndo(){
+      const u = state._undoStack.pop();
+      if(!u){ refreshUndo(); return; }
+      const it = state.items.find(x=> x.id===u.id);
+      if(!it){ refreshUndo(); return; }
       if(u.col==='name') it.name = String(u.old);
       else if(u.col==='desc') it.desc = String(u.old);
       else if(u.col==='qty') it.qty = toInt(u.old,0);
-      state._undo = null; setUpdated(); save(); refreshUndo(); toast('Undone');
-    }
+      setUpdated(); save(); refreshUndo(); toast('Undone');
+     }
+
     $('btnUndo').addEventListener('click', doUndo);
 
     function startCellEdit(td){
@@ -781,8 +808,7 @@
       if(SB.ready){ await sbLoadSnapshot(); sbStartRealtime(); }
 
       if('serviceWorker' in navigator){
-        navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(console.warn);
-      }
+        navigator.serviceWorker.register('./sw.js?v=8', { scope: './' }).catch(console.warn);      }
     });
   </script>
 </body>

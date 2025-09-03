@@ -1,6 +1,6 @@
 /* Don's Inventory Tracker – offline cache for app + parsers */
-const CACHE = 'inv-cache-v6';
-const PRECACHE = [
+  const CACHE = 'inv-cache-v8';
+  const PRECACHE = [
   // Your entry HTML (update if you rename file)
   './index.html',
   './manifest.webmanifest'
