@@ -945,7 +945,7 @@ function ensureEmptyState(){
 
       // Supabase: if URL/key provided, initialize + load + subscribe
       sbInit();
-      if(SB.ready){ await sbLoadSnapshot(); sbStartRealtime(); }
+      if (SB.ready) { await sbLoadSnapshot(); sbStartRealtime(); toast('Live sync enabled'); }
 
       if('serviceWorker' in navigator){
         navigator.serviceWorker.register('./sw.js?v=10', { scope: './' }).catch(console.warn);      }
