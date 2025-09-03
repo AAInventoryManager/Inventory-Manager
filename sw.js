@@ -1,5 +1,5 @@
 /* Don's Inventory Tracker – offline cache for app + parsers */
-const CACHE = 'inv-cache-v3';
+const CACHE = 'inv-cache-v7';
 const PRECACHE = [
   // Your entry HTML (update if you rename file)
   './index.html',

@@ -73,8 +73,6 @@
     /* low-stock highlighting */
     tr.low td { background: rgba(255, 107, 107, 0.08); }
     tr.low td.qty { color: #ff6b6b; font-weight: 700; }
-    /* compact numeric control for toolbar */
-    .num { width: 82px; text-align:right; }
     .btn:disabled{ opacity:.55; cursor:not-allowed }
     @media (max-width:640px){
       .toolbar{gap:6px}
@@ -101,8 +99,6 @@
         <button class="btn" id="btnAddOne">Add Item</button>
         <button class="btn" id="btnDeleteSelected">Delete Selected</button>
         <button class="btn" id="btnUndo" disabled>Undo</button>
-        <label for="lowThresh" class="muted" style="margin-left:6px">Low≤</label>
-        <input id="lowThresh" class="num" type="number" min="0" step="1" value="5" />
         <input id="filterBox" type="text" placeholder="Filter items…" aria-label="Filter items" />
         <span class="spacer"></span>
         <span class="time" id="lastUpdate" aria-live="polite"></span>
@@ -647,7 +643,6 @@
     document.addEventListener('DOMContentLoaded', async ()=>{
       load(); dedupe(); save(); render();
       const fb=$('filterBox'); if(fb){ fb.value=state._filter||''; fb.addEventListener('input', ()=>{ state._filter=fb.value; renderTable(); }); }
-      const lt=$('lowThresh'); if(lt){ lt.value = toInt(state.lowThreshold,5); lt.addEventListener('change', ()=>{ state.lowThreshold = toInt(lt.value,5); renderTable(); }); }
 
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(console.warn);
