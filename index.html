@@ -70,6 +70,12 @@
     .drop{
       border:1px dashed var(--border);border-radius:10px;padding:12px;text-align:center;color:var(--muted)
     }
+    /* low-stock highlighting */
+    tr.low td { background: rgba(255, 107, 107, 0.08); }
+    tr.low td.qty { color: #ff6b6b; font-weight: 700; }
+    /* compact numeric control for toolbar */
+    .num { width: 82px; text-align:right; }
+    .btn:disabled{ opacity:.55; cursor:not-allowed }
     @media (max-width:640px){
       .toolbar{gap:6px}
       .toolbar .btn{flex:1}
@@ -94,6 +100,9 @@
         <button class="btn" id="btnExportCsv">Export File</button>
         <button class="btn" id="btnAddOne">Add Item</button>
         <button class="btn" id="btnDeleteSelected">Delete Selected</button>
+        <button class="btn" id="btnUndo" disabled>Undo</button>
+        <label for="lowThresh" class="muted" style="margin-left:6px">Low≤</label>
+        <input id="lowThresh" class="num" type="number" min="0" step="1" value="5" />
         <input id="filterBox" type="text" placeholder="Filter items…" aria-label="Filter items" />
         <span class="spacer"></span>
         <span class="time" id="lastUpdate" aria-live="polite"></span>
@@ -158,12 +167,38 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <!-- Import preview modal -->
+  <div id="previewModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <h2 style="margin:0 0 10px;font-size:16px;">Import Preview</h2>
+      <div class="muted" id="previewInfo" style="margin-bottom:10px"></div>
+      <div class="scroll" style="max-height:50vh">
+        <table style="width:100%;border-collapse:collapse;font-size:14px">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border)">Item</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border)">Description</th>
+              <th style="text-align:right;padding:8px;border-bottom:1px solid var(--border)">Old Qty</th>
+              <th style="text-align:right;padding:8px;border-bottom:1px solid var(--border)">New Qty</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border)">Action</th>
+            </tr>
+          </thead>
+          <tbody id="previewBody"></tbody>
+        </table>
+      </div>
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <button class="btn" id="btnPreviewCancel">Cancel</button>
+        <button class="btn primary" id="btnPreviewApply">Apply Import</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ========================
     // State & persistence
     // ========================
     const DB_KEY='inv.single.inline.mobile.v1';
-    const state={items:[], updatedAt:null, _filter:''};
+    const state={items:[], updatedAt:null, _filter:'', lowThreshold:5, _undo:null};
 
     const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
     const toKey=s=>(s||'').trim().toUpperCase();
@@ -187,7 +222,7 @@
     // Rendering & inline edit
     // ========================
     function escapeHtml(s){ return String(s).replace(/[&<>]/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
-    function render(){ renderTable(); renderKpis(); }
+    function render(){ renderTable(); renderKpis(); refreshUndo(); }
     function renderKpis(){
       const el=$('lastUpdate');
       if(!el) return;
@@ -211,6 +246,8 @@
 
       for(const it of items){
         const tr=document.createElement('tr'); tr.dataset.id=it.id;
+        const isLow = toInt(it.qty,0) <= toInt(state.lowThreshold,0);
+        tr.className = isLow ? 'low' : '';
         tr.innerHTML =
           '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
           '<td data-col="name">'+escapeHtml(it.name||'')+'</td>'+
@@ -220,6 +257,7 @@
       }
       enableInlineEditing();
     }
+    function refreshUndo(){ const b=$('btnUndo'); if(b) b.disabled = !state._undo; }
 
     function enableInlineEditing(){
       const tbody=$('#invTable').querySelector('tbody');
@@ -230,6 +268,17 @@
       });
     }
 
+    function pushUndo(it, col, oldVal){ state._undo = { id: it.id, col, old: oldVal, when: Date.now() }; refreshUndo(); }
+    function doUndo(){
+      const u=state._undo; if(!u) return;
+      const it=state.items.find(x=> x.id===u.id); if(!it){ state._undo=null; refreshUndo(); return; }
+      if(u.col==='name') it.name = String(u.old);
+      else if(u.col==='desc') it.desc = String(u.old);
+      else if(u.col==='qty') it.qty = toInt(u.old,0);
+      state._undo = null; setUpdated(); save(); refreshUndo(); toast('Undone');
+    }
+    $('btnUndo').addEventListener('click', doUndo);
+
     function startCellEdit(td){
       if(td.querySelector('input')) return;
       const col=td.getAttribute('data-col'); if(!col) return;
@@ -237,6 +286,8 @@
       const fb = $('filterBox'); if (fb) fb.value = '';
       state._filter = '';
       const oldVal = (col==='qty'? String(toInt(it.qty,0)) : String(col==='name'?it.name:(it.desc||'')));
+      // snapshot for undo
+      pushUndo(it, col, (col==='qty'? toInt(it.qty,0) : (col==='name'? it.name : (it.desc||''))));
       const inp=document.createElement('input');
       inp.type = (col==='qty')? 'number' : 'text';
       if(col==='qty'){ inp.min='0'; inp.step='1'; inp.inputMode='numeric'; inp.pattern='[0-9]*'; inp.setAttribute('enterkeyhint','done'); }
@@ -282,7 +333,8 @@
       const text=$('#pasteArea').value||''; if(!text.trim()){ toast('Nothing to import'); return; }
       const rows=parseDelimitedSmart(text); const items=rowsToItems(rows);
       if(!items.length){ toast('Could not detect headers or rows'); return; }
-      const res=mergeSet(items); toast(`Imported ${res.total}: added ${res.added}, updated ${res.updated}`); show('pasteModal', false);
+      show('pasteModal', false);
+      showPreview(items);
     });
 
     const drop=$('#dropZone');
@@ -298,11 +350,54 @@
       try{
         const items=await parseAnyFile(f);
         if(!items.length){ toast('No rows found in file'); return; }
-        const res=mergeSet(items);
-        toast(`Imported ${res.total}: added ${res.added}, updated ${res.updated}`);
         show('pasteModal', false);
+        showPreview(items);
       }catch(err){ toast(err.message||'Import failed'); }
     }
+    function buildPreview(imported){
+      const index=new Map(state.items.map(it=>[toKey(it.name), it]));
+      const rows=[]; let add=0, upd=0, same=0;
+      for(const r of imported){
+        const k=toKey(r.name); if(!k) continue;
+        const it=index.get(k);
+        if(!it){ rows.push({name:r.name, desc:r.desc||'', oldQty:'—', newQty:toInt(r.qty,0), action:'Add'}); add++; }
+        else{
+          const oldQ=toInt(it.qty,0), newQ=toInt(r.qty,0);
+          const act = (oldQ===newQ && (r.desc||'').trim()===String(it.desc||'').trim())? 'No change' : 'Update';
+          if(act==='Update') upd++; else same++;
+          rows.push({name:it.name, desc:(r.desc||it.desc||''), oldQty:oldQ, newQty:newQ, action:act});
+        }
+      }
+      return {rows, add, upd, same, total: imported.length};
+    }
+
+    function showPreview(imported){
+      const pv=buildPreview(imported);
+      const info=$('previewInfo'); if(info){ info.textContent = `${pv.total} row(s): ${pv.add} add, ${pv.upd} update, ${pv.same} unchanged`; }
+      const tbody=$('previewBody'); if(tbody){
+        tbody.innerHTML='';
+        for(const r of pv.rows){
+          const tr=document.createElement('tr');
+          tr.innerHTML =
+            `<td style="padding:8px;border-bottom:1px solid var(--border)">${escapeHtml(r.name)}</td>`+
+            `<td style="padding:8px;border-bottom:1px solid var(--border)">${escapeHtml(r.desc||'')}</td>`+
+            `<td style="padding:8px;border-bottom:1px solid var(--border);text-align:right">${r.oldQty}</td>`+
+            `<td style="padding:8px;border-bottom:1px solid var(--border);text-align:right">${r.newQty}</td>`+
+            `<td style="padding:8px;border-bottom:1px solid var(--border)">${r.action}</td>`;
+          tbody.appendChild(tr);
+        }
+      }
+      // store pending import on state for apply
+      state._pendingImport = imported;
+      show('previewModal', true);
+    }
+
+    $('btnPreviewCancel').addEventListener('click', ()=>{ state._pendingImport=null; show('previewModal', false); });
+    $('btnPreviewApply').addEventListener('click', ()=>{
+      const imp = state._pendingImport||[]; state._pendingImport=null; show('previewModal', false);
+      const res=mergeSet(imp);
+      toast(`Imported ${res.total}: added ${res.added}, updated ${res.updated}`);
+    });
 
     $('btnExportCsv').addEventListener('click', ()=>{
       const rows=[["Item","Description","Qty"]];
@@ -552,6 +647,7 @@
     document.addEventListener('DOMContentLoaded', async ()=>{
       load(); dedupe(); save(); render();
       const fb=$('filterBox'); if(fb){ fb.value=state._filter||''; fb.addEventListener('input', ()=>{ state._filter=fb.value; renderTable(); }); }
+      const lt=$('lowThresh'); if(lt){ lt.value = toInt(state.lowThreshold,5); lt.addEventListener('change', ()=>{ state.lowThreshold = toInt(lt.value,5); renderTable(); }); }
 
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(console.warn);
