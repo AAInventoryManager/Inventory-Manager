@@ -258,6 +258,7 @@
       _sbChannel = SB.client.channel('items_all')
         .on('postgres_changes', {event:'*', schema:'public', table:'items'}, payload=>{
           const row = payload.new || payload.old;
+          console.log('[realtime]', payload.eventType, row && row.id, row);
           if(payload.eventType==='INSERT'){
             const i = state.items.findIndex(x=> x.id===row.id);
             if(i===-1) state.items.push({id:row.id,name:row.name,desc:row.description||'',qty:toInt(row.qty,0),updatedAt:row.updated_at});
@@ -478,11 +479,31 @@ function ensureEmptyState(){
       if(!u){ refreshUndo(); return; }
       const it = state.items.find(x=> x.id===u.id);
       if(!it){ refreshUndo(); return; }
+
+      // Apply rollback to model
       if(u.col==='name') it.name = String(u.old);
       else if(u.col==='desc') it.desc = String(u.old);
       else if(u.col==='qty') it.qty = toInt(u.old,0);
-      setUpdated(); save(); refreshUndo(); toast('Undone');
-     }
+
+      setUpdated();
+      // Persist without triggering a full render
+      try{ localStorage.setItem(DB_KEY, JSON.stringify(state)); }catch{}
+
+      // Update just what's needed in the DOM
+      if(u.col==='name'){
+        repositionRowByName(it.id);
+      } else if(u.col==='desc'){
+        updateCellDisplay(it.id, 'desc', it.desc||'');
+      } else if(u.col==='qty'){
+        updateCellDisplay(it.id, 'qty', toInt(it.qty,0));
+      }
+      ensureEmptyState();
+
+      // UI chrome
+      refreshUndo();
+      renderKpis();
+      toast('Undone');
+}
 
     $('btnUndo').addEventListener('click', doUndo);
 
