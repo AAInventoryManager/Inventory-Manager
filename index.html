@@ -12,10 +12,9 @@
 
   <!-- Optional: set your Supabase URL and anon key here -->
   <script>
-    // Fill these with your project values (Project Settings → API)
-    // Example:
-    // window.SB_URL  = "https://entmbaxeylglposptsuy.supabase.co";
-    // window.SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudG1iYXhleWxnbHBvc3B0c3V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MTQ2NjEsImV4cCI6MjA3MjQ5MDY2MX0.vDTzhL0Q-iDZShWu2hcaYOavPLltY31OThXj-ohBjAc";
+    // Supabase project credentials (safe to expose anon public key in client)
+    window.SB_URL  = "https://entmbaxeylglposptsuy.supabase.co";
+    window.SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudG1iYXhleWxnbHBvc3B0c3V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MTQ2NjEsImV4cCI6MjA3MjQ5MDY2MX0.vDTzhL0Q-iDZShWu2hcaYOavPLltY31OThXj-ohBjAc";
   </script>
 
   <style>
@@ -232,11 +231,11 @@
       if(!SB.ready) return;
       const { data, error } = await SB.client
         .from('items')
-        .select('id,name,desc,qty,updated_at')
+        .select('id,name,description,qty,updated_at')
         .order('name', { ascending:true });
       if(error){ console.warn('Supabase load error', error); return; }
       state.items = (data||[]).map(r => ({
-        id:r.id, name:r.name||'', desc:r.desc||'', qty:toInt(r.qty,0), updatedAt:r.updated_at||null
+        id:r.id, name:r.name||'', desc:r.description||'', qty:toInt(r.qty,0), updatedAt:r.updated_at||null
       }));
       setUpdated(); render();
     }
@@ -249,10 +248,10 @@
           const row = payload.new || payload.old;
           if(payload.eventType==='INSERT'){
             const i = state.items.findIndex(x=> x.id===row.id);
-            if(i===-1) state.items.push({id:row.id,name:row.name,desc:row.desc||'',qty:toInt(row.qty,0),updatedAt:row.updated_at});
+            if(i===-1) state.items.push({id:row.id,name:row.name,desc:row.description||'',qty:toInt(row.qty,0),updatedAt:row.updated_at});
           }else if(payload.eventType==='UPDATE'){
             const it = state.items.find(x=> x.id===row.id);
-            if(it){ it.name=row.name; it.desc=row.desc||''; it.qty=toInt(row.qty,0); it.updatedAt=row.updated_at; }
+            if(it){ it.name=row.name; it.desc=row.description||''; it.qty=toInt(row.qty,0); it.updatedAt=row.updated_at; }
           }else if(payload.eventType==='DELETE'){
             state.items = state.items.filter(x=> x.id!==row.id);
           }
@@ -262,13 +261,13 @@
     }
     async function sbAddItem(name, desc, qty){
       const id = crypto.randomUUID();
-      const { error } = await SB.client.from('items').insert([{ id, name, desc:desc||'', qty:toInt(qty,0) }]);
+      const { error } = await SB.client.from('items').insert([{ id, name, description:desc||'', qty:toInt(qty,0) }]);
       if(error) throw error; return id;
     }
     async function sbUpdateFields(id, fields){
       const clean = {};
       if('name' in fields) clean.name = String(fields.name||'');
-      if('desc' in fields) clean.desc = String(fields.desc||'');
+      if('desc' in fields) clean.description = String(fields.desc||'');
       if('qty'  in fields) clean.qty  = toInt(fields.qty,0);
       const { error } = await SB.client.from('items').update(clean).eq('id', id);
       if(error) throw error;
@@ -278,13 +277,45 @@
       if(error) throw error;
     }
     async function sbUpsertMany(rows){
-      const payload = rows.map(r => ({
-        name:(r.name||'').trim(),
-        desc:(r.desc||'').trim(),
-        qty: toInt(r.qty,0)
-      }));
-      const { error } = await SB.client.from('items').upsert(payload, { onConflict:'name' });
-      if(error) throw error;
+      // Load existing rows to build a case-insensitive index by name
+      const { data: existing, error: selErr } = await SB.client
+        .from('items')
+        .select('id,name,description,qty');
+      if (selErr) throw selErr;
+
+      const idx = new Map((existing||[]).map(it => [toKey(it.name), it]));
+      const toInsert = [];
+      const toUpdate = [];
+
+      for (const r of rows){
+        const k = toKey(r.name); if (!k) continue;
+        const ex = idx.get(k);
+        const name = String(r.name||'').trim();
+        const description = String(r.desc||'').trim();
+        const qty = toInt(r.qty,0);
+
+        if (!ex){
+          toInsert.push({ name, description, qty });
+        } else {
+          toUpdate.push({ id: ex.id, name, description: (description || ex.description || ''), qty });
+        }
+      }
+
+      if (toInsert.length){
+        const { error: insErr } = await SB.client.from('items').insert(toInsert);
+        if (insErr) throw insErr;
+      }
+      // Upsert updates by primary key id (safe and efficient)
+      if (toUpdate.length){
+        // Chunk to avoid payload limits
+        const chunks = [];
+        const size = 500;
+        for (let i=0;i<toUpdate.length;i+=size) chunks.push(toUpdate.slice(i, i+size));
+        for (const part of chunks){
+          const { error: upErr } = await SB.client.from('items').upsert(part, { onConflict: 'id' });
+          if (upErr) throw upErr;
+        }
+      }
     }
 
     // ========================
