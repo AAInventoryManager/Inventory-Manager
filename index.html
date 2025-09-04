@@ -74,7 +74,8 @@
       background:#0d131b;color:#fff;font-size:16px
     }
     .headwrap{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:nowrap}
-    .logo{height:clamp(18px,4vw,28px);width:auto;display:block}
+    .logo{height:auto;width:auto;display:block}
+    .hero-logo{height:clamp(36px,8vw,56px); margin:10px auto 0 auto;}
     #filterBox{
       flex:1; min-width:160px; max-width:320px;
       padding:12px;border-radius:10px;border:1px solid var(--border);
@@ -99,18 +100,17 @@
       .toolbar .btn{flex:1}
       .scroll{max-height:calc(100vh - 240px)}
     }
-    @media (max-width:420px){ .logo.logo-right{ display:none } }
+    /* no right-side logo anymore */
     @media (max-width:360px){ .toolbar{gap:4px} }
   </style>
 </head>
 <body>
   <header>
     <div class="headwrap">
-      <img class="logo logo-left" src="./logo-aa.png" alt="" aria-hidden="true" />
       <h1>Don's Inventory Tracker <span class="ver" id="verBadge"></span></h1>
-      <img class="logo logo-right" src="./logo-aa.png" alt="American Access logo" />
     </div>
     <div id="statusBar" class="status">Checking server…</div>
+    <img class="logo hero-logo" src="./logo-aa.png" alt="American Access logo" />
   </header>
 
   <main>
