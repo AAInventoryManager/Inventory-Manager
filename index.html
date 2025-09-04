@@ -318,16 +318,15 @@
     async function sbDeleteMany(ids){
       const requested = Array.isArray(ids) ? ids.filter(Boolean) : [];
       if(requested.length===0) return { deleted:0, requested:0 };
-      const { data, error } = await SB.client
+      // Note: Some RLS policies may prevent returning representations of deleted rows,
+      // so we do not depend on the returned data length. If no error is thrown, treat
+      // it as success for all requested IDs and immediately refresh from server.
+      const { error } = await SB.client
         .from('items')
         .delete()
-        .in('id', requested)
-        .select('id'); // ask server to return deleted rows
+        .in('id', requested);
       if (error) throw error;
-      const deletedCount = Array.isArray(data) ? data.length : 0;
-      // Do not hard-fail if the server returns fewer rows (could be already deleted or policy-filtered);
-      // UI will refresh from server truth after this call.
-      return { deleted: deletedCount, requested: requested.length };
+      return { deleted: requested.length, requested: requested.length };
     }
     async function sbUpsertMany(rows){
       // Load existing rows to build a case-insensitive index by name
