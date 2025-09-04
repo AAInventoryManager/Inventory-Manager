@@ -6,7 +6,8 @@ const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest?v=3',
-  './favicon.ico'
+  './favicon.ico',
+  './logo-aa.png'
 ];
 
 // Take control immediately on install / activate
