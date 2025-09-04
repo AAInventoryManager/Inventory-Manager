@@ -126,7 +126,7 @@
   <main>
     <section class="card">
       <div class="toolbar" role="toolbar" aria-label="Inventory actions">
-        <input type="file" id="fileImport" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.docx,.doc" style="display:none" />
+        <input type="file" id="fileImport" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.docx,.doc,.pdf" style="display:none" />
         <button class="btn" id="btnImport">Import File</button>
         <button class="btn" id="btnPaste">Paste Data</button>
         <button class="btn" id="btnExportCsv">Export File</button>
@@ -164,8 +164,8 @@
         Provide columns <code>Item, Description, Qty</code>. Headers optional; Qty optional (defaults to 0).
         Tabs, commas, or multi-space columns are accepted. You may also drop or choose a file.
       </div>
-      <div class="drop" id="dropZone">Drop a CSV/TSV/TXT/JSON/XLSX/XLS/DOCX file here, or choose below.</div>
-      <input type="file" id="fileImportModal" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.docx,.doc" style="display:block;margin:10px 0;" />
+      <div class="drop" id="dropZone">Drop a CSV/TSV/TXT/JSON/XLSX/XLS/DOCX/PDF file here, or choose below.</div>
+      <input type="file" id="fileImportModal" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.docx,.doc,.pdf" style="display:block;margin:10px 0;" />
       <textarea id="pasteArea" rows="8" placeholder="Item, Description, Qty"></textarea>
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
         <span id="pasteInfo" class="muted" style="margin-right:auto"></span>
@@ -778,6 +778,54 @@ function ensureEmptyState(){
         document.head.appendChild(s);
       });
     }
+    async function ensurePdf(){
+      if(window.pdfjsLib) return;
+      await new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.min.js';
+        s.onload=res; s.onerror=()=>rej(Error('Failed to load PDF parser'));
+        document.head.appendChild(s);
+      });
+      // Configure worker
+      if(window.pdfjsLib){
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.worker.min.js';
+      }
+    }
+    async function parsePdf(file){
+      await ensurePdf();
+      const buf = await file.arrayBuffer();
+      const doc = await window.pdfjsLib.getDocument({ data: buf }).promise;
+      const allLines = [];
+      for(let p=1; p<=doc.numPages; p++){
+        const page = await doc.getPage(p);
+        const tc = await page.getTextContent();
+        const rows = new Map(); // y -> [{x,str}]
+        for(const item of tc.items){
+          const t = (item.str||'').trim(); if(!t) continue;
+          const tr = item.transform || [0,0,0,0,0,0];
+          const x = tr[4] || 0; const y = Math.round(tr[5] || 0);
+          if(!rows.has(y)) rows.set(y, []);
+          rows.get(y).push({ x, str:t });
+        }
+        // Sort by Y descending (PDF origin bottom-left), then by X asc
+        const yKeys = Array.from(rows.keys()).sort((a,b)=> b-a);
+        for(const y of yKeys){
+          const cols = rows.get(y).sort((a,b)=> a.x-b.x).map(o=> o.str);
+          const line = cols.join(' ').replace(/\s{2,}/g,'  ').trim();
+          if(line) allLines.push(line);
+        }
+      }
+      // Try to parse with existing delimited parser
+      if(allLines.length){
+        const text = allLines.join('\n');
+        const items = rowsToItems(parseDelimitedSmart(text));
+        if(items.length) return items;
+        // Fallback: pairwise lines as name/desc with qty 0
+        const rows=[]; for(let i=0;i<allLines.length;i+=2){ rows.push([allLines[i]||'', allLines[i+1]||'', '0']); }
+        return rowsToItems(rows);
+      }
+      return [];
+    }
     async function parseDocx(file){
       await ensureDocx();
       const buf = await file.arrayBuffer();
@@ -825,6 +873,7 @@ function ensureEmptyState(){
         }catch{}
         return [];
       }
+      if(ext==='pdf'){ try { return await parsePdf(file); } catch { return []; } }
       if(ext==='docx' || ext==='doc'){ try { return await parseDocx(file); } catch{ return []; } }
       if(ext==='csv'||ext==='tsv'||ext==='txt'){ const t=await file.text(); return rowsToItems(parseDelimitedSmart(t)); }
       if(ext==='xlsx'||ext==='xls'){
