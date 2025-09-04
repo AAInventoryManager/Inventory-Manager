@@ -42,6 +42,10 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return; // let network handle writes
 
+  // Only handle same-origin requests; let cross-origin (e.g., Supabase API) bypass
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+
   const accept = req.headers.get('accept') || '';
   const isHTML = req.mode === 'navigate' || accept.includes('text/html');
 
