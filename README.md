@@ -1,5 +1,10 @@
 # Don's Inventory Tracker
 
+## What's New
+- v1.0.2: UI polish, column sorting with arrows, dynamic Description sizing, status text with version, PWA icons/cache bump.
+  See full changelog: [CHANGELOG.md](./CHANGELOG.md).
+
+
 A lightweight, mobile‑friendly inventory app that runs entirely in the browser. It supports inline editing, easy import/export, and real‑time cloud sync via Supabase.
 
 ![screenshot](./screenshot.png)
@@ -131,3 +136,8 @@ Notes:
 
 Copyright © 2025. All rights reserved.
 
+
+
+## Releases
+- Latest: [v1.0.2](https://github.com/AAInventoryManager/Inventory-Manager/releases/latest)
+- All releases: https://github.com/AAInventoryManager/Inventory-Manager/releases
