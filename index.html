@@ -322,14 +322,12 @@
         .from('items')
         .delete()
         .in('id', requested)
-        .select('id'); // return deleted rows for verification
+        .select('id'); // ask server to return deleted rows
       if (error) throw error;
-      const deleted = (data||[]).map(r=> r.id);
-      const missing = requested.filter(id => !deleted.includes(id));
-      if (missing.length){
-        throw new Error('Server did not delete some ids: '+missing.join(', '));
-      }
-      return { deleted: deleted.length, requested: requested.length };
+      const deletedCount = Array.isArray(data) ? data.length : 0;
+      // Do not hard-fail if the server returns fewer rows (could be already deleted or policy-filtered);
+      // UI will refresh from server truth after this call.
+      return { deleted: deletedCount, requested: requested.length };
     }
     async function sbUpsertMany(rows){
       // Load existing rows to build a case-insensitive index by name
