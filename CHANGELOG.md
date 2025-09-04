@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.2 — UI polish, sorting, PWA
+- Header alignment: title/status left, logo right; constrained to table width
+- Title styling: larger, bolder NASA-like font (Barlow)
+- Sortable columns: Item/Description/Qty with persistent sort and arrows
+- Description column: dynamic width on desktop, wraps on mobile
+- Status text: embedded version + uppercase state; pill removed
+- PWA: added icons (192/512), bumped SW cache to v14; manifest v4
+
 ## v1.0.1 — Server-first UI and connectivity
 - Server-only rendering: snapshot load + realtime; no local item copies
 - Offline edits blocked; status banner shows Connected/Offline
