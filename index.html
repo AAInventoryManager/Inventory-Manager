@@ -31,7 +31,7 @@
   <style>
     :root{
       --bg:#24292d;--fg:#eaeff7;--muted:#a9b4c0;--accent:#5aa9ff;
-      --card:#000000;--border:#1f2a36
+      --card:#000000;--border:#1f2a36;--title-min:12px;--title-max:56px
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -48,7 +48,7 @@
 .status{margin-top:8px;display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;background:#0d1420;color:#9fb3c8}
 .status.online{color:#ffffff;background:#0f2d18;border-color:#1b5432}
 .status.offline{color:#ffffff;background:#2a1212;border-color:#5a1c1c}
-    h1{margin:0;text-align:left;font-family:'Barlow',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; font-weight:800; font-size:clamp(33px,6vw,51px); letter-spacing:1px}
+    h1{margin:0;text-align:left;font-family:'Barlow',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; font-weight:800; font-size:clamp(var(--title-min), 6vw, var(--title-max)); letter-spacing:1px}
     main{padding:12px;max-width:1100px;margin:0 auto}
     .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
     .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -122,7 +122,14 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     }
     /* no right-side logo anymore */
     @media (max-width:360px){ .toolbar{gap:4px} }
-  </style>
+  
+    @media (max-width: 480px){
+      header{ padding: calc(12px + env(safe-area-inset-top)) 12px 12px; }
+      .header-inner{ padding: 0 12px; }
+      .brandrow{ gap:8px }
+      .brand-logo{ height:36px }
+    }
+</style>
 </head>
 <body>
   <header>
@@ -436,7 +443,9 @@ function adjustTitleSize(){
     if(!h1||!wrap) return;
     h1.style.whiteSpace='nowrap'; h1.style.maxWidth='100%';
     h1.style.fontSize='';
-    const min=12, max=56;
+    const rootStyles = getComputedStyle(document.documentElement);
+    let min = parseFloat(rootStyles.getPropertyValue('--title-min')) || 12;
+    let max = parseFloat(rootStyles.getPropertyValue('--title-max')) || 56;
     let size=parseFloat(getComputedStyle(h1).fontSize)||32;
     const room = Math.max(0, wrap.getBoundingClientRect().width - 8);
     const fits = ()=> h1.scrollWidth <= room;
