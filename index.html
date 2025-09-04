@@ -70,7 +70,7 @@
       text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);
       padding:12px;position:sticky;top:0;background:var(--card);z-index:7;box-shadow:0 2px 0 rgba(0,0,0,.2);
     
-      white-space: nowrap;
+      white-space:nowrap;
     }
     th.sortable{ cursor:pointer; user-select:none }
     th.sortable .sort-ind{ margin-left:6px; opacity:.85; display:inline }
@@ -80,7 +80,7 @@
 tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
     /* Description column responsive behavior */
     @media (max-width: 768px){ td[data-col="desc"], th[data-col="desc"]{ white-space: normal; word-break: break-word; hyphens: auto; } }
-    @media (min-width: 769px){ td[data-col="desc"], th[data-col="desc"]{ white-space: nowrap; } }
+    @media (min-width: 769px){ td[data-col="desc"], th[data-col="desc"]{ white-space:nowrap; } }
     td.qty{text-align:right;font-variant-numeric:tabular-nums}
     th.sel, td.sel{ width:42px; text-align:center }
     input[type=text],input[type=number],textarea{
