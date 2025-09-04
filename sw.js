@@ -30,20 +30,39 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return; // let network handle writes
 
+  const accept = req.headers.get('accept') || '';
+  const isHTML = req.mode === 'navigate' || accept.includes('text/html');
+
+  if (isHTML) {
+    // Network-first for HTML: ensures latest index loads without cache bumps
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE);
+      try {
+        const res = await fetch(req);
+        if (res && res.status === 200 && (res.type === 'basic' || res.type === 'cors')) {
+          cache.put(req, res.clone());
+        }
+        return res;
+      } catch (err) {
+        // Fallback to cached index or the specific request if present
+        return (await cache.match('./index.html')) || (await cache.match(req)) || Response.error();
+      }
+    })());
+    return;
+  }
+
+  // Cache-first for non-HTML assets
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const cached = await cache.match(req);
     if (cached) return cached;
-
     try {
       const res = await fetch(req);
-      // Cache only successful same-origin responses
       if (res && res.status === 200 && (res.type === 'basic' || res.type === 'cors')) {
         cache.put(req, res.clone());
       }
       return res;
     } catch (err) {
-      // If offline and no cache, fail gracefully
       return cached || Response.error();
     }
   })());
