@@ -68,16 +68,16 @@
     table{width:100%;border-collapse:collapse;font-size:15px}
     thead th{
       text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);
-      padding:12px;position:sticky;top:0;background:var(--card);z-index:7;box-shadow:0 2px 0 rgba(0,0,0,.2)
+      padding:12px;position:sticky;top:0;background:var(--card);z-index:7;box-shadow:0 2px 0 rgba(0,0,0,.2);
     
-      white-space nowrap
+      white-space: nowrap;
     }
     th.sortable{ cursor:pointer; user-select:none }
     th.sortable .sort-ind{ margin-left:6px; opacity:.85; display:inline }
     
     th.sorted-asc .sort-ind::before{ content:'\25B2'; opacity:1 }
-    th.sorted-desc .sort-ind::before{ content:'\25BC'; opacity:1 }th[aria-sort=\"ascending\"] .sort-ind::before{ content:'▲' }
-    tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+    th.sorted-desc .sort-ind::before{ content:'\25BC'; opacity:1 }
+tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
     /* Description column responsive behavior */
     @media (max-width: 768px){ td[data-col="desc"], th[data-col="desc"]{ white-space: normal; word-break: break-word; hyphens: auto; } }
     @media (min-width: 769px){ td[data-col="desc"], th[data-col="desc"]{ white-space: nowrap; } }
@@ -94,7 +94,7 @@
     .logo{height:auto;width:auto;display:block}
     .brandrow{display:flex;align-items:center;justify-content:space-between;gap:14px}
     .brand-logo{height:clamp(58px,10vw,96px); width:auto}
-    .brandtext{display:flex;flex-direction:column;align-items:flex-start}
+    .brandtext{display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:0;}
     #filterBox{
       flex:1; min-width:160px; max-width:320px;
       padding:12px;border-radius:10px;border:1px solid var(--border);
@@ -436,17 +436,17 @@ function adjustTitleSize(){
     if(!h1||!wrap) return;
     h1.style.whiteSpace='nowrap'; h1.style.maxWidth='100%';
     h1.style.fontSize='';
-    const min=18, max=56;
+    const min=12, max=56;
     let size=parseFloat(getComputedStyle(h1).fontSize)||32;
-    if(h1.scrollWidth>wrap.clientWidth){
-      while(size>min && h1.scrollWidth>wrap.clientWidth){ size-=1; h1.style.fontSize=size+'px'; }
+    const room = Math.max(0, wrap.getBoundingClientRect().width - 8);
+    const fits = ()=> h1.scrollWidth <= room;
+    if(!fits()){
+      while(size>min && !fits()){ size-=1; h1.style.fontSize=size+'px'; }
     }else{
-      while(size<max){ h1.style.fontSize=(size+1)+'px'; if(h1.scrollWidth>wrap.clientWidth){ h1.style.fontSize=size+'px'; break; } size+=1; }
+      while(size<max){ h1.style.fontSize=(size+1)+'px'; if(!fits()){ h1.style.fontSize=size+'px'; break; } size+=1; }
     }
   }catch(e){}
 }
-
-
 
 function getSort(){ return state._sort || {col:'name',dir:'asc'}; }
 function applySortIndicators(){
@@ -1083,7 +1083,7 @@ function ensureEmptyState(){
     // Boot
     document.addEventListener('DOMContentLoaded', async ()=>{
       load(); render();
-      try{ adjustTitleSize(); }catch(e){}
+      try{ adjustTitleSize(); if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=> requestAnimationFrame(adjustTitleSize)); } }catch(e){}
       const fb=$('filterBox'); if(fb){ fb.value=state._filter||''; fb.addEventListener('input', ()=>{ state._filter=fb.value; renderTable(); save(); }); }
 
       document.querySelectorAll('#invTable thead th.sortable').forEach(th=>{ th.addEventListener('click', ()=>{ const col=th.getAttribute('data-col'); if(!col) return; const srt=getSort(); if(srt.col===col){ state._sort={col, dir:(srt.dir==='asc'?'desc':'asc')}; } else { state._sort={col, dir:'asc'}; } renderTable(); save(); }); });
