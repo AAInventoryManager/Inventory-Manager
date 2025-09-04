@@ -103,6 +103,7 @@
     .drop{
       border:1px dashed var(--border);border-radius:10px;padding:12px;text-align:center;color:var(--muted)
     }
+    .totals{ display:flex; justify-content:flex-end; margin:6px 0 4px; }
     @media (max-width:640px){
       .toolbar{gap:6px}
       .toolbar .btn{flex:1}
@@ -136,6 +137,8 @@
         <span class="spacer"></span>
         <span class="time" id="lastUpdate" aria-live="polite"></span>
       </div>
+
+      <div class="totals" aria-live="polite"><span id="totalQty" class="muted">Total Qty: 0</span></div>
 
       <div class="scroll" id="tableWrap">
         <table id="invTable" role="grid" aria-label="Inventory table">
@@ -476,6 +479,12 @@ function ensureEmptyState(){
           const qty = String(toInt(it.qty,0));
           return name.includes(term) || desc.includes(term) || qty.includes(term);
         });
+      }
+      // Update Total Qty for the currently displayed items
+      const totalEl = $('totalQty');
+      if (totalEl) {
+        const total = items.reduce((sum, it) => sum + toInt(it.qty,0), 0);
+        totalEl.textContent = `Total Qty: ${total}`;
       }
       if(items.length===0){
       const tr=document.createElement('tr');
