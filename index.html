@@ -904,7 +904,21 @@ function ensureEmptyState(){
       setInterval(checkServerHealth, 15000);
 
       if('serviceWorker' in navigator){
-        navigator.serviceWorker.register('./sw.js?v=12', { scope: './' }).catch(console.warn);      }
+        // Listen for SW activation and update flow
+        let _swReloaded = false;
+        navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+          if(_swReloaded) return; _swReloaded = true;
+          try{ toast('App updated. Reloading…'); }catch{}
+          setTimeout(()=> location.reload(), 400);
+        });
+        navigator.serviceWorker.addEventListener('message', (e)=>{
+          if(!e || !e.data) return;
+          if(e.data.type === 'SW_ACTIVATED'){
+            // No-op: controllerchange handler above will handle reload UX
+          }
+        });
+        navigator.serviceWorker.register('./sw.js?v=12', { scope: './' }).catch(console.warn);
+      }
     });
   </script>
 </body>

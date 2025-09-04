@@ -22,7 +22,19 @@ self.addEventListener('activate', (event) => {
     const keys = await caches.keys();
     await Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)));
     await self.clients.claim();
+    try {
+      const clis = await self.clients.matchAll({ type: 'window' });
+      clis.forEach(c => c.postMessage({ type: 'SW_ACTIVATED', cache: CACHE }));
+    } catch (_) {}
   })());
+});
+
+// Optional: accept a manual skipWaiting message from clients
+self.addEventListener('message', (event) => {
+  if (!event || !event.data) return;
+  if (event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // Cache-first for GET; bypass for non-GET (POST/PUT/DELETE)
