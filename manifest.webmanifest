@@ -1,7 +1,7 @@
 {
   "name": "Don's Inventory Tracker",
   "short_name": "Don's Inv",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0b0f14",
