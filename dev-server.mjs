@@ -83,7 +83,7 @@ function getAllowedDomains() {
   return parts.length ? new Set(parts) : null;
 }
 
-async function sendViaMailtrapApi({ to, subject, text }) {
+async function sendViaMailtrapApi({ to, subject, text, html, replyTo }) {
   const token = String(process.env.MAILTRAP_API_TOKEN || process.env.MAILTRAP_TOKEN || '').trim();
   const fromEmail = String(process.env.MAILTRAP_FROM_EMAIL || process.env.MAIL_FROM_EMAIL || '').trim();
   const fromName = String(process.env.MAILTRAP_FROM_NAME || process.env.MAIL_FROM_NAME || "Don's Inventory Tracker").trim();
@@ -92,18 +92,22 @@ async function sendViaMailtrapApi({ to, subject, text }) {
   if (!token) throw Object.assign(new Error('MAILTRAP_API_TOKEN is not configured'), { status: 501 });
   if (!fromEmail) throw Object.assign(new Error('MAILTRAP_FROM_EMAIL is not configured'), { status: 501 });
 
+  const payload = {
+    from: { email: fromEmail, name: fromName },
+    to: [{ email: to }],
+    subject,
+  };
+  if (text) payload.text = text;
+  if (html) payload.html = html;
+  if (replyTo) payload.headers = { 'Reply-To': replyTo };
+
   const resp = await fetch(baseUrl, {
     method: 'POST',
     headers: {
       authorization: `Bearer ${token}`,
       'content-type': 'application/json',
     },
-    body: JSON.stringify({
-      from: { email: fromEmail, name: fromName },
-      to: [{ email: to }],
-      subject,
-      text,
-    }),
+    body: JSON.stringify(payload),
   });
 
   const raw = await resp.text();
@@ -224,7 +228,7 @@ async function main() {
 
         let bodyRaw = '';
         try {
-          bodyRaw = await readBody(req);
+          bodyRaw = await readBody(req, 200_000);
         } catch (e) {
           if (e && e.code === 'ETOOLARGE') {
             json(res, 413, { ok: false, error: 'Request too large' });
@@ -242,11 +246,17 @@ async function main() {
         }
 
         const to = String(body?.to || body?.toEmail || body?.email || '').trim();
-        const subject = String(body?.subject || 'Materials Order').trim();
+        const subject = String(body?.subject || 'Material Order').trim();
         const text = String(body?.text || body?.body || '').trim();
+        const html = String(body?.html || '').trim();
+        const replyTo = String(body?.replyTo || body?.reply_to || '').trim();
 
         if (!looksLikeEmail(to)) {
           json(res, 400, { ok: false, error: 'Invalid recipient email' });
+          return;
+        }
+        if (replyTo && !looksLikeEmail(replyTo)) {
+          json(res, 400, { ok: false, error: 'Invalid reply-to email' });
           return;
         }
 
@@ -262,13 +272,21 @@ async function main() {
           json(res, 400, { ok: false, error: 'Invalid subject' });
           return;
         }
-        if (!text || text.length > 20_000) {
-          json(res, 400, { ok: false, error: 'Invalid body' });
+        if (!text && !html) {
+          json(res, 400, { ok: false, error: 'Missing body' });
+          return;
+        }
+        if (text && text.length > 20_000) {
+          json(res, 400, { ok: false, error: 'Body too long' });
+          return;
+        }
+        if (html && html.length > 80_000) {
+          json(res, 400, { ok: false, error: 'HTML body too long' });
           return;
         }
 
         try {
-          const result = await sendViaMailtrapApi({ to, subject, text });
+          const result = await sendViaMailtrapApi({ to, subject, text, html, replyTo });
           json(res, 200, { ok: true, result });
         } catch (e) {
           const status = Number.isFinite(e?.status) ? e.status : 500;
@@ -299,4 +317,3 @@ main().catch((e) => {
   console.error(e);
   process.exit(1);
 });
-

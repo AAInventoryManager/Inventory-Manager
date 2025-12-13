@@ -245,6 +245,48 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     .order-preview summary::after{ content:'▾'; float:right; color:var(--muted); }
     .order-preview[open] summary::after{ content:'▴'; }
     .order-preview textarea{ margin-top:10px; }
+    .history-list{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+    .history-item{
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#000;
+      padding:10px;
+    }
+    .history-item summary{
+      cursor:pointer;
+      list-style:none;
+      font-weight:800;
+      user-select:none;
+    }
+    .history-item summary::-webkit-details-marker{ display:none; }
+    .history-item summary::after{ content:'▾'; float:right; color:var(--muted); }
+    .history-item[open] summary::after{ content:'▴'; }
+    .history-meta{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:600;
+    }
+    .history-kv{ margin-top:10px; font-size:13px; }
+    .history-kv div{ margin-top:4px; }
+    .history-table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:10px;
+      font-size:14px;
+    }
+    .history-table th,
+    .history-table td{ padding:8px; border-bottom:1px solid var(--border); }
+    .history-table th{
+      text-align:left;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .history-table td.qty{
+      text-align:right;
+      font-variant-numeric:tabular-nums;
+      font-weight:800;
+    }
     .drop{
       border:1px dashed var(--border);border-radius:10px;padding:12px;text-align:center;color:var(--muted)
     }
@@ -396,7 +438,10 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
   <div id="orderModal" class="modal" aria-hidden="true">
     <div class="box order-box">
       <div class="order-header">
-        <h2>Create Order</h2>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <h2>Create Order</h2>
+          <button class="btn small" id="btnOrderHistory" type="button">History</button>
+        </div>
         <div class="muted" style="margin-top:6px;">Pick materials, set quantities, then send.</div>
       </div>
 
@@ -424,6 +469,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
           <div class="muted" id="orderPickHelp" style="margin-top:8px;"></div>
           <div class="muted" id="orderContactNote" style="margin-top:4px;"></div>
           <div id="orderEmailSuggest" class="order-suggest" aria-label="Email suggestions"></div>
+          <div class="muted" id="orderReplyToNote" style="margin-top:8px;"></div>
         </div>
 
         <div class="section">
@@ -431,7 +477,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
           <div style="display:grid; grid-template-columns:1fr; gap:10px;">
             <div>
               <div class="muted" style="margin-bottom:6px;">Subject</div>
-              <input id="orderSubject" type="text" placeholder="Materials Order" />
+              <input id="orderSubject" type="text" placeholder="Material Order" />
             </div>
             <div>
               <div class="muted" style="margin-bottom:6px;">Notes (optional)</div>
@@ -450,6 +496,21 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
         <button class="btn" id="btnOrderCopy">Copy</button>
         <button class="btn primary order-send" id="btnOrderSubmit">Send</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Order history -->
+  <div id="orderHistoryModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;">Order History</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn" id="btnOrderHistoryRefresh" type="button">Refresh</button>
+          <button class="btn" id="btnOrderHistoryClose" type="button">Close</button>
+        </div>
+      </div>
+      <div class="muted" style="margin-top:6px;">Times shown in Eastern (EST/EDT).</div>
+      <div id="orderHistoryList" class="history-list" aria-live="polite"></div>
     </div>
   </div>
 
@@ -500,7 +561,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     // State & persistence
     // ========================
     const DB_KEY='inv.single.inline.mobile.v1';
-    const state={items:[], updatedAt:null, _filter:'', _sort:{col:'name', dir:'asc'}, _order:{lines:[], email:'', subject:'Materials Order', notes:'', contactName:'', search:''}};
+    const state={items:[], updatedAt:null, _filter:'', _sort:{col:'name', dir:'asc'}, _order:{lines:[], email:'', subject:'Material Order', notes:'', contactName:'', search:''}};
     const APP_VERSION = '1.0.3';
 
     const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
@@ -1325,9 +1386,54 @@ function ensureEmptyState(){
     // ========================
     // Order engine (email-based)
     // ========================
+    function getSignedInEmail(){
+      return (SB && SB.user && SB.user.email) ? String(SB.user.email).trim() : '';
+    }
+    function userNameFromEmail(email){
+      const e = String(email || '').trim();
+      const local = e.includes('@') ? e.split('@')[0] : e;
+      const cleaned = local
+        .replace(/[._-]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if(!cleaned) return '';
+      return cleaned
+        .split(' ')
+        .map(w => w ? (w[0].toUpperCase() + w.slice(1)) : '')
+        .join(' ')
+        .trim();
+    }
+    function formatEasternDateTime(value){
+      const d = (value instanceof Date) ? value : new Date(value);
+      try{
+        return new Intl.DateTimeFormat('en-US', {
+          timeZone: 'America/New_York',
+          year: 'numeric',
+          month: 'short',
+          day: '2-digit',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+          timeZoneName: 'short',
+        }).format(d);
+      }catch{
+        return d.toLocaleString(undefined, { hour12:true });
+      }
+    }
+    function defaultOrderSubject(){
+      const name = userNameFromEmail(getSignedInEmail());
+      return name ? `${name} - Material Order` : 'Material Order';
+    }
+    function orderActiveLines(){
+      const ord = orderState();
+      return ord.lines
+        .filter(l => toInt(l.qty, 0) > 0)
+        .slice()
+        .sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
+    }
     function orderState(){
       if(!state._order){
-        state._order = { lines:[], email:'', subject:'Materials Order', notes:'', contactName:'', search:'' };
+        state._order = { lines:[], email:'', subject:defaultOrderSubject(), notes:'', contactName:'', search:'' };
       }
       return state._order;
     }
@@ -1357,25 +1463,29 @@ function ensureEmptyState(){
     }
     function buildOrderBody(){
       const ord = orderState();
-      const when = new Date().toLocaleString(undefined, { hour12:true });
+      const when = formatEasternDateTime(new Date());
+      const replyTo = getSignedInEmail();
+      const subjectLine = String(ord.subject||'').trim() || defaultOrderSubject();
       const out = [];
-      out.push('Materials Order');
+      out.push(subjectLine);
       out.push(`Date: ${when}`);
+      if(replyTo) out.push(`Reply-To: ${replyTo}`);
       out.push('');
       out.push('Items:');
+      out.push('');
 
-      const active = ord.lines.filter(l => toInt(l.qty, 0) > 0);
+      const active = orderActiveLines();
       if(!active.length){
-        out.push('- (none)');
+        out.push('(none)');
       }else{
+        const parts = active.map(l => String(l.name||'').trim());
+        const partW = Math.min(42, Math.max(6, ...parts.map(p => p.length)));
+        out.push(`${'Part #'.padEnd(partW)}  Qty`);
+        out.push(`${'-'.repeat(partW)}  ---`);
         for(const l of active){
-          const name = String(l.name||'').trim();
-          const qty = toInt(l.qty, 0);
-          const desc = String(l.desc||'').trim();
-          const inv = getInventoryById(l.id);
-          const onHand = inv ? toInt(inv.qty, 0) : null;
-          out.push(`- ${name} (Order Qty: ${qty}${onHand===null ? '' : `, On Hand: ${onHand}`})`);
-          if(desc) out.push(`  ${desc}`);
+          const part = String(l.name||'').trim();
+          const qty = String(toInt(l.qty, 0));
+          out.push(`${part.padEnd(partW)}  ${qty}`);
         }
       }
 
@@ -1390,10 +1500,75 @@ function ensureEmptyState(){
       out.push(`Generated by Don's Inventory Tracker v${APP_VERSION}`);
       return out.join('\n');
     }
+    function buildOrderHtml(){
+      const ord = orderState();
+      const when = formatEasternDateTime(new Date());
+      const replyTo = getSignedInEmail();
+      const subjectLine = String(ord.subject||'').trim() || defaultOrderSubject();
+
+      const active = orderActiveLines();
+      const rows = active.map(l=>{
+        const part = escapeHtml(String(l.name||'').trim());
+        const qty = toInt(l.qty, 0);
+        return (
+          `<tr>`+
+            `<td style="padding:10px;border:1px solid #d0d7de;">${part}</td>`+
+            `<td style="padding:10px;border:1px solid #d0d7de;text-align:right;font-variant-numeric:tabular-nums;font-weight:700;">${qty}</td>`+
+          `</tr>`
+        );
+      }).join('');
+
+      const notesRaw = String(ord.notes||'').trim();
+      const notesHtml = notesRaw ? escapeHtml(notesRaw).replace(/\n/g, '<br>') : '';
+
+      const replyToLine = replyTo
+        ? `<div style="margin:2px 0;"><strong>Reply-To:</strong> ${escapeHtml(replyTo)}</div>`
+        : '';
+
+      const notesBlock = notesHtml
+        ? (
+          `<div style="margin-top:16px;">`+
+            `<div style="font-weight:700;margin-bottom:6px;">Notes</div>`+
+            `<div>${notesHtml}</div>`+
+          `</div>`
+        )
+        : '';
+
+      const itemsBlock = active.length
+        ? (
+          `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #d0d7de;">`+
+            `<thead>`+
+              `<tr>`+
+                `<th align="left" style="padding:10px;border:1px solid #d0d7de;background:#f6f8fa;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Part #</th>`+
+                `<th align="right" style="padding:10px;border:1px solid #d0d7de;background:#f6f8fa;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Qty</th>`+
+              `</tr>`+
+            `</thead>`+
+            `<tbody>${rows}</tbody>`+
+          `</table>`
+        )
+        : `<div style="padding:12px;border:1px dashed #d0d7de;color:#444;">(No items)</div>`;
+
+      return (
+        `<!doctype html>`+
+        `<html><body style="margin:0;padding:0;background:#ffffff;">`+
+        `<div style="max-width:620px;margin:0 auto;padding:18px 16px;font-family:Arial,Helvetica,sans-serif;color:#111;line-height:1.35;">`+
+          `<h2 style="margin:0 0 10px;font-size:18px;">${escapeHtml(subjectLine)}</h2>`+
+          `<div style="font-size:13px;color:#444;margin:0 0 16px;">`+
+            `<div style="margin:2px 0;"><strong>Date:</strong> ${escapeHtml(when)}</div>`+
+            `${replyToLine}`+
+          `</div>`+
+          `<div style="margin:0 0 10px;">Please supply the following materials:</div>`+
+          `${itemsBlock}`+
+          `${notesBlock}`+
+          `<div style="margin-top:18px;font-size:12px;color:#6a737d;">Generated by Don's Inventory Tracker v${escapeHtml(APP_VERSION)}</div>`+
+        `</div>`+
+        `</body></html>`
+      );
+    }
     function buildMailtoUrl(){
       const ord = orderState();
       const to = String(ord.email||'').trim();
-      const subject = String(ord.subject||'').trim() || 'Materials Order';
+      const subject = String(ord.subject||'').trim() || defaultOrderSubject();
       const body = buildOrderBody();
       if(!to) return '';
       return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -1405,13 +1580,15 @@ function ensureEmptyState(){
     async function sendOrderViaApi(){
       const ord = orderState();
       const to = String(ord.email||'').trim();
-      const subject = String(ord.subject||'').trim() || 'Materials Order';
+      const subject = String(ord.subject||'').trim() || defaultOrderSubject();
       const text = buildOrderBody();
+      const html = buildOrderHtml();
+      const replyTo = getSignedInEmail();
       const apiUrl = getOrderApiUrl();
       const res = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ to, subject, text }),
+        body: JSON.stringify({ to, subject, text, html, replyTo }),
       });
       let data = null;
       try { data = await res.json(); } catch {}
@@ -1468,6 +1645,142 @@ function ensureEmptyState(){
         .from('order_recipients')
         .upsert([row], { onConflict: 'email' });
       if(error) throw error;
+    }
+    function normalizeOrderLineItems(value){
+      const arr = Array.isArray(value) ? value : [];
+      return arr
+        .map((x) => {
+          const part = String(x?.part || x?.name || x?.item || '').trim();
+          const qty = toInt(x?.qty, 0);
+          return { part, qty };
+        })
+        .filter((x) => x.part);
+    }
+    async function sbInsertOrderHistory(providerResult){
+      if(!SB.ready || !SB.session || !SB.authorized || !SB.user) return;
+      const ord = orderState();
+      const line_items = orderActiveLines().map(l => ({
+        part: String(l.name||'').trim(),
+        qty: toInt(l.qty, 0),
+      }));
+
+      const row = {
+        created_by: SB.user.id,
+        to_email: String(ord.email||'').trim(),
+        reply_to_email: String(getSignedInEmail()||'').trim(),
+        subject: String(ord.subject||'').trim() || defaultOrderSubject(),
+        contact_name: String(ord.contactName||'').trim(),
+        notes: String(ord.notes||'').trim(),
+        line_items,
+        provider_result: providerResult || null,
+      };
+
+      const { error } = await SB.client.from('orders').insert([row]);
+      if(error) throw error;
+    }
+    async function sbFetchOrders(limit = 50){
+      if(!SB.ready || !SB.session || !SB.authorized) return [];
+      const lim = Math.max(1, Math.min(200, toInt(limit, 50)));
+      const { data, error } = await SB.client
+        .from('orders')
+        .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items')
+        .order('created_at', { ascending:false })
+        .limit(lim);
+      if(error) throw error;
+      return Array.isArray(data) ? data : [];
+    }
+    function renderOrderHistoryList(list){
+      const wrap = $('orderHistoryList');
+      if(!wrap) return;
+      wrap.innerHTML = '';
+      const rows = Array.isArray(list) ? list : [];
+      if(!rows.length){
+        const empty = document.createElement('div');
+        empty.className = 'order-empty';
+        empty.textContent = 'No orders yet.';
+        wrap.appendChild(empty);
+        return;
+      }
+      for(const o of rows){
+        const det = document.createElement('details');
+        det.className = 'history-item';
+
+        const subject = escapeHtml(String(o.subject||'Material Order'));
+        const created = escapeHtml(formatEasternDateTime(o.created_at || ''));
+        const to = escapeHtml(String(o.to_email||''));
+        const replyTo = String(o.reply_to_email||'').trim();
+        const contact = String(o.contact_name||'').trim();
+        const notes = String(o.notes||'').trim();
+        const items = normalizeOrderLineItems(o.line_items);
+
+        const itemsTable = items.length ? (
+          `<table class="history-table">`+
+            `<thead>`+
+              `<tr>`+
+                `<th>Part #</th>`+
+                `<th style="text-align:right">Qty</th>`+
+              `</tr>`+
+            `</thead>`+
+            `<tbody>`+
+              items.map(it =>
+                `<tr>`+
+                  `<td>${escapeHtml(it.part)}</td>`+
+                  `<td class="qty">${it.qty}</td>`+
+                `</tr>`
+              ).join('')+
+            `</tbody>`+
+          `</table>`
+        ) : `<div class="order-empty" style="margin-top:10px;">(No line items)</div>`;
+
+        det.innerHTML =
+          `<summary>`+
+            `<div>${subject}</div>`+
+            `<div class="history-meta">${created}${to ? ` • To: ${to}` : ''}</div>`+
+          `</summary>`+
+          `<div class="history-kv">`+
+            (replyTo ? `<div><span class="muted">Reply-To:</span> ${escapeHtml(replyTo)}</div>` : '')+
+            (contact ? `<div><span class="muted">Contact:</span> ${escapeHtml(contact)}</div>` : '')+
+            (notes ? `<div><span class="muted">Notes:</span> ${escapeHtml(notes)}</div>` : '')+
+          `</div>`+
+          itemsTable;
+
+        wrap.appendChild(det);
+      }
+    }
+    let _orderHistoryReturnToOrder = false;
+    async function refreshOrderHistory(){
+      const wrap = $('orderHistoryList');
+      if(wrap) wrap.innerHTML = `<div class="muted">Loading…</div>`;
+      const btn = $('btnOrderHistoryRefresh');
+      const prior = btn ? btn.textContent : '';
+      if(btn){ btn.disabled = true; btn.textContent = 'Loading…'; }
+      try{
+        const rows = await sbFetchOrders(60);
+        renderOrderHistoryList(rows);
+      }catch(e){
+        const msg = e && e.message ? e.message : 'Failed to load history';
+        if(wrap) wrap.innerHTML = `<div class="order-empty">${escapeHtml(msg)}</div>`;
+      }finally{
+        if(btn){ btn.disabled = false; btn.textContent = prior || 'Refresh'; }
+      }
+    }
+    async function openOrderHistoryModal(opts = {}){
+      const returnToOrder = !!opts.returnToOrder;
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
+      _orderHistoryReturnToOrder = returnToOrder;
+      if(returnToOrder) show('orderModal', false);
+      show('orderHistoryModal', true);
+      await refreshOrderHistory();
+    }
+    function closeOrderHistoryModal(){
+      show('orderHistoryModal', false);
+      if(_orderHistoryReturnToOrder){
+        _orderHistoryReturnToOrder = false;
+        show('orderModal', true);
+        renderOrderPreview();
+      }
     }
     function renderOrderEmailSuggestions(list){
       const wrap = $('orderEmailSuggest');
@@ -1608,6 +1921,15 @@ function ensureEmptyState(){
       const ord = orderState();
       const ta = $('orderPreview');
       if(ta) ta.value = buildOrderBody();
+      const replyEl = $('orderReplyToNote');
+      if(replyEl){
+        const e = getSignedInEmail();
+        replyEl.textContent = e ? `Reply-To: ${e}` : 'Reply-To: (sign in to set)';
+      }
+      const histBtn = $('btnOrderHistory');
+      if(histBtn){
+        histBtn.disabled = !(SB.ready && SB.session && SB.authorized);
+      }
       const btn = $('btnOrderSubmit');
       if(btn){
         const okEmail = !!String(ord.email||'').trim();
@@ -1662,6 +1984,10 @@ function ensureEmptyState(){
       }
       if(added) toast(`Added ${added} selected item(s)`);
 
+      if(!ord.subject || ord.subject === 'Materials Order' || ord.subject === 'Material Order'){
+        ord.subject = defaultOrderSubject();
+      }
+
       const s = $('orderSearch'); if(s) s.value = ord.search || '';
       const e = $('orderEmail'); if(e) e.value = ord.email || '';
       const sub = $('orderSubject'); if(sub) sub.value = ord.subject || '';
@@ -1685,6 +2011,12 @@ function ensureEmptyState(){
 
     const btnOrder = $('btnOrder');
     if(btnOrder) btnOrder.addEventListener('click', openOrderModal);
+    const btnOrderHistory = $('btnOrderHistory');
+    if(btnOrderHistory) btnOrderHistory.addEventListener('click', ()=> openOrderHistoryModal({ returnToOrder: true }));
+    const btnOrderHistoryClose = $('btnOrderHistoryClose');
+    if(btnOrderHistoryClose) btnOrderHistoryClose.addEventListener('click', closeOrderHistoryModal);
+    const btnOrderHistoryRefresh = $('btnOrderHistoryRefresh');
+    if(btnOrderHistoryRefresh) btnOrderHistoryRefresh.addEventListener('click', refreshOrderHistory);
     const btnOrderCancel = $('btnOrderCancel');
     if(btnOrderCancel) btnOrderCancel.addEventListener('click', ()=> show('orderModal', false));
     const btnOrderCopy = $('btnOrderCopy');
@@ -1698,15 +2030,20 @@ function ensureEmptyState(){
       const priorText = btn ? btn.textContent : '';
       if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
 
-      try{
-        await sendOrderViaApi();
-        try{
-          const ord = orderState();
-          await sbRecordOrderRecipient(ord.email, ord.contactName);
-        }catch{}
-        toast('Order sent');
-        show('orderModal', false);
-      }catch(e){
+	      try{
+	        const sendRes = await sendOrderViaApi();
+	        let historySaved = false;
+	        try{
+	          const ord = orderState();
+	          await sbRecordOrderRecipient(ord.email, ord.contactName);
+	        }catch{}
+	        try{
+	          await sbInsertOrderHistory(sendRes && Object.prototype.hasOwnProperty.call(sendRes, 'result') ? sendRes.result : sendRes);
+	          historySaved = true;
+	        }catch{}
+	        toast(historySaved ? 'Order sent' : 'Order sent (history not saved)');
+	        show('orderModal', false);
+	      }catch(e){
         const msg = e && e.message ? e.message : 'Send failed';
         const fallback = confirm(`${msg}\n\nOpen your email app instead?`);
         if(fallback){ window.location.href = url; }

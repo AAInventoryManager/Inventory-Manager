@@ -90,6 +90,8 @@ on conflict (user_id) do nothing;
 Notes:
 
 - This does **not** delete your existing `items` rows.
+- `SUPABASE_SECURE_SETUP.sql` also creates `orders` (order history) and `order_recipients` (email autocomplete) tables.
+- If you ran an older version of the SQL, it’s safe to re-run it to add new tables/policies.
 - For best security, disable public signups and invite/create users from the dashboard.
 
 ### 3) Run locally

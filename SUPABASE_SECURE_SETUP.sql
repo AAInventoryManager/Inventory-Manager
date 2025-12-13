@@ -105,7 +105,55 @@ with check (
 create index if not exists order_recipients_last_used_idx on public.order_recipients (last_used_at desc);
 
 -- =========================
--- 4) Lock down the existing `items` table (shared inventory)
+-- 4) Order history (per auth user)
+-- =========================
+create table if not exists public.orders (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamp with time zone not null default now(),
+  created_by uuid not null references auth.users(id) on delete cascade,
+  to_email text not null,
+  reply_to_email text not null default ''::text,
+  subject text not null,
+  contact_name text,
+  notes text,
+  line_items jsonb not null default '[]'::jsonb,
+  provider text not null default 'mailtrap',
+  provider_result jsonb
+);
+
+alter table public.orders enable row level security;
+
+drop policy if exists "orders_select_own" on public.orders;
+create policy "orders_select_own"
+on public.orders for select
+to authenticated
+using (
+  created_by = auth.uid()
+  and exists (
+    select 1
+    from public.authorized_users au
+    where au.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "orders_insert_own" on public.orders;
+create policy "orders_insert_own"
+on public.orders for insert
+to authenticated
+with check (
+  created_by = auth.uid()
+  and exists (
+    select 1
+    from public.authorized_users au
+    where au.user_id = auth.uid()
+  )
+);
+
+create index if not exists orders_created_by_idx on public.orders (created_by);
+create index if not exists orders_created_at_idx on public.orders (created_at desc);
+
+-- =========================
+-- 5) Lock down the existing `items` table (shared inventory)
 -- =========================
 alter table public.items enable row level security;
 
@@ -135,4 +183,3 @@ with check (
 );
 
 -- Done.
-
