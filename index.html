@@ -175,7 +175,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       justify-content:flex-end;
     }
     .order-recipient{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-    .order-recipient #orderEmail{ flex:1; min-width:200px; }
+    .order-recipient input[type=email]{ flex:1; min-width:200px; }
     .order-suggest{
       display:none;
       flex-direction:column;
@@ -327,20 +327,164 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       .order-footer{ display:grid; grid-template-columns:1fr 1fr; }
       .order-footer .order-send{ grid-column:1 / -1; }
       .order-recipient{ flex-direction:column; align-items:stretch; }
-      .order-recipient #orderEmail{ min-width:0; }
+      .order-recipient input[type=email]{ min-width:0; }
+    }
+
+    /* Hamburger Menu Styles */
+    .hamburger-menu{
+      position:relative;
+      z-index:25;
+    }
+    .hamburger-btn{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      width:44px;
+      height:44px;
+      padding:8px;
+      border:1px solid var(--border);
+      background:#101826;
+      border-radius:10px;
+      cursor:pointer;
+      gap:5px;
+    }
+    .hamburger-btn:hover{
+      background:#1a2636;
+    }
+    .hamburger-btn span{
+      display:block;
+      width:22px;
+      height:2px;
+      background:var(--fg);
+      border-radius:2px;
+      transition:transform 0.2s, opacity 0.2s;
+    }
+    .hamburger-btn.open span:nth-child(1){
+      transform:translateY(7px) rotate(45deg);
+    }
+    .hamburger-btn.open span:nth-child(2){
+      opacity:0;
+    }
+    .hamburger-btn.open span:nth-child(3){
+      transform:translateY(-7px) rotate(-45deg);
+    }
+    .menu-dropdown{
+      display:none;
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      min-width:200px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:8px;
+      box-shadow:0 10px 40px rgba(0,0,0,.5);
+      z-index:30;
+    }
+    .menu-dropdown.open{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .menu-dropdown .menu-item{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      width:100%;
+      padding:12px 14px;
+      border:none;
+      background:transparent;
+      color:var(--fg);
+      font-size:15px;
+      font-weight:600;
+      text-align:left;
+      border-radius:10px;
+      cursor:pointer;
+      transition:background 0.15s;
+    }
+    .menu-dropdown .menu-item:hover{
+      background:#1a2636;
+    }
+    .menu-dropdown .menu-item .menu-icon{
+      width:20px;
+      text-align:center;
+      font-size:16px;
+    }
+    .menu-divider{
+      height:1px;
+      background:var(--border);
+      margin:4px 0;
+    }
+    .header-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .header-left{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex:1;
+      min-width:0;
+    }
+    .menu-backdrop{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:22;
+    }
+    .menu-backdrop.open{
+      display:block;
     }
 </style>
 </head>
 <body>
   <header>
     <div class="header-inner">
-      <div class="brandrow">
-      <div class="brandtext">
-        <h1>Don's Inventory Tracker</h1>
-        <button id="statusBar" type="button" class="status">V1.0.3 Server Status = CHECKING…</button>
+      <div class="header-row">
+        <div class="header-left">
+          <img class="logo brand-logo" src="./logo-aa.png" alt="American Access logo" />
+          <div class="brandtext">
+            <h1>Don's Inventory Tracker</h1>
+            <button id="statusBar" type="button" class="status">V1.0.3 Server Status = CHECKING…</button>
+          </div>
+        </div>
+        <div class="hamburger-menu">
+          <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <nav class="menu-dropdown" id="menuDropdown" role="menu">
+            <button class="menu-item" id="menuImport" role="menuitem">
+              <span class="menu-icon">📁</span>Import File
+            </button>
+            <button class="menu-item" id="menuPaste" role="menuitem">
+              <span class="menu-icon">📋</span>Paste Data
+            </button>
+            <button class="menu-item" id="menuExport" role="menuitem">
+              <span class="menu-icon">💾</span>Export File
+            </button>
+            <div class="menu-divider"></div>
+            <button class="menu-item" id="menuAddOne" role="menuitem">
+              <span class="menu-icon">➕</span>Add Item
+            </button>
+            <button class="menu-item" id="menuOrder" role="menuitem">
+              <span class="menu-icon">📦</span>Create Order
+            </button>
+            <button class="menu-item" id="menuHistory" role="menuitem">
+              <span class="menu-icon">📜</span>Order History
+            </button>
+            <div class="menu-divider"></div>
+            <button class="menu-item" id="menuDelete" role="menuitem">
+              <span class="menu-icon">🗑️</span>Delete Selected
+            </button>
+          </nav>
+        </div>
       </div>
-        <img class="logo brand-logo" src="./logo-aa.png" alt="American Access logo" />
-    </div>
+      <div id="menuBackdrop" class="menu-backdrop"></div>
     </div>
   </header>
 
@@ -348,12 +492,6 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     <section class="card">
       <div class="toolbar" role="toolbar" aria-label="Inventory actions">
         <input type="file" id="fileImport" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.docx,.doc,.pdf" style="display:none" />
-        <button class="btn" id="btnImport">Import File</button>
-        <button class="btn" id="btnPaste">Paste Data</button>
-        <button class="btn" id="btnExportCsv">Export File</button>
-        <button class="btn" id="btnOrder">Create Order</button>
-        <button class="btn" id="btnAddOne">Add Item</button>
-        <button class="btn" id="btnDeleteSelected">Delete Selected</button>
         <input id="filterBox" type="text" placeholder="Filter items…" aria-label="Filter items" />
         <span class="spacer"></span>
         <span class="time" id="lastUpdate" aria-live="polite"></span>
@@ -1307,15 +1445,40 @@ function ensureEmptyState(){
     }
 
     // ========================
+    // Hamburger Menu Toggle
+    // ========================
+    const hamburgerBtn = $('hamburgerBtn');
+    const menuDropdown = $('menuDropdown');
+    const menuBackdrop = $('menuBackdrop');
+
+    function toggleMenu(open) {
+      const isOpen = open !== undefined ? open : !menuDropdown.classList.contains('open');
+      hamburgerBtn.classList.toggle('open', isOpen);
+      menuDropdown.classList.toggle('open', isOpen);
+      menuBackdrop.classList.toggle('open', isOpen);
+      hamburgerBtn.setAttribute('aria-expanded', isOpen);
+    }
+
+    hamburgerBtn.addEventListener('click', () => toggleMenu());
+    menuBackdrop.addEventListener('click', () => toggleMenu(false));
+
+    // Close menu on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menuDropdown.classList.contains('open')) {
+        toggleMenu(false);
+      }
+    });
+
+    // ========================
     // Import / Paste / Export
     // ========================
-    $('btnImport').addEventListener('click', ()=> { if(!requireOnline()) return; $('#fileImport').click(); });
+    $('menuImport').addEventListener('click', ()=> { toggleMenu(false); if(!requireOnline()) return; $('#fileImport').click(); });
     $('#fileImport').addEventListener('change', async ev=>{
       if(!requireOnline()){ ev.target.value=''; return; }
       const f=ev.target.files[0]; if(!f) return; await handleFile(f); ev.target.value='';
     });
 
-    $('btnPaste').addEventListener('click', ()=>{ if(!requireOnline()) return; $('#pasteArea').value=''; show('pasteModal', true); });
+    $('menuPaste').addEventListener('click', ()=>{ toggleMenu(false); if(!requireOnline()) return; $('#pasteArea').value=''; show('pasteModal', true); });
     $('btnPasteCancel').addEventListener('click', ()=> show('pasteModal', false));
     $('btnPasteApply').addEventListener('click', ()=>{
       if(!requireOnline()) return;
@@ -1391,7 +1554,8 @@ function ensureEmptyState(){
       }catch(e){ toast(e.message || 'Import failed'); }
     });
 
-    $('btnExportCsv').addEventListener('click', ()=>{
+    $('menuExport').addEventListener('click', ()=>{
+      toggleMenu(false);
       const rows=[["Item","Description","Qty"]];
       for(const it of state.items){ rows.push([it.name||'', it.desc||'', String(toInt(it.qty,0))]); }
       const csv = rows.map(r=> r.map(v=> '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
@@ -1477,55 +1641,65 @@ function ensureEmptyState(){
       if(!line) return;
       line.qty = toInt(qty, 0);
     }
-    function buildOrderBody(){
-      const ord = orderState();
+    function normalizeEmailLineItems(lineItems){
+      const arr = Array.isArray(lineItems) ? lineItems : [];
+      return arr
+        .map((x) => {
+          const part = String(x?.part || x?.name || x?.item || '').trim();
+          const qty = toInt(x?.qty, 0);
+          return { part, qty };
+        })
+        .filter((x) => x.part && x.qty > 0)
+        .sort((a,b)=> toKey(a.part).localeCompare(toKey(b.part)));
+    }
+    function buildOrderBodyFromData({ subjectLine, replyTo, notes, lineItems }){
       const when = formatEasternDateTime(new Date());
-      const replyTo = getSignedInEmail();
-      const subjectLine = String(ord.subject||'').trim() || defaultOrderSubject();
+      const subject = String(subjectLine||'').trim() || defaultOrderSubject();
       const out = [];
-      out.push(subjectLine);
+
+      out.push(subject);
       out.push(`Date: ${when}`);
-      if(replyTo) out.push(`Reply-To: ${replyTo}`);
+      const rep = String(replyTo||'').trim();
+      if(rep) out.push(`Reply-To: ${rep}`);
       out.push('');
       out.push('Items:');
       out.push('');
 
-      const active = orderActiveLines();
+      const active = normalizeEmailLineItems(lineItems);
       if(!active.length){
         out.push('(none)');
       }else{
-        const parts = active.map(l => String(l.name||'').trim());
+        const parts = active.map(l => String(l.part||'').trim());
         const partW = Math.min(42, Math.max(6, ...parts.map(p => p.length)));
         const qtyW = Math.min(6, Math.max(3, ...active.map(l => String(toInt(l.qty, 0)).length)));
         out.push(`${'Part #'.padEnd(partW)} | ${'Qty'.padStart(qtyW)}`);
         out.push(`${'-'.repeat(partW)}-+-${'-'.repeat(qtyW)}`);
         for(const l of active){
-          const part = String(l.name||'').replace(/\t/g,' ').trim();
+          const part = String(l.part||'').replace(/\t/g,' ').trim();
           const qty = String(toInt(l.qty, 0)).padStart(qtyW, ' ');
           out.push(`${part.padEnd(partW)} | ${qty}`);
         }
       }
 
-      const notes = String(ord.notes||'').trim();
-      if(notes){
+      const nt = String(notes||'').trim();
+      if(nt){
         out.push('');
         out.push('Notes:');
-        out.push(notes);
+        out.push(nt);
       }
 
       out.push('');
       out.push(`Generated by Don's Inventory Tracker v${APP_VERSION}`);
       return out.join('\n');
     }
-    function buildOrderHtml(){
-      const ord = orderState();
+    function buildOrderHtmlFromData({ subjectLine, replyTo, notes, lineItems }){
       const when = formatEasternDateTime(new Date());
-      const replyTo = getSignedInEmail();
-      const subjectLine = String(ord.subject||'').trim() || defaultOrderSubject();
+      const subject = String(subjectLine||'').trim() || defaultOrderSubject();
+      const rep = String(replyTo||'').trim();
 
-      const active = orderActiveLines();
+      const active = normalizeEmailLineItems(lineItems);
       const rows = active.map(l=>{
-        const part = escapeHtml(String(l.name||'').trim());
+        const part = escapeHtml(String(l.part||'').trim());
         const qty = toInt(l.qty, 0);
         return (
           `<tr>`+
@@ -1535,11 +1709,11 @@ function ensureEmptyState(){
         );
       }).join('');
 
-      const notesRaw = String(ord.notes||'').trim();
+      const notesRaw = String(notes||'').trim();
       const notesHtml = notesRaw ? escapeHtml(notesRaw).replace(/\n/g, '<br>') : '';
 
-      const replyToLine = replyTo
-        ? `<div style="margin:2px 0;"><strong>Reply-To:</strong> ${escapeHtml(replyTo)}</div>`
+      const replyToLine = rep
+        ? `<div style="margin:2px 0;"><strong>Reply-To:</strong> ${escapeHtml(rep)}</div>`
         : '';
 
       const notesBlock = notesHtml
@@ -1573,7 +1747,7 @@ function ensureEmptyState(){
         `<!doctype html>`+
         `<html><body style="margin:0;padding:0;background:#ffffff;">`+
         `<div style="max-width:620px;margin:0 auto;padding:18px 16px;font-family:Arial,Helvetica,sans-serif;color:#111;line-height:1.35;">`+
-          `<h2 style="margin:0 0 10px;font-size:18px;">${escapeHtml(subjectLine)}</h2>`+
+          `<h2 style="margin:0 0 10px;font-size:18px;">${escapeHtml(subject)}</h2>`+
           `<div style="font-size:13px;color:#444;margin:0 0 16px;">`+
             `<div style="margin:2px 0;"><strong>Date:</strong> ${escapeHtml(when)}</div>`+
             `${replyToLine}`+
@@ -1585,6 +1759,28 @@ function ensureEmptyState(){
         `</div>`+
         `</body></html>`
       );
+    }
+    function looksLikeEmailAddress(email){
+      const s = String(email || '').trim();
+      if(!s) return false;
+      if(s.length > 254) return false;
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+    }
+    function buildOrderBody(){
+      const ord = orderState();
+      const replyTo = getSignedInEmail();
+      const subjectLine = String(ord.subject||'').trim() || defaultOrderSubject();
+      const notes = String(ord.notes||'').trim();
+      const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), qty: toInt(l.qty, 0) }));
+      return buildOrderBodyFromData({ subjectLine, replyTo, notes, lineItems });
+    }
+    function buildOrderHtml(){
+      const ord = orderState();
+      const replyTo = getSignedInEmail();
+      const subjectLine = String(ord.subject||'').trim() || defaultOrderSubject();
+      const notesRaw = String(ord.notes||'').trim();
+      const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), qty: toInt(l.qty, 0) }));
+      return buildOrderHtmlFromData({ subjectLine, replyTo, notes: notesRaw, lineItems });
     }
     function buildMailtoUrl(){
       const ord = orderState();
@@ -1598,18 +1794,18 @@ function ensureEmptyState(){
       const u = (typeof window.ORDER_API_URL === 'string') ? window.ORDER_API_URL.trim() : '';
       return u || '/api/send-order';
     }
-    async function sendOrderViaApi(){
-      const ord = orderState();
-      const to = String(ord.email||'').trim();
-      const subject = String(ord.subject||'').trim() || defaultOrderSubject();
-      const text = buildOrderBody();
-      const html = buildOrderHtml();
+    async function sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems }){
+      const toEmail = String(to||'').trim();
       const replyTo = getSignedInEmail();
+      const subject = String(subjectLine||'').trim() || defaultOrderSubject();
+      const text = buildOrderBodyFromData({ subjectLine: subject, replyTo, notes, lineItems });
+      const html = buildOrderHtmlFromData({ subjectLine: subject, replyTo, notes, lineItems });
       const apiUrl = getOrderApiUrl();
+
       const res = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ to, subject, text, html, replyTo }),
+        body: JSON.stringify({ to: toEmail, subject, text, html, replyTo }),
       });
       let data = null;
       try { data = await res.json(); } catch {}
@@ -1618,6 +1814,14 @@ function ensureEmptyState(){
         throw Object.assign(new Error(msg), { status: res.status, data });
       }
       return data;
+    }
+    async function sendOrderViaApi(){
+      const ord = orderState();
+      const to = String(ord.email||'').trim();
+      const subjectLine = String(ord.subject||'').trim() || defaultOrderSubject();
+      const notes = String(ord.notes||'').trim();
+      const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), qty: toInt(l.qty, 0) }));
+      return sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems });
     }
     async function copyText(text){
       if(navigator.clipboard && navigator.clipboard.writeText){
@@ -1677,27 +1881,33 @@ function ensureEmptyState(){
         })
         .filter((x) => x.part);
     }
-    async function sbInsertOrderHistory(providerResult){
+    async function sbInsertOrderHistoryFromData({ toEmail, subjectLine, contactName, notes, lineItems, providerResult }){
       if(!SB.ready || !SB.session || !SB.authorized || !SB.user) return;
-      const ord = orderState();
-      const line_items = orderActiveLines().map(l => ({
-        part: String(l.name||'').trim(),
-        qty: toInt(l.qty, 0),
-      }));
-
+      const cleaned = normalizeEmailLineItems(lineItems).map(x => ({ part: x.part, qty: x.qty }));
       const row = {
         created_by: SB.user.id,
-        to_email: String(ord.email||'').trim(),
+        to_email: String(toEmail||'').trim(),
         reply_to_email: String(getSignedInEmail()||'').trim(),
-        subject: String(ord.subject||'').trim() || defaultOrderSubject(),
-        contact_name: String(ord.contactName||'').trim(),
-        notes: String(ord.notes||'').trim(),
-        line_items,
+        subject: String(subjectLine||'').trim() || defaultOrderSubject(),
+        contact_name: String(contactName||'').trim(),
+        notes: String(notes||'').trim(),
+        line_items: cleaned,
         provider_result: providerResult || null,
       };
-
       const { error } = await SB.client.from('orders').insert([row]);
       if(error) throw error;
+    }
+    async function sbInsertOrderHistory(providerResult){
+      const ord = orderState();
+      const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), qty: toInt(l.qty, 0) }));
+      return sbInsertOrderHistoryFromData({
+        toEmail: String(ord.email||'').trim(),
+        subjectLine: String(ord.subject||'').trim() || defaultOrderSubject(),
+        contactName: String(ord.contactName||'').trim(),
+        notes: String(ord.notes||'').trim(),
+        lineItems,
+        providerResult,
+      });
     }
     async function sbFetchOrders(limit = 50){
       if(!SB.ready || !SB.session || !SB.authorized) return [];
@@ -1725,6 +1935,7 @@ function ensureEmptyState(){
       for(const o of rows){
         const det = document.createElement('details');
         det.className = 'history-item';
+        det.dataset.orderId = String(o.id || '');
 
         const subject = escapeHtml(String(o.subject||'Material Order'));
         const created = escapeHtml(formatEasternDateTime(o.created_at || ''));
@@ -1753,6 +1964,17 @@ function ensureEmptyState(){
           `</table>`
         ) : `<div class="order-empty" style="margin-top:10px;">(No line items)</div>`;
 
+        const orderId = String(o.id || '');
+        const forwardBlock =
+          `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">`+
+            `<div class="muted" style="margin-bottom:8px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;">Forward</div>`+
+            `<div class="order-recipient">`+
+              `<input data-forward-email-id="${orderId}" type="email" placeholder="recipient@example.com" autocomplete="email" inputmode="email" />`+
+              `<button class="btn small" type="button" data-forward-send-id="${orderId}" disabled>Forward</button>`+
+            `</div>`+
+            `<div class="order-suggest" data-forward-suggest-id="${orderId}" aria-label="Email suggestions"></div>`+
+          `</div>`;
+
         det.innerHTML =
           `<summary>`+
             `<div>${subject}</div>`+
@@ -1763,9 +1985,89 @@ function ensureEmptyState(){
             (contact ? `<div><span class="muted">Contact:</span> ${escapeHtml(contact)}</div>` : '')+
             (notes ? `<div><span class="muted">Notes:</span> ${escapeHtml(notes)}</div>` : '')+
           `</div>`+
-          itemsTable;
+          itemsTable +
+          forwardBlock;
 
         wrap.appendChild(det);
+      }
+    }
+    const _forwardSuggestTimers = new Map();
+    function renderForwardEmailSuggestions(orderId, list){
+      const id = String(orderId || '').trim();
+      if(!id) return;
+      const wrap = document.querySelector(`[data-forward-suggest-id="${id}"]`);
+      if(!wrap) return;
+      wrap.innerHTML = '';
+      const rows = Array.isArray(list) ? list.filter(r=> r && r.email) : [];
+      if(!rows.length){ wrap.classList.remove('has-suggest'); return; }
+      wrap.classList.add('has-suggest');
+      rows.forEach(r=>{
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'suggest-chip';
+        btn.dataset.forwardSuggestEmail = String(r.email);
+        btn.textContent = String(r.email);
+        wrap.appendChild(btn);
+      });
+    }
+    function requestForwardEmailSuggestions(orderId, prefix){
+      const id = String(orderId || '').trim();
+      if(!id) return;
+      const prev = _forwardSuggestTimers.get(id);
+      if(prev) clearTimeout(prev);
+      const q = String(prefix||'');
+      const t = setTimeout(async ()=>{
+        try{
+          const data = await sbFetchOrderRecipientSuggestions(q);
+          renderForwardEmailSuggestions(id, data);
+        }catch{
+          renderForwardEmailSuggestions(id, []);
+        }
+      }, 160);
+      _forwardSuggestTimers.set(id, t);
+    }
+    async function forwardOrderFromHistory(orderId){
+      const id = String(orderId || '').trim();
+      if(!id) return;
+
+      const row = state._orderHistoryById && typeof state._orderHistoryById.get === 'function'
+        ? (state._orderHistoryById.get(id) || null)
+        : null;
+      if(!row){ toast('Order not found'); return; }
+
+      const input = document.querySelector(`[data-forward-email-id="${id}"]`);
+      const to = String(input && input.value ? input.value : '').trim();
+      if(!looksLikeEmailAddress(to)){ toast('Enter a valid email'); return; }
+
+      const btn = document.querySelector(`button[data-forward-send-id="${id}"]`);
+      const prior = btn ? btn.textContent : '';
+      if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
+
+      try{
+        const subjectLine = String(row.subject||'').trim() || defaultOrderSubject();
+        const notes = String(row.notes||'').trim();
+        const lineItems = Array.isArray(row.line_items) ? row.line_items : [];
+
+        const sendRes = await sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems });
+        try{ await sbRecordOrderRecipient(to, ''); }catch{}
+        try{
+          await sbInsertOrderHistoryFromData({
+            toEmail: to,
+            subjectLine,
+            contactName: '',
+            notes,
+            lineItems,
+            providerResult: sendRes && Object.prototype.hasOwnProperty.call(sendRes, 'result') ? sendRes.result : sendRes,
+          });
+        }catch{}
+
+        toast('Forwarded');
+        if(input) input.value = '';
+        renderForwardEmailSuggestions(id, []);
+      }catch(e){
+        toast((e && e.message) ? e.message : 'Forward failed');
+      }finally{
+        if(btn){ btn.disabled = false; btn.textContent = prior || 'Forward'; }
       }
     }
     let _orderHistoryReturnToOrder = false;
@@ -1777,8 +2079,10 @@ function ensureEmptyState(){
       if(btn){ btn.disabled = true; btn.textContent = 'Loading…'; }
       try{
         const rows = await sbFetchOrders(60);
+        state._orderHistoryById = new Map((rows||[]).map(r => [String(r && r.id ? r.id : ''), r]).filter(x=>x[0]));
         renderOrderHistoryList(rows);
       }catch(e){
+        state._orderHistoryById = new Map();
         const msg = e && e.message ? e.message : 'Failed to load history';
         if(wrap) wrap.innerHTML = `<div class="order-empty">${escapeHtml(msg)}</div>`;
       }finally{
@@ -2031,8 +2335,10 @@ function ensureEmptyState(){
       show('orderModal', true);
     }
 
-    const btnOrder = $('btnOrder');
-    if(btnOrder) btnOrder.addEventListener('click', openOrderModal);
+    const menuOrder = $('menuOrder');
+    if(menuOrder) menuOrder.addEventListener('click', ()=>{ toggleMenu(false); openOrderModal(); });
+    const menuHistory = $('menuHistory');
+    if(menuHistory) menuHistory.addEventListener('click', ()=>{ toggleMenu(false); openOrderHistoryModal({ returnToOrder: false }); });
     const btnOrderHistory = $('btnOrderHistory');
     if(btnOrderHistory) btnOrderHistory.addEventListener('click', ()=> openOrderHistoryModal({ returnToOrder: true }));
     const btnOrderHistoryClose = $('btnOrderHistoryClose');
@@ -2129,6 +2435,46 @@ function ensureEmptyState(){
       renderOrderPreview();
       requestOrderEmailSuggestions(email);
     });
+
+    const orderHistoryList = $('orderHistoryList');
+    if(orderHistoryList) orderHistoryList.addEventListener('input', (e)=>{
+      const inp = e.target.closest('input[data-forward-email-id]');
+      if(!inp) return;
+      const id = String(inp.dataset.forwardEmailId || '').trim();
+      if(!id) return;
+      requestForwardEmailSuggestions(id, inp.value || '');
+      const btn = document.querySelector(`button[data-forward-send-id="${id}"]`);
+      if(btn) btn.disabled = !looksLikeEmailAddress(inp.value || '');
+    });
+    if(orderHistoryList) orderHistoryList.addEventListener('focusin', (e)=>{
+      const inp = e.target.closest('input[data-forward-email-id]');
+      if(!inp) return;
+      const id = String(inp.dataset.forwardEmailId || '').trim();
+      if(!id) return;
+      requestForwardEmailSuggestions(id, inp.value || '');
+    });
+    if(orderHistoryList) orderHistoryList.addEventListener('click', (e)=>{
+      const sugBtn = e.target.closest('button[data-forward-suggest-email]');
+      if(sugBtn){
+        const email = String(sugBtn.dataset.forwardSuggestEmail || '').trim();
+        const wrap = sugBtn.closest('[data-forward-suggest-id]');
+        const id = wrap ? String(wrap.dataset.forwardSuggestId || '').trim() : '';
+        if(id && email){
+          const inp = document.querySelector(`input[data-forward-email-id="${id}"]`);
+          if(inp) inp.value = email;
+          const btn = document.querySelector(`button[data-forward-send-id="${id}"]`);
+          if(btn) btn.disabled = false;
+          renderForwardEmailSuggestions(id, []);
+        }
+        return;
+      }
+      const fwdBtn = e.target.closest('button[data-forward-send-id]');
+      if(fwdBtn){
+        const id = String(fwdBtn.dataset.forwardSendId || '').trim();
+        if(!id) return;
+        void forwardOrderFromHistory(id);
+      }
+    });
     const orderLinesBody = $('orderLinesBody');
     if(orderLinesBody) orderLinesBody.addEventListener('click', (e)=>{
       const btn = e.target.closest('button[data-remove-order-id]');
@@ -2145,7 +2491,7 @@ function ensureEmptyState(){
     });
 
     // Add-one modal
-    $('btnAddOne').addEventListener('click', ()=>{ if(!requireOnline()) return; show('addOneModal', true); $('addName').focus(); });
+    $('menuAddOne').addEventListener('click', ()=>{ toggleMenu(false); if(!requireOnline()) return; show('addOneModal', true); $('addName').focus(); });
     $('btnAddCancel').addEventListener('click', ()=> show('addOneModal', false));
     $('btnAddSave').addEventListener('click', saveAddOne);
     $('addQty').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); saveAddOne(); }});
@@ -2169,7 +2515,8 @@ function ensureEmptyState(){
       }
     }
 
-    $('btnDeleteSelected').addEventListener('click', async ()=>{
+    $('menuDelete').addEventListener('click', async ()=>{
+      toggleMenu(false);
       if(!requireOnline()) return;
       const boxes = Array.from(document.querySelectorAll('.rowChk:checked'));
       if (boxes.length === 0) { toast('No items selected'); return; }
