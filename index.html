@@ -620,19 +620,15 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
             <button class="btn" id="btnPickContact">Pick Contact</button>
             <input id="orderEmail" type="email" placeholder="recipient@example.com" autocomplete="email" inputmode="email" />
           </div>
-          <div class="muted" id="orderPickHelp" style="margin-top:8px;"></div>
-          <div class="muted" id="orderContactNote" style="margin-top:4px;"></div>
-          <div id="orderEmailSuggest" class="order-suggest" aria-label="Email suggestions"></div>
-          <div class="muted" id="orderReplyToNote" style="margin-top:8px;"></div>
         </div>
 
         <div class="section">
           <div class="section-title"><span>Message</span></div>
           <div style="display:grid; grid-template-columns:1fr; gap:10px;">
-            <div>
-              <div class="muted" style="margin-bottom:6px;">Subject</div>
-              <input id="orderSubject" type="text" placeholder="Material Order" />
-            </div>
+	            <div>
+	              <div class="muted" style="margin-bottom:6px;">Subject</div>
+	              <input id="orderSubject" type="text" placeholder="Material Order - Oakley Services, LLC [City/State]" />
+	            </div>
             <div>
               <div class="muted" style="margin-bottom:6px;">Notes (optional)</div>
               <textarea id="orderNotes" rows="3" placeholder="Any notes…"></textarea>
@@ -698,6 +694,8 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       <div style="display:grid; grid-template-columns:1fr; gap:8px;">
         <label class="muted">Phone</label>
         <input id="profilePhone" type="tel" placeholder="(555) 555‑5555" autocomplete="tel" inputmode="tel" />
+        <label class="muted">Order Delivery Address</label>
+        <textarea id="profileDeliveryAddress" rows="3" placeholder="123 Main St&#10;City, ST 12345"></textarea>
       </div>
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
         <button class="btn" id="btnProfileClose">Close</button>
@@ -843,6 +841,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       const email = SB.user && SB.user.email ? String(SB.user.email) : '';
       const elEmail = $('profileEmail'); if(elEmail) elEmail.textContent = email ? `Signed in: ${email}` : '';
       const elPhone = $('profilePhone'); if(elPhone) elPhone.value = (SB.profile && SB.profile.phone) ? String(SB.profile.phone) : '';
+      const elAddress = $('profileDeliveryAddress'); if(elAddress) elAddress.value = (SB.profile && SB.profile.delivery_address) ? String(SB.profile.delivery_address) : '';
       const note = SB.session && !SB.authorized
         ? 'This account is not authorized for this inventory yet. Ask an admin to add you in Supabase.'
         : '';
@@ -851,28 +850,53 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     async function sbEnsureProfile(){
       if(!SB.ready || !SB.user) return null;
       try{
-        const { data, error } = await SB.client
+        // Try fetching with delivery_address, fall back without it if the column doesn't exist yet
+        let { data, error } = await SB.client
           .from('profiles')
-          .select('user_id,email,phone')
+          .select('user_id,email,phone,delivery_address')
           .eq('user_id', SB.user.id)
           .maybeSingle();
+        if(error && error.message && error.message.includes('delivery_address')){
+          const res = await SB.client
+            .from('profiles')
+            .select('user_id,email,phone')
+            .eq('user_id', SB.user.id)
+            .maybeSingle();
+          data = res.data;
+          error = res.error;
+          if(data) data.delivery_address = '';
+        }
         if(error) throw error;
         if(data){ SB.profile = data; return data; }
-        const row = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), phone: '' };
+        const row = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), phone: '', delivery_address: '' };
         const { error: insErr } = await SB.client.from('profiles').insert([row]);
         if(insErr) throw insErr;
         SB.profile = row;
         return row;
       }catch(e){
         console.warn('Profile ensure failed:', e);
-        SB.profile = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), phone: '' };
+        SB.profile = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), phone: '', delivery_address: '' };
         return SB.profile;
       }
     }
-    async function sbSaveProfile(phone){
+    async function sbSaveProfile(phone, deliveryAddress){
       if(!SB.ready || !SB.user) throw Error('Not signed in');
-      const row = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), phone: String(phone||'').trim() };
-      const { error } = await SB.client.from('profiles').upsert([row], { onConflict: 'user_id' });
+      const row = {
+        user_id: SB.user.id,
+        email: String(SB.user.email||'').trim(),
+        phone: String(phone||'').trim(),
+        delivery_address: String(deliveryAddress||'').trim()
+      };
+      let { error } = await SB.client.from('profiles').upsert([row], { onConflict: 'user_id' });
+      if(error && error.message && error.message.includes('delivery_address')){
+        const fallbackRow = { user_id: row.user_id, email: row.email, phone: row.phone };
+        const res = await SB.client.from('profiles').upsert([fallbackRow], { onConflict: 'user_id' });
+        error = res.error;
+        if(!error){
+          SB.profile = { ...fallbackRow, delivery_address: '' };
+          return SB.profile;
+        }
+      }
       if(error) throw error;
       SB.profile = row;
       return row;
@@ -1042,10 +1066,11 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     const btnProfileSave = $('btnProfileSave');
     if(btnProfileSave) btnProfileSave.addEventListener('click', async ()=>{
       const phone = $('profilePhone')?.value || '';
+      const deliveryAddress = $('profileDeliveryAddress')?.value || '';
       setProfileMessage('');
       btnProfileSave.disabled = true;
       try{
-        await sbSaveProfile(phone);
+        await sbSaveProfile(phone, deliveryAddress);
         renderProfileUi();
         toast('Profile saved');
       }catch(e){
@@ -1583,6 +1608,49 @@ function ensureEmptyState(){
         .join(' ')
         .trim();
     }
+    function formatStateToken(token){
+      const t = String(token || '').trim().replace(/[.,]$/,'');
+      if(!t) return '';
+      if(t.length === 2) return t.toUpperCase();
+      return t
+        .split(/[\s_-]+/)
+        .map(w => w ? (w[0].toUpperCase() + w.slice(1).toLowerCase()) : '')
+        .join(' ')
+        .trim();
+    }
+    function cityStateFromDeliveryAddress(address){
+      const raw = String(address || '').trim();
+      if(!raw) return '';
+      const lines = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      if(!lines.length) return '';
+      const candidates = lines.slice().reverse();
+      for(const line0 of candidates){
+        const s0 = String(line0 || '').replace(/\s+/g, ' ').trim();
+        if(!s0) continue;
+        const noCountry = s0
+          .replace(/\b(USA|UNITED STATES|UNITED STATES OF AMERICA)\b/i, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        const zipStripped = noCountry
+          .replace(/\s+\d{5}(?:-\d{4})?\b/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if(!zipStripped) continue;
+        const m1 = zipStripped.match(/^(.+?),\s*([A-Za-z]{2,})$/);
+        if(m1){
+          const city = String(m1[1] || '').trim();
+          const st = formatStateToken(m1[2]);
+          if(city && st) return `${city}/${st}`;
+        }
+        const m2 = zipStripped.match(/^(.+?)\s+([A-Za-z]{2,})$/);
+        if(m2){
+          const city = String(m2[1] || '').replace(/,$/, '').trim();
+          const st = formatStateToken(m2[2]);
+          if(city && st) return `${city}/${st}`;
+        }
+      }
+      return '';
+    }
     function formatEasternDateTime(value){
       const d = (value instanceof Date) ? value : new Date(value);
       try{
@@ -1600,9 +1668,11 @@ function ensureEmptyState(){
         return d.toLocaleString(undefined, { hour12:true });
       }
     }
+    const ORDER_COMPANY_NAME = 'Oakley Services, LLC';
     function defaultOrderSubject(){
-      const name = userNameFromEmail(getSignedInEmail());
-      return name ? `${name} - Material Order` : 'Material Order';
+      const base = `Material Order - ${ORDER_COMPANY_NAME}`;
+      const loc = cityStateFromDeliveryAddress(SB && SB.profile ? SB.profile.delivery_address : '');
+      return loc ? `${base} [${loc}]` : base;
     }
     function orderActiveLines(){
       const ord = orderState();
@@ -2107,35 +2177,6 @@ function ensureEmptyState(){
         renderOrderPreview();
       }
     }
-    function renderOrderEmailSuggestions(list){
-      const wrap = $('orderEmailSuggest');
-      if(!wrap) return;
-      wrap.innerHTML = '';
-      const rows = Array.isArray(list) ? list.filter(r=> r && r.email) : [];
-      if(!rows.length){ wrap.classList.remove('has-suggest'); return; }
-      wrap.classList.add('has-suggest');
-      rows.forEach(r=>{
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'suggest-chip';
-        btn.dataset.suggestEmail = String(r.email);
-        btn.textContent = String(r.email);
-        wrap.appendChild(btn);
-      });
-    }
-    let _orderSuggestTmr = null;
-    function requestOrderEmailSuggestions(prefix){
-      clearTimeout(_orderSuggestTmr);
-      const q = String(prefix||'');
-      _orderSuggestTmr = setTimeout(async ()=>{
-        try{
-          const data = await sbFetchOrderRecipientSuggestions(q);
-          renderOrderEmailSuggestions(data);
-        }catch(e){
-          renderOrderEmailSuggestions([]);
-        }
-      }, 180);
-    }
     function renderOrderResults(){
       const ord = orderState();
       const list = $('orderResultsBody');
@@ -2286,11 +2327,7 @@ function ensureEmptyState(){
         ord.contactName = String(name||'').trim();
 
         const emailEl = $('orderEmail'); if(emailEl) emailEl.value = ord.email;
-        const noteEl = $('orderContactNote');
-        if(noteEl) noteEl.textContent = ord.contactName ? `Selected: ${ord.contactName}` : '';
-
         renderOrderPreview();
-        requestOrderEmailSuggestions(ord.email);
       }catch(e){
         if(e && String(e.name||'') === 'AbortError') return;
         toast((e && e.message) ? e.message : 'Contact pick failed');
@@ -2310,7 +2347,12 @@ function ensureEmptyState(){
       }
       if(added) toast(`Added ${added} selected item(s)`);
 
-      if(!ord.subject || ord.subject === 'Materials Order' || ord.subject === 'Material Order'){
+      if(
+        !ord.subject
+        || ord.subject === 'Materials Order'
+        || ord.subject === 'Material Order'
+        || / - Material Order$/.test(String(ord.subject||'').trim())
+      ){
         ord.subject = defaultOrderSubject();
       }
 
@@ -2318,19 +2360,11 @@ function ensureEmptyState(){
       const e = $('orderEmail'); if(e) e.value = ord.email || '';
       const sub = $('orderSubject'); if(sub) sub.value = ord.subject || '';
       const n = $('orderNotes'); if(n) n.value = ord.notes || '';
-      const noteEl = $('orderContactNote'); if(noteEl) noteEl.textContent = ord.contactName ? `Selected: ${ord.contactName}` : '';
-      const helpEl = $('orderPickHelp');
-      if(helpEl){
-        helpEl.textContent = canPickContact()
-          ? 'Tip: “Pick Contact” works on some mobile browsers (Chrome Android).'
-          : 'Tip: Contact picker isn’t supported here — type or paste an email.';
-      }
       const pickBtn = $('btnPickContact'); if(pickBtn) pickBtn.disabled = !canPickContact();
 
       renderOrderResults();
       renderOrderLines();
       renderOrderPreview();
-      requestOrderEmailSuggestions(ord.email || '');
 
       show('orderModal', true);
     }
