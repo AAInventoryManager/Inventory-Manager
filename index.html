@@ -88,7 +88,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     @media (min-width: 769px){ td[data-col="desc"], th[data-col="desc"]{ white-space:nowrap; } }
     td.qty{text-align:right;font-variant-numeric:tabular-nums}
     th.sel, td.sel{ width:42px; text-align:center }
-    input[type=text],input[type=number],textarea{
+    input[type=text],input[type=number],input[type=email],input[type=password],input[type=tel],textarea,select{
       width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);
       background:#0d131b;color:#fff;font-size:16px
     }
@@ -176,14 +176,27 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     }
     .order-recipient{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     .order-recipient #orderEmail{ flex:1; min-width:200px; }
-    .order-suggest{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .order-suggest{
+      display:none;
+      flex-direction:column;
+      gap:6px;
+      margin-top:10px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:6px;
+      background:#000;
+      max-height:190px;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    .order-suggest.has-suggest{ display:flex; }
     .suggest-chip{
       cursor:pointer;
       border:1px solid var(--border);
       background:#101826;
       color:#fff;
       padding:8px 10px;
-      border-radius:999px;
+      border-radius:10px;
       font-weight:700;
       font-size:13px;
       min-height:36px;
@@ -244,7 +257,10 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     .order-preview summary::-webkit-details-marker{ display:none; }
     .order-preview summary::after{ content:'▾'; float:right; color:var(--muted); }
     .order-preview[open] summary::after{ content:'▴'; }
-    .order-preview textarea{ margin-top:10px; }
+    .order-preview textarea{
+      margin-top:10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
     .history-list{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
     .history-item{
       border:1px solid var(--border);
@@ -1480,12 +1496,13 @@ function ensureEmptyState(){
       }else{
         const parts = active.map(l => String(l.name||'').trim());
         const partW = Math.min(42, Math.max(6, ...parts.map(p => p.length)));
-        out.push(`${'Part #'.padEnd(partW)}  Qty`);
-        out.push(`${'-'.repeat(partW)}  ---`);
+        const qtyW = Math.min(6, Math.max(3, ...active.map(l => String(toInt(l.qty, 0)).length)));
+        out.push(`${'Part #'.padEnd(partW)} | ${'Qty'.padStart(qtyW)}`);
+        out.push(`${'-'.repeat(partW)}-+-${'-'.repeat(qtyW)}`);
         for(const l of active){
-          const part = String(l.name||'').trim();
-          const qty = String(toInt(l.qty, 0));
-          out.push(`${part.padEnd(partW)}  ${qty}`);
+          const part = String(l.name||'').replace(/\t/g,' ').trim();
+          const qty = String(toInt(l.qty, 0)).padStart(qtyW, ' ');
+          out.push(`${part.padEnd(partW)} | ${qty}`);
         }
       }
 
@@ -1512,7 +1529,7 @@ function ensureEmptyState(){
         const qty = toInt(l.qty, 0);
         return (
           `<tr>`+
-            `<td style="padding:10px;border:1px solid #d0d7de;">${part}</td>`+
+            `<td style="padding:10px;border:1px solid #d0d7de;word-break:break-word;overflow-wrap:anywhere;font-weight:600;">${part}</td>`+
             `<td style="padding:10px;border:1px solid #d0d7de;text-align:right;font-variant-numeric:tabular-nums;font-weight:700;">${qty}</td>`+
           `</tr>`
         );
@@ -1536,7 +1553,11 @@ function ensureEmptyState(){
 
       const itemsBlock = active.length
         ? (
-          `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #d0d7de;">`+
+          `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #d0d7de;table-layout:fixed;">`+
+            `<colgroup>`+
+              `<col style="width:78%;">`+
+              `<col style="width:22%;">`+
+            `</colgroup>`+
             `<thead>`+
               `<tr>`+
                 `<th align="left" style="padding:10px;border:1px solid #d0d7de;background:#f6f8fa;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Part #</th>`+
@@ -1628,7 +1649,7 @@ function ensureEmptyState(){
         .from('order_recipients')
         .select('email,name,last_used_at')
         .order('last_used_at', { ascending:false })
-        .limit(8);
+        .limit(20);
       if(q) req = req.ilike('email', q + '%');
       const { data, error } = await req;
       if(error) throw error;
@@ -1787,7 +1808,8 @@ function ensureEmptyState(){
       if(!wrap) return;
       wrap.innerHTML = '';
       const rows = Array.isArray(list) ? list.filter(r=> r && r.email) : [];
-      if(!rows.length) return;
+      if(!rows.length){ wrap.classList.remove('has-suggest'); return; }
+      wrap.classList.add('has-suggest');
       rows.forEach(r=>{
         const btn = document.createElement('button');
         btn.type = 'button';
