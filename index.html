@@ -60,6 +60,11 @@
       font-size: clamp(14px, 2.8vw, 16px);
       line-height:1.1; white-space:nowrap; min-height:44px
     }
+    .btn.small{
+      padding:8px 10px;
+      font-size:13px;
+      min-height:36px;
+    }
     .btn.primary{background:var(--accent);color:#06121f;border-color:transparent}
     .btn:disabled{ opacity:.55; cursor:not-allowed }
     .muted{color:var(--muted);font-size:12px}
@@ -106,11 +111,123 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       border:1px solid var(--border);color:var(--fg);padding:10px 14px;border-radius:10px;
       box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:100;display:none
     }
-    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200}
-    .modal .box{
-      max-width:580px;margin:10vh auto;background:var(--card);border:1px solid var(--border);
-      border-radius:14px;padding:14px
+    .modal{
+      display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;
+      overflow:auto;
+      padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
     }
+    .modal .box{
+      max-width:580px;
+      width:100%;
+      margin:0 auto;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px;
+      max-height:calc(100vh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    .section{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      background:#0b1017;
+    }
+    .section + .section{ margin-top:12px; }
+    .section-title{
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      gap:12px;
+      margin:0 0 10px;
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .order-box{
+      padding:0;
+      overflow:hidden; /* body scrolls */
+      display:flex;
+      flex-direction:column;
+    }
+    .order-header{
+      padding:14px 14px 12px;
+      border-bottom:1px solid var(--border);
+      background:var(--card);
+    }
+    .order-header h2{ margin:0; font-size:16px; }
+    .order-body{
+      padding:12px 14px 14px;
+      overflow:auto;
+      flex:1;
+      -webkit-overflow-scrolling:touch;
+    }
+    .order-footer{
+      padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+      border-top:1px solid var(--border);
+      background:var(--card);
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .order-recipient{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .order-recipient #orderEmail{ flex:1; min-width:200px; }
+    .order-list{ display:flex; flex-direction:column; gap:8px; }
+    .order-empty{
+      padding:10px;
+      border:1px dashed var(--border);
+      border-radius:12px;
+      background:#000;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .order-card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px;
+      background:#000;
+    }
+    .order-card-top{ display:flex; gap:10px; align-items:flex-start; }
+    .order-meta{ flex:1; min-width:0; }
+    .order-title{ font-weight:800; }
+    .order-sub{ margin-top:2px; color:var(--muted); font-size:12px; }
+    .order-side{ display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+    .order-kpi{ text-align:right; }
+    .order-kpi-label{ color:var(--muted); font-size:12px; }
+    .order-kpi-value{ font-variant-numeric:tabular-nums; font-weight:800; font-size:16px; }
+    .order-controls{
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid var(--border);
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .order-control{ min-width:120px; }
+    .order-control.grow{ flex:1; min-width:160px; }
+    .order-control-label{ color:var(--muted); font-size:12px; margin-bottom:4px; }
+    .order-preview{
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#000;
+      padding:10px;
+    }
+    .order-preview summary{
+      cursor:pointer;
+      list-style:none;
+      font-weight:700;
+      user-select:none;
+    }
+    .order-preview summary::-webkit-details-marker{ display:none; }
+    .order-preview summary::after{ content:'▾'; float:right; color:var(--muted); }
+    .order-preview[open] summary::after{ content:'▴'; }
+    .order-preview textarea{ margin-top:10px; }
     .drop{
       border:1px dashed var(--border);border-radius:10px;padding:12px;text-align:center;color:var(--muted)
     }
@@ -128,6 +245,14 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       .header-inner{ padding: 0 12px; }
       .brandrow{ gap:8px }
       .brand-logo{ height:36px }
+      .modal{ padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom)); }
+      .order-header{ padding:12px; }
+      .order-body{ padding:10px 12px 12px; }
+      .order-footer{ padding:10px 12px calc(10px + env(safe-area-inset-bottom)); }
+      .order-footer{ display:grid; grid-template-columns:1fr 1fr; }
+      .order-footer .order-send{ grid-column:1 / -1; }
+      .order-recipient{ flex-direction:column; align-items:stretch; }
+      .order-recipient #orderEmail{ min-width:0; }
     }
 </style>
 </head>
@@ -151,6 +276,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
         <button class="btn" id="btnImport">Import File</button>
         <button class="btn" id="btnPaste">Paste Data</button>
         <button class="btn" id="btnExportCsv">Export File</button>
+        <button class="btn" id="btnOrder">Create Order</button>
         <button class="btn" id="btnAddOne">Add Item</button>
         <button class="btn" id="btnDeleteSelected">Delete Selected</button>
         <input id="filterBox" type="text" placeholder="Filter items…" aria-label="Filter items" />
@@ -249,6 +375,66 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     </div>
   </div>
 
+  <!-- Order modal -->
+  <div id="orderModal" class="modal" aria-hidden="true">
+    <div class="box order-box">
+      <div class="order-header">
+        <h2>Create Order</h2>
+        <div class="muted" style="margin-top:6px;">Pick materials, set quantities, then send.</div>
+      </div>
+
+      <div class="order-body">
+        <div class="section">
+          <div class="section-title"><span>Materials</span></div>
+          <input id="orderSearch" type="text" placeholder="Search inventory to add items…" autocomplete="off" />
+          <div id="orderResultsBody" class="order-list" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">
+            <span>Order List</span>
+            <span id="orderLinesInfo"></span>
+          </div>
+          <div id="orderLinesBody" class="order-list"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title"><span>Recipient</span></div>
+          <div class="order-recipient">
+            <button class="btn" id="btnPickContact">Pick Contact</button>
+            <input id="orderEmail" type="email" placeholder="recipient@example.com" autocomplete="email" inputmode="email" />
+          </div>
+          <div class="muted" id="orderPickHelp" style="margin-top:8px;"></div>
+          <div class="muted" id="orderContactNote" style="margin-top:4px;"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title"><span>Message</span></div>
+          <div style="display:grid; grid-template-columns:1fr; gap:10px;">
+            <div>
+              <div class="muted" style="margin-bottom:6px;">Subject</div>
+              <input id="orderSubject" type="text" placeholder="Materials Order" />
+            </div>
+            <div>
+              <div class="muted" style="margin-bottom:6px;">Notes (optional)</div>
+              <textarea id="orderNotes" rows="3" placeholder="Any notes…"></textarea>
+            </div>
+            <details class="order-preview">
+              <summary>Preview email</summary>
+              <textarea id="orderPreview" rows="8" readonly></textarea>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-footer">
+        <button class="btn" id="btnOrderCancel">Close</button>
+        <button class="btn" id="btnOrderCopy">Copy</button>
+        <button class="btn primary order-send" id="btnOrderSubmit">Send</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
@@ -256,7 +442,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     // State & persistence
     // ========================
     const DB_KEY='inv.single.inline.mobile.v1';
-    const state={items:[], updatedAt:null, _filter:'', _sort:{col:'name', dir:'asc'}};
+    const state={items:[], updatedAt:null, _filter:'', _sort:{col:'name', dir:'asc'}, _order:{lines:[], email:'', subject:'Materials Order', notes:'', contactName:'', search:''}};
     const APP_VERSION = '1.0.2';
 
     const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
@@ -785,6 +971,394 @@ function ensureEmptyState(){
       const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='inventory.csv'; a.click(); URL.revokeObjectURL(url);
     });
 
+    // ========================
+    // Order engine (email-based)
+    // ========================
+    function orderState(){
+      if(!state._order){
+        state._order = { lines:[], email:'', subject:'Materials Order', notes:'', contactName:'', search:'' };
+      }
+      return state._order;
+    }
+    function canPickContact(){
+      return !!(navigator.contacts && typeof navigator.contacts.select === 'function');
+    }
+    function getInventoryById(id){
+      return state.items.find(x => x && x.id === id) || null;
+    }
+    function upsertOrderLineFromItem(it, qty = 1){
+      const ord = orderState();
+      if(!it || !it.id) return false;
+      if(ord.lines.some(l => l.id === it.id)) return false;
+      ord.lines.push({ id: it.id, name: String(it.name||'').trim(), desc: String(it.desc||'').trim(), qty: toInt(qty, 1) });
+      ord.lines.sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
+      return true;
+    }
+    function removeOrderLine(id){
+      const ord = orderState();
+      ord.lines = ord.lines.filter(l => l.id !== id);
+    }
+    function setOrderQty(id, qty){
+      const ord = orderState();
+      const line = ord.lines.find(l => l.id === id);
+      if(!line) return;
+      line.qty = toInt(qty, 0);
+    }
+    function buildOrderBody(){
+      const ord = orderState();
+      const when = new Date().toLocaleString(undefined, { hour12:true });
+      const out = [];
+      out.push('Materials Order');
+      out.push(`Date: ${when}`);
+      out.push('');
+      out.push('Items:');
+
+      const active = ord.lines.filter(l => toInt(l.qty, 0) > 0);
+      if(!active.length){
+        out.push('- (none)');
+      }else{
+        for(const l of active){
+          const name = String(l.name||'').trim();
+          const qty = toInt(l.qty, 0);
+          const desc = String(l.desc||'').trim();
+          const inv = getInventoryById(l.id);
+          const onHand = inv ? toInt(inv.qty, 0) : null;
+          out.push(`- ${name} (Order Qty: ${qty}${onHand===null ? '' : `, On Hand: ${onHand}`})`);
+          if(desc) out.push(`  ${desc}`);
+        }
+      }
+
+      const notes = String(ord.notes||'').trim();
+      if(notes){
+        out.push('');
+        out.push('Notes:');
+        out.push(notes);
+      }
+
+      out.push('');
+      out.push(`Generated by Don's Inventory Tracker v${APP_VERSION}`);
+      return out.join('\n');
+    }
+    function buildMailtoUrl(){
+      const ord = orderState();
+      const to = String(ord.email||'').trim();
+      const subject = String(ord.subject||'').trim() || 'Materials Order';
+      const body = buildOrderBody();
+      if(!to) return '';
+      return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+    function getOrderApiUrl(){
+      const u = (typeof window.ORDER_API_URL === 'string') ? window.ORDER_API_URL.trim() : '';
+      return u || '/api/send-order';
+    }
+    async function sendOrderViaApi(){
+      const ord = orderState();
+      const to = String(ord.email||'').trim();
+      const subject = String(ord.subject||'').trim() || 'Materials Order';
+      const text = buildOrderBody();
+      const apiUrl = getOrderApiUrl();
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ to, subject, text }),
+      });
+      let data = null;
+      try { data = await res.json(); } catch {}
+      if(!res.ok || !data || data.ok !== true){
+        const msg = (data && data.error) ? String(data.error) : `Send failed (${res.status})`;
+        throw Object.assign(new Error(msg), { status: res.status, data });
+      }
+      return data;
+    }
+    async function copyText(text){
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position='fixed';
+      ta.style.opacity='0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    async function copyOrderToClipboard(){
+      try{
+        await copyText(buildOrderBody());
+        toast('Copied order text');
+      }catch{
+        toast('Copy failed');
+      }
+    }
+    function renderOrderResults(){
+      const ord = orderState();
+      const list = $('orderResultsBody');
+      if(!list) return;
+      const qRaw = String(ord.search||'').trim();
+      const q = toKey(qRaw);
+      const selected = new Set(ord.lines.map(l => l.id));
+
+      const items = (state.items||[]).slice().sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
+      list.innerHTML = '';
+      if(!items.length){
+        const empty = document.createElement('div');
+        empty.className = 'order-empty';
+        empty.textContent = 'No inventory loaded yet.';
+        list.appendChild(empty);
+        return;
+      }
+      if(!qRaw){
+        const empty = document.createElement('div');
+        empty.className = 'order-empty';
+        empty.textContent = 'Type to search inventory, or pre-select items in the main table before opening Create Order.';
+        list.appendChild(empty);
+        return;
+      }
+
+      const hits = items.filter(it=>{
+        if(!it || selected.has(it.id)) return false;
+        const name = toKey(it.name);
+        const desc = toKey(it.desc);
+        return name.includes(q) || desc.includes(q) || String(toInt(it.qty,0)).includes(qRaw);
+      }).slice(0, 20);
+
+      if(!hits.length){
+        const empty = document.createElement('div');
+        empty.className = 'order-empty';
+        empty.textContent = 'No matches.';
+        list.appendChild(empty);
+        return;
+      }
+
+      for(const it of hits){
+        const card = document.createElement('div');
+        card.className = 'order-card';
+        const desc = String(it.desc||'').trim();
+        card.innerHTML =
+          `<div class="order-card-top">`+
+            `<div class="order-meta">`+
+              `<div class="order-title">${escapeHtml(it.name||'')}</div>`+
+              (desc ? `<div class="order-sub">${escapeHtml(desc)}</div>` : ``)+
+            `</div>`+
+            `<div class="order-side">`+
+              `<div class="order-kpi">`+
+                `<div class="order-kpi-label">On Hand</div>`+
+                `<div class="order-kpi-value">${toInt(it.qty,0)}</div>`+
+              `</div>`+
+              `<button class="btn small" data-add-order-id="${it.id}">Add</button>`+
+            `</div>`+
+          `</div>`;
+        list.appendChild(card);
+      }
+    }
+    function renderOrderLines(){
+      const ord = orderState();
+      const list = $('orderLinesBody');
+      const info = $('orderLinesInfo');
+      if(!list) return;
+      list.innerHTML = '';
+
+      const lines = ord.lines.slice().sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
+      if(info){
+        info.textContent = lines.length ? (lines.length === 1 ? '1 item' : `${lines.length} items`) : '';
+      }
+
+      if(!lines.length){
+        const empty = document.createElement('div');
+        empty.className = 'order-empty';
+        empty.textContent = 'No items in the order yet. Add from inventory above, or pre-select items in the main table before opening Create Order.';
+        list.appendChild(empty);
+        renderOrderPreview();
+        return;
+      }
+
+      for(const l of lines){
+        const inv = getInventoryById(l.id);
+        const onHand = inv ? toInt(inv.qty, 0) : null;
+        const card = document.createElement('div');
+        card.className = 'order-card';
+        const desc = String(l.desc||'').trim();
+        card.innerHTML =
+          `<div class="order-title">${escapeHtml(l.name||'')}</div>`+
+          (desc ? `<div class="order-sub">${escapeHtml(desc)}</div>` : ``)+
+          `<div class="order-controls">`+
+            `<div class="order-control">`+
+              `<div class="order-control-label">On Hand</div>`+
+              `<div class="order-kpi-value">${onHand===null ? '—' : onHand}</div>`+
+            `</div>`+
+            `<label class="order-control grow">`+
+              `<div class="order-control-label">Order Qty</div>`+
+              `<input data-order-qty-id="${l.id}" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" value="${toInt(l.qty,0)}">`+
+            `</label>`+
+            `<button class="btn small" data-remove-order-id="${l.id}">Remove</button>`+
+          `</div>`;
+        list.appendChild(card);
+      }
+
+      renderOrderPreview();
+    }
+    function renderOrderPreview(){
+      const ord = orderState();
+      const ta = $('orderPreview');
+      if(ta) ta.value = buildOrderBody();
+      const btn = $('btnOrderSubmit');
+      if(btn){
+        const okEmail = !!String(ord.email||'').trim();
+        const okLines = ord.lines.some(l => toInt(l.qty, 0) > 0);
+        btn.disabled = !(okEmail && okLines);
+      }
+    }
+    async function pickOrderContact(){
+      if(!canPickContact()){
+        toast('Contact picker not supported on this browser');
+        return;
+      }
+      try{
+        const props = (navigator.contacts.getProperties ? await navigator.contacts.getProperties() : ['name','email']);
+        const fields = [];
+        if(props.includes('name')) fields.push('name');
+        if(props.includes('email')) fields.push('email');
+        if(!fields.includes('email')) throw Error('Contact picker: email not available');
+
+        const res = await navigator.contacts.select(fields, { multiple:false });
+        const c = res && res[0];
+        const email = c && Array.isArray(c.email) ? c.email[0] : (c && c.email ? c.email : '');
+        const name = c && Array.isArray(c.name) ? c.name[0] : (c && c.name ? c.name : '');
+        if(!email) return;
+
+        const ord = orderState();
+        ord.email = String(email).trim();
+        ord.contactName = String(name||'').trim();
+
+        const emailEl = $('orderEmail'); if(emailEl) emailEl.value = ord.email;
+        const noteEl = $('orderContactNote');
+        if(noteEl) noteEl.textContent = ord.contactName ? `Selected: ${ord.contactName}` : '';
+
+        renderOrderPreview();
+      }catch(e){
+        if(e && String(e.name||'') === 'AbortError') return;
+        toast((e && e.message) ? e.message : 'Contact pick failed');
+      }
+    }
+    function openOrderModal(){
+      const ord = orderState();
+
+      const selectedIds = Array.from(document.querySelectorAll('.rowChk:checked'))
+        .map(cb => cb.dataset.id)
+        .filter(Boolean);
+
+      let added = 0;
+      for(const id of selectedIds){
+        const it = getInventoryById(id);
+        if(it && upsertOrderLineFromItem(it, 1)) added++;
+      }
+      if(added) toast(`Added ${added} selected item(s)`);
+
+      const s = $('orderSearch'); if(s) s.value = ord.search || '';
+      const e = $('orderEmail'); if(e) e.value = ord.email || '';
+      const sub = $('orderSubject'); if(sub) sub.value = ord.subject || '';
+      const n = $('orderNotes'); if(n) n.value = ord.notes || '';
+      const noteEl = $('orderContactNote'); if(noteEl) noteEl.textContent = ord.contactName ? `Selected: ${ord.contactName}` : '';
+      const helpEl = $('orderPickHelp');
+      if(helpEl){
+        helpEl.textContent = canPickContact()
+          ? 'Tip: “Pick Contact” works on some mobile browsers (Chrome Android).'
+          : 'Tip: Contact picker isn’t supported here — type or paste an email.';
+      }
+      const pickBtn = $('btnPickContact'); if(pickBtn) pickBtn.disabled = !canPickContact();
+
+      renderOrderResults();
+      renderOrderLines();
+      renderOrderPreview();
+
+      show('orderModal', true);
+    }
+
+    const btnOrder = $('btnOrder');
+    if(btnOrder) btnOrder.addEventListener('click', openOrderModal);
+    const btnOrderCancel = $('btnOrderCancel');
+    if(btnOrderCancel) btnOrderCancel.addEventListener('click', ()=> show('orderModal', false));
+    const btnOrderCopy = $('btnOrderCopy');
+    if(btnOrderCopy) btnOrderCopy.addEventListener('click', copyOrderToClipboard);
+    const btnOrderSubmit = $('btnOrderSubmit');
+    if(btnOrderSubmit) btnOrderSubmit.addEventListener('click', async ()=>{
+      const url = buildMailtoUrl();
+      if(!url){ toast('Add at least 1 item and an email'); return; }
+
+      const btn = $('btnOrderSubmit');
+      const priorText = btn ? btn.textContent : '';
+      if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
+
+      try{
+        await sendOrderViaApi();
+        toast('Order sent');
+        show('orderModal', false);
+      }catch(e){
+        const msg = e && e.message ? e.message : 'Send failed';
+        const fallback = confirm(`${msg}\n\nOpen your email app instead?`);
+        if(fallback){ window.location.href = url; }
+        else { toast(msg); }
+      }finally{
+        if(btn){ btn.textContent = priorText || 'Submit Order'; }
+        renderOrderPreview();
+      }
+    });
+    const btnPickContact = $('btnPickContact');
+    if(btnPickContact) btnPickContact.addEventListener('click', pickOrderContact);
+
+    const orderSearch = $('orderSearch');
+    if(orderSearch) orderSearch.addEventListener('input', ()=>{
+      const ord = orderState();
+      ord.search = orderSearch.value || '';
+      renderOrderResults();
+    });
+    const orderEmail = $('orderEmail');
+    if(orderEmail) orderEmail.addEventListener('input', ()=>{
+      const ord = orderState();
+      ord.email = orderEmail.value || '';
+      renderOrderPreview();
+    });
+    const orderSubject = $('orderSubject');
+    if(orderSubject) orderSubject.addEventListener('input', ()=>{
+      const ord = orderState();
+      ord.subject = orderSubject.value || '';
+    });
+    const orderNotes = $('orderNotes');
+    if(orderNotes) orderNotes.addEventListener('input', ()=>{
+      const ord = orderState();
+      ord.notes = orderNotes.value || '';
+      renderOrderPreview();
+    });
+
+    const orderResultsBody = $('orderResultsBody');
+    if(orderResultsBody) orderResultsBody.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[data-add-order-id]');
+      if(!btn) return;
+      const id = btn.getAttribute('data-add-order-id');
+      const it = getInventoryById(id);
+      if(!it) return;
+      if(upsertOrderLineFromItem(it, 1)){
+        renderOrderResults();
+        renderOrderLines();
+      }
+    });
+    const orderLinesBody = $('orderLinesBody');
+    if(orderLinesBody) orderLinesBody.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[data-remove-order-id]');
+      if(!btn) return;
+      removeOrderLine(btn.getAttribute('data-remove-order-id'));
+      renderOrderResults();
+      renderOrderLines();
+    });
+    if(orderLinesBody) orderLinesBody.addEventListener('input', (e)=>{
+      const inp = e.target.closest('input[data-order-qty-id]');
+      if(!inp) return;
+      setOrderQty(inp.getAttribute('data-order-qty-id'), inp.value);
+      renderOrderPreview();
+    });
+
     // Add-one modal
     $('btnAddOne').addEventListener('click', ()=>{ if(!isOnline()){ toast('Offline – edits disabled'); return; } show('addOneModal', true); $('addName').focus(); });
     $('btnAddCancel').addEventListener('click', ()=> show('addOneModal', false));
@@ -1073,6 +1647,9 @@ function ensureEmptyState(){
   } else if (id === 'pasteModal') {
     const ta = document.getElementById('pasteArea');
     if (ta) setTimeout(() => ta.focus(), 0);
+  } else if (id === 'orderModal') {
+    const inp = document.getElementById('orderSearch');
+    if (inp) setTimeout(() => inp.focus(), 0);
   }
 }
     function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._tmr); t._tmr=setTimeout(()=> t.style.display='none', 2000); }

@@ -104,6 +104,34 @@ Then open:
 http://localhost:5173/
 ```
 
+### 3a) (Optional) Send orders via Mailtrap (no `mailto:`)
+
+The Order Engine can send emails directly via a tiny local Node server (keeps your Mailtrap token off the client).
+
+1) Create `.env`:
+
+```bash
+cp .env.example .env
+```
+
+2) Edit `.env` and set:
+
+- `MAILTRAP_API_TOKEN`
+- `MAILTRAP_FROM_EMAIL` (the “From” address)
+
+3) Run the dev server (static + API):
+
+```bash
+node dev-server.mjs --port 5173
+```
+
+Then open `http://127.0.0.1:5173/` and use **Create Order → Submit Order**.
+
+Notes:
+
+- Some mobile browsers support contact picking (Chrome Android). If unavailable, type/paste the email.
+- If you host the API elsewhere, set `window.ORDER_API_URL` in `index.html` to that endpoint.
+
 ### 4) Deploy
 
 Any static hosting works (GitHub Pages, Netlify, Vercel, Cloudflare Pages, S3, etc.). Just publish the repository root.
