@@ -4,12 +4,12 @@ const CACHE = 'inv-cache-v14';
 // Core assets to pre-cache (add more files here if you split CSS/JS)
 const ASSETS = [
   './',
-  './icon-192.png',
-  './icon-512.png',
+  './assets/icon-192.png',
+  './assets/icon-512.png',
   './index.html',
   './manifest.webmanifest?v=4',
-  './favicon.ico',
-  './logo-aa.png'
+  './assets/favicon.ico',
+  './assets/logo-aa.png'
 ];
 
 // Take control immediately on install / activate
