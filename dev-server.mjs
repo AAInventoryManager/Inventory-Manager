@@ -97,8 +97,13 @@ async function sendViaMailtrapApi({ to, subject, text, html, replyTo }) {
     to: [{ email: to }],
     subject,
   };
-  if (text) payload.text = text;
-  if (html) payload.html = html;
+  // Send HTML only for proper rendering (most email clients support HTML)
+  // Plain text fallback was causing Mac Mail to show text instead of HTML
+  if (html) {
+    payload.html = html;
+  } else if (text) {
+    payload.text = text;
+  }
   if (replyTo) payload.headers = { 'Reply-To': replyTo };
 
   const resp = await fetch(baseUrl, {

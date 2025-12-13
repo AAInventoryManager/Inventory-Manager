@@ -239,16 +239,43 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       gap:12px;
       align-items:flex-end;
     }
-    .order-control{ flex-shrink:0; }
-    .order-control.qty{ width:70px; }
+    .order-control{ flex-shrink:0; display:flex; flex-direction:column; }
+    .order-control.qty{ width:64px; margin-left:auto; text-align:center; }
     .order-control.qty input{
       width:100%;
       text-align:center;
       font-weight:600;
       font-size:16px;
       font-variant-numeric:tabular-nums;
+      height:42px;
+      padding:0 8px;
+      box-sizing:border-box;
     }
-    .order-control-label{ color:var(--muted); font-size:12px; margin-bottom:4px; }
+    .order-control-label{ color:var(--muted); font-size:11px; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.03em; }
+    .order-control-value{ font-variant-numeric:tabular-nums; font-weight:700; font-size:17px; height:42px; display:flex; align-items:center; }
+    .order-control-spacer{ height:17px; }
+    .order-remove-btn{
+      background:none; border:none; cursor:pointer; padding:8px;
+      color:var(--muted); display:flex; align-items:center; justify-content:center;
+      height:42px; width:42px; border-radius:8px; transition:background 0.15s, color 0.15s;
+    }
+    .order-remove-btn:hover{ background:rgba(255,80,80,0.15); color:#ff6b6b; }
+    .order-remove-btn svg{ width:20px; height:20px; }
+    .qty-stepper{
+      display:flex; align-items:center; gap:0; background:#0d131b; border:1px solid var(--border);
+      border-radius:10px; overflow:hidden; height:42px;
+    }
+    .qty-stepper-btn{
+      width:42px; height:42px; border:none; background:transparent; color:#fff;
+      font-size:20px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:background 0.15s;
+    }
+    .qty-stepper-btn:hover{ background:rgba(255,255,255,0.08); }
+    .qty-stepper-btn:active{ background:rgba(255,255,255,0.12); }
+    .qty-stepper-val{
+      min-width:32px; text-align:center; font-weight:700; font-size:16px;
+      font-variant-numeric:tabular-nums; color:#fff;
+    }
     .order-preview{
       border:1px solid var(--border);
       border-radius:12px;
@@ -264,9 +291,18 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     .order-preview summary::-webkit-details-marker{ display:none; }
     .order-preview summary::after{ content:'▾'; float:right; color:var(--muted); }
     .order-preview[open] summary::after{ content:'▴'; }
-    .order-preview textarea{
+    .order-preview-html{
       margin-top:10px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border-radius:8px;
+      overflow:hidden;
+      background:#fff;
+      max-height:320px;
+      overflow-y:auto;
+    }
+    .order-preview-html iframe{
+      width:100%;
+      border:none;
+      min-height:280px;
     }
     .history-list{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
     .history-item{
@@ -627,6 +663,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
             <button class="btn" id="btnPickContact">Pick Contact</button>
             <input id="orderEmail" type="email" placeholder="recipient@example.com" autocomplete="email" inputmode="email" />
           </div>
+          <div id="orderEmailSuggest" class="order-suggest" aria-label="Email suggestions"></div>
         </div>
 
         <div class="section">
@@ -642,7 +679,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
             </div>
             <details class="order-preview">
               <summary>Preview email</summary>
-              <textarea id="orderPreview" rows="8" readonly></textarea>
+              <div id="orderPreviewHtml" class="order-preview-html"></div>
             </details>
           </div>
         </div>
@@ -1721,6 +1758,11 @@ function ensureEmptyState(){
     function getInventoryById(id){
       return state.items.find(x => x && x.id === id) || null;
     }
+    function getOrderQtyForItem(id){
+      const ord = orderState();
+      const line = ord.lines.find(l => l.id === id);
+      return line ? toInt(line.qty, 0) : 0;
+    }
     function upsertOrderLineFromItem(it, qty = 1){
       const ord = orderState();
       if(!it || !it.id) return false;
@@ -2103,6 +2145,36 @@ function ensureEmptyState(){
         wrap.appendChild(det);
       }
     }
+    let _orderSuggestTimer = null;
+    function renderOrderEmailSuggestions(list){
+      const wrap = $('orderEmailSuggest');
+      if(!wrap) return;
+      wrap.innerHTML = '';
+      const rows = Array.isArray(list) ? list.filter(r=> r && r.email) : [];
+      if(!rows.length){ wrap.classList.remove('has-suggest'); return; }
+      wrap.classList.add('has-suggest');
+      rows.forEach(r=>{
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'suggest-chip';
+        btn.dataset.suggestEmail = String(r.email);
+        btn.textContent = String(r.email);
+        wrap.appendChild(btn);
+      });
+    }
+    function requestOrderEmailSuggestions(prefix){
+      if(_orderSuggestTimer) clearTimeout(_orderSuggestTimer);
+      const q = String(prefix||'');
+      _orderSuggestTimer = setTimeout(async ()=>{
+        try{
+          const data = await sbFetchOrderRecipientSuggestions(q);
+          renderOrderEmailSuggestions(data);
+        }catch{
+          renderOrderEmailSuggestions([]);
+        }
+      }, 160);
+    }
+
     const _forwardSuggestTimers = new Map();
     function renderForwardEmailSuggestions(orderId, list){
       const id = String(orderId || '').trim();
@@ -2225,7 +2297,6 @@ function ensureEmptyState(){
       if(!list) return;
       const qRaw = String(ord.search||'').trim();
       const q = toKey(qRaw);
-      const selected = new Set(ord.lines.map(l => l.id));
 
       const items = (state.items||[]).slice().sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
       list.innerHTML = '';
@@ -2245,7 +2316,7 @@ function ensureEmptyState(){
       }
 
       const hits = items.filter(it=>{
-        if(!it || selected.has(it.id)) return false;
+        if(!it) return false;
         const name = toKey(it.name);
         const desc = toKey(it.desc);
         return name.includes(q) || desc.includes(q) || String(toInt(it.qty,0)).includes(qRaw);
@@ -2263,6 +2334,7 @@ function ensureEmptyState(){
         const card = document.createElement('div');
         card.className = 'order-card';
         const desc = String(it.desc||'').trim();
+        const orderQty = getOrderQtyForItem(it.id);
         card.innerHTML =
           `<div class="order-card-top">`+
             `<div class="order-meta">`+
@@ -2274,7 +2346,11 @@ function ensureEmptyState(){
                 `<div class="order-kpi-label">On Hand</div>`+
                 `<div class="order-kpi-value">${toInt(it.qty,0)}</div>`+
               `</div>`+
-              `<button class="btn small" data-add-order-id="${it.id}">Add</button>`+
+              `<div class="qty-stepper">`+
+                `<button class="qty-stepper-btn" data-stepper-dec="${it.id}"${orderQty === 0 ? ' disabled style="opacity:0.3"' : ''}>−</button>`+
+                `<span class="qty-stepper-val">${orderQty}</span>`+
+                `<button class="qty-stepper-btn" data-stepper-inc="${it.id}">+</button>`+
+              `</div>`+
             `</div>`+
           `</div>`;
         list.appendChild(card);
@@ -2313,13 +2389,22 @@ function ensureEmptyState(){
           `<div class="order-controls">`+
             `<div class="order-control">`+
               `<div class="order-control-label">On Hand</div>`+
-              `<div class="order-kpi-value">${onHand===null ? '—' : onHand}</div>`+
+              `<div class="order-control-value">${onHand===null ? '—' : onHand}</div>`+
             `</div>`+
-            `<label class="order-control qty">`+
-              `<div class="order-control-label">Order Qty</div>`+
-              `<input data-order-qty-id="${l.id}" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" value="${toInt(l.qty,0)}">`+
-            `</label>`+
-            `<button class="btn small" data-remove-order-id="${l.id}">Remove</button>`+
+            `<div class="order-control" style="margin-left:auto;">`+
+              `<div class="order-control-label" style="text-align:center;">Qty</div>`+
+              `<div class="qty-stepper">`+
+                `<button class="qty-stepper-btn" data-line-dec="${l.id}">−</button>`+
+                `<span class="qty-stepper-val">${toInt(l.qty,0)}</span>`+
+                `<button class="qty-stepper-btn" data-line-inc="${l.id}">+</button>`+
+              `</div>`+
+            `</div>`+
+            `<div class="order-control">`+
+              `<div class="order-control-spacer"></div>`+
+              `<button class="order-remove-btn" data-remove-order-id="${l.id}" title="Remove">`+
+                `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>`+
+              `</button>`+
+            `</div>`+
           `</div>`;
         list.appendChild(card);
       }
@@ -2328,8 +2413,11 @@ function ensureEmptyState(){
     }
     function renderOrderPreview(){
       const ord = orderState();
-      const ta = $('orderPreview');
-      if(ta) ta.value = buildOrderBody();
+      const wrap = $('orderPreviewHtml');
+      if(wrap){
+        const html = buildOrderHtml();
+        wrap.innerHTML = `<iframe srcdoc="${html.replace(/"/g, '&quot;')}" sandbox="allow-same-origin"></iframe>`;
+      }
       const replyEl = $('orderReplyToNote');
       if(replyEl){
         const e = getSignedInEmail();
@@ -2488,12 +2576,28 @@ function ensureEmptyState(){
 
     const orderResultsBody = $('orderResultsBody');
     if(orderResultsBody) orderResultsBody.addEventListener('click', (e)=>{
-      const btn = e.target.closest('button[data-add-order-id]');
-      if(!btn) return;
-      const id = btn.getAttribute('data-add-order-id');
-      const it = getInventoryById(id);
-      if(!it) return;
-      if(upsertOrderLineFromItem(it, 1)){
+      const incBtn = e.target.closest('button[data-stepper-inc]');
+      const decBtn = e.target.closest('button[data-stepper-dec]');
+      if(incBtn){
+        const id = incBtn.getAttribute('data-stepper-inc');
+        const it = getInventoryById(id);
+        if(!it) return;
+        const currentQty = getOrderQtyForItem(id);
+        if(currentQty === 0){
+          upsertOrderLineFromItem(it, 1);
+        } else {
+          setOrderQty(id, currentQty + 1);
+        }
+        renderOrderResults();
+        renderOrderLines();
+      } else if(decBtn){
+        const id = decBtn.getAttribute('data-stepper-dec');
+        const currentQty = getOrderQtyForItem(id);
+        if(currentQty <= 1){
+          removeOrderLine(id);
+        } else {
+          setOrderQty(id, currentQty - 1);
+        }
         renderOrderResults();
         renderOrderLines();
       }
@@ -2509,7 +2613,7 @@ function ensureEmptyState(){
       ord.email = email;
       const inp = $('orderEmail'); if(inp) inp.value = email;
       renderOrderPreview();
-      requestOrderEmailSuggestions(email);
+      renderOrderEmailSuggestions([]);
     });
 
     const orderHistoryList = $('orderHistoryList');
@@ -2553,17 +2657,38 @@ function ensureEmptyState(){
     });
     const orderLinesBody = $('orderLinesBody');
     if(orderLinesBody) orderLinesBody.addEventListener('click', (e)=>{
-      const btn = e.target.closest('button[data-remove-order-id]');
-      if(!btn) return;
-      removeOrderLine(btn.getAttribute('data-remove-order-id'));
-      renderOrderResults();
-      renderOrderLines();
-    });
-    if(orderLinesBody) orderLinesBody.addEventListener('input', (e)=>{
-      const inp = e.target.closest('input[data-order-qty-id]');
-      if(!inp) return;
-      setOrderQty(inp.getAttribute('data-order-qty-id'), inp.value);
-      renderOrderPreview();
+      // Remove button
+      const removeBtn = e.target.closest('button[data-remove-order-id]');
+      if(removeBtn){
+        removeOrderLine(removeBtn.getAttribute('data-remove-order-id'));
+        renderOrderResults();
+        renderOrderLines();
+        return;
+      }
+      // Stepper increment
+      const incBtn = e.target.closest('button[data-line-inc]');
+      if(incBtn){
+        const id = incBtn.getAttribute('data-line-inc');
+        const currentQty = getOrderQtyForItem(id);
+        setOrderQty(id, currentQty + 1);
+        renderOrderResults();
+        renderOrderLines();
+        return;
+      }
+      // Stepper decrement
+      const decBtn = e.target.closest('button[data-line-dec]');
+      if(decBtn){
+        const id = decBtn.getAttribute('data-line-dec');
+        const currentQty = getOrderQtyForItem(id);
+        if(currentQty <= 1){
+          removeOrderLine(id);
+        } else {
+          setOrderQty(id, currentQty - 1);
+        }
+        renderOrderResults();
+        renderOrderLines();
+        return;
+      }
     });
 
     // Add-one modal
@@ -2906,6 +3031,14 @@ function ensureEmptyState(){
 
       // Responsive: adjust desc column width on viewport change
       window.addEventListener('resize', ()=> { try{ requestAnimationFrame(()=>{ adjustDescColumnWidth(); adjustTitleSize(); }); }catch(e){} });
+
+      // Close modals when clicking outside (on backdrop)
+      document.addEventListener('click', (e)=>{
+        const modal = e.target.closest('.modal');
+        if(modal && e.target === modal){
+          show(modal.id, false);
+        }
+      });
 
       if('serviceWorker' in navigator){
         // Listen for SW activation and update flow
