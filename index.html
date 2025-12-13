@@ -45,7 +45,7 @@
       position:sticky;top:0;background:var(--bg);z-index:20;text-align:center;
     }
     .header-inner{ max-width:1100px; margin:0 auto; padding:0 24px; }
-.status{margin-top:8px;display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;background:#0d1420;color:#9fb3c8}
+.status{margin-top:8px;display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;background:#0d1420;color:#9fb3c8;appearance:none;-webkit-appearance:none;cursor:pointer;text-align:left}
 .status.online{color:#ffffff;background:#0f2d18;border-color:#1b5432}
 .status.offline{color:#ffffff;background:#2a1212;border-color:#5a1c1c}
     h1{margin:0;text-align:left;font-family:'Barlow',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; font-weight:800; font-size:clamp(var(--title-min), 6vw, var(--title-max)); letter-spacing:1px}
@@ -176,6 +176,23 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     }
     .order-recipient{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     .order-recipient #orderEmail{ flex:1; min-width:200px; }
+    .order-suggest{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .suggest-chip{
+      cursor:pointer;
+      border:1px solid var(--border);
+      background:#101826;
+      color:#fff;
+      padding:8px 10px;
+      border-radius:999px;
+      font-weight:700;
+      font-size:13px;
+      min-height:36px;
+      max-width:100%;
+      text-align:left;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
     .order-list{ display:flex; flex-direction:column; gap:8px; }
     .order-empty{
       padding:10px;
@@ -262,7 +279,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       <div class="brandrow">
       <div class="brandtext">
         <h1>Don's Inventory Tracker</h1>
-        <div id="statusBar" class="status">V1.0.1 Server Status = CHECKING…</div>
+        <button id="statusBar" type="button" class="status">V1.0.3 Server Status = CHECKING…</button>
       </div>
         <img class="logo brand-logo" src="./logo-aa.png" alt="American Access logo" />
     </div>
@@ -406,6 +423,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
           </div>
           <div class="muted" id="orderPickHelp" style="margin-top:8px;"></div>
           <div class="muted" id="orderContactNote" style="margin-top:4px;"></div>
+          <div id="orderEmailSuggest" class="order-suggest" aria-label="Email suggestions"></div>
         </div>
 
         <div class="section">
@@ -435,6 +453,46 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     </div>
   </div>
 
+  <!-- Auth modal -->
+  <div id="authModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <h2 style="margin:0 0 10px;font-size:16px;">Sign In</h2>
+      <div class="muted" style="margin-bottom:10px;">
+        Sign in to access and protect your inventory.
+      </div>
+      <div style="display:grid; grid-template-columns:1fr; gap:8px;">
+        <label class="muted">Email</label>
+        <input id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" inputmode="email" />
+        <label class="muted" id="authPasswordLabel">Password</label>
+        <input id="authPassword" type="password" placeholder="Password" autocomplete="current-password" />
+      </div>
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <button class="btn" id="btnAuthMagic">Send Magic Link</button>
+        <button class="btn" id="btnAuthToggleMode">Create Account</button>
+        <button class="btn primary" id="btnAuthSubmit">Sign In</button>
+      </div>
+      <div id="authMsg" class="muted" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- Profile modal -->
+  <div id="profileModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <h2 style="margin:0 0 10px;font-size:16px;">Account</h2>
+      <div class="muted" id="profileEmail" style="margin-bottom:10px;"></div>
+      <div style="display:grid; grid-template-columns:1fr; gap:8px;">
+        <label class="muted">Phone</label>
+        <input id="profilePhone" type="tel" placeholder="(555) 555‑5555" autocomplete="tel" inputmode="tel" />
+      </div>
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <button class="btn" id="btnProfileClose">Close</button>
+        <button class="btn" id="btnSignOut">Sign Out</button>
+        <button class="btn primary" id="btnProfileSave">Save</button>
+      </div>
+      <div id="profileMsg" class="muted" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
@@ -443,7 +501,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     // ========================
     const DB_KEY='inv.single.inline.mobile.v1';
     const state={items:[], updatedAt:null, _filter:'', _sort:{col:'name', dir:'asc'}, _order:{lines:[], email:'', subject:'Materials Order', notes:'', contactName:'', search:''}};
-    const APP_VERSION = '1.0.2';
+    const APP_VERSION = '1.0.3';
 
     const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
     const toKey=s=>(s||'').trim().toUpperCase();
@@ -473,7 +531,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     // ========================
     // Supabase (cloud sync) — optional
     // ========================
-    const SB = { client:null, ready:false, connected:false };
+    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null };
     function sbInit(){
       const url = window.SB_URL, key = window.SB_ANON;
       if(!url || !key || SB.client){ return; }
@@ -493,16 +551,39 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     function updateStatusBar(){
       const el=$('statusBar'); if(!el) return;
       const ver = (typeof APP_VERSION==='string' && APP_VERSION)? ('V'+APP_VERSION+' ') : '';
+      el.classList.remove('online','offline');
+      if(!SB.ready){
+        el.textContent = ver + 'SUPABASE NOT CONFIGURED — Tap to view';
+        el.classList.add('offline');
+        return;
+      }
+      if(!SB.session){
+        el.textContent = ver + 'SIGN IN REQUIRED — Tap to sign in';
+        el.classList.add('offline');
+        return;
+      }
+      if(!SB.authorized){
+        el.textContent = ver + 'NOT AUTHORIZED — Tap for account';
+        el.classList.add('offline');
+        return;
+      }
       if(SB.connected){
-        el.textContent = ver + 'Server Status = CONNECTED';
-        el.classList.add('online'); el.classList.remove('offline');
+        el.textContent = ver + 'CONNECTED — Tap for account';
+        el.classList.add('online');
       }else{
-        el.textContent = ver + 'Server Status = OFFLINE — Edits cannot be made until CONNECTED';
-        el.classList.add('offline'); el.classList.remove('online');
+        el.textContent = ver + 'OFFLINE — Tap for account';
+        el.classList.add('offline');
       }
     }
+    function explainGate(){
+      if(!SB.ready) return 'Supabase not configured';
+      if(!SB.session) return 'Sign in required';
+      if(!SB.authorized) return 'Not authorized';
+      if(!SB.connected) return 'Offline – edits disabled';
+      return '';
+    }
     async function checkServerHealth(){
-      if(!SB.ready){ SB.connected=false; updateStatusBar(); return false; }
+      if(!SB.ready || !SB.session || !SB.authorized){ SB.connected=false; updateStatusBar(); return false; }
       try{
         const { error } = await SB.client
           .from('items')
@@ -514,9 +595,263 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       updateStatusBar();
       return SB.connected;
     }
-    function isOnline(){ return SB.ready && SB.connected; }
+    function isOnline(){ return SB.ready && !!SB.session && SB.authorized && SB.connected; }
+    function requireOnline(){
+      if(isOnline()) return true;
+      const msg = explainGate();
+      if(msg) toast(msg);
+      if(!SB.session) show('authModal', true);
+      return false;
+    }
+
+    // ---------- Auth + profile ----------
+    let AUTH_MODE = 'signin'; // or 'signup'
+    function renderAuthUi(){
+      const submit = $('btnAuthSubmit');
+      const toggle = $('btnAuthToggleMode');
+      const pw = $('authPassword');
+      const pwLabel = $('authPasswordLabel');
+      if(submit) submit.textContent = (AUTH_MODE === 'signup') ? 'Create Account' : 'Sign In';
+      if(toggle) toggle.textContent = (AUTH_MODE === 'signup') ? 'Have Account? Sign In' : 'Create Account';
+      if(pw) pw.autocomplete = (AUTH_MODE === 'signup') ? 'new-password' : 'current-password';
+      if(pwLabel) pwLabel.textContent = 'Password';
+    }
+    function setAuthMessage(msg){
+      const el = $('authMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function setProfileMessage(msg){
+      const el = $('profileMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function renderProfileUi(){
+      const email = SB.user && SB.user.email ? String(SB.user.email) : '';
+      const elEmail = $('profileEmail'); if(elEmail) elEmail.textContent = email ? `Signed in: ${email}` : '';
+      const elPhone = $('profilePhone'); if(elPhone) elPhone.value = (SB.profile && SB.profile.phone) ? String(SB.profile.phone) : '';
+      const note = SB.session && !SB.authorized
+        ? 'This account is not authorized for this inventory yet. Ask an admin to add you in Supabase.'
+        : '';
+      setProfileMessage(note);
+    }
+    async function sbEnsureProfile(){
+      if(!SB.ready || !SB.user) return null;
+      try{
+        const { data, error } = await SB.client
+          .from('profiles')
+          .select('user_id,email,phone')
+          .eq('user_id', SB.user.id)
+          .maybeSingle();
+        if(error) throw error;
+        if(data){ SB.profile = data; return data; }
+        const row = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), phone: '' };
+        const { error: insErr } = await SB.client.from('profiles').insert([row]);
+        if(insErr) throw insErr;
+        SB.profile = row;
+        return row;
+      }catch(e){
+        console.warn('Profile ensure failed:', e);
+        SB.profile = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), phone: '' };
+        return SB.profile;
+      }
+    }
+    async function sbSaveProfile(phone){
+      if(!SB.ready || !SB.user) throw Error('Not signed in');
+      const row = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), phone: String(phone||'').trim() };
+      const { error } = await SB.client.from('profiles').upsert([row], { onConflict: 'user_id' });
+      if(error) throw error;
+      SB.profile = row;
+      return row;
+    }
+    async function sbCheckAuthorization(){
+      if(!SB.ready || !SB.user){ SB.authorized=false; updateStatusBar(); return false; }
+      try{
+        const { data, error } = await SB.client
+          .from('authorized_users')
+          .select('user_id')
+          .eq('user_id', SB.user.id)
+          .maybeSingle();
+        if(error) throw error;
+        SB.authorized = !!data;
+      }catch(e){
+        console.warn('Authorization check failed:', e);
+        SB.authorized = false;
+      }
+      updateStatusBar();
+      return SB.authorized;
+    }
+    async function sbHandleSession(session){
+      SB.session = session || null;
+      SB.user = session && session.user ? session.user : null;
+      SB.connected = false;
+      SB.authorized = false;
+      SB.profile = null;
+      updateStatusBar();
+
+      if(!SB.session){
+        state.items = [];
+        if(_sbChannel && SB.client){ try{ SB.client.removeChannel(_sbChannel); }catch{} _sbChannel=null; }
+        render();
+        show('authModal', true);
+        return;
+      }
+
+      show('authModal', false);
+      setAuthMessage('');
+
+      await sbEnsureProfile();
+      await sbCheckAuthorization();
+      renderProfileUi();
+
+      if(!SB.authorized){
+        state.items = [];
+        render();
+        updateStatusBar();
+        return;
+      }
+
+      await checkServerHealth();
+      if(isOnline()){
+        await sbLoadSnapshot();
+        sbStartRealtime();
+      }
+    }
+    async function sbAuthBoot(){
+      if(!SB.ready || !SB.client) return;
+
+      renderAuthUi();
+
+      const status = $('statusBar');
+      if(status && !status._wired){
+        status._wired = true;
+        status.addEventListener('click', ()=>{
+          if(!SB.session) show('authModal', true);
+          else { renderProfileUi(); show('profileModal', true); }
+        });
+        status.addEventListener('keydown', (e)=>{
+          if(e.key==='Enter' || e.key===' '){ e.preventDefault(); status.click(); }
+        });
+      }
+
+      try{
+        const { data } = await SB.client.auth.getSession();
+        await sbHandleSession(data && data.session ? data.session : null);
+      }catch(e){
+        console.warn('Auth boot failed:', e);
+        await sbHandleSession(null);
+      }
+
+      SB.client.auth.onAuthStateChange((event, session)=>{
+        void sbHandleSession(session);
+      });
+    }
+    async function sbSignIn(email, password){
+      if(!SB.ready) throw Error('Supabase not configured');
+      const e = String(email||'').trim();
+      const p = String(password||'');
+      if(!e) throw Error('Email required');
+      if(!p) throw Error('Password required');
+      const { error } = await SB.client.auth.signInWithPassword({ email: e, password: p });
+      if(error) throw error;
+    }
+    async function sbSignUp(email, password){
+      if(!SB.ready) throw Error('Supabase not configured');
+      const e = String(email||'').trim();
+      const p = String(password||'');
+      if(!e) throw Error('Email required');
+      if(!p || p.length < 6) throw Error('Password must be at least 6 characters');
+      const { data, error } = await SB.client.auth.signUp({ email: e, password: p });
+      if(error) throw error;
+      if(data && !data.session){
+        setAuthMessage('Check your email to confirm your account, then sign in.');
+      }
+    }
+    async function sbSendMagicLink(email){
+      if(!SB.ready) throw Error('Supabase not configured');
+      const e = String(email||'').trim();
+      if(!e) throw Error('Email required');
+      const { error } = await SB.client.auth.signInWithOtp({ email: e, options: { emailRedirectTo: location.href } });
+      if(error) throw error;
+    }
+    async function sbSignOut(){
+      if(!SB.ready || !SB.client) return;
+      await SB.client.auth.signOut();
+    }
+
+    // ---------- Auth/Profile modal events ----------
+    const btnAuthToggleMode = $('btnAuthToggleMode');
+    if(btnAuthToggleMode) btnAuthToggleMode.addEventListener('click', ()=>{
+      AUTH_MODE = (AUTH_MODE === 'signup') ? 'signin' : 'signup';
+      setAuthMessage('');
+      renderAuthUi();
+    });
+
+    const btnAuthMagic = $('btnAuthMagic');
+    if(btnAuthMagic) btnAuthMagic.addEventListener('click', async ()=>{
+      const email = $('authEmail')?.value || '';
+      setAuthMessage('');
+      btnAuthMagic.disabled = true;
+      try{
+        await sbSendMagicLink(email);
+        setAuthMessage('Magic link sent. Check your email.');
+      }catch(e){
+        setAuthMessage(e && e.message ? e.message : 'Failed to send magic link');
+      }finally{
+        btnAuthMagic.disabled = false;
+      }
+    });
+
+    const btnAuthSubmit = $('btnAuthSubmit');
+    if(btnAuthSubmit) btnAuthSubmit.addEventListener('click', async ()=>{
+      const email = $('authEmail')?.value || '';
+      const password = $('authPassword')?.value || '';
+      setAuthMessage('');
+      btnAuthSubmit.disabled = true;
+      try{
+        if(AUTH_MODE === 'signup') await sbSignUp(email, password);
+        else await sbSignIn(email, password);
+      }catch(e){
+        setAuthMessage(e && e.message ? e.message : 'Authentication failed');
+      }finally{
+        btnAuthSubmit.disabled = false;
+      }
+    });
+
+    const authPassword = $('authPassword');
+    if(authPassword) authPassword.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){ e.preventDefault(); $('btnAuthSubmit')?.click(); }
+    });
+
+    const btnProfileClose = $('btnProfileClose');
+    if(btnProfileClose) btnProfileClose.addEventListener('click', ()=> show('profileModal', false));
+
+    const btnProfileSave = $('btnProfileSave');
+    if(btnProfileSave) btnProfileSave.addEventListener('click', async ()=>{
+      const phone = $('profilePhone')?.value || '';
+      setProfileMessage('');
+      btnProfileSave.disabled = true;
+      try{
+        await sbSaveProfile(phone);
+        renderProfileUi();
+        toast('Profile saved');
+      }catch(e){
+        setProfileMessage(e && e.message ? e.message : 'Save failed');
+      }finally{
+        btnProfileSave.disabled = false;
+      }
+    });
+
+    const btnSignOut = $('btnSignOut');
+    if(btnSignOut) btnSignOut.addEventListener('click', async ()=>{
+      try{
+        await sbSignOut();
+        show('profileModal', false);
+        toast('Signed out');
+      }catch(e){
+        toast(e && e.message ? e.message : 'Sign out failed');
+      }
+    });
     async function sbLoadSnapshot(){
-      if(!SB.ready) return;
+      if(!SB.ready || !SB.session || !SB.authorized) return;
       const { data, error } = await SB.client
         .from('items')
         .select('id,name,description,qty,updated_at')
@@ -529,7 +864,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     }
     let _sbChannel=null;
     function sbStartRealtime(){
-      if(!SB.ready) return;
+      if(!SB.ready || !SB.session || !SB.authorized) return;
       if(_sbChannel){ SB.client.removeChannel(_sbChannel); _sbChannel=null; }
       _sbChannel = SB.client.channel('items_all')
         .on('postgres_changes', {event:'*', schema:'public', table:'items'}, payload=>{
@@ -768,13 +1103,29 @@ function updateCellDisplay(id, col, value){
   td.textContent = (col==='qty') ? toInt(value,0) : String(value||'');
 }
 // Ensure an empty-state row exists when there are no data rows
+function emptyStateHtml(){
+  const gate = explainGate();
+  if(!gate){
+    return 'No items yet. Use <b>Import File</b> or <b>Paste Data</b> above, or <b>Add Item</b> to create one.';
+  }
+  if(gate === 'Sign in required'){
+    return 'Sign in to view your inventory. Tap the status bar above.';
+  }
+  if(gate === 'Not authorized'){
+    return 'Not authorized for this inventory. Tap the status bar above for account details.';
+  }
+  if(gate.startsWith('Offline')){
+    return 'Offline. Connect to load your inventory.';
+  }
+  return escapeHtml(gate);
+}
 function ensureEmptyState(){
   const tb = tbodyEl(); if(!tb) return;
   const hasRows = tb.querySelector('tr[data-id]') !== null;
   const existingEmpty = tb.querySelector('tr[data-empty="1"]');
   if(!hasRows && !existingEmpty){
     const tr=document.createElement('tr'); tr.setAttribute('data-empty','1');
-    tr.innerHTML = '<td colspan="4" style="padding:16px;text-align:center;color:var(--muted)">No items yet. Use <b>Import File</b> or <b>Paste Data</b> above, or <b>Add Item</b> to create one.</td>';
+    tr.innerHTML = '<td colspan="4" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
     tb.appendChild(tr);
   } else if(hasRows && existingEmpty){
     existingEmpty.remove();
@@ -802,7 +1153,7 @@ function ensureEmptyState(){
       }
       if(items.length===0){
       const tr=document.createElement('tr');
-      tr.innerHTML = '<td colspan="4" style="padding:16px;text-align:center;color:var(--muted)">No items yet. Use <b>Import File</b> or <b>Paste Data</b> above, or <b>Add Item</b> to create one.</td>';
+      tr.innerHTML = '<td colspan="4" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
       tbody.appendChild(tr);
       return;
       }
@@ -830,7 +1181,7 @@ function ensureEmptyState(){
 
 
     function startCellEdit(td){
-      if(!isOnline()){ toast('Offline – edits disabled'); return; }
+      if(!requireOnline()) return;
       if(td.querySelector('input')) return;
       const col=td.getAttribute('data-col'); if(!col) return;
       const tr=td.closest('tr'); const id=tr.dataset.id; const it=state.items.find(x=> x.id===id); if(!it) return;
@@ -881,16 +1232,16 @@ function ensureEmptyState(){
     // ========================
     // Import / Paste / Export
     // ========================
-    $('btnImport').addEventListener('click', ()=> { if(!isOnline()){ toast('Offline – edits disabled'); return; } $('#fileImport').click(); });
+    $('btnImport').addEventListener('click', ()=> { if(!requireOnline()) return; $('#fileImport').click(); });
     $('#fileImport').addEventListener('change', async ev=>{
-      if(!isOnline()){ ev.target.value=''; toast('Offline – edits disabled'); return; }
+      if(!requireOnline()){ ev.target.value=''; return; }
       const f=ev.target.files[0]; if(!f) return; await handleFile(f); ev.target.value='';
     });
 
-    $('btnPaste').addEventListener('click', ()=>{ if(!isOnline()){ toast('Offline – edits disabled'); return; } $('#pasteArea').value=''; show('pasteModal', true); });
+    $('btnPaste').addEventListener('click', ()=>{ if(!requireOnline()) return; $('#pasteArea').value=''; show('pasteModal', true); });
     $('btnPasteCancel').addEventListener('click', ()=> show('pasteModal', false));
     $('btnPasteApply').addEventListener('click', ()=>{
-      if(!isOnline()){ toast('Offline – edits disabled'); return; }
+      if(!requireOnline()) return;
       const text=$('#pasteArea').value||''; if(!text.trim()){ toast('Nothing to import'); return; }
       const rows=parseDelimitedSmart(text); const items=rowsToItems(rows);
       if(!items.length){ toast('Could not detect headers or rows'); return; }
@@ -902,13 +1253,13 @@ function ensureEmptyState(){
     drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.style.background='#0e1621'; });
     drop.addEventListener('dragleave', ()=>{ drop.style.background=''; });
     drop.addEventListener('drop', async e=>{
-      e.preventDefault(); drop.style.background=''; if(!isOnline()){ toast('Offline – edits disabled'); return; } const f=e.dataTransfer.files[0]; if(f) await handleFile(f);
+      e.preventDefault(); drop.style.background=''; if(!requireOnline()) return; const f=e.dataTransfer.files[0]; if(f) await handleFile(f);
     });
 
-    $('#fileImportModal').addEventListener('change', async ev=>{ if(!isOnline()){ ev.target.value=''; toast('Offline – edits disabled'); return; } const f=ev.target.files[0]; if(f) await handleFile(f); ev.target.value=''; });
+    $('#fileImportModal').addEventListener('change', async ev=>{ if(!requireOnline()){ ev.target.value=''; return; } const f=ev.target.files[0]; if(f) await handleFile(f); ev.target.value=''; });
 
     async function handleFile(f){
-      if(!isOnline()){ toast('Offline – edits disabled'); return; }
+      if(!requireOnline()) return;
       try{
         const items=await parseAnyFile(f);
         if(!items.length){ toast('No rows found in file'); return; }
@@ -953,7 +1304,7 @@ function ensureEmptyState(){
     }
     $('btnPreviewCancel').addEventListener('click', ()=>{ state._pendingImport=null; show('previewModal', false); });
     $('btnPreviewApply').addEventListener('click', async ()=>{
-      if(!isOnline()){ toast('Offline – edits disabled'); return; }
+      if(!requireOnline()) return;
       const imp = state._pendingImport||[]; state._pendingImport=null; show('previewModal', false);
       if(!imp.length){ toast('Nothing to import'); return; }
       try{
@@ -1091,6 +1442,60 @@ function ensureEmptyState(){
       }catch{
         toast('Copy failed');
       }
+    }
+
+    async function sbFetchOrderRecipientSuggestions(prefix){
+      if(!SB.ready || !SB.session || !SB.authorized) return [];
+      const q = String(prefix||'').trim();
+      let req = SB.client
+        .from('order_recipients')
+        .select('email,name,last_used_at')
+        .order('last_used_at', { ascending:false })
+        .limit(8);
+      if(q) req = req.ilike('email', q + '%');
+      const { data, error } = await req;
+      if(error) throw error;
+      return Array.isArray(data) ? data : [];
+    }
+    async function sbRecordOrderRecipient(email, name){
+      if(!SB.ready || !SB.session || !SB.authorized) return;
+      const e = String(email||'').trim().toLowerCase();
+      if(!e) return;
+      const row = { email: e, last_used_at: new Date().toISOString(), created_by: SB.user ? SB.user.id : null };
+      const nm = String(name||'').trim();
+      if(nm) row.name = nm;
+      const { error } = await SB.client
+        .from('order_recipients')
+        .upsert([row], { onConflict: 'email' });
+      if(error) throw error;
+    }
+    function renderOrderEmailSuggestions(list){
+      const wrap = $('orderEmailSuggest');
+      if(!wrap) return;
+      wrap.innerHTML = '';
+      const rows = Array.isArray(list) ? list.filter(r=> r && r.email) : [];
+      if(!rows.length) return;
+      rows.forEach(r=>{
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'suggest-chip';
+        btn.dataset.suggestEmail = String(r.email);
+        btn.textContent = String(r.email);
+        wrap.appendChild(btn);
+      });
+    }
+    let _orderSuggestTmr = null;
+    function requestOrderEmailSuggestions(prefix){
+      clearTimeout(_orderSuggestTmr);
+      const q = String(prefix||'');
+      _orderSuggestTmr = setTimeout(async ()=>{
+        try{
+          const data = await sbFetchOrderRecipientSuggestions(q);
+          renderOrderEmailSuggestions(data);
+        }catch(e){
+          renderOrderEmailSuggestions([]);
+        }
+      }, 180);
     }
     function renderOrderResults(){
       const ord = orderState();
@@ -1237,6 +1642,7 @@ function ensureEmptyState(){
         if(noteEl) noteEl.textContent = ord.contactName ? `Selected: ${ord.contactName}` : '';
 
         renderOrderPreview();
+        requestOrderEmailSuggestions(ord.email);
       }catch(e){
         if(e && String(e.name||'') === 'AbortError') return;
         toast((e && e.message) ? e.message : 'Contact pick failed');
@@ -1272,6 +1678,7 @@ function ensureEmptyState(){
       renderOrderResults();
       renderOrderLines();
       renderOrderPreview();
+      requestOrderEmailSuggestions(ord.email || '');
 
       show('orderModal', true);
     }
@@ -1293,6 +1700,10 @@ function ensureEmptyState(){
 
       try{
         await sendOrderViaApi();
+        try{
+          const ord = orderState();
+          await sbRecordOrderRecipient(ord.email, ord.contactName);
+        }catch{}
         toast('Order sent');
         show('orderModal', false);
       }catch(e){
@@ -1301,7 +1712,7 @@ function ensureEmptyState(){
         if(fallback){ window.location.href = url; }
         else { toast(msg); }
       }finally{
-        if(btn){ btn.textContent = priorText || 'Submit Order'; }
+        if(btn){ btn.textContent = priorText || 'Send'; }
         renderOrderPreview();
       }
     });
@@ -1319,7 +1730,9 @@ function ensureEmptyState(){
       const ord = orderState();
       ord.email = orderEmail.value || '';
       renderOrderPreview();
+      requestOrderEmailSuggestions(ord.email);
     });
+    if(orderEmail) orderEmail.addEventListener('focus', ()=> requestOrderEmailSuggestions(orderEmail.value || ''));
     const orderSubject = $('orderSubject');
     if(orderSubject) orderSubject.addEventListener('input', ()=>{
       const ord = orderState();
@@ -1344,6 +1757,19 @@ function ensureEmptyState(){
         renderOrderLines();
       }
     });
+
+    const orderEmailSuggest = $('orderEmailSuggest');
+    if(orderEmailSuggest) orderEmailSuggest.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[data-suggest-email]');
+      if(!btn) return;
+      const email = String(btn.dataset.suggestEmail || '').trim();
+      if(!email) return;
+      const ord = orderState();
+      ord.email = email;
+      const inp = $('orderEmail'); if(inp) inp.value = email;
+      renderOrderPreview();
+      requestOrderEmailSuggestions(email);
+    });
     const orderLinesBody = $('orderLinesBody');
     if(orderLinesBody) orderLinesBody.addEventListener('click', (e)=>{
       const btn = e.target.closest('button[data-remove-order-id]');
@@ -1360,12 +1786,12 @@ function ensureEmptyState(){
     });
 
     // Add-one modal
-    $('btnAddOne').addEventListener('click', ()=>{ if(!isOnline()){ toast('Offline – edits disabled'); return; } show('addOneModal', true); $('addName').focus(); });
+    $('btnAddOne').addEventListener('click', ()=>{ if(!requireOnline()) return; show('addOneModal', true); $('addName').focus(); });
     $('btnAddCancel').addEventListener('click', ()=> show('addOneModal', false));
     $('btnAddSave').addEventListener('click', saveAddOne);
     $('addQty').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); saveAddOne(); }});
     async function saveAddOne(){
-      if(!isOnline()){ toast('Offline – edits disabled'); return; }
+      if(!requireOnline()) return;
       const name = String(($('addName').value||'').trim());
       const desc = String(($('addDesc').value||'').trim());
       const qty  = toInt($('addQty').value,-1);
@@ -1385,7 +1811,7 @@ function ensureEmptyState(){
     }
 
     $('btnDeleteSelected').addEventListener('click', async ()=>{
-      if(!isOnline()){ toast('Offline – edits disabled'); return; }
+      if(!requireOnline()) return;
       const boxes = Array.from(document.querySelectorAll('.rowChk:checked'));
       if (boxes.length === 0) { toast('No items selected'); return; }
       if (!confirm(`Delete ${boxes.length} item(s)?`)) return;
@@ -1650,6 +2076,12 @@ function ensureEmptyState(){
   } else if (id === 'orderModal') {
     const inp = document.getElementById('orderSearch');
     if (inp) setTimeout(() => inp.focus(), 0);
+  } else if (id === 'authModal') {
+    const inp = document.getElementById('authEmail');
+    if (inp) setTimeout(() => inp.focus(), 0);
+  } else if (id === 'profileModal') {
+    const inp = document.getElementById('profilePhone');
+    if (inp) setTimeout(() => inp.focus(), 0);
   }
 }
     function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._tmr); t._tmr=setTimeout(()=> t.style.display='none', 2000); }
@@ -1677,8 +2109,8 @@ function ensureEmptyState(){
       // Supabase init and health check
       try{
         sbInit();
-        await checkServerHealth();
-        if (isOnline()) { await sbLoadSnapshot(); sbStartRealtime(); }
+        updateStatusBar();
+        await sbAuthBoot();
       }catch(e){
         console.warn('Startup error', e);
         SB.connected = false;

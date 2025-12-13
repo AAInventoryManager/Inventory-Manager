@@ -71,18 +71,26 @@ create table if not exists public.items (
 create unique index if not exists items_name_ci_unique on public.items (lower(name));
 ```
 
-Enable Row Level Security and allow public (anon) access for this demo (you can tighten later):
+### Secure Supabase setup (recommended)
+
+This app now supports Supabase Auth + profiles + an authorization allow‑list so only approved users can read/write the shared inventory.
+
+1) In the Supabase SQL editor, run `SUPABASE_SECURE_SETUP.sql`.
+
+2) Create/sign up a user (Supabase Dashboard → **Authentication → Users**).
+
+3) Add that user to the allow‑list:
 
 ```sql
-alter table public.items enable row level security;
-
-create policy "anon_read_items" on public.items for select using (true);
-create policy "anon_insert_items" on public.items for insert with check (true);
-create policy "anon_update_items" on public.items for update using (true);
-create policy "anon_delete_items" on public.items for delete using (true);
+insert into public.authorized_users (user_id, role)
+values ('PASTE-USER-UUID-HERE', 'admin')
+on conflict (user_id) do nothing;
 ```
 
-If you want stricter rules, replace the policies above with your own authentication logic and switch the client key to a protected environment (e.g., a backend). This app is designed for simple, public kiosk/utility use with a Supabase anon key.
+Notes:
+
+- This does **not** delete your existing `items` rows.
+- For best security, disable public signups and invite/create users from the dashboard.
 
 ### 3) Run locally
 
