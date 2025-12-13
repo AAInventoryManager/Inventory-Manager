@@ -206,41 +206,48 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       overflow:hidden;
       text-overflow:ellipsis;
     }
-    .order-list{ display:flex; flex-direction:column; gap:8px; }
+    .order-list{ display:flex; flex-direction:column; gap:10px; }
     .order-empty{
-      padding:10px;
+      padding:14px;
       border:1px dashed var(--border);
-      border-radius:12px;
-      background:#000;
+      border-radius:14px;
+      background:transparent;
       color:var(--muted);
-      font-size:12px;
+      font-size:13px;
+      text-align:center;
     }
     .order-card{
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:10px;
-      background:#000;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:14px;
+      padding:14px;
+      background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
+      box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
     }
-    .order-card-top{ display:flex; gap:10px; align-items:flex-start; }
+    .order-card-top{ display:flex; gap:12px; align-items:flex-start; }
     .order-meta{ flex:1; min-width:0; }
-    .order-title{ font-weight:800; }
-    .order-sub{ margin-top:2px; color:var(--muted); font-size:12px; }
-    .order-side{ display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+    .order-title{ font-weight:700; font-size:15px; letter-spacing:-0.01em; }
+    .order-sub{ margin-top:3px; color:var(--muted); font-size:12px; line-height:1.4; }
+    .order-side{ display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
     .order-kpi{ text-align:right; }
-    .order-kpi-label{ color:var(--muted); font-size:12px; }
-    .order-kpi-value{ font-variant-numeric:tabular-nums; font-weight:800; font-size:16px; }
+    .order-kpi-label{ color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:0.04em; }
+    .order-kpi-value{ font-variant-numeric:tabular-nums; font-weight:700; font-size:18px; }
     .order-controls{
-      margin-top:10px;
-      padding-top:10px;
-      border-top:1px solid var(--border);
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px solid rgba(255,255,255,0.08);
       display:flex;
-      gap:10px;
+      gap:12px;
       align-items:flex-end;
-      justify-content:space-between;
-      flex-wrap:wrap;
     }
-    .order-control{ min-width:120px; }
-    .order-control.grow{ flex:1; min-width:160px; }
+    .order-control{ flex-shrink:0; }
+    .order-control.qty{ width:70px; }
+    .order-control.qty input{
+      width:100%;
+      text-align:center;
+      font-weight:600;
+      font-size:16px;
+      font-variant-numeric:tabular-nums;
+    }
     .order-control-label{ color:var(--muted); font-size:12px; margin-bottom:4px; }
     .order-preview{
       border:1px solid var(--border);
@@ -1618,39 +1625,57 @@ function ensureEmptyState(){
         .join(' ')
         .trim();
     }
-    function cityStateFromDeliveryAddress(address){
-      const raw = String(address || '').trim();
-      if(!raw) return '';
-      const lines = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-      if(!lines.length) return '';
-      const candidates = lines.slice().reverse();
-      for(const line0 of candidates){
-        const s0 = String(line0 || '').replace(/\s+/g, ' ').trim();
-        if(!s0) continue;
-        const noCountry = s0
-          .replace(/\b(USA|UNITED STATES|UNITED STATES OF AMERICA)\b/i, '')
-          .replace(/\s+/g, ' ')
-          .trim();
-        const zipStripped = noCountry
-          .replace(/\s+\d{5}(?:-\d{4})?\b/g, '')
-          .replace(/\s+/g, ' ')
-          .trim();
-        if(!zipStripped) continue;
-        const m1 = zipStripped.match(/^(.+?),\s*([A-Za-z]{2,})$/);
-        if(m1){
-          const city = String(m1[1] || '').trim();
-          const st = formatStateToken(m1[2]);
-          if(city && st) return `${city}/${st}`;
-        }
-        const m2 = zipStripped.match(/^(.+?)\s+([A-Za-z]{2,})$/);
-        if(m2){
-          const city = String(m2[1] || '').replace(/,$/, '').trim();
-          const st = formatStateToken(m2[2]);
-          if(city && st) return `${city}/${st}`;
-        }
-      }
-      return '';
-    }
+	    function cityStateFromDeliveryAddress(address){
+	      const raw = String(address || '').trim();
+	      if(!raw) return '';
+
+	      const normalized = raw
+	        .replace(/\r?\n/g, ', ')
+	        .replace(/\s+/g, ' ')
+	        .trim();
+
+	      const noCountry = normalized
+	        .replace(/\b(USA|UNITED STATES|UNITED STATES OF AMERICA)\b/gi, '')
+	        .replace(/\s+/g, ' ')
+	        .trim();
+
+	      // Remove ZIP (and ZIP+4) to make parsing easier.
+	      const zipStripped = noCountry
+	        .replace(/\s+\d{5}(?:-\d{4})?\b/g, '')
+	        .replace(/\s+/g, ' ')
+	        .trim();
+
+	      // Prefer the common US format: "Street, City, ST"
+	      const parts = zipStripped.split(',').map(s => s.trim()).filter(Boolean);
+	      if(parts.length >= 2){
+	        const last = parts[parts.length - 1] || '';
+	        const stateMatch = String(last).match(/\b([A-Za-z]{2})\b/);
+	        const st = stateMatch ? String(stateMatch[1]).toUpperCase() : '';
+	        if(st){
+	          let city = String(parts[parts.length - 2] || '').trim();
+	          // If the "city" looks like it's actually a street (starts with a number), try the segment before it.
+	          if(/^\d/.test(city)){
+	            if(parts.length >= 3){
+	              city = String(parts[parts.length - 3] || '').trim();
+	            }else{
+	              // Handle: "Street, City ST"
+	              city = String(last).replace(new RegExp(`\\b${st}\\b`, 'i'), '').trim();
+	            }
+	          }
+	          if(city) return `${city}/${st}`;
+	        }
+	      }
+
+	      // Fallback: last "City ST" style (no commas).
+	      const m = zipStripped.match(/^(.+?)\s+([A-Za-z]{2})$/);
+	      if(m){
+	        const city = String(m[1] || '').replace(/,$/, '').trim();
+	        const st = String(m[2] || '').toUpperCase();
+	        if(city && st) return `${city}/${st}`;
+	      }
+
+	      return '';
+	    }
     function formatEasternDateTime(value){
       const d = (value instanceof Date) ? value : new Date(value);
       try{
@@ -2273,7 +2298,7 @@ function ensureEmptyState(){
               `<div class="order-control-label">On Hand</div>`+
               `<div class="order-kpi-value">${onHand===null ? '—' : onHand}</div>`+
             `</div>`+
-            `<label class="order-control grow">`+
+            `<label class="order-control qty">`+
               `<div class="order-control-label">Order Qty</div>`+
               `<input data-order-qty-id="${l.id}" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" value="${toInt(l.qty,0)}">`+
             `</label>`+
