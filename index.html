@@ -656,7 +656,14 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     .drop{
       border:1px dashed var(--border);border-radius:10px;padding:12px;text-align:center;color:var(--muted)
     }
-    .totals{ display:flex; justify-content:flex-end; margin:6px 0 4px; }
+	    .totals{
+	      display:flex;
+	      justify-content:space-between;
+	      align-items:center;
+	      gap:12px;
+	      flex-wrap:wrap;
+	      margin:6px 0 4px;
+	    }
     @media (max-width:640px){
       .toolbar{gap:6px}
       .toolbar .btn{flex:1}
@@ -916,7 +923,10 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
         </div>
       </div>
 
-      <div class="totals" aria-live="polite"><span id="totalQty" class="muted">Total Qty: 0</span></div>
+	      <div class="totals" aria-live="polite">
+	        <span id="totalItems" class="muted">Total Items: 0</span>
+	        <span id="totalQty" class="muted">Total Qty: 0</span>
+	      </div>
 
 	      <div class="scroll" id="tableWrap">
 	        <table id="invTable" role="grid" aria-label="Inventory table">
@@ -2087,16 +2097,21 @@ function ensureEmptyState(){
           return name.includes(term) || desc.includes(term) || qty.includes(term);
         });
       }
-      // Update Total Qty for the currently displayed items
-      const totalEl = $('totalQty');
-      if (totalEl) {
-        const total = items.reduce((sum, it) => sum + toInt(it.qty,0), 0);
-        totalEl.textContent = `Total Qty: ${total}`;
-      }
-      if(items.length===0){
-      const tr=document.createElement('tr');
-      tr.innerHTML = '<td colspan="5" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
-      tbody.appendChild(tr);
+	      // Update Total Qty for the currently displayed items
+	      const totalEl = $('totalQty');
+	      if (totalEl) {
+	        const total = items.reduce((sum, it) => sum + toInt(it.qty,0), 0);
+	        totalEl.textContent = `Total Qty: ${total}`;
+	      }
+	      // Update Total Items for the currently displayed items
+	      const totalItemsEl = $('totalItems');
+	      if (totalItemsEl) {
+	        totalItemsEl.textContent = `Total Items: ${items.length}`;
+	      }
+	      if(items.length===0){
+	      const tr=document.createElement('tr');
+	      tr.innerHTML = '<td colspan="5" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
+	      tbody.appendChild(tr);
       return;
       }
 		      for(const it of items){
