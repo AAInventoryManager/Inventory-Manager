@@ -2431,10 +2431,6 @@ function ensureEmptyState(){
         return;
       }
       if(!qRaw){
-        const empty = document.createElement('div');
-        empty.className = 'order-empty';
-        empty.textContent = 'Type to search inventory, or pre-select items in the main table before opening Create Order.';
-        list.appendChild(empty);
         return;
       }
 
