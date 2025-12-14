@@ -188,6 +188,9 @@ create index if not exists orders_created_at_idx on public.orders (created_at de
 alter table public.items
   add column if not exists low_stock_qty integer;
 
+alter table public.items
+  add column if not exists reorder_enabled boolean not null default true;
+
 alter table public.items enable row level security;
 
 -- Remove old demo policies (safe to run even if they don't exist)
