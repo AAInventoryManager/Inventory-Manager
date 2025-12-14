@@ -1085,7 +1085,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       <div style="display:grid; grid-template-columns:1fr; gap:8px; margin-top:8px;">
         <label class="muted">Phone</label>
         <input id="profilePhone" type="tel" placeholder="(555) 555-5555" autocomplete="tel" inputmode="tel" />
-        <label class="muted">Order Delivery Address</label>
+        <label class="muted">Shipping Address</label>
         <textarea id="profileDeliveryAddress" rows="3" placeholder="123 Main St&#10;City, ST 12345"></textarea>
       </div>
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
@@ -2589,7 +2589,7 @@ function ensureEmptyState(){
 
       if(deliveryLines.length){
         out.push('');
-        out.push('Delivery Information:');
+        out.push('Shipping Address:');
         for(const line of deliveryLines) out.push(line);
       }
 
@@ -2635,8 +2635,8 @@ function ensureEmptyState(){
 
       const deliveryInfoBlock = deliveryInfoLines.length
         ? (
-          `<div style="margin:0 0 16px;padding:12px;background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;">`+
-            `<div style="font-weight:700;margin-bottom:8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Delivery Information</div>`+
+          `<div style="margin:16px 0 16px;padding:12px;background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;">`+
+            `<div style="font-weight:700;margin-bottom:8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Shipping Address</div>`+
             `<div style="font-size:14px;line-height:1.5;">${deliveryInfoLines.join('<br>')}</div>`+
           `</div>`
         )
