@@ -629,14 +629,91 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       justify-content:center;
       transition:color 0.15s, background 0.15s;
     }
-    .btn-icon-danger:hover{
-      color:#ef4444;
-      background:rgba(239,68,68,0.1);
-    }
-    .history-kv{ margin-top:10px; font-size:13px; }
-    .history-kv div{ margin-top:4px; }
-    .history-table{
-      width:100%;
+	    .btn-icon-danger:hover{
+	      color:#ef4444;
+	      background:rgba(239,68,68,0.1);
+	    }
+	    .report-metrics{
+	      display:grid;
+	      grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+	      gap:10px;
+	      margin-top:12px;
+	    }
+	    .report-metric{
+	      border:1px solid var(--border);
+	      border-radius:12px;
+	      padding:10px 12px;
+	      background:#0d1420;
+	    }
+	    .report-metric .val{
+	      margin-top:4px;
+	      font-weight:900;
+	      font-size:18px;
+	      font-variant-numeric:tabular-nums;
+	    }
+	    .report-section{ margin-top:14px; }
+	    .report-section-title{
+	      display:flex;
+	      align-items:center;
+	      justify-content:space-between;
+	      gap:10px;
+	      flex-wrap:wrap;
+	      margin:0 0 10px 0;
+	    }
+	    .report-section-title h3{
+	      margin:0;
+	      font-size:13px;
+	      letter-spacing:.08em;
+	      text-transform:uppercase;
+	    }
+	    .report-list{
+	      display:flex;
+	      flex-direction:column;
+	      gap:8px;
+	    }
+	    .report-row{
+	      display:flex;
+	      align-items:flex-start;
+	      justify-content:space-between;
+	      gap:12px;
+	      padding:10px 12px;
+	      border:1px solid var(--border);
+	      border-radius:12px;
+	      background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
+	    }
+	    .report-row.low{
+	      border-color:rgba(239,68,68,0.35);
+	      box-shadow:0 0 0 1px rgba(239,68,68,0.10);
+	    }
+	    .report-row-main{ min-width:0; flex:1; }
+	    .report-item{
+	      font-weight:800;
+	      letter-spacing:.02em;
+	      overflow:hidden;
+	      text-overflow:ellipsis;
+	      white-space:nowrap;
+	    }
+	    .report-desc{
+	      margin-top:4px;
+	      color:var(--muted);
+	      font-size:13px;
+	      line-height:1.25;
+	      overflow:hidden;
+	      display:-webkit-box;
+	      -webkit-box-orient:vertical;
+	      -webkit-line-clamp:2;
+	    }
+	    .report-qty{
+	      flex:0 0 auto;
+	      min-width:56px;
+	      text-align:right;
+	      font-weight:900;
+	      font-variant-numeric:tabular-nums;
+	    }
+	    .history-kv{ margin-top:10px; font-size:13px; }
+	    .history-kv div{ margin-top:4px; }
+	    .history-table{
+	      width:100%;
       border-collapse:collapse;
       margin-top:10px;
       font-size:14px;
@@ -877,14 +954,18 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
               Paste Data
             </button>
-            <button class="menu-item" id="menuExport" role="menuitem">
-              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              Export File
-            </button>
-            <div class="menu-divider"></div>
-            <button class="menu-item" id="menuAddOne" role="menuitem">
-              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              Add Item
+	            <button class="menu-item" id="menuExport" role="menuitem">
+	              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+	              Export File
+	            </button>
+	            <button class="menu-item" id="menuReport" role="menuitem">
+	              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+	              Create Inventory Report
+	            </button>
+	            <div class="menu-divider"></div>
+	            <button class="menu-item" id="menuAddOne" role="menuitem">
+	              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+	              Add Item
             </button>
             <button class="menu-item" id="menuOrder" role="menuitem">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
@@ -1113,8 +1194,8 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
   </div>
 
 	  <!-- Order history -->
-	  <div id="orderHistoryModal" class="modal" aria-hidden="true">
-	    <div class="box">
+		  <div id="orderHistoryModal" class="modal" aria-hidden="true">
+		    <div class="box">
 	      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
 	        <h2 style="margin:0;font-size:16px;">Order History</h2>
 	        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
@@ -1138,13 +1219,63 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	          </svg>
 	        </button>
 	      </div>
-	      <div id="orderHistoryList" class="history-list" aria-live="polite"></div>
+		      <div id="orderHistoryList" class="history-list" aria-live="polite"></div>
+		    </div>
+		  </div>
+
+	  <!-- Inventory report -->
+	  <div id="reportModal" class="modal" aria-hidden="true">
+	    <div class="box">
+	      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+	        <h2 style="margin:0;font-size:16px;">Inventory Report</h2>
+	        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+	          <button class="btn btn-icon" id="btnReportShare" type="button" title="Share report" aria-label="Share report">
+	            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+	              <path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"></path>
+	              <polyline points="16 6 12 2 8 6"></polyline>
+	              <line x1="12" y1="2" x2="12" y2="15"></line>
+	            </svg>
+	          </button>
+	          <button class="btn btn-icon" id="btnReportDownload" type="button" title="Download CSV" aria-label="Download report CSV">
+	            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+	              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+	              <polyline points="7 10 12 15 17 10"></polyline>
+	              <line x1="12" y1="15" x2="12" y2="3"></line>
+	            </svg>
+	          </button>
+	          <button class="btn" id="btnReportClose" type="button">Close</button>
+	        </div>
+	      </div>
+
+	      <div class="report-metrics" aria-label="Report summary">
+	        <div class="report-metric"><div class="muted">Total Items</div><div class="val" id="reportMetricTotalItems">0</div></div>
+	        <div class="report-metric"><div class="muted">In Stock</div><div class="val" id="reportMetricInStock">0</div></div>
+	        <div class="report-metric"><div class="muted">Out of Stock</div><div class="val" id="reportMetricOutOfStock">0</div></div>
+	        <div class="report-metric"><div class="muted">Total Qty</div><div class="val" id="reportMetricTotalQty">0</div></div>
+	      </div>
+
+	      <div class="report-section" id="reportLowStockSection" style="display:none">
+	        <div class="report-section-title">
+	          <h3>Low Stock Alerts</h3>
+	          <button class="btn small" id="btnReportBuildReorder" type="button">Build Reorder</button>
+	        </div>
+	        <div class="muted" id="reportLowStockNote" style="margin:-4px 0 10px;"></div>
+	        <div class="report-list" id="reportLowStockList"></div>
+	      </div>
+
+	      <div class="report-section">
+	        <div class="report-section-title">
+	          <h3>Inventory</h3>
+	          <div class="muted" id="reportGeneratedAt"></div>
+	        </div>
+	        <div class="report-list" id="reportList" aria-live="polite"></div>
+	      </div>
 	    </div>
 	  </div>
 
-  <!-- Auth modal -->
-  <div id="authModal" class="modal" aria-hidden="true">
-    <div class="box">
+	  <!-- Auth modal -->
+	  <div id="authModal" class="modal" aria-hidden="true">
+	    <div class="box">
       <h2 style="margin:0 0 10px;font-size:16px;">Sign In</h2>
       <div style="display:grid; grid-template-columns:1fr; gap:8px;">
         <label class="muted">Email</label>
@@ -1176,12 +1307,16 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
           <input id="profileLastName" type="text" placeholder="Last" autocomplete="family-name" />
         </div>
       </div>
-      <div style="display:grid; grid-template-columns:1fr; gap:8px; margin-top:8px;">
-        <label class="muted">Phone</label>
-        <input id="profilePhone" type="tel" placeholder="(555) 555-5555" autocomplete="tel" inputmode="tel" />
-        <label class="muted">Shipping Address</label>
-        <textarea id="profileDeliveryAddress" rows="3" placeholder="123 Main St&#10;City, ST 12345"></textarea>
-      </div>
+	      <div style="display:grid; grid-template-columns:1fr; gap:8px; margin-top:8px;">
+	        <label class="muted">Phone</label>
+	        <input id="profilePhone" type="tel" placeholder="(555) 555-5555" autocomplete="tel" inputmode="tel" />
+	        <label class="muted">Shipping Address</label>
+	        <textarea id="profileDeliveryAddress" rows="3" placeholder="123 Main St&#10;City, ST 12345"></textarea>
+	        <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+	          <input id="profileSilenceLowStockAlerts" type="checkbox" style="width:20px;height:20px;" />
+	          <label for="profileSilenceLowStockAlerts" class="muted" style="font-size:13px;cursor:pointer;">Silence low stock reorder prompts</label>
+	        </div>
+	      </div>
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
         <button class="btn" id="btnProfileClose">Close</button>
         <button class="btn" id="btnSignOut">Sign Out</button>
@@ -1360,71 +1495,116 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
     }
 
-    function renderProfileUi(){
-      const email = SB.user && SB.user.email ? String(SB.user.email) : '';
-      const elEmail = $('profileEmailDisplay'); if(elEmail) elEmail.textContent = email ? `Signed in: ${email}` : '';
-      const elFirstName = $('profileFirstName'); if(elFirstName) elFirstName.value = (SB.profile && SB.profile.first_name) ? String(SB.profile.first_name) : '';
-      const elLastName = $('profileLastName'); if(elLastName) elLastName.value = (SB.profile && SB.profile.last_name) ? String(SB.profile.last_name) : '';
-      const elPhone = $('profilePhone'); if(elPhone) elPhone.value = formatPhoneNumber((SB.profile && SB.profile.phone) ? String(SB.profile.phone) : '');
-      const elAddress = $('profileDeliveryAddress'); if(elAddress) elAddress.value = (SB.profile && SB.profile.delivery_address) ? String(SB.profile.delivery_address) : '';
-      const note = SB.session && !SB.authorized
-        ? 'This account is not authorized for this inventory yet. Ask an admin to add you in Supabase.'
-        : '';
-      setProfileMessage(note);
-    }
-    async function sbEnsureProfile(){
-      if(!SB.ready || !SB.user) return null;
-      try{
-        // Fetch profile with all fields
-        let { data, error } = await SB.client
-          .from('profiles')
-          .select('user_id,email,first_name,last_name,phone,delivery_address')
-          .eq('user_id', SB.user.id)
-          .maybeSingle();
-        if(error) throw error;
-        if(data){
-          // Ensure all fields exist
-          data.first_name = data.first_name || '';
-          data.last_name = data.last_name || '';
-          data.phone = data.phone || '';
-          data.delivery_address = data.delivery_address || '';
-          SB.profile = data;
-          return data;
-        }
-        const row = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), first_name: '', last_name: '', phone: '', delivery_address: '' };
-        const { error: insErr } = await SB.client.from('profiles').insert([row]);
-        if(insErr) throw insErr;
-        SB.profile = row;
-        return row;
-      }catch(e){
-        console.warn('Profile ensure failed:', e);
-        SB.profile = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), first_name: '', last_name: '', phone: '', delivery_address: '' };
-        return SB.profile;
-      }
-    }
-    async function sbSaveProfile(firstName, lastName, phone, deliveryAddress){
+	    function renderProfileUi(){
+	      const email = SB.user && SB.user.email ? String(SB.user.email) : '';
+	      const elEmail = $('profileEmailDisplay'); if(elEmail) elEmail.textContent = email ? `Signed in: ${email}` : '';
+	      const elFirstName = $('profileFirstName'); if(elFirstName) elFirstName.value = (SB.profile && SB.profile.first_name) ? String(SB.profile.first_name) : '';
+	      const elLastName = $('profileLastName'); if(elLastName) elLastName.value = (SB.profile && SB.profile.last_name) ? String(SB.profile.last_name) : '';
+	      const elPhone = $('profilePhone'); if(elPhone) elPhone.value = formatPhoneNumber((SB.profile && SB.profile.phone) ? String(SB.profile.phone) : '');
+	      const elAddress = $('profileDeliveryAddress'); if(elAddress) elAddress.value = (SB.profile && SB.profile.delivery_address) ? String(SB.profile.delivery_address) : '';
+	      const elSilence = $('profileSilenceLowStockAlerts'); if(elSilence) elSilence.checked = lowStockAlertsSilenced();
+	      const note = SB.session && !SB.authorized
+	        ? 'This account is not authorized for this inventory yet. Ask an admin to add you in Supabase.'
+	        : '';
+	      setProfileMessage(note);
+	    }
+	    async function sbEnsureProfile(){
+	      if(!SB.ready || !SB.user) return null;
+	      try{
+	        // Fetch profile with all fields
+	        const baseSelect = 'user_id,email,first_name,last_name,phone,delivery_address';
+	        let hasSilenceCol = true;
+	        let { data, error } = await SB.client
+	          .from('profiles')
+	          .select(baseSelect + ',silence_low_stock_alerts')
+	          .eq('user_id', SB.user.id)
+	          .maybeSingle();
+	        if(error && error.message && String(error.message).includes('silence_low_stock_alerts')){
+	          hasSilenceCol = false;
+	          ({ data, error } = await SB.client
+	            .from('profiles')
+	            .select(baseSelect)
+	            .eq('user_id', SB.user.id)
+	            .maybeSingle()
+	          );
+	        }
+	        if(error) throw error;
+	        if(data){
+	          // Ensure all fields exist
+	          data.first_name = data.first_name || '';
+	          data.last_name = data.last_name || '';
+	          data.phone = data.phone || '';
+	          data.delivery_address = data.delivery_address || '';
+	          if(hasSilenceCol){
+	            data.silence_low_stock_alerts = !!data.silence_low_stock_alerts;
+	          }else{
+	            data.silence_low_stock_alerts = lowStockAlertsSilenced();
+	          }
+	          SB.profile = data;
+	          return data;
+	        }
+	        const row = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), first_name: '', last_name: '', phone: '', delivery_address: '' };
+	        if(hasSilenceCol) row.silence_low_stock_alerts = lowStockAlertsSilenced();
+	        let { error: insErr } = await SB.client.from('profiles').insert([row]);
+	        if(insErr && insErr.message && String(insErr.message).includes('silence_low_stock_alerts')){
+	          hasSilenceCol = false;
+	          const fallbackRow = { user_id: row.user_id, email: row.email, first_name: row.first_name, last_name: row.last_name, phone: row.phone, delivery_address: row.delivery_address };
+	          const res = await SB.client.from('profiles').insert([fallbackRow]);
+	          insErr = res.error;
+	          if(!insErr){
+	            SB.profile = { ...fallbackRow, silence_low_stock_alerts: lowStockAlertsSilenced() };
+	            return SB.profile;
+	          }
+	        }
+	        if(insErr) throw insErr;
+	        SB.profile = row;
+	        return row;
+	      }catch(e){
+	        console.warn('Profile ensure failed:', e);
+	        SB.profile = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), first_name: '', last_name: '', phone: '', delivery_address: '', silence_low_stock_alerts: lowStockAlertsSilenced() };
+	        return SB.profile;
+	      }
+	    }
+    async function sbSaveProfile(firstName, lastName, phone, deliveryAddress, silenceLowStockAlerts){
       if(!SB.ready || !SB.user) throw Error('Not signed in');
-      const row = {
+      const desiredSilence = !!silenceLowStockAlerts;
+      try{ localStorage.setItem('inv.pref.silenceLowStockAlerts', desiredSilence ? '1' : '0'); }catch(e){}
+
+      const base = {
         user_id: SB.user.id,
         email: String(SB.user.email||'').trim(),
         first_name: String(firstName||'').trim(),
         last_name: String(lastName||'').trim(),
         phone: String(phone||'').trim(),
-        delivery_address: String(deliveryAddress||'').trim()
       };
-      let { error } = await SB.client.from('profiles').upsert([row], { onConflict: 'user_id' });
-      if(error && error.message && error.message.includes('delivery_address')){
-        const fallbackRow = { user_id: row.user_id, email: row.email, first_name: row.first_name, last_name: row.last_name, phone: row.phone };
-        const res = await SB.client.from('profiles').upsert([fallbackRow], { onConflict: 'user_id' });
-        error = res.error;
-        if(!error){
-          SB.profile = { ...fallbackRow, delivery_address: '' };
+      const address = String(deliveryAddress||'').trim();
+
+      const attempts = [
+        { delivery:true, silence:true },
+        { delivery:true, silence:false },
+        { delivery:false, silence:true },
+        { delivery:false, silence:false },
+      ];
+      let lastError = null;
+      for(const a of attempts){
+        const row = { ...base };
+        if(a.delivery) row.delivery_address = address;
+        if(a.silence) row.silence_low_stock_alerts = desiredSilence;
+        const res = await SB.client.from('profiles').upsert([row], { onConflict: 'user_id' });
+        if(!res.error){
+          SB.profile = { ...row };
+          if(!a.delivery) SB.profile.delivery_address = '';
+          SB.profile.silence_low_stock_alerts = desiredSilence;
           return SB.profile;
         }
+        lastError = res.error;
+        const msg = String(res.error && res.error.message ? res.error.message : '');
+        if(!(msg.includes('delivery_address') || msg.includes('silence_low_stock_alerts'))){
+          break;
+        }
       }
-      if(error) throw error;
-      SB.profile = row;
-      return row;
+      if(lastError) throw lastError;
+      throw Error('Save failed');
     }
     async function sbCheckAuthorization(){
       if(!SB.ready || !SB.user){ SB.authorized=false; updateStatusBar(); return false; }
@@ -1639,21 +1819,22 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       });
     }
 
-    const btnProfileSave = $('btnProfileSave');
-    if(btnProfileSave) btnProfileSave.addEventListener('click', async ()=>{
-      const firstName = $('profileFirstName')?.value || '';
-      const lastName = $('profileLastName')?.value || '';
-      const phone = $('profilePhone')?.value || '';
-      const deliveryAddress = $('profileDeliveryAddress')?.value || '';
-      setProfileMessage('');
-      btnProfileSave.disabled = true;
-      try{
-        await sbSaveProfile(firstName, lastName, phone, deliveryAddress);
-        renderProfileUi();
-        toast('Profile saved');
-      }catch(e){
-        setProfileMessage(e && e.message ? e.message : 'Save failed');
-      }finally{
+	    const btnProfileSave = $('btnProfileSave');
+	    if(btnProfileSave) btnProfileSave.addEventListener('click', async ()=>{
+	      const firstName = $('profileFirstName')?.value || '';
+	      const lastName = $('profileLastName')?.value || '';
+	      const phone = $('profilePhone')?.value || '';
+	      const deliveryAddress = $('profileDeliveryAddress')?.value || '';
+	      const silenceLowStockAlerts = !!($('profileSilenceLowStockAlerts')?.checked);
+	      setProfileMessage('');
+	      btnProfileSave.disabled = true;
+	      try{
+	        await sbSaveProfile(firstName, lastName, phone, deliveryAddress, silenceLowStockAlerts);
+	        renderProfileUi();
+	        toast('Profile saved');
+	      }catch(e){
+	        setProfileMessage(e && e.message ? e.message : 'Save failed');
+	      }finally{
         btnProfileSave.disabled = false;
       }
     });
@@ -2627,19 +2808,245 @@ function ensureEmptyState(){
       }catch(e){ toast(e.message || 'Import failed'); }
     });
 
-    $('menuExport').addEventListener('click', ()=>{
-      toggleMenu(false);
-      const rows=[["Item","Description","Qty"]];
-      for(const it of state.items){ rows.push([it.name||'', it.desc||'', String(toInt(it.qty,0))]); }
-      const csv = rows.map(r=> r.map(v=> '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
-      const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
-      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='inventory.csv'; a.click(); URL.revokeObjectURL(url);
-    });
+	    $('menuExport').addEventListener('click', ()=>{
+	      toggleMenu(false);
+	      const rows=[["Item","Description","Qty"]];
+	      for(const it of state.items){ rows.push([it.name||'', it.desc||'', String(toInt(it.qty,0))]); }
+	      const csv = rows.map(r=> r.map(v=> '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+	      const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+	      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='inventory.csv'; a.click(); URL.revokeObjectURL(url);
+	    });
 
-    // ========================
-    // Order engine (email-based)
-    // ========================
-    function getSignedInEmail(){
+	    // ========================
+	    // Inventory report
+	    // ========================
+	    const LOW_STOCK_QTY_THRESHOLD = 0; // qty <= this is considered "low stock" for alerts
+	    function reportDataSnapshot(){
+	      const all = (Array.isArray(state.items) ? state.items : [])
+	        .filter(Boolean)
+	        .map(it => ({ id: it.id, name: String(it.name||''), desc: String(it.desc||''), qty: toInt(it.qty,0) }))
+	        .sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
+	      const totalItems = all.length;
+	      const totalQty = all.reduce((sum, it) => sum + toInt(it.qty,0), 0);
+	      const inStock = all.filter(it => toInt(it.qty,0) > 0);
+	      const lowStock = all.filter(it => toInt(it.qty,0) <= LOW_STOCK_QTY_THRESHOLD);
+	      return {
+	        all,
+	        inStock,
+	        lowStock,
+	        totalItems,
+	        totalQty,
+	        inStockCount: inStock.length,
+	        lowStockCount: lowStock.length,
+	      };
+	    }
+	    function reportCsvEscape(value){
+	      const s = String(value ?? '');
+	      return '"' + s.replace(/"/g, '""') + '"';
+	    }
+	    function buildInventoryReportCsv(data){
+	      const d = data || reportDataSnapshot();
+	      const out = [];
+	      out.push(['Item','Description','Qty','In Stock'].map(reportCsvEscape).join(','));
+	      for(const it of d.all){
+	        out.push([
+	          it.name || '',
+	          String(it.desc||'').replace(/[\r\n]+/g,' ').trim(),
+	          String(toInt(it.qty,0)),
+	          toInt(it.qty,0) > 0 ? 'Yes' : 'No',
+	        ].map(reportCsvEscape).join(','));
+	      }
+	      return out.join('\n');
+	    }
+	    function buildInventoryReportText(data, opts = {}){
+	      const d = data || reportDataSnapshot();
+	      const maxLines = Math.max(10, Math.min(500, toInt(opts.maxLines, 180)));
+	      const out = [];
+	      const when = formatEasternDateTime(new Date());
+	      out.push(`Inventory Report`);
+	      out.push(`Generated: ${when}`);
+	      out.push('');
+	      out.push(`Total Items: ${d.totalItems}`);
+	      out.push(`In Stock: ${d.inStockCount}`);
+	      out.push(`Out of Stock: ${d.lowStockCount}`);
+	      out.push(`Total Qty: ${d.totalQty}`);
+	      out.push('');
+	      out.push('Inventory:');
+	      out.push('');
+	      if(!d.all.length){
+	        out.push('(none)');
+	        return out.join('\n');
+	      }
+	      let linesUsed = out.length;
+	      for(const it of d.all){
+	        if(linesUsed >= maxLines){
+	          out.push('');
+	          out.push(`(trimmed; use CSV for full report)`);
+	          break;
+	        }
+	        const qty = toInt(it.qty,0);
+	        const desc = String(it.desc||'').replace(/[\r\n]+/g,' ').trim();
+	        out.push(`${it.name}\t${qty}\t${desc}`);
+	        linesUsed++;
+	      }
+	      return out.join('\n');
+	    }
+	    function renderInventoryReport(){
+	      const d = reportDataSnapshot();
+	      const elTotal = $('reportMetricTotalItems'); if(elTotal) elTotal.textContent = String(d.totalItems);
+	      const elIn = $('reportMetricInStock'); if(elIn) elIn.textContent = String(d.inStockCount);
+	      const elOut = $('reportMetricOutOfStock'); if(elOut) elOut.textContent = String(d.lowStockCount);
+	      const elQty = $('reportMetricTotalQty'); if(elQty) elQty.textContent = String(d.totalQty);
+	      const elWhen = $('reportGeneratedAt'); if(elWhen) elWhen.textContent = formatEasternDateTime(new Date());
+
+	      const lowSection = $('reportLowStockSection');
+	      const lowList = $('reportLowStockList');
+	      const lowNote = $('reportLowStockNote');
+	      if(lowSection && lowList && lowNote){
+	        lowList.innerHTML = '';
+	        if(d.lowStockCount > 0){
+	          lowSection.style.display = 'block';
+	          lowNote.textContent = (LOW_STOCK_QTY_THRESHOLD === 0)
+	            ? 'These items are out of stock (Qty = 0).'
+	            : `These items are low stock (Qty ≤ ${LOW_STOCK_QTY_THRESHOLD}).`;
+	          for(const it of d.lowStock){
+	            const row = document.createElement('div');
+	            row.className = 'report-row low';
+	            row.innerHTML =
+	              `<div class="report-row-main">`+
+	                `<div class="report-item">${escapeHtml(it.name||'')}</div>`+
+	                (it.desc ? `<div class="report-desc">${escapeHtml(it.desc)}</div>` : ``)+
+	              `</div>`+
+	              `<div class="report-qty">${toInt(it.qty,0)}</div>`;
+	            lowList.appendChild(row);
+	          }
+	        }else{
+	          lowSection.style.display = 'none';
+	        }
+	      }
+
+	      const list = $('reportList');
+	      if(list){
+	        list.innerHTML = '';
+	        if(!d.inStock.length){
+	          const empty = document.createElement('div');
+	          empty.className = 'order-empty';
+	          empty.textContent = 'No in-stock items.';
+	          list.appendChild(empty);
+	        }else{
+	          for(const it of d.inStock){
+	            const row = document.createElement('div');
+	            row.className = 'report-row';
+	            row.innerHTML =
+	              `<div class="report-row-main">`+
+	                `<div class="report-item">${escapeHtml(it.name||'')}</div>`+
+	                (it.desc ? `<div class="report-desc">${escapeHtml(it.desc)}</div>` : ``)+
+	              `</div>`+
+	              `<div class="report-qty">${toInt(it.qty,0)}</div>`;
+	            list.appendChild(row);
+	          }
+	        }
+	      }
+	    }
+	    function downloadInventoryReportCsv(){
+	      try{
+	        const csv = buildInventoryReportCsv(reportDataSnapshot());
+	        const stamp = new Date().toISOString().slice(0,10);
+	        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+	        const url = URL.createObjectURL(blob);
+	        const a = document.createElement('a');
+	        a.href = url;
+	        a.download = `inventory-report-${stamp}.csv`;
+	        document.body.appendChild(a);
+	        a.click();
+	        document.body.removeChild(a);
+	        URL.revokeObjectURL(url);
+	      }catch(e){
+	        toast((e && e.message) ? e.message : 'Download failed');
+	      }
+	    }
+	    async function shareInventoryReport(){
+	      const data = reportDataSnapshot();
+	      const text = buildInventoryReportText(data, { maxLines: 180 });
+	      const csv = buildInventoryReportCsv(data);
+	      const stamp = new Date().toISOString().slice(0,10);
+	      const fileName = `inventory-report-${stamp}.csv`;
+
+	      if(navigator.share){
+	        const payload = { title: 'Inventory Report', text };
+	        try{
+	          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+	          const file = new File([blob], fileName, { type: blob.type });
+	          if(navigator.canShare && navigator.canShare({ files: [file] })){
+	            payload.files = [file];
+	          }
+	        }catch{}
+	        try{
+	          await navigator.share(payload);
+	          return;
+	        }catch(e){}
+	      }
+
+	      const to = prompt('Email report to (optional):', '') || '';
+	      const subject = `Inventory Report (${stamp})`;
+	      const mailto = `mailto:${encodeURIComponent(String(to||''))}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+	      window.location.href = mailto;
+	    }
+	    function lowStockAlertsSilenced(){
+	      try{
+	        if(SB && SB.profile && typeof SB.profile.silence_low_stock_alerts !== 'undefined'){
+	          return !!SB.profile.silence_low_stock_alerts;
+	        }
+	      }catch(e){}
+	      try{
+	        const raw = localStorage.getItem('inv.pref.silenceLowStockAlerts');
+	        return raw === '1' || raw === 'true';
+	      }catch(e){ return false; }
+	    }
+	    function buildReorderFromLowStock(items){
+	      const list = Array.isArray(items) ? items : reportDataSnapshot().lowStock;
+	      if(!list.length){ toast('No low stock items'); return; }
+	      const ord = orderState();
+	      let added = 0;
+	      for(const it of list){
+	        const inv = getInventoryById(it.id) || it;
+	        if(!inv || !inv.id) continue;
+	        const existingQty = getOrderQtyForItem(inv.id);
+	        if(existingQty <= 0 && ord.lines.some(l => l.id === inv.id)){
+	          setOrderQty(inv.id, 1);
+	          added++;
+	          continue;
+	        }
+	        if(upsertOrderLineFromItem(inv, 1)) added++;
+	      }
+	      if(added) toast(`Added ${added} item(s) to order`);
+	      else toast('Order already contains low stock items');
+	      closeReportModal();
+	      openOrderModal({ addSelected:false });
+	    }
+	    function maybePromptLowStockReorder(){
+	      if(lowStockAlertsSilenced()) return;
+	      const d = reportDataSnapshot();
+	      if(!d.lowStockCount) return;
+	      const sample = d.lowStock.slice(0, 8).map(it => `${it.name} (${toInt(it.qty,0)})`).join('\n');
+	      const more = d.lowStockCount > 8 ? `\n…and ${d.lowStockCount - 8} more` : '';
+	      const label = (LOW_STOCK_QTY_THRESHOLD === 0)
+	        ? 'Out of stock'
+	        : `Qty ≤ ${LOW_STOCK_QTY_THRESHOLD}`;
+	      const ok = confirm(`Low stock alert (${label}): ${d.lowStockCount} item(s)\n\n${sample}${more}\n\nBuild a reorder list now?`);
+	      if(ok) buildReorderFromLowStock(d.lowStock);
+	    }
+	    function openReportModal(){
+	      renderInventoryReport();
+	      show('reportModal', true);
+	      try{ setTimeout(maybePromptLowStockReorder, 50); }catch(e){}
+	    }
+	    function closeReportModal(){ show('reportModal', false); }
+
+	    // ========================
+	    // Order engine (email-based)
+	    // ========================
+	    function getSignedInEmail(){
       return (SB && SB.user && SB.user.email) ? String(SB.user.email).trim() : '';
     }
     function userNameFromEmail(email){
@@ -3638,19 +4045,21 @@ function ensureEmptyState(){
         btn.disabled = !(okEmail && okLines);
       }
     }
-    function openOrderModal(){
-      const ord = orderState();
+    function openOrderModal(opts = {}){
+	      const ord = orderState();
+	      const addSelected = !(opts && Object.prototype.hasOwnProperty.call(opts, 'addSelected') && opts.addSelected === false);
+	      if(addSelected){
+	        const selectedIds = Array.from(document.querySelectorAll('.rowChk:checked'))
+	          .map(cb => cb.dataset.id)
+	          .filter(Boolean);
 
-      const selectedIds = Array.from(document.querySelectorAll('.rowChk:checked'))
-        .map(cb => cb.dataset.id)
-        .filter(Boolean);
-
-      let added = 0;
-      for(const id of selectedIds){
-        const it = getInventoryById(id);
-        if(it && upsertOrderLineFromItem(it, 1)) added++;
-      }
-      if(added) toast(`Added ${added} selected item(s)`);
+	        let added = 0;
+	        for(const id of selectedIds){
+	          const it = getInventoryById(id);
+	          if(it && upsertOrderLineFromItem(it, 1)) added++;
+	        }
+	        if(added) toast(`Added ${added} selected item(s)`);
+	      }
 
 	      if(
 	        !ord.subject
@@ -3674,12 +4083,22 @@ function ensureEmptyState(){
       show('orderModal', true);
     }
 
-    const menuOrder = $('menuOrder');
-    if(menuOrder) menuOrder.addEventListener('click', ()=>{ toggleMenu(false); openOrderModal(); });
-    const menuHistory = $('menuHistory');
-    if(menuHistory) menuHistory.addEventListener('click', ()=>{ toggleMenu(false); openOrderHistoryModal({ returnToOrder: false }); });
-    const btnOrderHistory = $('btnOrderHistory');
-    if(btnOrderHistory) btnOrderHistory.addEventListener('click', ()=> openOrderHistoryModal({ returnToOrder: true }));
+	    const menuOrder = $('menuOrder');
+	    if(menuOrder) menuOrder.addEventListener('click', ()=>{ toggleMenu(false); openOrderModal(); });
+	    const menuHistory = $('menuHistory');
+	    if(menuHistory) menuHistory.addEventListener('click', ()=>{ toggleMenu(false); openOrderHistoryModal({ returnToOrder: false }); });
+	    const menuReport = $('menuReport');
+	    if(menuReport) menuReport.addEventListener('click', ()=>{ toggleMenu(false); openReportModal(); });
+	    const btnReportClose = $('btnReportClose');
+	    if(btnReportClose) btnReportClose.addEventListener('click', closeReportModal);
+	    const btnReportDownload = $('btnReportDownload');
+	    if(btnReportDownload) btnReportDownload.addEventListener('click', downloadInventoryReportCsv);
+	    const btnReportShare = $('btnReportShare');
+	    if(btnReportShare) btnReportShare.addEventListener('click', ()=>{ void shareInventoryReport(); });
+	    const btnReportBuildReorder = $('btnReportBuildReorder');
+	    if(btnReportBuildReorder) btnReportBuildReorder.addEventListener('click', ()=> buildReorderFromLowStock());
+	    const btnOrderHistory = $('btnOrderHistory');
+	    if(btnOrderHistory) btnOrderHistory.addEventListener('click', ()=> openOrderHistoryModal({ returnToOrder: true }));
 	    const btnOrderHistoryClose = $('btnOrderHistoryClose');
 	    if(btnOrderHistoryClose) btnOrderHistoryClose.addEventListener('click', closeOrderHistoryModal);
 	    const btnOrderHistoryDownload = $('btnOrderHistoryDownload');
