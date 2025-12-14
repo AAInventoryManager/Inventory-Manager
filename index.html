@@ -112,21 +112,21 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 		        filter: drop-shadow(0 0 18px rgba(90,169,255,0.30));
 		      }
 		    }
-	    /* Mobile table layout: stack fields vertically per record */
-	    @media (max-width: 768px){
-	      #invTable thead{ display:none; }
-	      #invTable tbody tr[data-id]{
-	        position:relative;
-	        display:block;
-	        padding:12px; /* keep content centered; individual cells reserve checkbox room */
-	        border:1px solid var(--border);
-	        border-radius:14px;
-	        background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
-	        box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
-	        margin:0 0 10px 0;
-	        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-	        will-change: transform, box-shadow;
-	      }
+		    /* Mobile table layout: stack fields vertically per record */
+		    @media (max-width: 768px){
+		      #invTable thead{ display:none; }
+		      #invTable tbody tr[data-id]{
+		        position:relative;
+		        display:block;
+		        padding:10px; /* tighter cards to reduce scrolling */
+		        border:1px solid var(--border);
+		        border-radius:14px;
+		        background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
+		        box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+		        margin:0 0 8px 0;
+		        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+		        will-change: transform, box-shadow;
+		      }
 		      #invTable tbody tr[data-id].scroll-focus{
 		        border-color: rgba(90,169,255,0.78);
 		        box-shadow:
@@ -143,32 +143,58 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	        padding:0;
 	        border-bottom:none;
 	      }
-	      #invTable tbody tr[data-id] td[data-col]{
-	        padding:10px 0;
-	      }
-	      /* Indent left-aligned fields to avoid the absolute checkbox */
-	      #invTable tbody tr[data-id] td[data-col="name"],
-	      #invTable tbody tr[data-id] td[data-col="desc"]{ padding-left:44px; }
-	      /* Keep the Item row clear of the top-right delete button */
-	      #invTable tbody tr[data-id] td[data-col="name"]{ padding-right:64px; }
-	      #invTable tbody tr[data-id] td[data-col]::before{
-	        display:block;
-	        font-size:11px;
-	        letter-spacing:.08em;
-	        text-transform:uppercase;
-	        color:var(--muted);
-	        margin:0 0 6px 0;
-	      }
-	      #invTable tbody tr[data-id] td[data-col="name"]::before{ content:'Item'; }
-	      #invTable tbody tr[data-id] td[data-col="desc"]::before{ content:'Description'; }
-	      #invTable tbody tr[data-id] td[data-col="qty"]::before{ content:'Qty'; }
+		      #invTable tbody tr[data-id] td[data-col]{
+		        padding:6px 0;
+		      }
+		      /* Indent left-aligned fields to avoid the absolute checkbox */
+		      #invTable tbody tr[data-id] td[data-col="name"],
+		      #invTable tbody tr[data-id] td[data-col="desc"]{ padding-left:44px; }
+		      /* Keep the Item row clear of the top-right delete button */
+		      #invTable tbody tr[data-id] td[data-col="name"]{ padding-right:64px; }
+		      #invTable tbody tr[data-id] td[data-col]::before{
+		        display:inline-block;
+		        font-size:10px;
+		        letter-spacing:.08em;
+		        text-transform:uppercase;
+		        color:var(--muted);
+		        margin:0;
+		      }
+		      #invTable tbody tr[data-id] td[data-col="name"]::before{ content:'Item'; }
+		      #invTable tbody tr[data-id] td[data-col="desc"]::before{ content:'Description'; }
+		      #invTable tbody tr[data-id] td[data-col="qty"]::before{ content:'Qty'; }
 
-      #invTable tbody tr[data-id] td[data-col="desc"]{
-        white-space:normal;
-        word-break:break-word;
-        hyphens:auto;
-      }
-      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
+		      /* Keep label/value on one line for compactness */
+		      #invTable tbody tr[data-id] td[data-col="name"],
+		      #invTable tbody tr[data-id] td[data-col="desc"]{
+		        display:flex;
+		        gap:10px;
+		        align-items:flex-start;
+		      }
+		      #invTable tbody tr[data-id] td[data-col="name"]{ align-items:baseline; }
+		      #invTable tbody tr[data-id] td[data-col="name"]::before,
+		      #invTable tbody tr[data-id] td[data-col="desc"]::before{
+		        min-width:86px;
+		        flex:0 0 86px;
+		        white-space:nowrap;
+		        line-height:1.2;
+		      }
+		      #invTable tbody tr[data-id] td[data-col="name"] .cell-val,
+		      #invTable tbody tr[data-id] td[data-col="desc"] .cell-val{
+		        min-width:0;
+		        flex:1;
+		      }
+		      #invTable tbody tr[data-id] td[data-col="desc"] .cell-val{
+		        white-space:normal;
+		        word-break:break-word;
+		        hyphens:auto;
+		        display:-webkit-box;
+		        -webkit-box-orient:vertical;
+		        -webkit-line-clamp:2;
+		        overflow:hidden;
+		      }
+
+		      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
+		      #invTable tbody tr[data-id] td[data-col="qty"]::before{ display:block; margin:0 0 4px 0; }
 
       #invTable tbody tr[data-id] td.sel{
         position:absolute;
@@ -1066,16 +1092,23 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     </div>
   </div>
 
-  <!-- Order history -->
-  <div id="orderHistoryModal" class="modal" aria-hidden="true">
-    <div class="box">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-        <h2 style="margin:0;font-size:16px;">Order History</h2>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-          <button class="btn" id="btnOrderHistoryRefresh" type="button">Refresh</button>
-          <button class="btn" id="btnOrderHistoryClose" type="button">Close</button>
-        </div>
-      </div>
+	  <!-- Order history -->
+	  <div id="orderHistoryModal" class="modal" aria-hidden="true">
+	    <div class="box">
+	      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+	        <h2 style="margin:0;font-size:16px;">Order History</h2>
+	        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+	          <button class="btn btn-icon" id="btnOrderHistoryDownload" type="button" title="Download CSV" aria-label="Download order history CSV">
+	            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+	              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+	              <polyline points="7 10 12 15 17 10"></polyline>
+	              <line x1="12" y1="15" x2="12" y2="3"></line>
+	            </svg>
+	          </button>
+	          <button class="btn" id="btnOrderHistoryRefresh" type="button">Refresh</button>
+	          <button class="btn" id="btnOrderHistoryClose" type="button">Close</button>
+	        </div>
+	      </div>
       <div class="muted" style="margin-top:6px;">Times shown in Eastern (EST/EDT).</div>
       <div id="orderHistoryList" class="history-list" aria-live="polite"></div>
     </div>
@@ -1903,14 +1936,14 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 	    '</div>'
 	  );
 	}
-function buildRowHTML(it){
-  return (
-    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
-    '<td data-col="name">'+escapeHtml(it.name||'')+'</td>'+
-    '<td data-col="desc">'+escapeHtml(it.desc||'')+'</td>'+
-    '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'
-  );
-}
+	function buildRowHTML(it){
+	  return (
+	    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
+	    '<td data-col="name"><span class="cell-val">'+escapeHtml(it.name||'')+'</span></td>'+
+	    '<td data-col="desc"><span class="cell-val">'+escapeHtml(it.desc||'')+'</span></td>'+
+	    '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'
+	  );
+	}
 // Insert a row into the table in sorted position by name
 function insertRowSorted(it){
   const tb = tbodyEl(); if(!tb) return;
@@ -2032,16 +2065,16 @@ function ensureEmptyState(){
       tbody.appendChild(tr);
       return;
       }
-	      for(const it of items){
-	        const tr=document.createElement('tr'); tr.dataset.id=it.id;
-	        tr.innerHTML =
-	          '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
-	          '<td data-col="name">'+escapeHtml(it.name||'')+'</td>'+
-	          '<td data-col="desc">'+escapeHtml(it.desc||'')+'</td>'+
-	          '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'+
-	          '<td class="actions"><button class="row-delete-btn" data-id="'+it.id+'" aria-label="Delete item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></td>';
-	        tbody.appendChild(tr);
-	      }
+		      for(const it of items){
+		        const tr=document.createElement('tr'); tr.dataset.id=it.id;
+		        tr.innerHTML =
+		          '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
+		          '<td data-col="name"><span class="cell-val">'+escapeHtml(it.name||'')+'</span></td>'+
+		          '<td data-col="desc"><span class="cell-val">'+escapeHtml(it.desc||'')+'</span></td>'+
+		          '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'+
+		          '<td class="actions"><button class="row-delete-btn" data-id="'+it.id+'" aria-label="Delete item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></td>';
+		        tbody.appendChild(tr);
+		      }
 	      enableInlineEditing();
 	      try{ requestAnimationFrame(()=>{ adjustDescColumnWidth(); adjustTitleSize(); refreshCenteredGlowTargets(); scheduleCenteredGlowUpdate(); }); }catch(e){}
 	    }
@@ -2357,7 +2390,7 @@ function ensureEmptyState(){
 	        _done = true;
 	        td.classList.remove('editing');
 	        if(col==='qty') td.innerHTML = qtyCellHTML(it);
-	        else td.textContent = (col==='name') ? String(it.name||'') : String(it.desc||'');
+	        else td.innerHTML = '<span class="cell-val">' + escapeHtml((col==='name') ? String(it.name||'') : String(it.desc||'')) + '</span>';
 	      };
 	      const cancel=()=>{
 	        it.name = prevName;
@@ -3020,21 +3053,128 @@ function ensureEmptyState(){
         providerResult,
       });
     }
-    async function sbFetchOrders(limit = 50){
-      if(!SB.ready || !SB.session || !SB.authorized) return [];
-      const lim = Math.max(1, Math.min(200, toInt(limit, 50)));
-      const { data, error } = await SB.client
-        .from('orders')
-        .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items')
-        .order('created_at', { ascending:false })
-        .limit(lim);
-      if(error) throw error;
-      return Array.isArray(data) ? data : [];
-    }
-    async function sbDeleteOrder(orderId){
-      if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
-      const { error } = await SB.client
-        .from('orders')
+	    async function sbFetchOrders(limit = 50){
+	      if(!SB.ready || !SB.session || !SB.authorized) return [];
+	      const lim = Math.max(1, Math.min(200, toInt(limit, 50)));
+	      const { data, error } = await SB.client
+	        .from('orders')
+	        .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items')
+	        .order('created_at', { ascending:false })
+	        .limit(lim);
+	      if(error) throw error;
+	      return Array.isArray(data) ? data : [];
+	    }
+	    async function sbFetchAllOrders(pageSize = 200){
+	      if(!SB.ready || !SB.session || !SB.authorized) return [];
+	      const size = Math.max(1, Math.min(200, toInt(pageSize, 200)));
+	      let offset = 0;
+	      const out = [];
+	      for(let page=0; page<200; page++){
+	        const { data, error } = await SB.client
+	          .from('orders')
+	          .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items')
+	          .order('created_at', { ascending:false })
+	          .range(offset, offset + size - 1);
+	        if(error) throw error;
+	        const rows = Array.isArray(data) ? data : [];
+	        out.push(...rows);
+	        if(rows.length < size) break;
+	        offset += size;
+	      }
+	      return out;
+	    }
+	    function csvEscape(value){
+	      const s = String(value ?? '');
+	      return '"' + s.replace(/"/g, '""') + '"';
+	    }
+	    function orderLineItemsToCsvCell(value){
+	      const items = normalizeOrderLineItems(value);
+	      if(!items.length) return '';
+	      return items
+	        .map(it => {
+	          const part = String(it.part||'').trim();
+	          const qty = String(toInt(it.qty,0));
+	          const desc = String(it.desc||'').replace(/[\r\n]+/g,' ').trim();
+	          return `${part} | ${qty} | ${desc}`;
+	        })
+	        .join(' ; ');
+	    }
+	    function buildOrderHistoryCsv(rows){
+	      const header = [
+	        'Order ID',
+	        'Created At (UTC)',
+	        'Created (Eastern)',
+	        'To',
+	        'Reply-To',
+	        'Subject',
+	        'Contact Name',
+	        'Notes',
+	        'Item Count',
+	        'Items',
+	      ];
+	      const out = [header.map(csvEscape).join(',')];
+	      const list = Array.isArray(rows) ? rows : [];
+	      for(const o of list){
+	        const id = String(o?.id || '').trim();
+	        const createdAt = String(o?.created_at || '').trim();
+	        const createdEastern = formatEasternDateTime(createdAt || new Date());
+	        const to = String(o?.to_email || '').trim();
+	        const replyTo = String(o?.reply_to_email || '').trim();
+	        const subject = String(o?.subject || '').trim() || defaultOrderSubject();
+	        const contact = String(o?.contact_name || '').trim();
+	        const notes = String(o?.notes || '').trim();
+	        const items = normalizeOrderLineItems(o?.line_items);
+	        const itemsCell = orderLineItemsToCsvCell(o?.line_items);
+	        out.push([
+	          id,
+	          createdAt,
+	          createdEastern,
+	          to,
+	          replyTo,
+	          subject,
+	          contact,
+	          notes,
+	          String(items.length),
+	          itemsCell,
+	        ].map(csvEscape).join(','));
+	      }
+	      // Add BOM so Excel opens UTF-8 correctly
+	      return '\ufeff' + out.join('\n');
+	    }
+	    async function downloadOrderHistoryCsv(){
+	      if(!SB.ready){ toast('Supabase not configured'); return; }
+	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
+
+	      const btn = $('btnOrderHistoryDownload');
+	      const priorTitle = btn ? btn.getAttribute('title') : '';
+	      if(btn){ btn.disabled = true; btn.setAttribute('title', 'Downloading…'); }
+	      try{
+	        toast('Downloading order history…');
+	        const rows = await sbFetchAllOrders(200);
+	        if(!rows.length){ toast('No orders to download'); return; }
+	        const csv = buildOrderHistoryCsv(rows);
+	        const blob = new Blob([csv], { type:'text/csv;charset=utf-8' });
+	        const url = URL.createObjectURL(blob);
+	        const a = document.createElement('a');
+	        a.href = url;
+	        const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+	        a.download = `order-history-${stamp}.csv`;
+	        document.body.appendChild(a);
+	        a.click();
+	        document.body.removeChild(a);
+	        URL.revokeObjectURL(url);
+	        toast(`Downloaded ${rows.length} order(s)`);
+	      }catch(e){
+	        toast((e && e.message) ? e.message : 'Download failed');
+	      }finally{
+	        if(btn){ btn.disabled = false; btn.setAttribute('title', priorTitle || 'Download CSV'); }
+	      }
+	    }
+	    async function sbDeleteOrder(orderId){
+	      if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
+	      const { error } = await SB.client
+	        .from('orders')
         .delete()
         .eq('id', orderId);
       if(error) throw error;
@@ -3444,10 +3584,12 @@ function ensureEmptyState(){
     if(menuHistory) menuHistory.addEventListener('click', ()=>{ toggleMenu(false); openOrderHistoryModal({ returnToOrder: false }); });
     const btnOrderHistory = $('btnOrderHistory');
     if(btnOrderHistory) btnOrderHistory.addEventListener('click', ()=> openOrderHistoryModal({ returnToOrder: true }));
-    const btnOrderHistoryClose = $('btnOrderHistoryClose');
-    if(btnOrderHistoryClose) btnOrderHistoryClose.addEventListener('click', closeOrderHistoryModal);
-    const btnOrderHistoryRefresh = $('btnOrderHistoryRefresh');
-    if(btnOrderHistoryRefresh) btnOrderHistoryRefresh.addEventListener('click', refreshOrderHistory);
+	    const btnOrderHistoryClose = $('btnOrderHistoryClose');
+	    if(btnOrderHistoryClose) btnOrderHistoryClose.addEventListener('click', closeOrderHistoryModal);
+	    const btnOrderHistoryDownload = $('btnOrderHistoryDownload');
+	    if(btnOrderHistoryDownload) btnOrderHistoryDownload.addEventListener('click', downloadOrderHistoryCsv);
+	    const btnOrderHistoryRefresh = $('btnOrderHistoryRefresh');
+	    if(btnOrderHistoryRefresh) btnOrderHistoryRefresh.addEventListener('click', refreshOrderHistory);
     const btnOrderCancel = $('btnOrderCancel');
     if(btnOrderCancel) btnOrderCancel.addEventListener('click', ()=> show('orderModal', false));
     const btnOrderCopy = $('btnOrderCopy');
