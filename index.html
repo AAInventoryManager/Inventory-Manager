@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0b0f14" />
-  <link rel="manifest" href="./manifest.webmanifest?v=5" />
+  <link rel="manifest" href="./manifest.webmanifest?v=6" />
   <link rel="icon" href="./assets/oakley/icon/icon-192.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -83,6 +83,13 @@
     th.sorted-asc .sort-ind::before{ content:'\25B2'; opacity:1 }
     th.sorted-desc .sort-ind::before{ content:'\25BC'; opacity:1 }
 tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+    td.actions{padding:8px;text-align:center}
+    .row-delete-btn{
+      background:none;border:none;cursor:pointer;padding:6px;
+      color:var(--muted);display:inline-flex;align-items:center;justify-content:center;
+      border-radius:6px;transition:background 0.15s,color 0.15s;
+    }
+    .row-delete-btn:hover{background:rgba(255,80,80,0.15);color:#ff6b6b}
     /* Description column responsive behavior */
     @media (max-width: 768px){ td[data-col="desc"], th[data-col="desc"]{ white-space: normal; word-break: break-word; hyphens: auto; } }
     @media (min-width: 769px){ td[data-col="desc"], th[data-col="desc"]{ white-space:nowrap; } }
@@ -98,10 +105,10 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     .headwrap{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:nowrap}
     .logo{height:auto;width:auto;display:block}
     .brandrow{display:flex;align-items:center;justify-content:space-between;gap:14px}
-    .title-logo{height:clamp(48px,9vw,72px); width:auto; display:block;}
-    .brandtext{display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:0;}
+    .title-logo{height:clamp(40px,8vw,56px); width:auto; display:block;}
+    .brandtext{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;}
     #filterBox{
-      flex:1; min-width:160px; max-width:320px;
+      width:100%; max-width:480px;
       padding:12px;border-radius:10px;border:1px solid var(--border);
       background:#0d131b;color:#eaeff7;font-size:16px
     }
@@ -362,7 +369,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       header{ padding: calc(12px + env(safe-area-inset-top)) 12px 12px; }
       .header-inner{ padding: 0 12px; }
       .brandrow{ gap:8px }
-      .title-logo{ height:40px }
+      .title-logo{ height:36px }
       .modal{ padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom)); }
       .order-header{ padding:12px; }
       .order-body{ padding:10px 12px 12px; }
@@ -468,6 +475,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     .header-left{
       display:flex;
       align-items:center;
+      justify-content:center;
       gap:12px;
       flex:1;
       min-width:0;
@@ -481,6 +489,35 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     .menu-backdrop.open{
       display:block;
     }
+    /* Profile dropdown */
+    .profile-menu{
+      position:relative;
+    }
+    .profile-btn{
+      background:none;border:none;cursor:pointer;padding:8px;
+      color:var(--muted);display:flex;align-items:center;gap:6px;
+      border-radius:50%;transition:background 0.15s;position:relative;
+    }
+    .profile-btn:hover{background:rgba(255,255,255,0.08)}
+    .profile-status{
+      position:absolute;bottom:6px;right:6px;width:10px;height:10px;
+      border-radius:50%;border:2px solid var(--bg);
+      background:#6b7280;
+    }
+    .profile-status.online{background:#22c55e}
+    .profile-status.offline{background:#ef4444}
+    .profile-status.warning{background:#f59e0b}
+    .profile-dropdown{
+      position:absolute;top:100%;right:0;margin-top:8px;
+      background:#1a1f26;border:1px solid var(--border);border-radius:12px;
+      min-width:220px;padding:8px 0;z-index:30;
+      box-shadow:0 10px 40px rgba(0,0,0,0.4);
+      display:none;
+    }
+    .profile-dropdown.open{display:block}
+    .profile-info{padding:12px 16px}
+    .profile-email{font-weight:600;font-size:14px;color:var(--fg);margin-bottom:4px;word-break:break-all}
+    .profile-connection{font-size:12px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -489,8 +526,23 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       <div class="header-row">
         <div class="header-left">
           <div class="brandtext">
-            <img class="title-logo" src="./assets/oakley/logo/oakley-logo-square.png" alt="Oakley Inventory" />
-            <button id="statusBar" type="button" class="status">V1.0.3 Server Status = CHECKING…</button>
+            <img class="title-logo" src="./assets/oakley/logo/oakley-logo-horizontal-h128.png" alt="Oakley Services" />
+          </div>
+        </div>
+        <div class="profile-menu">
+          <button class="profile-btn" id="profileBtn" aria-label="Account menu" aria-expanded="false">
+            <span class="profile-status" id="profileStatus"></span>
+            <svg class="profile-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-info" id="profileInfo">
+              <div class="profile-email" id="profileEmail">Not signed in</div>
+              <div class="profile-connection" id="profileConnection">Offline</div>
+            </div>
+            <div class="menu-divider"></div>
+            <button class="menu-item" id="profileSignIn">
+              <span class="menu-icon">🔑</span><span id="profileSignInText">Sign In</span>
+            </button>
           </div>
         </div>
         <div class="hamburger-menu">
@@ -519,10 +571,6 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
             <button class="menu-item" id="menuHistory" role="menuitem">
               <span class="menu-icon">📜</span>Order History
             </button>
-            <div class="menu-divider"></div>
-            <button class="menu-item" id="menuDelete" role="menuitem">
-              <span class="menu-icon">🗑️</span>Delete Selected
-            </button>
           </nav>
         </div>
       </div>
@@ -532,10 +580,11 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 
   <main>
     <section class="card">
-      <div class="toolbar" role="toolbar" aria-label="Inventory actions">
+      <div class="toolbar" role="toolbar" aria-label="Inventory actions" style="justify-content:center;">
         <input type="file" id="fileImport" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.docx,.doc,.pdf" style="display:none" />
         <input id="filterBox" type="text" placeholder="Filter items…" aria-label="Filter items" />
-        <span class="spacer"></span>
+      </div>
+      <div style="text-align:right;margin-top:4px;">
         <span class="time" id="lastUpdate" aria-live="polite"></span>
       </div>
 
@@ -547,7 +596,8 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
             <col style="width:42px">
             <col id="col-name">
             <col id="col-desc">
-            <col style="width:100px">
+            <col style="width:80px">
+            <col style="width:48px">
           </colgroup>
           <thead>
             <tr>
@@ -555,6 +605,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
               <th scope="col" class="sortable" data-col="name" aria-sort="ascending">Item <span class="sort-ind"></span></th>
               <th scope="col" class="sortable" data-col="desc">Description <span class="sort-ind"></span></th>
               <th scope="col" class="qty sortable" data-col="qty">Qty <span class="sort-ind"></span></th>
+              <th scope="col" class="actions"></th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -802,31 +853,47 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       }
     }
     function updateStatusBar(){
-      const el=$('statusBar'); if(!el) return;
-      const ver = (typeof APP_VERSION==='string' && APP_VERSION)? ('V'+APP_VERSION+' ') : '';
-      el.classList.remove('online','offline');
+      // Update profile dropdown UI
+      const statusEl = $('profileStatus');
+      const emailEl = $('profileEmail');
+      const connEl = $('profileConnection');
+      const signInText = $('profileSignInText');
+
+      if(statusEl) statusEl.classList.remove('online','offline','warning');
+
       if(!SB.ready){
-        el.textContent = ver + 'SUPABASE NOT CONFIGURED — Tap to view';
-        el.classList.add('offline');
+        if(emailEl) emailEl.textContent = 'Not configured';
+        if(connEl) connEl.textContent = 'Supabase not set up';
+        if(statusEl) statusEl.classList.add('offline');
+        if(signInText) signInText.textContent = 'Configure';
         return;
       }
       if(!SB.session){
-        el.textContent = ver + 'SIGN IN REQUIRED — Tap to sign in';
-        el.classList.add('offline');
+        if(emailEl) emailEl.textContent = 'Not signed in';
+        if(connEl) connEl.textContent = 'Sign in required';
+        if(statusEl) statusEl.classList.add('offline');
+        if(signInText) signInText.textContent = 'Sign In';
         return;
       }
+
+      // Show user email
+      const userEmail = SB.session?.user?.email || 'Unknown user';
+      if(emailEl) emailEl.textContent = userEmail;
+
       if(!SB.authorized){
-        el.textContent = ver + 'NOT AUTHORIZED — Tap for account';
-        el.classList.add('offline');
+        if(connEl) connEl.textContent = 'Not authorized';
+        if(statusEl) statusEl.classList.add('warning');
+        if(signInText) signInText.textContent = 'Sign Out';
         return;
       }
       if(SB.connected){
-        el.textContent = ver + 'CONNECTED — Tap for account';
-        el.classList.add('online');
+        if(connEl) connEl.textContent = 'Connected';
+        if(statusEl) statusEl.classList.add('online');
       }else{
-        el.textContent = ver + 'OFFLINE — Tap for account';
-        el.classList.add('offline');
+        if(connEl) connEl.textContent = 'Offline';
+        if(statusEl) statusEl.classList.add('offline');
       }
+      if(signInText) signInText.textContent = 'Sign Out';
     }
     function explainGate(){
       if(!SB.ready) return 'Supabase not configured';
@@ -999,17 +1066,47 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 
       renderAuthUi();
 
-      const status = $('statusBar');
-      if(status && !status._wired){
-        status._wired = true;
-        status.addEventListener('click', ()=>{
-          if(!SB.session) show('authModal', true);
-          else { renderProfileUi(); show('profileModal', true); }
-        });
-        status.addEventListener('keydown', (e)=>{
-          if(e.key==='Enter' || e.key===' '){ e.preventDefault(); status.click(); }
+      // Profile dropdown handlers
+      const profileBtn = $('profileBtn');
+      const profileDropdown = $('profileDropdown');
+      const profileSignIn = $('profileSignIn');
+
+      function toggleProfileDropdown(open){
+        if(profileDropdown){
+          profileDropdown.classList.toggle('open', open);
+          if(profileBtn) profileBtn.setAttribute('aria-expanded', open);
+        }
+      }
+
+      if(profileBtn && !profileBtn._wired){
+        profileBtn._wired = true;
+        profileBtn.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          toggleProfileDropdown(!profileDropdown.classList.contains('open'));
         });
       }
+
+      if(profileSignIn && !profileSignIn._wired){
+        profileSignIn._wired = true;
+        profileSignIn.addEventListener('click', ()=>{
+          toggleProfileDropdown(false);
+          if(!SB.session) {
+            show('authModal', true);
+          } else {
+            // Sign out
+            sbSignOut();
+          }
+        });
+      }
+
+      // Close profile dropdown when clicking outside
+      document.addEventListener('click', (e)=>{
+        if(profileDropdown && profileDropdown.classList.contains('open')){
+          if(!e.target.closest('.profile-menu')){
+            toggleProfileDropdown(false);
+          }
+        }
+      });
 
       try{
         const { data } = await SB.client.auth.getSession();
@@ -1436,7 +1533,7 @@ function ensureEmptyState(){
       }
       if(items.length===0){
       const tr=document.createElement('tr');
-      tr.innerHTML = '<td colspan="4" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
+      tr.innerHTML = '<td colspan="5" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
       tbody.appendChild(tr);
       return;
       }
@@ -1446,7 +1543,8 @@ function ensureEmptyState(){
           '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
           '<td data-col="name">'+escapeHtml(it.name||'')+'</td>'+
           '<td data-col="desc">'+escapeHtml(it.desc||'')+'</td>'+
-          '<td data-col="qty" class="qty">'+toInt(it.qty,0)+'</td>';
+          '<td data-col="qty" class="qty">'+toInt(it.qty,0)+'</td>'+
+          '<td class="actions"><button class="row-delete-btn" data-id="'+it.id+'" aria-label="Delete item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></td>';
         tbody.appendChild(tr);
       }
       enableInlineEditing();
@@ -2712,22 +2810,22 @@ function ensureEmptyState(){
       }
     }
 
-    $('menuDelete').addEventListener('click', async ()=>{
-      toggleMenu(false);
+    // Row delete button handler (delegated)
+    document.addEventListener('click', async (e)=>{
+      const btn = e.target.closest('.row-delete-btn');
+      if(!btn) return;
       if(!requireOnline()) return;
-      const boxes = Array.from(document.querySelectorAll('.rowChk:checked'));
-      if (boxes.length === 0) { toast('No items selected'); return; }
-      if (!confirm(`Delete ${boxes.length} item(s)?`)) return;
-
-      const ids = boxes.map(b => b.dataset.id).filter(Boolean);
-
+      const id = btn.dataset.id;
+      if(!id) return;
+      const item = state.items.find(it => it.id === id);
+      const itemName = item ? item.name : 'this item';
+      if(!confirm(`Delete "${itemName}"?`)) return;
       try {
-        const res = await sbDeleteMany(ids);
+        const res = await sbDeleteMany([id]);
         await sbLoadSnapshot();
-        toast('Deleted '+res.deleted+'/'+res.requested);
-        const m = $('chkAll'); if (m) { m.checked = false; m.indeterminate = false; }
+        toast('Item deleted', 'success');
       } catch (e) {
-        toast(e.message || 'Delete failed');
+        toast(e.message || 'Delete failed', 'error');
       }
     });
 
