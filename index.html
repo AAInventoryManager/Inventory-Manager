@@ -1499,14 +1499,17 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       const el = $('profileMsg'); if(!el) return;
       el.textContent = String(msg || '');
     }
-    // Auto-format phone number as (XXX) XXX-XXXX
-    function formatPhoneNumber(value){
-      const digits = String(value || '').replace(/\D/g, '').slice(0, 10);
-      if(digits.length === 0) return '';
-      if(digits.length <= 3) return `(${digits}`;
-      if(digits.length <= 6) return `(${digits.slice(0,3)}) ${digits.slice(3)}`;
-      return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
-    }
+	    // Auto-format phone number as (XXX) XXX-XXXX
+	    function formatPhoneNumber(value){
+	      let digits = String(value || '').replace(/\D/g, '');
+	      // iOS often pastes US numbers as 1XXXXXXXXXX — drop the leading country code
+	      while(digits.length > 10 && digits.startsWith('1')) digits = digits.slice(1);
+	      digits = digits.slice(0, 10);
+	      if(digits.length === 0) return '';
+	      if(digits.length <= 3) return `(${digits}`;
+	      if(digits.length <= 6) return `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+	      return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+	    }
 
 	    function renderProfileUi(){
 	      const email = SB.user && SB.user.email ? String(SB.user.email) : '';
