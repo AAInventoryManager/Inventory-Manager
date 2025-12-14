@@ -825,6 +825,15 @@
 		      margin:0 10px;
 		      opacity:.65;
 		    }
+		    @media (max-width:520px){
+		      .totals{ flex-wrap:nowrap; }
+		      .totals > span{ font-size:11px; }
+		      .totals > span + span::before{ margin:0 6px; }
+		    }
+		    @media (max-width:360px){
+		      .totals > span{ font-size:10px; }
+		      .totals > span + span::before{ margin:0 4px; }
+		    }
     @media (max-width:640px){
       .toolbar{gap:6px}
       .toolbar .btn{flex:1}
@@ -2590,22 +2599,59 @@ function emptyStateHtml(){
   }
   return escapeHtml(gate);
 }
-function ensureEmptyState(){
-  const tb = tbodyEl(); if(!tb) return;
-  const hasRows = tb.querySelector('tr[data-id]') !== null;
-  const existingEmpty = tb.querySelector('tr[data-empty="1"]');
-  if(!hasRows && !existingEmpty){
-    const tr=document.createElement('tr'); tr.setAttribute('data-empty','1');
-    tr.innerHTML = '<td colspan="4" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
-    tb.appendChild(tr);
-  } else if(hasRows && existingEmpty){
-    existingEmpty.remove();
-  }
-}
-	    function renderTable(){
-	      applySortIndicators();
-	      const tbody=$('#invTable').querySelector('tbody'); tbody.innerHTML='';
-	      const term=(state._filter||'').trim().toLowerCase();
+	function ensureEmptyState(){
+	  const tb = tbodyEl(); if(!tb) return;
+	  const hasRows = tb.querySelector('tr[data-id]') !== null;
+	  const existingEmpty = tb.querySelector('tr[data-empty="1"]');
+	  if(!hasRows && !existingEmpty){
+	    const tr=document.createElement('tr'); tr.setAttribute('data-empty','1');
+	    tr.innerHTML = '<td colspan="4" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
+	    tb.appendChild(tr);
+	  } else if(hasRows && existingEmpty){
+	    existingEmpty.remove();
+	  }
+	}
+
+	function isCompactTotals(){
+	  try{ return window.matchMedia && window.matchMedia('(max-width:520px)').matches; }catch(e){ return false; }
+	}
+	function totalsLabel(key){
+	  const compact = isCompactTotals();
+	  if(key === 'items') return compact ? 'Items' : 'Total Items';
+	  if(key === 'inStock') return compact ? 'Stock' : 'In Stock';
+	  if(key === 'lowStock') return compact ? 'Low' : 'Low Stock';
+	  if(key === 'qty') return compact ? 'Qty' : 'Total Qty';
+	  return String(key || '');
+	}
+	function getTotalsValue(elId){
+	  const el = $(elId);
+	  if(!el) return null;
+	  const dv = el.dataset ? String(el.dataset.value || '').trim() : '';
+	  if(dv){
+	    const v = Number(dv);
+	    if(Number.isFinite(v)) return Math.trunc(v);
+	  }
+	  const m = /:\s*(\d+)/.exec(el.textContent || '');
+	  if(!m) return null;
+	  return toInt(m[1], 0);
+	}
+	function setTotalsMetric(elId, key, value){
+	  const el = $(elId);
+	  if(!el) return;
+	  const v = Math.max(0, toInt(value,0));
+	  if(el.dataset) el.dataset.value = String(v);
+	  el.textContent = `${totalsLabel(key)}: ${v}`;
+	}
+	function refreshTotalsLabels(){
+	  const vItems = getTotalsValue('totalItems'); if(vItems !== null) setTotalsMetric('totalItems','items', vItems);
+	  const vStock = getTotalsValue('totalInStock'); if(vStock !== null) setTotalsMetric('totalInStock','inStock', vStock);
+	  const vLow = getTotalsValue('totalLowStock'); if(vLow !== null) setTotalsMetric('totalLowStock','lowStock', vLow);
+	  const vQty = getTotalsValue('totalQty'); if(vQty !== null) setTotalsMetric('totalQty','qty', vQty);
+	}
+		    function renderTable(){
+		      applySortIndicators();
+		      const tbody=$('#invTable').querySelector('tbody'); tbody.innerHTML='';
+		      const term=(state._filter||'').trim().toLowerCase();
 
       let items=sortItems([...state.items]);
       if(term){
@@ -2616,30 +2662,15 @@ function ensureEmptyState(){
           return name.includes(term) || desc.includes(term) || qty.includes(term);
         });
       }
-	      // Update Total Qty for the currently displayed items
-	      const totalEl = $('totalQty');
-	      if (totalEl) {
-	        const total = items.reduce((sum, it) => sum + toInt(it.qty,0), 0);
-	        totalEl.textContent = `Total Qty: ${total}`;
-	      }
-	      // Update Total Items for the currently displayed items
-	      const totalItemsEl = $('totalItems');
-	      if (totalItemsEl) {
-	        totalItemsEl.textContent = `Total Items: ${items.length}`;
-	      }
-	      // Update In Stock for the currently displayed items
-	      const totalInStockEl = $('totalInStock');
-	      if (totalInStockEl) {
-	        const inStock = items.reduce((count, it) => count + (toInt(it.qty,0) > 0 ? 1 : 0), 0);
-	        totalInStockEl.textContent = `In Stock: ${inStock}`;
-	      }
-	      // Update Low Stock for the currently displayed items
-	      const totalLowStockEl = $('totalLowStock');
-	      if (totalLowStockEl) {
-	        const lowStock = items.reduce((count, it) => count + (isLowStockItem(it) ? 1 : 0), 0);
-	        totalLowStockEl.textContent = `Low Stock: ${lowStock}`;
-	      }
-	      if(items.length===0){
+		      const totalQty = items.reduce((sum, it) => sum + toInt(it.qty,0), 0);
+		      const totalItems = items.length;
+		      const inStock = items.reduce((count, it) => count + (toInt(it.qty,0) > 0 ? 1 : 0), 0);
+		      const lowStock = items.reduce((count, it) => count + (isLowStockItem(it) ? 1 : 0), 0);
+		      setTotalsMetric('totalQty', 'qty', totalQty);
+		      setTotalsMetric('totalItems', 'items', totalItems);
+		      setTotalsMetric('totalInStock', 'inStock', inStock);
+		      setTotalsMetric('totalLowStock', 'lowStock', lowStock);
+		      if(items.length===0){
 	      const tr=document.createElement('tr');
 	      tr.innerHTML = '<td colspan="5" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
 	      tbody.appendChild(tr);
@@ -2992,48 +3023,40 @@ function ensureEmptyState(){
       if(!Number.isFinite(n)) return f;
       return Math.trunc(n);
     }
-		    function adjustDisplayedTotalQty(delta){
-		      const totalEl = $('totalQty'); if(!totalEl) return;
-		      const m = /Total Qty:\s*(\d+)/.exec(totalEl.textContent || '');
-		      if(!m) return;
-		      const cur = toInt(m[1], 0);
-		      totalEl.textContent = `Total Qty: ${Math.max(0, cur + toSignedInt(delta,0))}`;
-		    }
-			    function adjustDisplayedInStock(prevQty, nextQty){
-			      const el = $('totalInStock'); if(!el) return;
-			      const m = /In Stock:\s*(\d+)/.exec(el.textContent || '');
-			      if(!m) return;
-			      const cur = toInt(m[1], 0);
-			      const was = toInt(prevQty, 0) > 0;
-			      const now = toInt(nextQty, 0) > 0;
-			      if(was === now) return;
-			      const delta = now ? 1 : -1;
-			      el.textContent = `In Stock: ${Math.max(0, cur + delta)}`;
+			    function adjustDisplayedTotalQty(delta){
+			      const cur = getTotalsValue('totalQty');
+			      if(cur === null) return;
+			      setTotalsMetric('totalQty', 'qty', Math.max(0, cur + toSignedInt(delta,0)));
 			    }
-			    function adjustDisplayedLowStock(item, prevQty, nextQty){
-			      const el = $('totalLowStock'); if(!el) return;
-			      const m = /Low Stock:\s*(\d+)/.exec(el.textContent || '');
-			      if(!m) return;
-			      const cur = toInt(m[1], 0);
-			      const thr = effectiveLowStockQty(item);
-			      const was = toInt(prevQty, 0) <= thr;
-			      const now = toInt(nextQty, 0) <= thr;
-			      if(was === now) return;
-			      const delta = now ? 1 : -1;
-			      el.textContent = `Low Stock: ${Math.max(0, cur + delta)}`;
-			    }
-			    function adjustDisplayedLowStockThreshold(item, prevThr, nextThr){
-			      const el = $('totalLowStock'); if(!el) return;
-			      const m = /Low Stock:\s*(\d+)/.exec(el.textContent || '');
-			      if(!m) return;
-			      const cur = toInt(m[1], 0);
-			      const qty = toInt(item && item.qty, 0);
-			      const was = qty <= toInt(prevThr, 0);
-			      const now = qty <= toInt(nextThr, 0);
-			      if(was === now) return;
-			      const delta = now ? 1 : -1;
-			      el.textContent = `Low Stock: ${Math.max(0, cur + delta)}`;
-			    }
+				    function adjustDisplayedInStock(prevQty, nextQty){
+				      const cur = getTotalsValue('totalInStock');
+				      if(cur === null) return;
+				      const was = toInt(prevQty, 0) > 0;
+				      const now = toInt(nextQty, 0) > 0;
+				      if(was === now) return;
+				      const delta = now ? 1 : -1;
+				      setTotalsMetric('totalInStock', 'inStock', Math.max(0, cur + delta));
+				    }
+				    function adjustDisplayedLowStock(item, prevQty, nextQty){
+				      const cur = getTotalsValue('totalLowStock');
+				      if(cur === null) return;
+				      const thr = effectiveLowStockQty(item);
+				      const was = toInt(prevQty, 0) <= thr;
+				      const now = toInt(nextQty, 0) <= thr;
+				      if(was === now) return;
+				      const delta = now ? 1 : -1;
+				      setTotalsMetric('totalLowStock', 'lowStock', Math.max(0, cur + delta));
+				    }
+				    function adjustDisplayedLowStockThreshold(item, prevThr, nextThr){
+				      const cur = getTotalsValue('totalLowStock');
+				      if(cur === null) return;
+				      const qty = toInt(item && item.qty, 0);
+				      const was = qty <= toInt(prevThr, 0);
+				      const now = qty <= toInt(nextThr, 0);
+				      if(was === now) return;
+				      const delta = now ? 1 : -1;
+				      setTotalsMetric('totalLowStock', 'lowStock', Math.max(0, cur + delta));
+				    }
 		    function updateQtyCellUIForRow(id, qty){
 		      const tr = rowElById(id);
 		      const val = tr ? tr.querySelector('td[data-col="qty"] .qty-value') : null;
@@ -5396,7 +5419,7 @@ function ensureEmptyState(){
       setInterval(checkServerHealth, 15000);
 
       // Responsive: adjust desc column width on viewport change
-      window.addEventListener('resize', ()=> { try{ requestAnimationFrame(()=>{ adjustDescColumnWidth(); adjustTitleSize(); setEditHint(); refreshCenteredGlowTargets(); scheduleCenteredGlowUpdate(); }); }catch(e){} });
+	      window.addEventListener('resize', ()=> { try{ requestAnimationFrame(()=>{ adjustDescColumnWidth(); adjustTitleSize(); setEditHint(); refreshTotalsLabels(); refreshCenteredGlowTargets(); scheduleCenteredGlowUpdate(); }); }catch(e){} });
 
       // Close modals when clicking outside (on backdrop)
       document.addEventListener('click', (e)=>{
