@@ -2898,7 +2898,7 @@ function emptyStateHtml(){
 	    function openLowStockModal(id){
 	      const item = state.items.find(it => it.id === id);
 	      if(!item) return;
-	      _lowStockCtx = { id };
+	      _lowStockCtx = { id, useGlobal:false };
 	
 	      const global = getGlobalLowStockQty();
 	      const currentOverride = getItemLowStockQtyOverride(item);
@@ -2937,7 +2937,9 @@ function emptyStateHtml(){
 	      const inp = $('lowStockValue');
 	      const raw = String(inp && typeof inp.value !== 'undefined' ? inp.value : '').trim();
 	      let next = null;
-	      if(raw !== ''){
+	      if(_lowStockCtx && _lowStockCtx.useGlobal){
+	        next = null;
+	      }else if(raw !== ''){
 	        const n = Number(raw);
 	        if(!Number.isFinite(n) || n < 0 || Math.trunc(n) !== n){
 	          toast('Low stock qty must be integer ≥ 0');
@@ -2994,7 +2996,11 @@ function emptyStateHtml(){
 	      const curRaw = String(inp.value ?? '').trim();
 	      const cur = (curRaw === '') ? global : toInt(curRaw, 0);
 	      const step = Number.isFinite(Number(delta)) ? Math.trunc(Number(delta)) : 0;
-	      inp.value = String(Math.max(0, cur + step));
+	      const nv = Math.max(0, cur + step);
+	      if(_lowStockCtx && _lowStockCtx.useGlobal) _lowStockCtx.useGlobal = false;
+	      inp.value = String(nv);
+	      const elCurrent = $('lowStockCurrentLabel');
+	      if(elCurrent) elCurrent.textContent = `This item: ${nv} (override)`;
 	      try{ inp.focus(); }catch(e){}
 	    }
 	    const btnLowStockMinus = $('lowStockMinus');
@@ -3004,10 +3010,14 @@ function emptyStateHtml(){
 	    const btnLowStockUseGlobal = $('btnLowStockUseGlobal');
 	    if(btnLowStockUseGlobal) btnLowStockUseGlobal.addEventListener('click', ()=>{
 	      const inp = $('lowStockValue');
+	      const global = getGlobalLowStockQty();
+	      if(_lowStockCtx) _lowStockCtx.useGlobal = true;
 	      if(inp){
-	        inp.value = '';
+	        inp.value = String(global);
 	        try{ inp.focus(); }catch(e){}
 	      }
+	      const elCurrent = $('lowStockCurrentLabel');
+	      if(elCurrent) elCurrent.textContent = `This item: Global (${global})`;
 	    });
 	    const btnLowStockSave = $('btnLowStockSave');
 	    if(btnLowStockSave) btnLowStockSave.addEventListener('click', saveLowStockModal);
@@ -3015,6 +3025,22 @@ function emptyStateHtml(){
 	    if(lowStockValue) lowStockValue.addEventListener('keydown', e=>{
 	      if(e.key==='Escape'){ e.preventDefault(); closeLowStockModal(); }
 	      if(e.key==='Enter'){ e.preventDefault(); saveLowStockModal(); }
+	    });
+	    if(lowStockValue) lowStockValue.addEventListener('input', ()=>{
+	      if(!_lowStockCtx) return;
+	      _lowStockCtx.useGlobal = false;
+	      const global = getGlobalLowStockQty();
+	      const raw = String(lowStockValue.value ?? '').trim();
+	      const elCurrent = $('lowStockCurrentLabel');
+	      if(!elCurrent) return;
+	      if(raw === ''){
+	        elCurrent.textContent = `This item: Global (${global})`;
+	        return;
+	      }
+	      const n = Number(raw);
+	      if(Number.isFinite(n) && n >= 0 && Math.trunc(n) === n){
+	        elCurrent.textContent = `This item: ${Math.trunc(n)} (override)`;
+	      }
 	    });
 
 	    // Table Qty +/- (mobile): optimistic UI + debounced commit
