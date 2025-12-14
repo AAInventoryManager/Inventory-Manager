@@ -8,14 +8,20 @@
 create table if not exists public.profiles (
   user_id uuid primary key references auth.users(id) on delete cascade,
   email text not null,
+  first_name text not null default ''::text,
+  last_name text not null default ''::text,
   phone text not null default ''::text,
   delivery_address text not null default ''::text,
   updated_at timestamp with time zone not null default now()
 );
 
--- For older installs: add delivery_address if missing
+-- For older installs: add columns if missing
 alter table public.profiles
   add column if not exists delivery_address text not null default ''::text;
+alter table public.profiles
+  add column if not exists first_name text not null default ''::text;
+alter table public.profiles
+  add column if not exists last_name text not null default ''::text;
 
 alter table public.profiles enable row level security;
 

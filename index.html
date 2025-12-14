@@ -557,6 +557,10 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
               <div class="profile-connection" id="profileConnection">Offline</div>
             </div>
             <div class="menu-divider"></div>
+            <button class="menu-item" id="openProfileSettings">
+              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              <span>Profile Settings</span>
+            </button>
             <button class="menu-item" id="profileSignIn">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
               <span id="profileSignInText">Sign Out</span>
@@ -803,10 +807,20 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
   <div id="profileModal" class="modal" aria-hidden="true">
     <div class="box">
       <h2 style="margin:0 0 10px;font-size:16px;">Account</h2>
-      <div class="muted" id="profileEmail" style="margin-bottom:10px;"></div>
-      <div style="display:grid; grid-template-columns:1fr; gap:8px;">
+      <div class="muted" id="profileEmailDisplay" style="margin-bottom:10px;"></div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <div>
+          <label class="muted">First Name</label>
+          <input id="profileFirstName" type="text" placeholder="First" autocomplete="given-name" />
+        </div>
+        <div>
+          <label class="muted">Last Name</label>
+          <input id="profileLastName" type="text" placeholder="Last" autocomplete="family-name" />
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr; gap:8px; margin-top:8px;">
         <label class="muted">Phone</label>
-        <input id="profilePhone" type="tel" placeholder="(555) 555‑5555" autocomplete="tel" inputmode="tel" />
+        <input id="profilePhone" type="tel" placeholder="(555) 555-5555" autocomplete="tel" inputmode="tel" />
         <label class="muted">Order Delivery Address</label>
         <textarea id="profileDeliveryAddress" rows="3" placeholder="123 Main St&#10;City, ST 12345"></textarea>
       </div>
@@ -979,10 +993,21 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       const el = $('profileMsg'); if(!el) return;
       el.textContent = String(msg || '');
     }
+    // Auto-format phone number as (XXX) XXX-XXXX
+    function formatPhoneNumber(value){
+      const digits = String(value || '').replace(/\D/g, '').slice(0, 10);
+      if(digits.length === 0) return '';
+      if(digits.length <= 3) return `(${digits}`;
+      if(digits.length <= 6) return `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+      return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+    }
+
     function renderProfileUi(){
       const email = SB.user && SB.user.email ? String(SB.user.email) : '';
-      const elEmail = $('profileEmail'); if(elEmail) elEmail.textContent = email ? `Signed in: ${email}` : '';
-      const elPhone = $('profilePhone'); if(elPhone) elPhone.value = (SB.profile && SB.profile.phone) ? String(SB.profile.phone) : '';
+      const elEmail = $('profileEmailDisplay'); if(elEmail) elEmail.textContent = email ? `Signed in: ${email}` : '';
+      const elFirstName = $('profileFirstName'); if(elFirstName) elFirstName.value = (SB.profile && SB.profile.first_name) ? String(SB.profile.first_name) : '';
+      const elLastName = $('profileLastName'); if(elLastName) elLastName.value = (SB.profile && SB.profile.last_name) ? String(SB.profile.last_name) : '';
+      const elPhone = $('profilePhone'); if(elPhone) elPhone.value = formatPhoneNumber((SB.profile && SB.profile.phone) ? String(SB.profile.phone) : '');
       const elAddress = $('profileDeliveryAddress'); if(elAddress) elAddress.value = (SB.profile && SB.profile.delivery_address) ? String(SB.profile.delivery_address) : '';
       const note = SB.session && !SB.authorized
         ? 'This account is not authorized for this inventory yet. Ask an admin to add you in Supabase.'
@@ -992,46 +1017,46 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     async function sbEnsureProfile(){
       if(!SB.ready || !SB.user) return null;
       try{
-        // Try fetching with delivery_address, fall back without it if the column doesn't exist yet
+        // Fetch profile with all fields
         let { data, error } = await SB.client
           .from('profiles')
-          .select('user_id,email,phone,delivery_address')
+          .select('user_id,email,first_name,last_name,phone,delivery_address')
           .eq('user_id', SB.user.id)
           .maybeSingle();
-        if(error && error.message && error.message.includes('delivery_address')){
-          const res = await SB.client
-            .from('profiles')
-            .select('user_id,email,phone')
-            .eq('user_id', SB.user.id)
-            .maybeSingle();
-          data = res.data;
-          error = res.error;
-          if(data) data.delivery_address = '';
-        }
         if(error) throw error;
-        if(data){ SB.profile = data; return data; }
-        const row = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), phone: '', delivery_address: '' };
+        if(data){
+          // Ensure all fields exist
+          data.first_name = data.first_name || '';
+          data.last_name = data.last_name || '';
+          data.phone = data.phone || '';
+          data.delivery_address = data.delivery_address || '';
+          SB.profile = data;
+          return data;
+        }
+        const row = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), first_name: '', last_name: '', phone: '', delivery_address: '' };
         const { error: insErr } = await SB.client.from('profiles').insert([row]);
         if(insErr) throw insErr;
         SB.profile = row;
         return row;
       }catch(e){
         console.warn('Profile ensure failed:', e);
-        SB.profile = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), phone: '', delivery_address: '' };
+        SB.profile = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), first_name: '', last_name: '', phone: '', delivery_address: '' };
         return SB.profile;
       }
     }
-    async function sbSaveProfile(phone, deliveryAddress){
+    async function sbSaveProfile(firstName, lastName, phone, deliveryAddress){
       if(!SB.ready || !SB.user) throw Error('Not signed in');
       const row = {
         user_id: SB.user.id,
         email: String(SB.user.email||'').trim(),
+        first_name: String(firstName||'').trim(),
+        last_name: String(lastName||'').trim(),
         phone: String(phone||'').trim(),
         delivery_address: String(deliveryAddress||'').trim()
       };
       let { error } = await SB.client.from('profiles').upsert([row], { onConflict: 'user_id' });
       if(error && error.message && error.message.includes('delivery_address')){
-        const fallbackRow = { user_id: row.user_id, email: row.email, phone: row.phone };
+        const fallbackRow = { user_id: row.user_id, email: row.email, first_name: row.first_name, last_name: row.last_name, phone: row.phone };
         const res = await SB.client.from('profiles').upsert([fallbackRow], { onConflict: 'user_id' });
         error = res.error;
         if(!error){
@@ -1235,14 +1260,37 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     const btnProfileClose = $('btnProfileClose');
     if(btnProfileClose) btnProfileClose.addEventListener('click', ()=> show('profileModal', false));
 
+    const openProfileSettings = $('openProfileSettings');
+    if(openProfileSettings) openProfileSettings.addEventListener('click', ()=>{
+      show('profileDropdown', false);
+      $('profileBtn')?.setAttribute('aria-expanded', 'false');
+      renderProfileUi();
+      show('profileModal', true);
+    });
+
+    const profilePhoneInput = $('profilePhone');
+    if(profilePhoneInput){
+      profilePhoneInput.addEventListener('input', (e)=>{
+        const cursorPos = e.target.selectionStart;
+        const oldLen = e.target.value.length;
+        e.target.value = formatPhoneNumber(e.target.value);
+        const newLen = e.target.value.length;
+        // Adjust cursor position after formatting
+        const newPos = Math.max(0, cursorPos + (newLen - oldLen));
+        e.target.setSelectionRange(newPos, newPos);
+      });
+    }
+
     const btnProfileSave = $('btnProfileSave');
     if(btnProfileSave) btnProfileSave.addEventListener('click', async ()=>{
+      const firstName = $('profileFirstName')?.value || '';
+      const lastName = $('profileLastName')?.value || '';
       const phone = $('profilePhone')?.value || '';
       const deliveryAddress = $('profileDeliveryAddress')?.value || '';
       setProfileMessage('');
       btnProfileSave.disabled = true;
       try{
-        await sbSaveProfile(phone, deliveryAddress);
+        await sbSaveProfile(firstName, lastName, phone, deliveryAddress);
         renderProfileUi();
         toast('Profile saved');
       }catch(e){
@@ -1831,7 +1879,7 @@ function ensureEmptyState(){
 	              city = String(last).replace(new RegExp(`\\b${st}\\b`, 'i'), '').trim();
 	            }
 	          }
-	          if(city) return `${city}/${st}`;
+	          if(city) return `${city}, ${st}`;
 	        }
 	      }
 
@@ -1840,7 +1888,7 @@ function ensureEmptyState(){
 	      if(m){
 	        const city = String(m[1] || '').replace(/,$/, '').trim();
 	        const st = String(m[2] || '').toUpperCase();
-	        if(city && st) return `${city}/${st}`;
+	        if(city && st) return `${city}, ${st}`;
 	      }
 
 	      return '';
@@ -1962,8 +2010,29 @@ function ensureEmptyState(){
         out.push(`This inbox is not monitored, please send any replies to: ${rep}`);
       }
 
+      // Add delivery info from profile
+      const profileData = SB && SB.profile ? SB.profile : {};
+      const firstName = String(profileData.first_name || '').trim();
+      const lastName = String(profileData.last_name || '').trim();
+      const fullName = [firstName, lastName].filter(Boolean).join(' ');
+      const deliveryAddr = String(profileData.delivery_address || '').trim();
+      const userPhone = String(profileData.phone || '').trim();
+      const userEmail = String(profileData.email || '').trim();
+
+      const deliveryLines = [];
+      if(fullName) deliveryLines.push(fullName);
+      if(deliveryAddr) deliveryLines.push(deliveryAddr);
+      if(userPhone) deliveryLines.push(userPhone);
+      if(userEmail) deliveryLines.push(userEmail);
+
+      if(deliveryLines.length){
+        out.push('');
+        out.push('Delivery Information:');
+        for(const line of deliveryLines) out.push(line);
+      }
+
       out.push('');
-      out.push(`Generated by Oakley Services Inventory v${APP_VERSION}`);
+      out.push(`Built by james.johns83@gmail.com for Oakley Services, LLC | v${APP_VERSION}`);
       return out.join('\n');
     }
     function buildOrderHtmlFromData({ subjectLine, replyTo, notes, lineItems }){
@@ -1988,6 +2057,30 @@ function ensureEmptyState(){
 
       const replyToLine = rep
         ? `<div style="margin:2px 0;"><strong>Reply-To:</strong> ${escapeHtml(rep)}</div>`
+        : '';
+
+      // Build user/delivery info block from profile
+      const profileData = SB && SB.profile ? SB.profile : {};
+      const firstName = String(profileData.first_name || '').trim();
+      const lastName = String(profileData.last_name || '').trim();
+      const fullName = [firstName, lastName].filter(Boolean).join(' ');
+      const deliveryAddr = String(profileData.delivery_address || '').trim();
+      const userPhone = String(profileData.phone || '').trim();
+      const userEmail = String(profileData.email || '').trim();
+
+      const deliveryInfoLines = [];
+      if(fullName) deliveryInfoLines.push(escapeHtml(fullName));
+      if(deliveryAddr) deliveryInfoLines.push(escapeHtml(deliveryAddr).replace(/\n/g, '<br>'));
+      if(userPhone) deliveryInfoLines.push(escapeHtml(userPhone));
+      if(userEmail) deliveryInfoLines.push(`<a href="mailto:${escapeHtmlAttr(userEmail)}" style="color:#0969da;text-decoration:underline;">${escapeHtml(userEmail)}</a>`);
+
+      const deliveryInfoBlock = deliveryInfoLines.length
+        ? (
+          `<div style="margin:0 0 16px;padding:12px;background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;">`+
+            `<div style="font-weight:700;margin-bottom:8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Delivery Information</div>`+
+            `<div style="font-size:14px;line-height:1.5;">${deliveryInfoLines.join('<br>')}</div>`+
+          `</div>`
+        )
         : '';
 
       const notesBlock = notesHtml
@@ -2037,8 +2130,9 @@ function ensureEmptyState(){
           `<div style="margin:0 0 10px;">Please supply the following materials:</div>`+
           `${itemsBlock}`+
           `${notesBlock}`+
+          `${deliveryInfoBlock}`+
           `${disclaimerBlock}`+
-          `<div style="margin-top:18px;font-size:12px;color:#6a737d;">Generated by Oakley Services Inventory v${escapeHtml(APP_VERSION)}</div>`+
+          `<div style="margin-top:18px;font-size:12px;color:#6a737d;">Built by james.johns83@gmail.com for Oakley Services, LLC | v${escapeHtml(APP_VERSION)}</div>`+
         `</div>`+
         `</body></html>`
       );
