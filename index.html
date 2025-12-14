@@ -1982,12 +1982,12 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       const { error } = await SB.client.from('items').insert([{ id, name, description:desc||'', qty:toInt(qty,0) }]);
       if(error) throw error; return id;
     }
-	    async function sbUpdateFields(id, fields){
-	      const clean = {};
-	      if('name' in fields) clean.name = String(fields.name||'');
-	      if('desc' in fields) clean.description = String(fields.desc||'');
-	      if('qty'  in fields) clean.qty  = toInt(fields.qty,0);
-	      if('lowStockQty' in fields){
+    async function sbUpdateFields(id, fields){
+      const clean = {};
+      if('name' in fields) clean.name = String(fields.name||'');
+      if('desc' in fields) clean.description = String(fields.desc||'');
+      if('qty'  in fields) clean.qty  = toInt(fields.qty,0);
+      if('lowStockQty' in fields){
 	        const raw = fields.lowStockQty;
 	        if(raw === null || typeof raw === 'undefined' || String(raw).trim() === ''){
 	          clean.low_stock_qty = null;
@@ -1997,14 +1997,43 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	          clean.low_stock_qty = v;
 	        }
 	      }
-	      const { error } = await SB.client.from('items').update(clean).eq('id', id);
-	      if(error) throw error;
+      const { error } = await SB.client.from('items').update(clean).eq('id', id);
+      if(error) throw error;
+    }
+
+	    function isSchemaCacheMissingColumnError(err, column){
+	      const msg = String(err && err.message ? err.message : '');
+	      if(!msg) return false;
+	      const lower = msg.toLowerCase();
+	      if(!lower.includes('schema cache')) return false;
+	      if(column && !lower.includes(String(column).toLowerCase())) return false;
+	      return true;
 	    }
-    async function sbDeleteMany(ids){
-      const requested = Array.isArray(ids) ? ids.filter(Boolean) : [];
-      if(requested.length===0) return { deleted:0, requested:0 };
-      // Note: Some RLS policies may prevent returning representations of deleted rows,
-      // so we do not depend on the returned data length. If no error is thrown, treat
+	
+	    function showSchemaCacheReloadHelp(tableName, columnName){
+	      const sql = "NOTIFY pgrst, 'reload schema';";
+	      try{
+	        if(navigator.clipboard && navigator.clipboard.writeText){
+	          navigator.clipboard.writeText(sql)
+	            .then(()=> toast('Copied schema reload SQL'))
+	            .catch(()=>{});
+	        }
+	      }catch(e){}
+	      alert(
+	        `Supabase is reporting “column not found in schema cache” for ${tableName}.${columnName}.\n\n`+
+	        `This usually means PostgREST hasn’t reloaded its schema cache yet.\n\n`+
+	        `Fix:\n`+
+	        `1) Supabase Dashboard → SQL Editor\n`+
+	        `2) Run:\n${sql}\n`+
+	        `3) Refresh this page\n\n`+
+	        `If it still fails, wait ~30 seconds and try again.`
+	      );
+	    }
+	    async function sbDeleteMany(ids){
+	      const requested = Array.isArray(ids) ? ids.filter(Boolean) : [];
+	      if(requested.length===0) return { deleted:0, requested:0 };
+	      // Note: Some RLS policies may prevent returning representations of deleted rows,
+	      // so we do not depend on the returned data length. If no error is thrown, treat
       // it as success for all requested IDs and immediately refresh from server.
       const { error } = await SB.client
         .from('items')
@@ -4644,14 +4673,18 @@ function ensureEmptyState(){
 	            const reportModal = $('reportModal');
 	            if(reportModal && reportModal.getAttribute('aria-hidden') === 'false') renderInventoryReport();
 	          }catch(e){}
-	        }catch(err){
-	          item.lowStockQty = prev;
-	          toast(err && err.message ? err.message : 'Update failed');
-	        }finally{
-	          stockBtn.disabled = false;
-	        }
-	        return;
-	      }
+		        }catch(err){
+		          item.lowStockQty = prev;
+		          if(isSchemaCacheMissingColumnError(err, 'low_stock_qty')){
+		            showSchemaCacheReloadHelp('items', 'low_stock_qty');
+		          }else{
+		            toast(err && err.message ? err.message : 'Update failed');
+		          }
+		        }finally{
+		          stockBtn.disabled = false;
+		        }
+		        return;
+		      }
 
 	      const btn = e.target.closest('.row-delete-btn');
 	      if(!btn) return;

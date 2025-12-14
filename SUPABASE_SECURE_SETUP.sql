@@ -215,4 +215,7 @@ with check (
   )
 );
 
+-- Refresh PostgREST schema cache (fixes "column not found in schema cache" after ALTER TABLE)
+notify pgrst, 'reload schema';
+
 -- Done.
