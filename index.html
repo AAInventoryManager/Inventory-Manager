@@ -423,13 +423,14 @@
       font-variant-numeric:tabular-nums;
     }
     .qty-stepper input[type=number]::-webkit-outer-spin-button,
-    .qty-stepper input[type=number]::-webkit-inner-spin-button{
-      -webkit-appearance:none;
-      margin:0;
-    }
-    .edit-footer{
-      padding:12px 14px calc(12px + env(safe-area-inset-bottom));
-      border-top:1px solid var(--border);
+	    .qty-stepper input[type=number]::-webkit-inner-spin-button{
+	      -webkit-appearance:none;
+	      margin:0;
+	    }
+	    .qty-stepper input[type=number]{ -moz-appearance:textfield; }
+	    .edit-footer{
+	      padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+	      border-top:1px solid var(--border);
       background:var(--card);
       display:flex;
       gap:8px;
@@ -1202,7 +1203,11 @@
       <div id="lowStockItemLabel" class="muted" style="margin-bottom:8px;"></div>
 	      <div id="lowStockCurrentLabel" class="muted"></div>
 	      <div id="lowStockGlobalLabel" class="muted" style="margin-bottom:10px;"></div>
-	      <input id="lowStockValue" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
+	      <div class="qty-stepper qty-stepper--modal" aria-label="Low stock qty controls">
+	        <button class="qty-step" id="lowStockMinus" type="button" aria-label="Decrease low stock">−</button>
+	        <input id="lowStockValue" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
+	        <button class="qty-step" id="lowStockPlus" type="button" aria-label="Increase low stock">+</button>
+	      </div>
 	      <label style="display:flex;align-items:center;gap:10px;margin-top:10px;">
 	        <input id="lowStockReorderEnabled" type="checkbox" />
 	        <span class="muted" style="font-size:13px;">Include in reorder suggestions</span>
@@ -2952,6 +2957,19 @@ function ensureEmptyState(){
 	    }
 	    const btnLowStockCancel = $('btnLowStockCancel');
 	    if(btnLowStockCancel) btnLowStockCancel.addEventListener('click', closeLowStockModal);
+	    function bumpLowStockValue(delta){
+	      const inp = $('lowStockValue'); if(!inp) return;
+	      const global = getGlobalLowStockQty();
+	      const curRaw = String(inp.value ?? '').trim();
+	      const cur = (curRaw === '') ? global : toInt(curRaw, 0);
+	      const step = Number.isFinite(Number(delta)) ? Math.trunc(Number(delta)) : 0;
+	      inp.value = String(Math.max(0, cur + step));
+	      try{ inp.focus(); }catch(e){}
+	    }
+	    const btnLowStockMinus = $('lowStockMinus');
+	    if(btnLowStockMinus) btnLowStockMinus.addEventListener('click', ()=> bumpLowStockValue(-1));
+	    const btnLowStockPlus = $('lowStockPlus');
+	    if(btnLowStockPlus) btnLowStockPlus.addEventListener('click', ()=> bumpLowStockValue(1));
 	    const btnLowStockUseGlobal = $('btnLowStockUseGlobal');
 	    if(btnLowStockUseGlobal) btnLowStockUseGlobal.addEventListener('click', ()=>{
 	      const inp = $('lowStockValue');
