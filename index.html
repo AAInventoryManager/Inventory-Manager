@@ -104,7 +104,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       #invTable tbody tr[data-id]{
         position:relative;
         display:block;
-        padding:12px 64px 12px 56px; /* room for left checkbox + right actions */
+        padding:12px 12px 12px 56px; /* room for left checkbox */
         border:1px solid var(--border);
         border-radius:14px;
         background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
@@ -120,6 +120,8 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       #invTable tbody tr[data-id] td[data-col]{
         padding:10px 0;
       }
+      /* Keep the Item row clear of the top-right delete button */
+      #invTable tbody tr[data-id] td[data-col="name"]{ padding-right:64px; }
       #invTable tbody tr[data-id] td[data-col]::before{
         display:block;
         font-size:11px;
@@ -153,13 +155,14 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       #invTable tbody tr[data-id] td.actions{
         position:absolute;
         right:10px;
-        top:50%;
-        transform:translateY(-50%);
+        top:10px;
+        transform:none;
         width:48px;
         padding:0;
         display:flex;
         align-items:center;
         justify-content:center;
+        z-index:2;
       }
       #invTable tbody tr[data-id] td.sel input[type="checkbox"]{
         width:20px;
