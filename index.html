@@ -816,7 +816,14 @@
 	    .drop{
 	      border:1px dashed var(--border);border-radius:10px;padding:12px;text-align:center;color:var(--muted)
 	    }
-	    .totals{ display:flex; justify-content:flex-end; align-items:center; gap:12px; flex-wrap:wrap; margin:6px 0 4px; }
+		    .totals{ display:flex; justify-content:center; align-items:center; gap:0; flex-wrap:wrap; margin:6px 0 4px; text-align:center; }
+		    .totals > span{ white-space:nowrap; }
+		    .totals > span + span::before{
+		      content:'|';
+		      display:inline-block;
+		      margin:0 10px;
+		      opacity:.65;
+		    }
     @media (max-width:640px){
       .toolbar{gap:6px}
       .toolbar .btn{flex:1}
