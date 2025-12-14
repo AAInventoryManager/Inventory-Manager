@@ -92,47 +92,50 @@
     th.sorted-desc .sort-ind::before{ content:'\25BC'; opacity:1 }
 tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
     td.actions{padding:8px;text-align:center}
-    .row-delete-btn{
-      background:none;border:none;cursor:pointer;padding:6px;
-      color:var(--muted);display:inline-flex;align-items:center;justify-content:center;
-      border-radius:6px;transition:background 0.15s,color 0.15s;
-    }
-    .row-delete-btn:hover{background:rgba(255,80,80,0.15);color:#ff6b6b}
-    /* Mobile table layout: stack fields vertically per record */
-    @media (max-width: 768px){
-      #invTable thead{ display:none; }
-      #invTable tbody tr[data-id]{
-        position:relative;
-        display:block;
-        padding:12px 12px 12px 56px; /* room for left checkbox */
-        border:1px solid var(--border);
-        border-radius:14px;
-        background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
-        box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
-        margin:0 0 10px 0;
-      }
-      #invTable tbody tr[data-id] td{
-        display:block;
-        width:100%;
-        padding:0;
-        border-bottom:none;
-      }
-      #invTable tbody tr[data-id] td[data-col]{
-        padding:10px 0;
-      }
-      /* Keep the Item row clear of the top-right delete button */
-      #invTable tbody tr[data-id] td[data-col="name"]{ padding-right:64px; }
-      #invTable tbody tr[data-id] td[data-col]::before{
-        display:block;
-        font-size:11px;
-        letter-spacing:.08em;
-        text-transform:uppercase;
-        color:var(--muted);
-        margin:0 0 6px 0;
-      }
-      #invTable tbody tr[data-id] td[data-col="name"]::before{ content:'Item'; }
-      #invTable tbody tr[data-id] td[data-col="desc"]::before{ content:'Description'; }
-      #invTable tbody tr[data-id] td[data-col="qty"]::before{ content:'Qty'; }
+	    .row-delete-btn{
+	      background:none;border:none;cursor:pointer;padding:6px;
+	      color:var(--muted);display:inline-flex;align-items:center;justify-content:center;
+	      border-radius:6px;transition:background 0.15s,color 0.15s;
+	    }
+	    .row-delete-btn:hover{background:rgba(255,80,80,0.15);color:#ff6b6b}
+	    /* Mobile table layout: stack fields vertically per record */
+	    @media (max-width: 768px){
+	      #invTable thead{ display:none; }
+	      #invTable tbody tr[data-id]{
+	        position:relative;
+	        display:block;
+	        padding:12px; /* keep content centered; individual cells reserve checkbox room */
+	        border:1px solid var(--border);
+	        border-radius:14px;
+	        background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
+	        box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+	        margin:0 0 10px 0;
+	      }
+	      #invTable tbody tr[data-id] td{
+	        display:block;
+	        width:100%;
+	        padding:0;
+	        border-bottom:none;
+	      }
+	      #invTable tbody tr[data-id] td[data-col]{
+	        padding:10px 0;
+	      }
+	      /* Indent left-aligned fields to avoid the absolute checkbox */
+	      #invTable tbody tr[data-id] td[data-col="name"],
+	      #invTable tbody tr[data-id] td[data-col="desc"]{ padding-left:44px; }
+	      /* Keep the Item row clear of the top-right delete button */
+	      #invTable tbody tr[data-id] td[data-col="name"]{ padding-right:64px; }
+	      #invTable tbody tr[data-id] td[data-col]::before{
+	        display:block;
+	        font-size:11px;
+	        letter-spacing:.08em;
+	        text-transform:uppercase;
+	        color:var(--muted);
+	        margin:0 0 6px 0;
+	      }
+	      #invTable tbody tr[data-id] td[data-col="name"]::before{ content:'Item'; }
+	      #invTable tbody tr[data-id] td[data-col="desc"]::before{ content:'Description'; }
+	      #invTable tbody tr[data-id] td[data-col="qty"]::before{ content:'Qty'; }
 
       #invTable tbody tr[data-id] td[data-col="desc"]{
         white-space:normal;
