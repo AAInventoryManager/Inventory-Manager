@@ -2144,8 +2144,14 @@ function ensureEmptyState(){
       return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
     function getOrderApiUrl(){
-      const u = (typeof window.ORDER_API_URL === 'string') ? window.ORDER_API_URL.trim() : '';
-      return u || '/api/send-order';
+      // Allow explicit override via window.ORDER_API_URL
+      const override = (typeof window.ORDER_API_URL === 'string') ? window.ORDER_API_URL.trim() : '';
+      if(override) return override;
+      // Use Supabase Edge Function if available
+      const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
+      if(sbUrl) return `${sbUrl}/functions/v1/send-order`;
+      // Fallback to local dev server
+      return '/api/send-order';
     }
     async function sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems }){
       const toEmail = String(to||'').trim();
@@ -2155,9 +2161,21 @@ function ensureEmptyState(){
       const html = buildOrderHtmlFromData({ subjectLine: subject, notes, lineItems });
       const apiUrl = getOrderApiUrl();
 
+      // Build headers - include Supabase auth if using Edge Function
+      const headers = { 'content-type': 'application/json' };
+      const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
+      const sbKey = (typeof window.SB_ANON === 'string') ? window.SB_ANON.trim() : '';
+      if(sbUrl && apiUrl.startsWith(sbUrl) && sbKey){
+        headers['apikey'] = sbKey;
+        // Add auth token if user is signed in
+        if(SB.session && SB.session.access_token){
+          headers['Authorization'] = `Bearer ${SB.session.access_token}`;
+        }
+      }
+
       const res = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers,
         body: JSON.stringify({ to: toEmail, subject, text, html, replyTo }),
       });
       let data = null;
