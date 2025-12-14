@@ -1377,7 +1377,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     // ========================
     // Supabase (cloud sync) — optional
     // ========================
-    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null };
+	    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null, itemsHasLowStockQty:null, warnedLowStockSchema:false };
     function sbInit(){
       const url = window.SB_URL, key = window.SB_ANON;
       if(!url || !key || SB.client){ return; }
@@ -1588,12 +1588,12 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	            SB.profile.silence_low_stock_alerts = desiredSilence;
 	            SB.profile.low_stock_qty_global = desiredGlobal;
 	            return SB.profile;
-	          }
-	          lastError = res.error;
-	          const msg = String(res.error && res.error.message ? res.error.message : '');
-	          if(!(msg.includes('delivery_address') || msg.includes('silence_low_stock_alerts') || msg.includes('low_stock_qty_global'))){
-	            break;
-	          }
+	        }
+	        lastError = res.error;
+	        const msg = errToText(res.error);
+	        if(!(msg.includes('delivery_address') || msg.includes('silence_low_stock_alerts') || msg.includes('low_stock_qty_global'))){
+	          break;
+	        }
 	        }
 	        if(lastError) throw lastError;
 	        throw Error('Profile create failed');
@@ -1907,34 +1907,53 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
         toast(e && e.message ? e.message : 'Sign out failed');
       }
     });
-	    async function sbLoadSnapshot(){
-	      if(!SB.ready || !SB.session || !SB.authorized) return;
-	      let data = null;
-	      try{
-	        const res = await SB.client
-	          .from('items')
-	          .select('id,name,description,qty,updated_at,low_stock_qty')
-	          .order('name', { ascending:true });
-	        if(res.error) throw res.error;
-	        data = res.data;
-	      }catch(e){
-	        const msg = String(e && e.message ? e.message : '');
-	        if(msg.includes('low_stock_qty')){
-	          const res2 = await SB.client
-	            .from('items')
-	            .select('id,name,description,qty,updated_at')
-	            .order('name', { ascending:true });
-	          if(res2.error){ console.warn('Supabase load error', res2.error); return; }
-	          data = res2.data;
-	        }else{
-	          console.warn('Supabase load error', e);
-	          return;
-	        }
-	      }
-	      state.items = (data||[]).map(r => ({
-	        id:r.id,
-	        name:r.name||'',
-	        desc:r.description||'',
+		    async function sbLoadSnapshot(){
+		      if(!SB.ready || !SB.session || !SB.authorized) return;
+		      let data = null;
+		      const baseSel = 'id,name,description,qty,updated_at';
+		      const lowSel = 'id,name,description,qty,updated_at,low_stock_qty';
+		
+		      if(SB.itemsHasLowStockQty === false){
+		        const res2 = await SB.client
+		          .from('items')
+		          .select(baseSel)
+		          .order('name', { ascending:true });
+		        if(res2.error){ console.warn('Supabase load error', res2.error); return; }
+		        data = res2.data;
+		      }else{
+		        try{
+		          const res = await SB.client
+		            .from('items')
+		            .select(lowSel)
+		            .order('name', { ascending:true });
+		          if(res.error) throw res.error;
+		          data = res.data;
+		          SB.itemsHasLowStockQty = true;
+		        }catch(e){
+		          const msg = errToText(e).toLowerCase();
+		          if(msg.includes('low_stock_qty')){
+			            SB.itemsHasLowStockQty = false;
+			            if(isSchemaCacheMissingColumnError(e, 'low_stock_qty') && !SB.warnedLowStockSchema){
+			              SB.warnedLowStockSchema = true;
+			              toast("Supabase needs schema reload for low stock (run: NOTIFY pgrst, 'reload schema';)");
+			              console.warn("Supabase schema cache missing items.low_stock_qty. Run: NOTIFY pgrst, 'reload schema';");
+			            }
+		            const res2 = await SB.client
+		              .from('items')
+		              .select(baseSel)
+		              .order('name', { ascending:true });
+		            if(res2.error){ console.warn('Supabase load error', res2.error); return; }
+		            data = res2.data;
+		          }else{
+		            console.warn('Supabase load error', e);
+		            return;
+		          }
+		        }
+		      }
+		      state.items = (data||[]).map(r => ({
+		        id:r.id,
+		        name:r.name||'',
+		        desc:r.description||'',
 	        qty:toInt(r.qty,0),
 	        lowStockQty: (r && Object.prototype.hasOwnProperty.call(r,'low_stock_qty') && r.low_stock_qty !== null) ? toInt(r.low_stock_qty,0) : null,
 	        updatedAt:r.updated_at||null
@@ -1982,11 +2001,11 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       const { error } = await SB.client.from('items').insert([{ id, name, description:desc||'', qty:toInt(qty,0) }]);
       if(error) throw error; return id;
     }
-    async function sbUpdateFields(id, fields){
-      const clean = {};
-      if('name' in fields) clean.name = String(fields.name||'');
-      if('desc' in fields) clean.description = String(fields.desc||'');
-      if('qty'  in fields) clean.qty  = toInt(fields.qty,0);
+	    async function sbUpdateFields(id, fields){
+	      const clean = {};
+	      if('name' in fields) clean.name = String(fields.name||'');
+	      if('desc' in fields) clean.description = String(fields.desc||'');
+	      if('qty'  in fields) clean.qty  = toInt(fields.qty,0);
       if('lowStockQty' in fields){
 	        const raw = fields.lowStockQty;
 	        if(raw === null || typeof raw === 'undefined' || String(raw).trim() === ''){
@@ -1997,12 +2016,25 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	          clean.low_stock_qty = v;
 	        }
 	      }
-      const { error } = await SB.client.from('items').update(clean).eq('id', id);
-      if(error) throw error;
-    }
+	      const { error } = await SB.client.from('items').update(clean).eq('id', id);
+	      if(error) throw error;
+	    }
+
+	    function errToText(err){
+	      if(!err) return '';
+	      if(typeof err === 'string') return err;
+	      const parts = [];
+	      try{
+	        if(err.message) parts.push(String(err.message));
+	        if(err.details) parts.push(String(err.details));
+	        if(err.hint) parts.push(String(err.hint));
+	        if(err.code) parts.push(String(err.code));
+	      }catch(e){}
+	      return parts.join(' ');
+	    }
 
 	    function isSchemaCacheMissingColumnError(err, column){
-	      const msg = String(err && err.message ? err.message : '');
+	      const msg = errToText(err);
 	      if(!msg) return false;
 	      const lower = msg.toLowerCase();
 	      if(!lower.includes('schema cache')) return false;
