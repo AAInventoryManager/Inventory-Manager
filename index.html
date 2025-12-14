@@ -518,7 +518,14 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     .profile-info{padding:12px 16px}
     .profile-email{font-weight:600;font-size:14px;color:var(--fg);margin-bottom:4px;word-break:break-all}
     .profile-connection{font-size:12px;color:var(--muted)}
-    .menu-icon-svg{flex-shrink:0;margin-right:10px}
+    .profile-dropdown .menu-item{
+      display:flex;align-items:center;gap:10px;width:100%;
+      padding:12px 16px;border:none;background:transparent;
+      color:var(--fg);font-size:14px;font-weight:500;
+      text-align:left;cursor:pointer;transition:background 0.15s;
+    }
+    .profile-dropdown .menu-item:hover{background:rgba(255,255,255,0.06)}
+    .menu-icon-svg{flex-shrink:0}
 </style>
 </head>
 <body>
