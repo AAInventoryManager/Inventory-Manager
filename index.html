@@ -1963,21 +1963,20 @@ function ensureEmptyState(){
       return arr
         .map((x) => {
           const part = String(x?.part || x?.name || x?.item || '').trim();
+          const desc = String(x?.desc || x?.description || '').trim();
           const qty = toInt(x?.qty, 0);
-          return { part, qty };
+          return { part, desc, qty };
         })
         .filter((x) => x.part && x.qty > 0)
         .sort((a,b)=> toKey(a.part).localeCompare(toKey(b.part)));
     }
-    function buildOrderBodyFromData({ subjectLine, replyTo, notes, lineItems }){
+    function buildOrderBodyFromData({ subjectLine, notes, lineItems }){
       const when = formatEasternDateTime(new Date());
       const subject = String(subjectLine||'').trim() || defaultOrderSubject();
       const out = [];
 
       out.push(subject);
       out.push(`Date: ${when}`);
-      const rep = String(replyTo||'').trim();
-      if(rep) out.push(`Reply-To: ${rep}`);
       out.push('');
       out.push('Items:');
       out.push('');
@@ -1987,14 +1986,17 @@ function ensureEmptyState(){
         out.push('(none)');
       }else{
         const parts = active.map(l => String(l.part||'').trim());
-        const partW = Math.min(42, Math.max(6, ...parts.map(p => p.length)));
+        const descs = active.map(l => String(l.desc||'').trim());
+        const partW = Math.min(25, Math.max(4, ...parts.map(p => p.length)));
+        const descW = Math.min(35, Math.max(11, ...descs.map(d => d.length)));
         const qtyW = Math.min(6, Math.max(3, ...active.map(l => String(toInt(l.qty, 0)).length)));
-        out.push(`${'Part #'.padEnd(partW)} | ${'Qty'.padStart(qtyW)}`);
-        out.push(`${'-'.repeat(partW)}-+-${'-'.repeat(qtyW)}`);
+        out.push(`${'Item'.padEnd(partW)} | ${'Description'.padEnd(descW)} | ${'Qty'.padStart(qtyW)}`);
+        out.push(`${'-'.repeat(partW)}-+-${'-'.repeat(descW)}-+-${'-'.repeat(qtyW)}`);
         for(const l of active){
           const part = String(l.part||'').replace(/\t/g,' ').trim();
+          const desc = String(l.desc||'').replace(/\t/g,' ').trim();
           const qty = String(toInt(l.qty, 0)).padStart(qtyW, ' ');
-          out.push(`${part.padEnd(partW)} | ${qty}`);
+          out.push(`${part.padEnd(partW)} | ${desc.padEnd(descW)} | ${qty}`);
         }
       }
 
@@ -2003,11 +2005,6 @@ function ensureEmptyState(){
         out.push('');
         out.push('Notes:');
         out.push(nt);
-      }
-
-      if(rep){
-        out.push('');
-        out.push(`This inbox is not monitored, please send any replies to: ${rep}`);
       }
 
       // Add delivery info from profile
@@ -2035,18 +2032,19 @@ function ensureEmptyState(){
       out.push(`Built by james.johns83@gmail.com for Oakley Services, LLC | v${APP_VERSION}`);
       return out.join('\n');
     }
-    function buildOrderHtmlFromData({ subjectLine, replyTo, notes, lineItems }){
+    function buildOrderHtmlFromData({ subjectLine, notes, lineItems }){
       const when = formatEasternDateTime(new Date());
       const subject = String(subjectLine||'').trim() || defaultOrderSubject();
-      const rep = String(replyTo||'').trim();
 
       const active = normalizeEmailLineItems(lineItems);
       const rows = active.map(l=>{
         const part = escapeHtml(String(l.part||'').trim());
+        const desc = escapeHtml(String(l.desc||'').trim());
         const qty = toInt(l.qty, 0);
         return (
           `<tr>`+
             `<td style="padding:10px;border:1px solid #d0d7de;word-break:break-word;overflow-wrap:anywhere;font-weight:600;">${part}</td>`+
+            `<td style="padding:10px;border:1px solid #d0d7de;word-break:break-word;overflow-wrap:anywhere;">${desc}</td>`+
             `<td style="padding:10px;border:1px solid #d0d7de;text-align:right;font-variant-numeric:tabular-nums;font-weight:700;">${qty}</td>`+
           `</tr>`
         );
@@ -2054,10 +2052,6 @@ function ensureEmptyState(){
 
       const notesRaw = String(notes||'').trim();
       const notesHtml = notesRaw ? escapeHtml(notesRaw).replace(/\n/g, '<br>') : '';
-
-      const replyToLine = rep
-        ? `<div style="margin:2px 0;"><strong>Reply-To:</strong> ${escapeHtml(rep)}</div>`
-        : '';
 
       // Build user/delivery info block from profile
       const profileData = SB && SB.profile ? SB.profile : {};
@@ -2092,24 +2086,18 @@ function ensureEmptyState(){
         )
         : '';
 
-      const disclaimerBlock = rep
-        ? (
-          `<div style="margin-top:16px;padding-top:12px;border-top:1px solid #d0d7de;font-size:12px;color:#6a737d;">`+
-            `This inbox is not monitored, please send any replies to: <a href="mailto:${escapeHtmlAttr(rep)}" style="color:#0969da;text-decoration:underline;">${escapeHtml(rep)}</a>`+
-          `</div>`
-        )
-        : '';
-
       const itemsBlock = active.length
         ? (
           `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #d0d7de;table-layout:fixed;">`+
             `<colgroup>`+
-              `<col style="width:78%;">`+
-              `<col style="width:22%;">`+
+              `<col style="width:35%;">`+
+              `<col style="width:50%;">`+
+              `<col style="width:15%;">`+
             `</colgroup>`+
             `<thead>`+
               `<tr>`+
-                `<th align="left" style="padding:10px;border:1px solid #d0d7de;background:#f6f8fa;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Part #</th>`+
+                `<th align="left" style="padding:10px;border:1px solid #d0d7de;background:#f6f8fa;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Item</th>`+
+                `<th align="left" style="padding:10px;border:1px solid #d0d7de;background:#f6f8fa;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Description</th>`+
                 `<th align="right" style="padding:10px;border:1px solid #d0d7de;background:#f6f8fa;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Qty</th>`+
               `</tr>`+
             `</thead>`+
@@ -2125,13 +2113,11 @@ function ensureEmptyState(){
           `<h2 style="margin:0 0 10px;font-size:18px;">${escapeHtml(subject)}</h2>`+
           `<div style="font-size:13px;color:#444;margin:0 0 16px;">`+
             `<div style="margin:2px 0;"><strong>Date:</strong> ${escapeHtml(when)}</div>`+
-            `${replyToLine}`+
           `</div>`+
           `<div style="margin:0 0 10px;">Please supply the following materials:</div>`+
           `${itemsBlock}`+
           `${notesBlock}`+
           `${deliveryInfoBlock}`+
-          `${disclaimerBlock}`+
           `<div style="margin-top:18px;font-size:12px;color:#6a737d;">Built by james.johns83@gmail.com for Oakley Services, LLC | v${escapeHtml(APP_VERSION)}</div>`+
         `</div>`+
         `</body></html>`
@@ -2145,19 +2131,17 @@ function ensureEmptyState(){
     }
     function buildOrderBody(){
       const ord = orderState();
-      const replyTo = getSignedInEmail();
       const subjectLine = String(ord.subject||'').trim() || defaultOrderSubject();
       const notes = String(ord.notes||'').trim();
-      const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), qty: toInt(l.qty, 0) }));
-      return buildOrderBodyFromData({ subjectLine, replyTo, notes, lineItems });
+      const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), desc: String(l.desc||'').trim(), qty: toInt(l.qty, 0) }));
+      return buildOrderBodyFromData({ subjectLine, notes, lineItems });
     }
     function buildOrderHtml(){
       const ord = orderState();
-      const replyTo = getSignedInEmail();
       const subjectLine = String(ord.subject||'').trim() || defaultOrderSubject();
       const notesRaw = String(ord.notes||'').trim();
-      const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), qty: toInt(l.qty, 0) }));
-      return buildOrderHtmlFromData({ subjectLine, replyTo, notes: notesRaw, lineItems });
+      const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), desc: String(l.desc||'').trim(), qty: toInt(l.qty, 0) }));
+      return buildOrderHtmlFromData({ subjectLine, notes: notesRaw, lineItems });
     }
     function buildMailtoUrl(){
       const ord = orderState();
@@ -2175,8 +2159,8 @@ function ensureEmptyState(){
       const toEmail = String(to||'').trim();
       const replyTo = getSignedInEmail();
       const subject = String(subjectLine||'').trim() || defaultOrderSubject();
-      const text = buildOrderBodyFromData({ subjectLine: subject, replyTo, notes, lineItems });
-      const html = buildOrderHtmlFromData({ subjectLine: subject, replyTo, notes, lineItems });
+      const text = buildOrderBodyFromData({ subjectLine: subject, notes, lineItems });
+      const html = buildOrderHtmlFromData({ subjectLine: subject, notes, lineItems });
       const apiUrl = getOrderApiUrl();
 
       const res = await fetch(apiUrl, {
@@ -2197,7 +2181,7 @@ function ensureEmptyState(){
       const to = String(ord.email||'').trim();
       const subjectLine = String(ord.subject||'').trim() || defaultOrderSubject();
       const notes = String(ord.notes||'').trim();
-      const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), qty: toInt(l.qty, 0) }));
+      const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), desc: String(l.desc||'').trim(), qty: toInt(l.qty, 0) }));
       return sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems });
     }
     async function copyText(text){
@@ -2276,7 +2260,7 @@ function ensureEmptyState(){
     }
     async function sbInsertOrderHistory(providerResult){
       const ord = orderState();
-      const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), qty: toInt(l.qty, 0) }));
+      const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), desc: String(l.desc||'').trim(), qty: toInt(l.qty, 0) }));
       return sbInsertOrderHistoryFromData({
         toEmail: String(ord.email||'').trim(),
         subjectLine: String(ord.subject||'').trim() || defaultOrderSubject(),
@@ -2967,11 +2951,6 @@ function ensureEmptyState(){
         if(m){
           m.checked = (checked.length===all.length && all.length>0);
           m.indeterminate = (checked.length>0 && checked.length<all.length);
-        }
-        if (state._filter) {
-          state._filter = '';
-          const fb = $('filterBox'); if (fb) fb.value = '';
-          renderTable();
         }
       }
     });
