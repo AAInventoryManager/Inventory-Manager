@@ -90,31 +90,47 @@
     
     th.sorted-asc .sort-ind::before{ content:'\25B2'; opacity:1 }
     th.sorted-desc .sort-ind::before{ content:'\25BC'; opacity:1 }
-tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+	tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
     td.actions{padding:8px;display:flex;gap:8px;align-items:center;justify-content:flex-end}
-		    .row-delete-btn{
-		      background:none;border:none;cursor:pointer;padding:6px;
-		      color:var(--muted);display:inline-flex;align-items:center;justify-content:center;
-		      border-radius:6px;transition:background 0.15s,color 0.15s;
-		    }
-		    .row-delete-btn:hover{background:rgba(255,80,80,0.15);color:#ff6b6b}
-		    .row-stock-btn{
-		      background:none;border:none;cursor:pointer;padding:6px;
-		      color:var(--muted);display:inline-flex;align-items:center;justify-content:center;
-		      border-radius:6px;transition:background 0.15s,color 0.15s;
-		    }
-		    .row-stock-btn:hover{background:rgba(114,253,114,0.14);color:#72FD72}
-			    @media (hover: hover) and (pointer: fine){
-			      #invTable tbody tr[data-id]{
-			        transition: filter 160ms ease;
-			        transition-delay: 0ms;
-			        filter:none;
-			      }
-			      #invTable tbody tr[data-id]:hover{
-			        transition-delay: 200ms; /* avoids flicker while scrolling */
-			        filter: drop-shadow(0 0 22px rgba(114,253,114,0.55));
-			      }
+			    .row-delete-btn,
+			    .row-stock-btn{
+			      cursor:pointer;
+			      width:44px;
+			      height:44px;
+			      padding:10px;
+			      border-radius:10px;
+			      border:1px solid var(--border);
+			      background:#101826;
+			      color:#fff;
+			      display:inline-flex;
+			      align-items:center;
+			      justify-content:center;
+			      transition:background 0.15s,color 0.15s,border-color 0.15s;
+			      touch-action:manipulation;
+			      -webkit-appearance:none;
+			      appearance:none;
 			    }
+			    .row-delete-btn svg,
+			    .row-stock-btn svg{
+			      width:18px;
+			      height:18px;
+			      display:block;
+			    }
+			    .row-delete-btn:hover{background:rgba(255,80,80,0.18);border-color:rgba(255,80,80,0.35);color:#ff6b6b}
+			    .row-stock-btn:hover{background:rgba(135,245,255,0.14);border-color:rgba(135,245,255,0.38);color:#87F5FF}
+				    @media (hover: hover) and (pointer: fine){
+				      #invTable tbody tr[data-id]{
+				        transition: filter 160ms ease;
+				        transition-delay: 0ms;
+				        filter:none;
+				      }
+				      #invTable tbody tr[data-id]:hover{
+				        transition-delay: 200ms; /* avoids flicker while scrolling */
+				        filter:
+				          drop-shadow(0 0 16px rgba(135,245,255,0.24))
+				          drop-shadow(0 0 46px rgba(135,245,255,0.08));
+				      }
+				    }
 			    /* Mobile table layout: stack fields vertically per record */
 			    @media (max-width: 768px){
 			      #invTable thead{ display:none; }
@@ -131,27 +147,27 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 			        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 			        will-change: transform, box-shadow;
 			      }
-			      #invTable tbody tr[data-id]::before{
-			        content:'';
-			        position:absolute;
-			        inset:-12px;
-			        border-radius:20px;
-			        background: radial-gradient(closest-side, rgba(114,253,114,0.44), rgba(114,253,114,0.0) 72%);
-			        filter: blur(16px);
-			        opacity:0;
-			        transition: opacity 220ms ease, transform 220ms ease;
-			        transform: translateY(0);
+				      #invTable tbody tr[data-id]::before{
+				        content:'';
+				        position:absolute;
+				        inset:-12px;
+				        border-radius:20px;
+				        background: radial-gradient(closest-side, rgba(135,245,255,0.38), rgba(135,245,255,0.0) 72%);
+				        filter: blur(16px);
+				        opacity:0;
+				        transition: opacity 220ms ease, transform 220ms ease;
+				        transform: translateY(0);
 			        z-index:-1;
 			        pointer-events:none;
 			      }
-			      #invTable tbody tr[data-id].scroll-focus{
-			        box-shadow:
-			          0 16px 36px rgba(0,0,0,0.62),
-			          0 0 48px rgba(114,253,114,0.22),
-			          0 0 92px rgba(114,253,114,0.10),
-			          inset 0 1px 0 rgba(255,255,255,0.08);
-			        transform: translateY(-3px);
-			      }
+				      #invTable tbody tr[data-id].scroll-focus{
+				        box-shadow:
+				          0 16px 36px rgba(0,0,0,0.62),
+				          0 0 44px rgba(135,245,255,0.18),
+				          0 0 86px rgba(135,245,255,0.08),
+				          inset 0 1px 0 rgba(255,255,255,0.08);
+				        transform: translateY(-3px);
+				      }
 			      #invTable tbody tr[data-id].scroll-focus::before{
 			        opacity:1;
 			        transform: translateY(-1px);
@@ -257,11 +273,11 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 		        border-color:rgba(255,80,80,0.35);
 		        color:#ff6b6b;
 		      }
-		      #invTable tbody tr[data-id] td.actions .row-stock-btn:hover{
-		        background:rgba(114,253,114,0.14);
-		        border-color:rgba(114,253,114,0.38);
-		        color:#72FD72;
-		      }
+			      #invTable tbody tr[data-id] td.actions .row-stock-btn:hover{
+			        background:rgba(135,245,255,0.14);
+			        border-color:rgba(135,245,255,0.38);
+			        color:#87F5FF;
+			      }
 		    }
 		    @media (prefers-reduced-motion: reduce){
 		      #invTable tbody tr[data-id]{ transition:none !important; }
@@ -1111,6 +1127,22 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       <div class="edit-footer">
         <button class="btn" id="btnEditItemCancel">Cancel</button>
         <button class="btn primary" id="btnEditItemSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Low stock modal -->
+  <div id="lowStockModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <h2 style="margin:0 0 10px;font-size:16px;">Low Stock</h2>
+      <div id="lowStockItemLabel" class="muted" style="margin-bottom:8px;"></div>
+      <div id="lowStockCurrentLabel" class="muted"></div>
+      <div id="lowStockGlobalLabel" class="muted" style="margin-bottom:10px;"></div>
+      <input id="lowStockValue" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <button class="btn" id="btnLowStockUseGlobal" type="button">Use Global</button>
+        <button class="btn" id="btnLowStockCancel" type="button">Cancel</button>
+        <button class="btn primary" id="btnLowStockSave" type="button">Save</button>
       </div>
     </div>
   </div>
@@ -2311,14 +2343,36 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 	    '</div>'
 	  );
 	}
-	function buildRowHTML(it){
-	  return (
-	    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
-	    '<td data-col="name"><span class="cell-val">'+escapeHtml(it.name||'')+'</span></td>'+
-	    '<td data-col="desc"><span class="cell-val">'+escapeHtml(it.desc||'')+'</span></td>'+
-	    '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'
-	  );
-	}
+		function buildRowHTML(it){
+		  const id = escapeHtmlAttr(it.id || '');
+		  return (
+		    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+id+'"></td>'+
+		    '<td data-col="name"><span class="cell-val">'+escapeHtml(it.name||'')+'</span></td>'+
+		    '<td data-col="desc"><span class="cell-val">'+escapeHtml(it.desc||'')+'</span></td>'+
+		    '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'+
+		    '<td class="actions">'+
+		      '<button class="row-stock-btn" data-id="'+id+'" aria-label="Set low stock qty" title="Set low stock qty">'+
+		        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+		          '<line x1="4" y1="21" x2="4" y2="14"></line>'+
+		          '<line x1="4" y1="10" x2="4" y2="3"></line>'+
+		          '<line x1="12" y1="21" x2="12" y2="12"></line>'+
+		          '<line x1="12" y1="8" x2="12" y2="3"></line>'+
+		          '<line x1="20" y1="21" x2="20" y2="16"></line>'+
+		          '<line x1="20" y1="12" x2="20" y2="3"></line>'+
+		          '<line x1="1" y1="14" x2="7" y2="14"></line>'+
+		          '<line x1="9" y1="8" x2="15" y2="8"></line>'+
+		          '<line x1="17" y1="16" x2="23" y2="16"></line>'+
+		        '</svg>'+
+		      '</button>'+
+		      '<button class="row-delete-btn" data-id="'+id+'" aria-label="Delete item" title="Delete item">'+
+		        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+		          '<polyline points="3 6 5 6 21 6"></polyline>'+
+		          '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>'+
+		        '</svg>'+
+		      '</button>'+
+		    '</td>'
+		  );
+		}
 // Insert a row into the table in sorted position by name
 function insertRowSorted(it){
   const tb = tbodyEl(); if(!tb) return;
@@ -2672,17 +2726,121 @@ function ensureEmptyState(){
       if(e.key==='Escape'){ e.preventDefault(); closeEditItemModal(); }
       if(e.key==='Enter'){ e.preventDefault(); saveEditItemModal(); }
     });
-    const editItemDesc = $('editItemDesc');
-    if(editItemDesc) editItemDesc.addEventListener('keydown', e=>{
-      if(e.key==='Escape'){ e.preventDefault(); closeEditItemModal(); }
-      if((e.key==='Enter' || e.key==='NumpadEnter') && (e.metaKey || e.ctrlKey)){
-        e.preventDefault(); saveEditItemModal();
-      }
-    });
+	    const editItemDesc = $('editItemDesc');
+	    if(editItemDesc) editItemDesc.addEventListener('keydown', e=>{
+	      if(e.key==='Escape'){ e.preventDefault(); closeEditItemModal(); }
+	      if((e.key==='Enter' || e.key==='NumpadEnter') && (e.metaKey || e.ctrlKey)){
+	        e.preventDefault(); saveEditItemModal();
+	      }
+	    });
+	
+	    // Low stock modal
+	    let _lowStockCtx = null;
+	    function closeLowStockModal(){
+	      _lowStockCtx = null;
+	      show('lowStockModal', false);
+	    }
+	    function openLowStockModal(id){
+	      const item = state.items.find(it => it.id === id);
+	      if(!item) return;
+	      _lowStockCtx = { id };
+	
+	      const global = getGlobalLowStockQty();
+	      const currentOverride = getItemLowStockQtyOverride(item);
+	      const currentLabel = (currentOverride === null)
+	        ? `This item: Global (${global})`
+	        : `This item: ${currentOverride} (override)`;
+	
+	      const elItem = $('lowStockItemLabel');
+	      const elCurrent = $('lowStockCurrentLabel');
+	      const elGlobal = $('lowStockGlobalLabel');
+	      if(elItem) elItem.textContent = `Item: ${item.name || 'Item'}`;
+	      if(elCurrent) elCurrent.textContent = currentLabel;
+	      if(elGlobal) elGlobal.textContent = `Global: ${global}`;
+	
+	      const inp = $('lowStockValue');
+	      if(inp) inp.value = (currentOverride === null) ? '' : String(currentOverride);
+	
+	      show('lowStockModal', true);
+	    }
+	    async function saveLowStockModal(){
+	      if(!_lowStockCtx) return;
+	      if(!requireOnline()) return;
+	
+	      const id = _lowStockCtx.id;
+	      const item = state.items.find(it => it.id === id);
+	      if(!item){ closeLowStockModal(); return; }
+	
+	      const global = getGlobalLowStockQty();
+	      const prev = getItemLowStockQtyOverride(item);
+	      const prevThr = (prev === null) ? global : prev;
+	
+	      const inp = $('lowStockValue');
+	      const raw = String(inp && typeof inp.value !== 'undefined' ? inp.value : '').trim();
+	      let next = null;
+	      if(raw !== ''){
+	        const n = Number(raw);
+	        if(!Number.isFinite(n) || n < 0 || Math.trunc(n) !== n){
+	          toast('Low stock qty must be integer ≥ 0');
+	          return;
+	        }
+	        next = Math.trunc(n);
+	      }
+	      const nextThr = (next === null) ? global : next;
+	
+	      const btnSave = $('btnLowStockSave');
+	      const btnCancel = $('btnLowStockCancel');
+	      const btnGlobal = $('btnLowStockUseGlobal');
+	      if(btnSave) btnSave.disabled = true;
+	      if(btnCancel) btnCancel.disabled = true;
+	      if(btnGlobal) btnGlobal.disabled = true;
+	
+	      item.lowStockQty = next;
+	      try{
+	        await sbUpdateFields(id, { lowStockQty: next });
+	        try{
+	          if(rowElById(id)) adjustDisplayedLowStockThreshold(item, prevThr, nextThr);
+	        }catch(e){}
+	        toast(next === null ? `Low stock uses global (${global})` : `Low stock set to ${next}`);
+	        try{
+	          const reportModal = $('reportModal');
+	          if(reportModal && reportModal.getAttribute('aria-hidden') === 'false') renderInventoryReport();
+	        }catch(e){}
+	        closeLowStockModal();
+	      }catch(err){
+	        item.lowStockQty = prev;
+	        if(isSchemaCacheMissingColumnError(err, 'low_stock_qty')){
+	          showSchemaCacheReloadHelp('items', 'low_stock_qty');
+	        }else{
+	          toast(err && err.message ? err.message : 'Update failed');
+	        }
+	      }finally{
+	        if(btnSave) btnSave.disabled = false;
+	        if(btnCancel) btnCancel.disabled = false;
+	        if(btnGlobal) btnGlobal.disabled = false;
+	      }
+	    }
+	    const btnLowStockCancel = $('btnLowStockCancel');
+	    if(btnLowStockCancel) btnLowStockCancel.addEventListener('click', closeLowStockModal);
+	    const btnLowStockUseGlobal = $('btnLowStockUseGlobal');
+	    if(btnLowStockUseGlobal) btnLowStockUseGlobal.addEventListener('click', ()=>{
+	      const inp = $('lowStockValue');
+	      if(inp){
+	        inp.value = '';
+	        try{ inp.focus(); }catch(e){}
+	      }
+	    });
+	    const btnLowStockSave = $('btnLowStockSave');
+	    if(btnLowStockSave) btnLowStockSave.addEventListener('click', saveLowStockModal);
+	    const lowStockValue = $('lowStockValue');
+	    if(lowStockValue) lowStockValue.addEventListener('keydown', e=>{
+	      if(e.key==='Escape'){ e.preventDefault(); closeLowStockModal(); }
+	      if(e.key==='Enter'){ e.preventDefault(); saveLowStockModal(); }
+	    });
 
-    // Table Qty +/- (mobile): optimistic UI + debounced commit
-    function toSignedInt(v, f=0){
-      const n = Number(v);
+	    // Table Qty +/- (mobile): optimistic UI + debounced commit
+	    function toSignedInt(v, f=0){
+	      const n = Number(v);
       if(!Number.isFinite(n)) return f;
       return Math.trunc(n);
     }
@@ -4656,65 +4814,16 @@ function ensureEmptyState(){
       }
     }
 
-	    // Row delete button handler (delegated)
-	    document.addEventListener('click', async (e)=>{
-	      const stockBtn = e.target.closest('.row-stock-btn');
-	      if(stockBtn){
-	        e.preventDefault();
-	        e.stopPropagation();
-	        if(!requireOnline()) return;
-	        const id = stockBtn.dataset.id;
-	        if(!id) return;
-	        const item = state.items.find(it => it.id === id);
-	        if(!item) return;
-
-	        const global = getGlobalLowStockQty();
-	        const currentOverride = getItemLowStockQtyOverride(item);
-	        const prevThr = (currentOverride === null) ? global : currentOverride;
-	        const currentLabel = (currentOverride === null)
-	          ? `Global (${global})`
-	          : `${currentOverride} (override; global ${global})`;
-
-	        const input = prompt(
-	          `Low stock qty for "${item.name || 'Item'}".\n\nEnter an integer ≥ 0 to override.\nLeave blank to use global (${global}).\nCurrent: ${currentLabel}`,
-	          (currentOverride === null) ? '' : String(currentOverride)
-	        );
-	        if(input === null) return;
-	        const raw = String(input).trim();
-	        let next = null;
-	        if(raw !== ''){
-	          const n = Number(raw);
-	          if(!Number.isFinite(n) || n < 0 || Math.trunc(n) !== n){
-	            toast('Low stock qty must be integer ≥ 0');
-	            return;
-	          }
-	          next = Math.trunc(n);
-	        }
-	        const nextThr = (next === null) ? global : next;
-
-	        const prev = currentOverride;
-	        item.lowStockQty = next;
-	        stockBtn.disabled = true;
-	        try{
-	          await sbUpdateFields(id, { lowStockQty: next });
-	          try{
-	            if(rowElById(id)) adjustDisplayedLowStockThreshold(item, prevThr, nextThr);
-	          }catch(e){}
-	          toast(next === null ? `Low stock uses global (${global})` : `Low stock set to ${next}`);
-	          try{
-	            const reportModal = $('reportModal');
-	            if(reportModal && reportModal.getAttribute('aria-hidden') === 'false') renderInventoryReport();
-	          }catch(e){}
-		        }catch(err){
-		          item.lowStockQty = prev;
-		          if(isSchemaCacheMissingColumnError(err, 'low_stock_qty')){
-		            showSchemaCacheReloadHelp('items', 'low_stock_qty');
-		          }else{
-		            toast(err && err.message ? err.message : 'Update failed');
-		          }
-		        }finally{
-		          stockBtn.disabled = false;
-		        }
+		    // Row delete button handler (delegated)
+		    document.addEventListener('click', async (e)=>{
+		      const stockBtn = e.target.closest('.row-stock-btn');
+		      if(stockBtn){
+		        e.preventDefault();
+		        e.stopPropagation();
+		        if(!requireOnline()) return;
+		        const id = stockBtn.dataset.id;
+		        if(!id) return;
+		        openLowStockModal(id);
 		        return;
 		      }
 
@@ -4981,6 +5090,9 @@ function ensureEmptyState(){
   } else if (id === 'authModal') {
     const inp = document.getElementById('authEmail');
     if (inp) setTimeout(() => inp.focus(), 0);
+  } else if (id === 'lowStockModal') {
+    const inp = document.getElementById('lowStockValue');
+    if (inp) setTimeout(() => { inp.focus(); try{ inp.select(); }catch(e){} }, 0);
   } else if (id === 'profileModal') {
     const inp = document.getElementById('profilePhone');
     if (inp) setTimeout(() => inp.focus(), 0);
