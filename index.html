@@ -2270,7 +2270,12 @@ function ensureEmptyState(){
       return arr
         .map((x) => {
           const part = String(x?.part || x?.name || x?.item || '').trim();
-          const desc = String(x?.desc || x?.description || '').trim();
+          let desc = String(x?.desc || x?.description || '').trim();
+          // Fallback: look up description from inventory if not stored
+          if(!desc && part){
+            const inv = state.items.find(it => it.name === part);
+            if(inv) desc = String(inv.desc || '').trim();
+          }
           const qty = toInt(x?.qty, 0);
           return { part, desc, qty };
         })
