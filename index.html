@@ -98,20 +98,20 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	      border-radius:6px;transition:background 0.15s,color 0.15s;
 	    }
 	    .row-delete-btn:hover{background:rgba(255,80,80,0.15);color:#ff6b6b}
-	    @media (hover: hover) and (pointer: fine){
-	      #invTable tbody tr[data-id]{
-	        transition: background-color 160ms ease, filter 160ms ease, outline-color 160ms ease;
-	        transition-delay: 0ms;
-	        outline: 1px solid transparent;
-	        outline-offset: -1px;
-	      }
-	      #invTable tbody tr[data-id]:hover{
-	        transition-delay: 140ms; /* avoids flicker while scrolling */
-	        background-color: rgba(90,169,255,0.06);
-	        outline-color: rgba(90,169,255,0.35);
-	        filter: drop-shadow(0 0 12px rgba(90,169,255,0.16));
-	      }
-	    }
+		    @media (hover: hover) and (pointer: fine){
+		      #invTable tbody tr[data-id]{
+		        transition: background-color 160ms ease, filter 160ms ease, outline-color 160ms ease;
+		        transition-delay: 0ms;
+		        outline: 1px solid transparent;
+		        outline-offset: -1px;
+		      }
+		      #invTable tbody tr[data-id]:hover{
+		        transition-delay: 200ms; /* avoids flicker while scrolling */
+		        background-color: rgba(90,169,255,0.12);
+		        outline-color: rgba(90,169,255,0.62);
+		        filter: drop-shadow(0 0 18px rgba(90,169,255,0.30));
+		      }
+		    }
 	    /* Mobile table layout: stack fields vertically per record */
 	    @media (max-width: 768px){
 	      #invTable thead{ display:none; }
@@ -127,15 +127,16 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 	        will-change: transform, box-shadow;
 	      }
-	      #invTable tbody tr[data-id].scroll-focus{
-	        border-color: rgba(90,169,255,0.55);
-	        box-shadow:
-	          0 0 0 1px rgba(90,169,255,0.22),
-	          0 14px 30px rgba(0,0,0,0.55),
-	          0 0 22px rgba(90,169,255,0.22),
-	          inset 0 1px 0 rgba(255,255,255,0.06);
-	        transform: translateY(-2px);
-	      }
+		      #invTable tbody tr[data-id].scroll-focus{
+		        border-color: rgba(90,169,255,0.78);
+		        box-shadow:
+		          0 0 0 1px rgba(90,169,255,0.32),
+		          0 16px 36px rgba(0,0,0,0.62),
+		          0 0 30px rgba(90,169,255,0.36),
+		          0 0 52px rgba(90,169,255,0.14),
+		          inset 0 1px 0 rgba(255,255,255,0.08);
+		        transform: translateY(-3px);
+		      }
 	      #invTable tbody tr[data-id] td{
 	        display:block;
 	        width:100%;
@@ -218,7 +219,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 
     /* Desktop description: keep on one line (dynamic width handles it) */
     @media (min-width: 769px){ td[data-col="desc"], th[data-col="desc"]{ white-space:nowrap; } }
-    td.qty{text-align:right;font-variant-numeric:tabular-nums}
+	    td.qty{text-align:center;font-variant-numeric:tabular-nums}
     th.sel, td.sel{ width:42px; text-align:center }
     input[type=text],input[type=number],input[type=email],input[type=password],input[type=tel],textarea,select{
       width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);
@@ -875,15 +876,15 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 
       <div class="totals" aria-live="polite"><span id="totalQty" class="muted">Total Qty: 0</span></div>
 
-      <div class="scroll" id="tableWrap">
-        <table id="invTable" role="grid" aria-label="Inventory table">
-          <colgroup>
-            <col style="width:42px">
-            <col id="col-name">
-            <col id="col-desc">
-            <col style="width:80px">
-            <col style="width:48px">
-          </colgroup>
+	      <div class="scroll" id="tableWrap">
+	        <table id="invTable" role="grid" aria-label="Inventory table">
+	          <colgroup>
+	            <col style="width:42px">
+	            <col id="col-name">
+	            <col id="col-desc">
+	            <col style="width:150px">
+	            <col style="width:48px">
+	          </colgroup>
           <thead>
             <tr>
               <th class="sel"><input type="checkbox" id="chkAll" aria-label="Select all"></th>
@@ -1041,10 +1042,10 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
         <div class="section">
           <div class="section-title"><span>Message</span></div>
           <div style="display:grid; grid-template-columns:1fr; gap:10px;">
-	            <div>
-	              <div class="muted" style="margin-bottom:6px;">Subject</div>
-	              <input id="orderSubject" type="text" placeholder="Material Order - Oakley Services, LLC (City/State)" />
-	            </div>
+		            <div>
+		              <div class="muted" style="margin-bottom:6px;">Subject</div>
+		              <input id="orderSubject" type="text" placeholder="Order for Oakley Services, LLC (City/State)" />
+		            </div>
             <div>
               <div class="muted" style="margin-bottom:6px;">Notes (optional)</div>
               <textarea id="orderNotes" rows="3" placeholder="Any notes…"></textarea>
@@ -1136,7 +1137,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     // State & persistence
     // ========================
     const DB_KEY='inv.single.inline.mobile.v1';
-    const state={items:[], updatedAt:null, _filter:'', _sort:{col:'name', dir:'asc'}, _order:{lines:[], email:'', subject:'Material Order', notes:'', contactName:'', search:''}};
+	    const state={items:[], updatedAt:null, _filter:'', _sort:{col:'name', dir:'asc'}, _order:{lines:[], email:'', subject:'', notes:'', contactName:'', search:''}};
     const APP_VERSION = '2.0.0';
 
     const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
@@ -1791,11 +1792,11 @@ function sortItems(arr){
       const w = meas.getBoundingClientRect().width; if(w>max) max=w;
     }
     document.body.removeChild(meas);
-    const tableW = table.getBoundingClientRect().width;
-    const minW = 220; // ensure readable
-    const guard = 42 + 100 + 120; // sel + qty + min name
-    const maxClamp = Math.max(160, tableW - guard);
-    const width = Math.min(Math.max(minW, Math.ceil(max+24)), Math.floor(tableW*0.7), maxClamp);
+	    const tableW = table.getBoundingClientRect().width;
+	    const minW = 220; // ensure readable
+	    const guard = 42 + 150 + 120; // sel + qty + min name
+	    const maxClamp = Math.max(160, tableW - guard);
+	    const width = Math.min(Math.max(minW, Math.ceil(max+24)), Math.floor(tableW*0.7), maxClamp);
     colDesc.style.width = width + 'px';
     table.querySelectorAll('td[data-col="desc"], th[data-col="desc"]').forEach(el=>{
       el.style.whiteSpace='nowrap'; el.style.wordBreak='normal'; el.style.hyphens='manual';
@@ -1890,22 +1891,18 @@ function sortItems(arr){
     // -------- Partial-optimistic DOM helpers --------
 function tbodyEl(){ return document.querySelector('#invTable tbody'); }
 function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) || null; }
-function cellEl(tr, col){ return tr?.querySelector(`td[data-col="${col}"]`) || null; }
-function qtyCellHTML(it){
-  const q = toInt(it.qty,0);
-  const stacked = !!(window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
-  if(stacked){
-    const id = escapeHtmlAttr(it.id || '');
-    return (
-      '<div class="qty-stepper qty-stepper--table" aria-label="Qty controls">'+
-        '<button type="button" class="qty-step qty-step-btn" data-id="'+id+'" data-delta="-1" aria-label="Decrease qty">−</button>'+
-        '<span class="qty-value" aria-label="Qty">'+q+'</span>'+
-        '<button type="button" class="qty-step qty-step-btn" data-id="'+id+'" data-delta="1" aria-label="Increase qty">+</button>'+
-      '</div>'
-    );
-  }
-  return String(q);
-}
+	function cellEl(tr, col){ return tr?.querySelector(`td[data-col="${col}"]`) || null; }
+	function qtyCellHTML(it){
+	  const q = toInt(it.qty,0);
+	  const id = escapeHtmlAttr(it.id || '');
+	  return (
+	    '<div class="qty-stepper qty-stepper--table" aria-label="Qty controls">'+
+	      '<button type="button" class="qty-step qty-step-btn" data-id="'+id+'" data-delta="-1" aria-label="Decrease qty">−</button>'+
+	      '<span class="qty-value" aria-label="Qty">'+q+'</span>'+
+	      '<button type="button" class="qty-step qty-step-btn" data-id="'+id+'" data-delta="1" aria-label="Increase qty">+</button>'+
+	    '</div>'
+	  );
+	}
 function buildRowHTML(it){
   return (
     '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
@@ -2234,13 +2231,13 @@ function ensureEmptyState(){
       if(!Number.isFinite(n)) return f;
       return Math.trunc(n);
     }
-    function adjustDisplayedTotalQty(delta){
-      const totalEl = $('totalQty'); if(!totalEl) return;
-      const m = /Total Qty:\\s*(\\d+)/.exec(totalEl.textContent || '');
-      if(!m) return;
-      const cur = toInt(m[1], 0);
-      totalEl.textContent = `Total Qty: ${Math.max(0, cur + toSignedInt(delta,0))}`;
-    }
+	    function adjustDisplayedTotalQty(delta){
+	      const totalEl = $('totalQty'); if(!totalEl) return;
+	      const m = /Total Qty:\s*(\d+)/.exec(totalEl.textContent || '');
+	      if(!m) return;
+	      const cur = toInt(m[1], 0);
+	      totalEl.textContent = `Total Qty: ${Math.max(0, cur + toSignedInt(delta,0))}`;
+	    }
     function updateQtyCellUIForRow(id, qty){
       const tr = rowElById(id);
       const val = tr ? tr.querySelector('td[data-col="qty"] .qty-value') : null;
@@ -2324,13 +2321,13 @@ function ensureEmptyState(){
       });
     }
 
-    function startCellEdit(td, ev){
-      // If the user tapped a control inside the cell, don't open an editor.
-      if(ev && ev.target && ev.target.closest('button, input, textarea, select, a')) return;
-      if(td.querySelector('input')) return;
-      const col=td.getAttribute('data-col'); if(!col) return;
-      const tr=td.closest('tr'); const id=tr?.dataset?.id; if(!id) return;
-      const it=state.items.find(x=> x.id===id); if(!it) return;
+	    function startCellEdit(td, ev){
+	      // If the user tapped a control inside the cell, don't open an editor.
+	      if(ev && ev.target && ev.target.closest('button, input, textarea, select, a')) return;
+	      if(td.querySelector('input')) return;
+	      const col=td.getAttribute('data-col'); if(!col) return;
+	      const tr=td.closest('tr'); const id=tr?.dataset?.id; if(!id) return;
+	      const it=state.items.find(x=> x.id===id); if(!it) return;
 
       if(prefersModalEditing()){
         if(!requireOnline()) return;
@@ -2340,35 +2337,90 @@ function ensureEmptyState(){
 
       if(!requireOnline()) return;
       const fb = $('filterBox'); if (fb) fb.value = '';
-      state._filter = '';
-      try{ updateFilterClearBtn(); }catch(e){}
+	      state._filter = '';
+	      try{ updateFilterClearBtn(); }catch(e){}
 
-      const oldVal = (col==='qty'? String(toInt(it.qty,0)) : String(col==='name'?it.name:(it.desc||'')));
-      const inp=document.createElement('input');
-      inp.type = (col==='qty')? 'number' : 'text';
-      if(col==='qty'){ inp.min='0'; inp.step='1'; inp.inputMode='numeric'; inp.pattern='[0-9]*'; inp.setAttribute('enterkeyhint','done'); }
-      inp.value = oldVal; inp.autocapitalize='off'; inp.autocomplete='off'; inp.spellcheck=false;
-      td.classList.add('editing'); td.innerHTML=''; td.appendChild(inp);
-      setTimeout(()=>{ inp.focus(); inp.select(); }, 0);
+	      const oldVal = (col==='qty'? String(toInt(it.qty,0)) : String(col==='name'?it.name:(it.desc||'')));
+	      const prevName = String(it.name||'');
+	      const prevDesc = String(it.desc||'');
+	      const prevQty = toInt(it.qty,0);
+	      const inp=document.createElement('input');
+	      inp.type = (col==='qty')? 'number' : 'text';
+	      if(col==='qty'){ inp.min='0'; inp.step='1'; inp.inputMode='numeric'; inp.pattern='[0-9]*'; inp.setAttribute('enterkeyhint','done'); }
+	      inp.value = oldVal; inp.autocapitalize='off'; inp.autocomplete='off'; inp.spellcheck=false;
+	      td.classList.add('editing'); td.innerHTML=''; td.appendChild(inp);
+	      setTimeout(()=>{ inp.focus(); inp.select(); }, 0);
 
-      const cancel=()=>{ td.classList.remove('editing'); td.innerHTML = (col==='qty')? String(toInt(it.qty,0)) : escapeHtml(col==='name'?it.name:(it.desc||'')); };
+	      let _done = false;
+	      const restore = ()=>{
+	        if(_done) return;
+	        _done = true;
+	        td.classList.remove('editing');
+	        if(col==='qty') td.innerHTML = qtyCellHTML(it);
+	        else td.textContent = (col==='name') ? String(it.name||'') : String(it.desc||'');
+	      };
+	      const cancel=()=>{
+	        it.name = prevName;
+	        it.desc = prevDesc;
+	        it.qty = prevQty;
+	        restore();
+	      };
 
-      const commit = async () => {
-        let v = inp.value;
-        try{
-          await commitItemField(id, col, v);
-        }catch(e){
-          cancel();
-          toast(e.message || 'Update failed');
-        }
-      };
+	      const commit = async () => {
+	        if(_done) return;
+	        const raw = inp.value;
+	        try{
+	          if(col==='name'){
+	            const nv = String(raw||'').trim();
+	            if(!nv){ cancel(); toast('Name required'); return; }
+	            if(nv === prevName){ cancel(); return; }
+	            if(toKey(nv)!==toKey(prevName) && state.items.some(x=> x.id!==id && toKey(x.name)===toKey(nv))){ cancel(); toast('Duplicate name'); return; }
+	            it.name = nv;
+	            restore();
+	            const srt = getSort();
+	            if(srt && srt.col === 'name') renderTable();
+	            await sbUpdateFields(id, { name: nv });
+	            return;
+	          }
+	          if(col==='desc'){
+	            const nv = String(raw||'').replace(/[\r\n]+/g,' ').trim();
+	            const pv = String(prevDesc||'').replace(/[\r\n]+/g,' ').trim();
+	            if(nv === pv){ cancel(); return; }
+	            it.desc = nv;
+	            restore();
+	            const srt = getSort();
+	            if(srt && srt.col === 'desc') renderTable();
+	            await sbUpdateFields(id, { desc: nv });
+	            return;
+	          }
+	          if(col==='qty'){
+	            const q = toInt(raw, -1);
+	            if(q < 0){ cancel(); toast('Qty must be integer ≥ 0'); return; }
+	            if(q === prevQty){ cancel(); return; }
+	            it.qty = q;
+	            restore();
+	            adjustDisplayedTotalQty(q - prevQty);
+	            repositionRowByQty(id);
+	            queueQtyCommit(id, q);
+	            return;
+	          }
+	          cancel();
+	        }catch(e){
+	          it.name = prevName;
+	          it.desc = prevDesc;
+	          it.qty = prevQty;
+	          try{ renderTable(); }catch(_){}
+	          toast((e && e.message) ? e.message : 'Update failed');
+	          try{ await sbLoadSnapshot(); }catch{}
+	        }
+	      };
 
-      inp.addEventListener('keydown', e=>{
-        if(e.key==='Enter'){ e.preventDefault(); commit(); }
-        if(e.key==='Escape'){ e.preventDefault(); cancel(); }
-      });
-      inp.addEventListener('blur', commit);
-    }
+	      inp.addEventListener('keydown', e=>{
+	        if(e.key==='Enter'){ e.preventDefault(); commit(); }
+	        if(e.key==='Escape'){ e.preventDefault(); cancel(); }
+	      });
+	      inp.addEventListener('blur', commit);
+	    }
 
     // ========================
     // Hamburger Menu Toggle
@@ -2587,12 +2639,12 @@ function ensureEmptyState(){
         return d.toLocaleString(undefined, { hour12:true });
       }
     }
-    const ORDER_COMPANY_NAME = 'Oakley Services, LLC';
-    function defaultOrderSubject(){
-      const base = `Material Order - ${ORDER_COMPANY_NAME}`;
-      const loc = cityStateFromDeliveryAddress(SB && SB.profile ? SB.profile.delivery_address : '');
-      return loc ? `${base} (${loc})` : base;
-    }
+	    const ORDER_COMPANY_NAME = 'Oakley Services, LLC';
+	    function defaultOrderSubject(){
+	      const base = `Order for ${ORDER_COMPANY_NAME}`;
+	      const loc = cityStateFromDeliveryAddress(SB && SB.profile ? SB.profile.delivery_address : '');
+	      return loc ? `${base} (${loc})` : base;
+	    }
     function orderActiveLines(){
       const ord = orderState();
       return ord.lines
@@ -3004,7 +3056,7 @@ function ensureEmptyState(){
         det.className = 'history-item';
         det.dataset.orderId = String(o.id || '');
 
-        const subject = escapeHtml(String(o.subject||'Material Order'));
+	        const subject = escapeHtml(String(o.subject||defaultOrderSubject()));
         const created = escapeHtml(formatEasternDateTime(o.created_at || ''));
         const to = escapeHtml(String(o.to_email||''));
         const replyTo = String(o.reply_to_email||'').trim();
@@ -3364,14 +3416,14 @@ function ensureEmptyState(){
       }
       if(added) toast(`Added ${added} selected item(s)`);
 
-      if(
-        !ord.subject
-        || ord.subject === 'Materials Order'
-        || ord.subject === 'Material Order'
-        || / - Material Order$/.test(String(ord.subject||'').trim())
-      ){
-        ord.subject = defaultOrderSubject();
-      }
+	      if(
+	        !ord.subject
+	        || ord.subject === 'Materials Order'
+	        || ord.subject === 'Material Order'
+		        || /^Materials? Order\s*-\s*/i.test(String(ord.subject||'').trim())
+	      ){
+	        ord.subject = defaultOrderSubject();
+	      }
 
       const s = $('orderSearch'); if(s) s.value = ord.search || '';
       const e = $('orderEmail'); if(e) e.value = ord.email || '';
