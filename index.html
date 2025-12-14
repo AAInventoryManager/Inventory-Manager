@@ -733,12 +733,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 
         <div class="section">
           <div class="section-title"><span>Select Order Recipient</span></div>
-          <div class="order-recipient">
-            <button class="btn btn-icon" id="btnPickContact" aria-label="Pick contact">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            </button>
-            <input id="orderEmail" type="email" placeholder="recipient@example.com" autocomplete="email" inputmode="email" />
-          </div>
+          <input id="orderEmail" type="email" placeholder="recipient@example.com" autocomplete="email" inputmode="email" />
           <div id="orderEmailSuggest" class="order-suggest" aria-label="Email suggestions"></div>
         </div>
 
@@ -1929,9 +1924,6 @@ function ensureEmptyState(){
       }
       return state._order;
     }
-    function canPickContact(){
-      return !!(navigator.contacts && typeof navigator.contacts.select === 'function');
-    }
     function getInventoryById(id){
       return state.items.find(x => x && x.id === id) || null;
     }
@@ -2637,35 +2629,6 @@ function ensureEmptyState(){
         btn.disabled = !(okEmail && okLines);
       }
     }
-    async function pickOrderContact(){
-      if(!canPickContact()){
-        toast('Contact picker not supported on this browser');
-        return;
-      }
-      try{
-        const props = (navigator.contacts.getProperties ? await navigator.contacts.getProperties() : ['name','email']);
-        const fields = [];
-        if(props.includes('name')) fields.push('name');
-        if(props.includes('email')) fields.push('email');
-        if(!fields.includes('email')) throw Error('Contact picker: email not available');
-
-        const res = await navigator.contacts.select(fields, { multiple:false });
-        const c = res && res[0];
-        const email = c && Array.isArray(c.email) ? c.email[0] : (c && c.email ? c.email : '');
-        const name = c && Array.isArray(c.name) ? c.name[0] : (c && c.name ? c.name : '');
-        if(!email) return;
-
-        const ord = orderState();
-        ord.email = String(email).trim();
-        ord.contactName = String(name||'').trim();
-
-        const emailEl = $('orderEmail'); if(emailEl) emailEl.value = ord.email;
-        renderOrderPreview();
-      }catch(e){
-        if(e && String(e.name||'') === 'AbortError') return;
-        toast((e && e.message) ? e.message : 'Contact pick failed');
-      }
-    }
     function openOrderModal(){
       const ord = orderState();
 
@@ -2693,7 +2656,6 @@ function ensureEmptyState(){
       const e = $('orderEmail'); if(e) e.value = ord.email || '';
       const sub = $('orderSubject'); if(sub) sub.value = ord.subject || '';
       const n = $('orderNotes'); if(n) n.value = ord.notes || '';
-      const pickBtn = $('btnPickContact'); if(pickBtn) pickBtn.disabled = !canPickContact();
 
       renderOrderResults();
       renderOrderLines();
@@ -2748,8 +2710,6 @@ function ensureEmptyState(){
         renderOrderPreview();
       }
     });
-    const btnPickContact = $('btnPickContact');
-    if(btnPickContact) btnPickContact.addEventListener('click', pickOrderContact);
 
     const orderSearch = $('orderSearch');
     if(orderSearch) orderSearch.addEventListener('input', ()=>{
