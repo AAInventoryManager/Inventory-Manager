@@ -2270,14 +2270,15 @@ function ensureEmptyState(){
       return arr
         .map((x) => {
           const part = String(x?.part || x?.name || x?.item || '').trim();
+          const desc = String(x?.desc || x?.description || '').trim();
           const qty = toInt(x?.qty, 0);
-          return { part, qty };
+          return { part, desc, qty };
         })
         .filter((x) => x.part);
     }
     async function sbInsertOrderHistoryFromData({ toEmail, subjectLine, contactName, notes, lineItems, providerResult }){
       if(!SB.ready || !SB.session || !SB.authorized || !SB.user) return;
-      const cleaned = normalizeEmailLineItems(lineItems).map(x => ({ part: x.part, qty: x.qty }));
+      const cleaned = normalizeEmailLineItems(lineItems).map(x => ({ part: x.part, desc: x.desc, qty: x.qty }));
       const row = {
         created_by: SB.user.id,
         to_email: String(toEmail||'').trim(),
@@ -2352,6 +2353,7 @@ function ensureEmptyState(){
             `<thead>`+
               `<tr>`+
                 `<th>Part #</th>`+
+                `<th>Description</th>`+
                 `<th style="text-align:right">Qty</th>`+
               `</tr>`+
             `</thead>`+
@@ -2359,6 +2361,7 @@ function ensureEmptyState(){
               items.map(it =>
                 `<tr>`+
                   `<td>${escapeHtml(it.part)}</td>`+
+                  `<td>${escapeHtml(it.desc)}</td>`+
                   `<td class="qty">${it.qty}</td>`+
                 `</tr>`
               ).join('')+

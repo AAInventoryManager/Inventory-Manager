@@ -1,6 +1,6 @@
 'use strict';
 // Versioned cache name (bump this when you change cached assets)
-const CACHE = 'inv-cache-v24';
+const CACHE = 'inv-cache-v25';
 // Core assets to pre-cache (add more files here if you split CSS/JS)
 const ASSETS = [
   './',
