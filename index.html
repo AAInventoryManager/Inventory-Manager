@@ -98,7 +98,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     .headwrap{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:nowrap}
     .logo{height:auto;width:auto;display:block}
     .brandrow{display:flex;align-items:center;justify-content:space-between;gap:14px}
-    .brand-logo{height:clamp(58px,10vw,96px); width:auto}
+    .title-logo{height:clamp(48px,9vw,72px); width:auto; display:block;}
     .brandtext{display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:0;}
     #filterBox{
       flex:1; min-width:160px; max-width:320px;
@@ -362,7 +362,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       header{ padding: calc(12px + env(safe-area-inset-top)) 12px 12px; }
       .header-inner{ padding: 0 12px; }
       .brandrow{ gap:8px }
-      .brand-logo{ height:36px }
+      .title-logo{ height:40px }
       .modal{ padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom)); }
       .order-header{ padding:12px; }
       .order-body{ padding:10px 12px 12px; }
@@ -488,9 +488,8 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     <div class="header-inner">
       <div class="header-row">
         <div class="header-left">
-          <img class="logo brand-logo" src="./assets/oakley/logo/oakley-logo-square.png" alt="Oakley logo" />
           <div class="brandtext">
-            <h1>Don's Inventory Tracker</h1>
+            <img class="title-logo" src="./assets/oakley/logo/oakley-logo-square.png" alt="Oakley Inventory" />
             <button id="statusBar" type="button" class="status">V1.0.3 Server Status = CHECKING…</button>
           </div>
         </div>
