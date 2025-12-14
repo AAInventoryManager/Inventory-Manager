@@ -40,7 +40,7 @@
       background:var(--bg);color:var(--fg)
     }
     header{
-      padding:calc(14px + env(safe-area-inset-top)) 16px 14px;
+      padding:calc(10px + env(safe-area-inset-top)) 16px 8px;
       border-bottom:1px solid var(--border);
       position:sticky;top:0;background:var(--bg);z-index:20;text-align:center;
     }
@@ -80,9 +80,9 @@
     .scroll{overflow:auto;max-height:70vh;border-radius:10px;position:relative;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
     table{width:100%;border-collapse:collapse;font-size:15px}
     thead th{
-      text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);
-      padding:12px;position:sticky;top:0;background:var(--card);z-index:7;box-shadow:0 2px 0 rgba(0,0,0,.2);
-    
+      text-align:center;color:#e2e8f0;font-weight:700;border-bottom:2px solid var(--border);
+      padding:14px 12px;position:sticky;top:0;background:#0d1117;z-index:7;
+      text-transform:uppercase;font-size:12px;letter-spacing:0.5px;
       white-space:nowrap;
     }
     th.sortable{ cursor:pointer; user-select:none }
@@ -113,8 +113,8 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     .headwrap{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:nowrap}
     .logo{height:auto;width:auto;display:block}
     .brandrow{display:flex;align-items:center;justify-content:space-between;gap:14px}
-    .title-logo{height:clamp(40px,8vw,56px); width:auto; display:block;}
-    .brandtext{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;}
+    .title-logo{height:clamp(44px,9vw,62px); width:auto; display:block;}
+    .brandtext{display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:0;}
     #filterBox{
       width:100%; max-width:480px;
       padding:12px;border-radius:10px;border:1px solid var(--border);
@@ -374,7 +374,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     @media (max-width:360px){ .toolbar{gap:4px} }
   
     @media (max-width: 480px){
-      header{ padding: calc(12px + env(safe-area-inset-top)) 12px 12px; }
+      header{ padding: calc(8px + env(safe-area-inset-top)) 12px 6px; }
       .header-inner{ padding: 0 12px; }
       .brandrow{ gap:8px }
       .title-logo{ height:36px }
@@ -482,7 +482,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     .header-left{
       display:flex;
       align-items:center;
-      justify-content:center;
+      justify-content:flex-start;
       gap:12px;
       flex:1;
       min-width:0;
