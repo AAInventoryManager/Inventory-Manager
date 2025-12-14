@@ -1109,10 +1109,18 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	          <button class="btn" id="btnOrderHistoryClose" type="button">Close</button>
 	        </div>
 	      </div>
-      <div class="muted" style="margin-top:6px;">Times shown in Eastern (EST/EDT).</div>
-      <div id="orderHistoryList" class="history-list" aria-live="polite"></div>
-    </div>
-  </div>
+	      <div class="input-wrap" style="max-width:100%; margin-top:10px;">
+	        <input id="orderHistoryFilter" type="text" placeholder="Filter history…" autocomplete="off" />
+	        <button class="clear-input-btn" id="btnClearOrderHistoryFilter" type="button" aria-label="Clear history filter" title="Clear filter" style="display:none">
+	          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+	            <path d="M18 6L6 18"></path>
+	            <path d="M6 6l12 12"></path>
+	          </svg>
+	        </button>
+	      </div>
+	      <div id="orderHistoryList" class="history-list" aria-live="polite"></div>
+	    </div>
+	  </div>
 
   <!-- Auth modal -->
   <div id="authModal" class="modal" aria-hidden="true">
@@ -2004,6 +2012,16 @@ function updateFilterClearBtn(){
 function updateOrderSearchClearBtn(){
   const inp = $('orderSearch');
   const btn = $('btnClearOrderSearch');
+  if(!inp || !btn) return;
+  const has = String(inp.value || '').length > 0;
+  btn.style.display = has ? 'flex' : 'none';
+  btn.disabled = !has;
+  btn.setAttribute('aria-hidden', has ? 'false' : 'true');
+}
+
+function updateOrderHistoryFilterClearBtn(){
+  const inp = $('orderHistoryFilter');
+  const btn = $('btnClearOrderHistoryFilter');
   if(!inp || !btn) return;
   const has = String(inp.value || '').length > 0;
   btn.style.display = has ? 'flex' : 'none';
@@ -3179,18 +3197,20 @@ function ensureEmptyState(){
         .eq('id', orderId);
       if(error) throw error;
     }
-    function renderOrderHistoryList(list){
-      const wrap = $('orderHistoryList');
-      if(!wrap) return;
-      wrap.innerHTML = '';
-      const rows = Array.isArray(list) ? list : [];
-      if(!rows.length){
-        const empty = document.createElement('div');
-        empty.className = 'order-empty';
-        empty.textContent = 'No orders yet.';
-        wrap.appendChild(empty);
-        return;
-      }
+	    function renderOrderHistoryList(list, opts = {}){
+	      const wrap = $('orderHistoryList');
+	      if(!wrap) return;
+	      wrap.innerHTML = '';
+	      const rows = Array.isArray(list) ? list : [];
+	      if(!rows.length){
+	        const empty = document.createElement('div');
+	        empty.className = 'order-empty';
+	        empty.textContent = (opts && typeof opts.emptyText === 'string' && opts.emptyText.trim())
+	          ? opts.emptyText
+	          : 'No orders yet.';
+	        wrap.appendChild(empty);
+	        return;
+	      }
       for(const o of rows){
         const det = document.createElement('details');
         det.className = 'history-item';
@@ -3254,13 +3274,41 @@ function ensureEmptyState(){
           itemsTable +
           forwardBlock;
 
-        wrap.appendChild(det);
-      }
-    }
-    let _orderSuggestTimer = null;
-    function renderOrderEmailSuggestions(list){
-      const wrap = $('orderEmailSuggest');
-      if(!wrap) return;
+	        wrap.appendChild(det);
+	      }
+	    }
+	    function orderHistorySearchText(orderRow){
+	      const o = orderRow || {};
+	      const createdAt = String(o.created_at || '').trim();
+	      const createdEastern = String(formatEasternDateTime(createdAt || '') || '').trim();
+	      const subject = String(o.subject || '').trim();
+	      const to = String(o.to_email || '').trim();
+	      const replyTo = String(o.reply_to_email || '').trim();
+	      const contact = String(o.contact_name || '').trim();
+	      const notes = String(o.notes || '').trim();
+	      const id = String(o.id || '').trim();
+	      const items = normalizeOrderLineItems(o.line_items);
+	      const itemText = items.map(it => `${it.part} ${it.desc} ${toInt(it.qty,0)}`).join(' ');
+	      return `${id} ${createdAt} ${createdEastern} ${to} ${replyTo} ${subject} ${contact} ${notes} ${itemText}`.toLowerCase();
+	    }
+	    function renderOrderHistoryFiltered(){
+	      const rows = Array.isArray(state._orderHistoryRows) ? state._orderHistoryRows : [];
+	      const raw = String(state._orderHistoryFilter || '').trim().toLowerCase();
+	      if(!raw){
+	        renderOrderHistoryList(rows, { emptyText: 'No orders yet.' });
+	        return;
+	      }
+	      const tokens = raw.split(/\s+/g).filter(Boolean);
+	      const out = rows.filter(r => {
+	        const hay = orderHistorySearchText(r);
+	        return tokens.every(t => hay.includes(t));
+	      });
+	      renderOrderHistoryList(out, { emptyText: 'No matching orders.' });
+	    }
+	    let _orderSuggestTimer = null;
+	    function renderOrderEmailSuggestions(list){
+	      const wrap = $('orderEmailSuggest');
+	      if(!wrap) return;
       wrap.innerHTML = '';
       const rows = Array.isArray(list) ? list.filter(r=> r && r.email) : [];
       if(!rows.length){ wrap.classList.remove('has-suggest'); return; }
@@ -3367,34 +3415,38 @@ function ensureEmptyState(){
       }
     }
     let _orderHistoryReturnToOrder = false;
-    async function refreshOrderHistory(){
-      const wrap = $('orderHistoryList');
-      if(wrap) wrap.innerHTML = `<div class="muted">Loading…</div>`;
-      const btn = $('btnOrderHistoryRefresh');
-      const prior = btn ? btn.textContent : '';
-      if(btn){ btn.disabled = true; btn.textContent = 'Loading…'; }
-      try{
-        const rows = await sbFetchOrders(60);
-        state._orderHistoryById = new Map((rows||[]).map(r => [String(r && r.id ? r.id : ''), r]).filter(x=>x[0]));
-        renderOrderHistoryList(rows);
-      }catch(e){
-        state._orderHistoryById = new Map();
-        const msg = e && e.message ? e.message : 'Failed to load history';
-        if(wrap) wrap.innerHTML = `<div class="order-empty">${escapeHtml(msg)}</div>`;
-      }finally{
-        if(btn){ btn.disabled = false; btn.textContent = prior || 'Refresh'; }
-      }
-    }
-    async function openOrderHistoryModal(opts = {}){
-      const returnToOrder = !!opts.returnToOrder;
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
-      _orderHistoryReturnToOrder = returnToOrder;
-      if(returnToOrder) show('orderModal', false);
-      show('orderHistoryModal', true);
-      await refreshOrderHistory();
-    }
+	    async function refreshOrderHistory(){
+	      const wrap = $('orderHistoryList');
+	      if(wrap) wrap.innerHTML = `<div class="muted">Loading…</div>`;
+	      const btn = $('btnOrderHistoryRefresh');
+	      const prior = btn ? btn.textContent : '';
+	      if(btn){ btn.disabled = true; btn.textContent = 'Loading…'; }
+	      try{
+	        const rows = await sbFetchOrders(60);
+	        state._orderHistoryRows = Array.isArray(rows) ? rows : [];
+	        state._orderHistoryById = new Map((rows||[]).map(r => [String(r && r.id ? r.id : ''), r]).filter(x=>x[0]));
+	        renderOrderHistoryFiltered();
+	      }catch(e){
+	        state._orderHistoryById = new Map();
+	        state._orderHistoryRows = [];
+	        const msg = e && e.message ? e.message : 'Failed to load history';
+	        if(wrap) wrap.innerHTML = `<div class="order-empty">${escapeHtml(msg)}</div>`;
+	      }finally{
+	        if(btn){ btn.disabled = false; btn.textContent = prior || 'Refresh'; }
+	      }
+	    }
+	    async function openOrderHistoryModal(opts = {}){
+	      const returnToOrder = !!opts.returnToOrder;
+	      if(!SB.ready){ toast('Supabase not configured'); return; }
+	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
+	      _orderHistoryReturnToOrder = returnToOrder;
+	      if(returnToOrder) show('orderModal', false);
+	      show('orderHistoryModal', true);
+	      const f = $('orderHistoryFilter'); if(f) f.value = state._orderHistoryFilter || '';
+	      try{ updateOrderHistoryFilterClearBtn(); }catch(e){}
+	      await refreshOrderHistory();
+	    }
     function closeOrderHistoryModal(){
       show('orderHistoryModal', false);
       if(_orderHistoryReturnToOrder){
@@ -3590,8 +3642,38 @@ function ensureEmptyState(){
 	    if(btnOrderHistoryDownload) btnOrderHistoryDownload.addEventListener('click', downloadOrderHistoryCsv);
 	    const btnOrderHistoryRefresh = $('btnOrderHistoryRefresh');
 	    if(btnOrderHistoryRefresh) btnOrderHistoryRefresh.addEventListener('click', refreshOrderHistory);
-    const btnOrderCancel = $('btnOrderCancel');
-    if(btnOrderCancel) btnOrderCancel.addEventListener('click', ()=> show('orderModal', false));
+
+	    const orderHistoryFilter = $('orderHistoryFilter');
+	    if(orderHistoryFilter){
+	      updateOrderHistoryFilterClearBtn();
+	      orderHistoryFilter.addEventListener('input', ()=>{
+	        state._orderHistoryFilter = orderHistoryFilter.value || '';
+	        renderOrderHistoryFiltered();
+	        updateOrderHistoryFilterClearBtn();
+	      });
+	      orderHistoryFilter.addEventListener('keydown', (e)=>{
+	        if(e.key==='Escape' && orderHistoryFilter.value){
+	          e.preventDefault();
+	          orderHistoryFilter.value = '';
+	          state._orderHistoryFilter = '';
+	          renderOrderHistoryFiltered();
+	          updateOrderHistoryFilterClearBtn();
+	        }
+	      });
+	    }
+	    const btnClearOrderHistoryFilter = $('btnClearOrderHistoryFilter');
+	    if(btnClearOrderHistoryFilter && orderHistoryFilter){
+	      btnClearOrderHistoryFilter.addEventListener('click', ()=>{
+	        if(!orderHistoryFilter.value) return;
+	        orderHistoryFilter.value = '';
+	        state._orderHistoryFilter = '';
+	        renderOrderHistoryFiltered();
+	        updateOrderHistoryFilterClearBtn();
+	        try{ orderHistoryFilter.focus(); }catch(e){}
+	      });
+	    }
+	    const btnOrderCancel = $('btnOrderCancel');
+	    if(btnOrderCancel) btnOrderCancel.addEventListener('click', ()=> show('orderModal', false));
     const btnOrderCopy = $('btnOrderCopy');
     if(btnOrderCopy) btnOrderCopy.addEventListener('click', copyOrderToClipboard);
     const btnOrderSubmit = $('btnOrderSubmit');
@@ -3741,24 +3823,31 @@ function ensureEmptyState(){
     if(orderHistoryList) orderHistoryList.addEventListener('click', async (e)=>{
       // Delete order button
       const delBtn = e.target.closest('button[data-delete-order-id]');
-      if(delBtn){
-        e.preventDefault();
-        e.stopPropagation();
-        const id = String(delBtn.dataset.deleteOrderId || '').trim();
-        if(!id) return;
-        if(!confirm('Delete this order from history?')) return;
-        delBtn.disabled = true;
-        try{
-          await sbDeleteOrder(id);
-          const det = delBtn.closest('.history-item');
-          if(det) det.remove();
-          toast('Order deleted');
-        }catch(err){
-          toast(err && err.message ? err.message : 'Delete failed');
-          delBtn.disabled = false;
-        }
-        return;
-      }
+	      if(delBtn){
+	        e.preventDefault();
+	        e.stopPropagation();
+	        const id = String(delBtn.dataset.deleteOrderId || '').trim();
+	        if(!id) return;
+	        if(!confirm('Delete this order from history?')) return;
+	        delBtn.disabled = true;
+	        try{
+	          await sbDeleteOrder(id);
+	          try{
+	            if(state._orderHistoryById && typeof state._orderHistoryById.delete === 'function'){
+	              state._orderHistoryById.delete(id);
+	            }
+	            if(Array.isArray(state._orderHistoryRows)){
+	              state._orderHistoryRows = state._orderHistoryRows.filter(r => String(r && r.id ? r.id : '') !== id);
+	            }
+	          }catch(e){}
+	          renderOrderHistoryFiltered();
+	          toast('Order deleted');
+	        }catch(err){
+	          toast(err && err.message ? err.message : 'Delete failed');
+	          delBtn.disabled = false;
+	        }
+	        return;
+	      }
       const sugBtn = e.target.closest('button[data-forward-suggest-email]');
       if(sugBtn){
         const email = String(sugBtn.dataset.forwardSuggestEmail || '').trim();
