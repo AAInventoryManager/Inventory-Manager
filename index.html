@@ -653,17 +653,10 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       font-variant-numeric:tabular-nums;
       font-weight:800;
     }
-    .drop{
-      border:1px dashed var(--border);border-radius:10px;padding:12px;text-align:center;color:var(--muted)
-    }
-	    .totals{
-	      display:flex;
-	      justify-content:space-between;
-	      align-items:center;
-	      gap:12px;
-	      flex-wrap:wrap;
-	      margin:6px 0 4px;
+	    .drop{
+	      border:1px dashed var(--border);border-radius:10px;padding:12px;text-align:center;color:var(--muted)
 	    }
+	    .totals{ display:flex; justify-content:flex-end; align-items:center; gap:12px; flex-wrap:wrap; margin:6px 0 4px; }
     @media (max-width:640px){
       .toolbar{gap:6px}
       .toolbar .btn{flex:1}
@@ -925,6 +918,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 
 	      <div class="totals" aria-live="polite">
 	        <span id="totalItems" class="muted">Total Items: 0</span>
+	        <span id="totalInStock" class="muted">In Stock: 0</span>
 	        <span id="totalQty" class="muted">Total Qty: 0</span>
 	      </div>
 
@@ -2108,6 +2102,12 @@ function ensureEmptyState(){
 	      if (totalItemsEl) {
 	        totalItemsEl.textContent = `Total Items: ${items.length}`;
 	      }
+	      // Update In Stock for the currently displayed items
+	      const totalInStockEl = $('totalInStock');
+	      if (totalInStockEl) {
+	        const inStock = items.reduce((count, it) => count + (toInt(it.qty,0) > 0 ? 1 : 0), 0);
+	        totalInStockEl.textContent = `In Stock: ${inStock}`;
+	      }
 	      if(items.length===0){
 	      const tr=document.createElement('tr');
 	      tr.innerHTML = '<td colspan="5" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
@@ -2313,18 +2313,29 @@ function ensureEmptyState(){
       if(!Number.isFinite(n)) return f;
       return Math.trunc(n);
     }
-	    function adjustDisplayedTotalQty(delta){
-	      const totalEl = $('totalQty'); if(!totalEl) return;
-	      const m = /Total Qty:\s*(\d+)/.exec(totalEl.textContent || '');
-	      if(!m) return;
-	      const cur = toInt(m[1], 0);
-	      totalEl.textContent = `Total Qty: ${Math.max(0, cur + toSignedInt(delta,0))}`;
+		    function adjustDisplayedTotalQty(delta){
+		      const totalEl = $('totalQty'); if(!totalEl) return;
+		      const m = /Total Qty:\s*(\d+)/.exec(totalEl.textContent || '');
+		      if(!m) return;
+		      const cur = toInt(m[1], 0);
+		      totalEl.textContent = `Total Qty: ${Math.max(0, cur + toSignedInt(delta,0))}`;
+		    }
+		    function adjustDisplayedInStock(prevQty, nextQty){
+		      const el = $('totalInStock'); if(!el) return;
+		      const m = /In Stock:\s*(\d+)/.exec(el.textContent || '');
+		      if(!m) return;
+		      const cur = toInt(m[1], 0);
+		      const was = toInt(prevQty, 0) > 0;
+		      const now = toInt(nextQty, 0) > 0;
+		      if(was === now) return;
+		      const delta = now ? 1 : -1;
+		      el.textContent = `In Stock: ${Math.max(0, cur + delta)}`;
+		    }
+	    function updateQtyCellUIForRow(id, qty){
+	      const tr = rowElById(id);
+	      const val = tr ? tr.querySelector('td[data-col="qty"] .qty-value') : null;
+	      if(val) val.textContent = String(toInt(qty,0));
 	    }
-    function updateQtyCellUIForRow(id, qty){
-      const tr = rowElById(id);
-      const val = tr ? tr.querySelector('td[data-col="qty"] .qty-value') : null;
-      if(val) val.textContent = String(toInt(qty,0));
-    }
     function repositionRowByQty(id){
       const srt = getSort();
       if(!srt || srt.col !== 'qty') return;
@@ -2392,16 +2403,17 @@ function ensureEmptyState(){
         if(!id || !delta) return;
         if(!requireOnline()) return;
         const it = state.items.find(x=> x.id===id); if(!it) return;
-        const oldQty = toInt(it.qty,0);
-        const newQty = Math.max(0, oldQty + delta);
-        if(newQty === oldQty) return;
-        it.qty = newQty;
-        updateQtyCellUIForRow(id, newQty);
-        adjustDisplayedTotalQty(newQty - oldQty);
-        repositionRowByQty(id);
-        queueQtyCommit(id, newQty);
-      });
-    }
+	        const oldQty = toInt(it.qty,0);
+	        const newQty = Math.max(0, oldQty + delta);
+	        if(newQty === oldQty) return;
+	        it.qty = newQty;
+	        updateQtyCellUIForRow(id, newQty);
+	        adjustDisplayedTotalQty(newQty - oldQty);
+	        adjustDisplayedInStock(oldQty, newQty);
+	        repositionRowByQty(id);
+	        queueQtyCommit(id, newQty);
+	      });
+	    }
 
 	    function startCellEdit(td, ev){
 	      // If the user tapped a control inside the cell, don't open an editor.
@@ -2475,17 +2487,18 @@ function ensureEmptyState(){
 	            await sbUpdateFields(id, { desc: nv });
 	            return;
 	          }
-	          if(col==='qty'){
-	            const q = toInt(raw, -1);
-	            if(q < 0){ cancel(); toast('Qty must be integer ≥ 0'); return; }
-	            if(q === prevQty){ cancel(); return; }
-	            it.qty = q;
-	            restore();
-	            adjustDisplayedTotalQty(q - prevQty);
-	            repositionRowByQty(id);
-	            queueQtyCommit(id, q);
-	            return;
-	          }
+		          if(col==='qty'){
+		            const q = toInt(raw, -1);
+		            if(q < 0){ cancel(); toast('Qty must be integer ≥ 0'); return; }
+		            if(q === prevQty){ cancel(); return; }
+		            it.qty = q;
+		            restore();
+		            adjustDisplayedTotalQty(q - prevQty);
+		            adjustDisplayedInStock(prevQty, q);
+		            repositionRowByQty(id);
+		            queueQtyCommit(id, q);
+		            return;
+		          }
 	          cancel();
 	        }catch(e){
 	          it.name = prevName;
