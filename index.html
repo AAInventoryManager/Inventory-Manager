@@ -98,8 +98,90 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       border-radius:6px;transition:background 0.15s,color 0.15s;
     }
     .row-delete-btn:hover{background:rgba(255,80,80,0.15);color:#ff6b6b}
-    /* Description column responsive behavior */
-    @media (max-width: 768px){ td[data-col="desc"], th[data-col="desc"]{ white-space: normal; word-break: break-word; hyphens: auto; } }
+    /* Mobile table layout: stack fields vertically per record */
+    @media (max-width: 768px){
+      #invTable thead{ display:none; }
+      #invTable tbody tr[data-id]{
+        position:relative;
+        display:block;
+        padding:12px 64px 12px 56px; /* room for left checkbox + right actions */
+        border:1px solid var(--border);
+        border-radius:14px;
+        background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
+        box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+        margin:0 0 10px 0;
+      }
+      #invTable tbody tr[data-id] td{
+        display:block;
+        width:100%;
+        padding:0;
+        border-bottom:none;
+      }
+      #invTable tbody tr[data-id] td[data-col]{
+        padding:10px 0;
+      }
+      #invTable tbody tr[data-id] td[data-col]::before{
+        display:block;
+        font-size:11px;
+        letter-spacing:.08em;
+        text-transform:uppercase;
+        color:var(--muted);
+        margin:0 0 6px 0;
+      }
+      #invTable tbody tr[data-id] td[data-col="name"]::before{ content:'Item'; }
+      #invTable tbody tr[data-id] td[data-col="desc"]::before{ content:'Description'; }
+      #invTable tbody tr[data-id] td[data-col="qty"]::before{ content:'Qty'; }
+
+      #invTable tbody tr[data-id] td[data-col="desc"]{
+        white-space:normal;
+        word-break:break-word;
+        hyphens:auto;
+      }
+      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
+
+      #invTable tbody tr[data-id] td.sel{
+        position:absolute;
+        left:10px;
+        top:50%;
+        transform:translateY(-50%);
+        width:42px;
+        padding:0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+      }
+      #invTable tbody tr[data-id] td.actions{
+        position:absolute;
+        right:10px;
+        top:50%;
+        transform:translateY(-50%);
+        width:48px;
+        padding:0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+      }
+      #invTable tbody tr[data-id] td.sel input[type="checkbox"]{
+        width:20px;
+        height:20px;
+      }
+      #invTable tbody tr[data-id] td.actions .row-delete-btn{
+        width:44px;
+        height:44px;
+        padding:10px;
+        border-radius:10px;
+        border:1px solid var(--border);
+        background:#101826;
+        color:#fff;
+      }
+      #invTable tbody tr[data-id] td.actions .row-delete-btn:hover{
+        background:rgba(255,80,80,0.18);
+        border-color:rgba(255,80,80,0.35);
+        color:#ff6b6b;
+      }
+    }
+
+    /* Desktop description: keep on one line (dynamic width handles it) */
     @media (min-width: 769px){ td[data-col="desc"], th[data-col="desc"]{ white-space:nowrap; } }
     td.qty{text-align:right;font-variant-numeric:tabular-nums}
     th.sel, td.sel{ width:42px; text-align:center }
@@ -115,9 +197,33 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     .brandrow{display:flex;align-items:center;justify-content:space-between;gap:14px}
     .title-logo{height:clamp(44px,9vw,62px); width:auto; display:block;}
     .brandtext{display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:0;}
+    .input-wrap{ position:relative; width:100%; max-width:480px; }
+    .clear-input-btn{
+      position:absolute;
+      right:8px;
+      top:50%;
+      transform:translateY(-50%);
+      width:40px;
+      height:40px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:#101826;
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      cursor:pointer;
+      touch-action:manipulation;
+      -webkit-appearance:none;
+      appearance:none;
+    }
+    .clear-input-btn:hover{ background:#0e1621; }
+    .clear-input-btn:disabled{ opacity:.55; cursor:not-allowed; }
+    .input-wrap > input{ padding-right:52px; }
     #filterBox{
       width:100%; max-width:480px;
-      padding:12px;border-radius:10px;border:1px solid var(--border);
+      padding:12px 52px 12px 12px;border-radius:10px;border:1px solid var(--border);
       background:#0d131b;color:#eaeff7;font-size:16px
     }
     td.editing{padding:6px}
@@ -143,6 +249,91 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
       overflow:auto;
       -webkit-overflow-scrolling:touch;
+    }
+    .modal .box.edit-box{
+      padding:0;
+      overflow:hidden; /* body scrolls */
+      display:flex;
+      flex-direction:column;
+    }
+    .edit-header{
+      padding:14px 14px 12px;
+      border-bottom:1px solid var(--border);
+      background:var(--card);
+    }
+    .edit-header h2{ margin:0; font-size:16px; }
+    .edit-sub{ margin-top:6px; color:var(--muted); font-size:12px; }
+    .edit-body{
+      padding:12px 14px 14px;
+      overflow:auto;
+      flex:1;
+      -webkit-overflow-scrolling:touch;
+    }
+    .edit-body textarea{
+      min-height:30vh;
+    }
+    .qty-stepper.qty-stepper--modal,
+    .qty-stepper.qty-stepper--table{
+      display:inline-flex;
+      align-items:center;
+      flex-wrap:nowrap;
+      justify-content:center;
+      background:transparent;
+      border:none;
+      border-radius:0;
+      overflow:visible;
+      height:auto;
+    }
+    .qty-stepper.qty-stepper--modal{ gap:10px; }
+    .qty-stepper.qty-stepper--table{ gap:6px; }
+    .qty-stepper--table .qty-step{ min-width:38px; }
+    .qty-stepper--table .qty-value{ min-width:30px; font-size:15px; }
+    .qty-step{
+      cursor:pointer;
+      border:1px solid var(--border);
+      background:#101826;
+      color:#fff;
+      border-radius:10px;
+      min-width:44px;
+      min-height:44px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+      font-size:20px;
+      line-height:1;
+      user-select:none;
+      -webkit-appearance:none;
+      appearance:none;
+      touch-action:manipulation;
+    }
+    .qty-step:disabled{ opacity:.55; cursor:not-allowed; }
+    .qty-value{
+      min-width:44px;
+      text-align:center;
+      font-variant-numeric:tabular-nums;
+      font-weight:800;
+      font-size:16px;
+      line-height:1;
+    }
+    .qty-stepper.qty-stepper--modal input[type=number]{
+      width:4rem;
+      text-align:center;
+      font-variant-numeric:tabular-nums;
+    }
+    .qty-stepper input[type=number]::-webkit-outer-spin-button,
+    .qty-stepper input[type=number]::-webkit-inner-spin-button{
+      -webkit-appearance:none;
+      margin:0;
+    }
+    .edit-footer{
+      padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+      border-top:1px solid var(--border);
+      background:var(--card);
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
     .section{
       border:1px solid var(--border);
@@ -636,7 +827,15 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     <section class="card">
       <div class="toolbar" role="toolbar" aria-label="Inventory actions" style="justify-content:center;">
         <input type="file" id="fileImport" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.docx,.doc,.pdf" style="display:none" />
-        <input id="filterBox" type="text" placeholder="Filter items…" aria-label="Filter items" />
+        <div class="input-wrap">
+          <input id="filterBox" type="text" placeholder="Filter items…" aria-label="Filter items" />
+          <button class="clear-input-btn" id="btnClearFilter" type="button" aria-label="Clear filter" title="Clear filter" style="display:none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 6L6 18"></path>
+              <path d="M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div class="totals" aria-live="polite"><span id="totalQty" class="muted">Total Qty: 0</span></div>
@@ -663,7 +862,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
         </table>
       </div>
       <div class="muted" style="margin-top:8px">
-        Tap any cell to edit inline; <kbd>Enter</kbd> saves, <kbd>Esc</kbd> cancels.
+        <span id="editHint">Tap any cell to edit inline; <kbd>Enter</kbd> saves, <kbd>Esc</kbd> cancels.</span>
       </div>
     </section>
   </main>
@@ -706,6 +905,42 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
     </div>
   </div>
 
+  <!-- Mobile-friendly cell edit modal -->
+  <div id="editItemModal" class="modal" aria-hidden="true">
+    <div class="box edit-box">
+      <div class="edit-header">
+        <h2 id="editItemTitle">Edit Item</h2>
+        <div class="edit-sub" id="editItemSub"></div>
+      </div>
+      <div class="edit-body">
+        <div style="display:grid; grid-template-columns:1fr; gap:10px;">
+          <div>
+            <label class="muted" for="editItemName">Item</label>
+            <input id="editItemName" type="text" placeholder="Item" autocapitalize="off" autocomplete="off" spellcheck="false" />
+          </div>
+          <div>
+            <label class="muted" for="editItemDesc">Description</label>
+            <textarea id="editItemDesc" rows="6" placeholder="Description" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea>
+          </div>
+          <div>
+            <label class="muted" for="editItemQty">Qty</label>
+            <div class="qty-stepper qty-stepper--modal">
+              <button class="qty-step" id="editItemQtyMinus" type="button" aria-label="Decrease qty">−</button>
+              <input id="editItemQty" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
+              <button class="qty-step" id="editItemQtyPlus" type="button" aria-label="Increase qty">+</button>
+            </div>
+            <div class="muted" style="margin-top:6px;">Tap +/- for small changes, or type a number.</div>
+          </div>
+        </div>
+        <div id="editItemMsg" class="muted" style="margin-top:10px;"></div>
+      </div>
+      <div class="edit-footer">
+        <button class="btn" id="btnEditItemCancel">Cancel</button>
+        <button class="btn primary" id="btnEditItemSave">Save</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Import preview -->
   <div id="previewModal" class="modal" aria-hidden="true">
     <div class="box">
@@ -740,11 +975,19 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       </div>
 
       <div class="order-body">
-        <div class="section">
-          <div class="section-title"><span>Materials</span></div>
-          <input id="orderSearch" type="text" placeholder="Search inventory to add items…" autocomplete="off" />
-          <div id="orderResultsBody" class="order-list" style="margin-top:10px;"></div>
-        </div>
+	        <div class="section">
+	          <div class="section-title"><span>Materials</span></div>
+	          <div class="input-wrap" style="max-width:100%;">
+	            <input id="orderSearch" type="text" placeholder="Search inventory to add items…" autocomplete="off" />
+	            <button class="clear-input-btn" id="btnClearOrderSearch" type="button" aria-label="Clear search" title="Clear search" style="display:none">
+	              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+	                <path d="M18 6L6 18"></path>
+	                <path d="M6 6l12 12"></path>
+	              </svg>
+	            </button>
+	          </div>
+	          <div id="orderResultsBody" class="order-list" style="margin-top:10px;"></div>
+	        </div>
 
         <div class="section">
           <div class="section-title">
@@ -1536,12 +1779,27 @@ function adjustDescColumnWidth(){
 function tbodyEl(){ return document.querySelector('#invTable tbody'); }
 function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) || null; }
 function cellEl(tr, col){ return tr?.querySelector(`td[data-col="${col}"]`) || null; }
+function qtyCellHTML(it){
+  const q = toInt(it.qty,0);
+  const stacked = !!(window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
+  if(stacked){
+    const id = escapeHtmlAttr(it.id || '');
+    return (
+      '<div class="qty-stepper qty-stepper--table" aria-label="Qty controls">'+
+        '<button type="button" class="qty-step qty-step-btn" data-id="'+id+'" data-delta="-1" aria-label="Decrease qty">−</button>'+
+        '<span class="qty-value" aria-label="Qty">'+q+'</span>'+
+        '<button type="button" class="qty-step qty-step-btn" data-id="'+id+'" data-delta="1" aria-label="Increase qty">+</button>'+
+      '</div>'
+    );
+  }
+  return String(q);
+}
 function buildRowHTML(it){
   return (
     '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
     '<td data-col="name">'+escapeHtml(it.name||'')+'</td>'+
     '<td data-col="desc">'+escapeHtml(it.desc||'')+'</td>'+
-    '<td data-col="qty" class="qty">'+toInt(it.qty,0)+'</td>'
+    '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'
   );
 }
 // Insert a row into the table in sorted position by name
@@ -1581,7 +1839,34 @@ function repositionRowByName(id){
 function updateCellDisplay(id, col, value){
   const tr = rowElById(id); if(!tr) return;
   const td = cellEl(tr, col); if(!td) return;
-  td.textContent = (col==='qty') ? toInt(value,0) : String(value||'');
+  if(col==='qty'){
+    const v = String(toInt(value,0));
+    const el = td.querySelector('.qty-value');
+    if(el) el.textContent = v;
+    else td.textContent = v;
+    return;
+  }
+  td.textContent = String(value||'');
+}
+
+function updateFilterClearBtn(){
+  const fb = $('filterBox');
+  const btn = $('btnClearFilter');
+  if(!fb || !btn) return;
+  const has = String(fb.value || '').length > 0;
+  btn.style.display = has ? 'flex' : 'none';
+  btn.disabled = !has;
+  btn.setAttribute('aria-hidden', has ? 'false' : 'true');
+}
+
+function updateOrderSearchClearBtn(){
+  const inp = $('orderSearch');
+  const btn = $('btnClearOrderSearch');
+  if(!inp || !btn) return;
+  const has = String(inp.value || '').length > 0;
+  btn.style.display = has ? 'flex' : 'none';
+  btn.disabled = !has;
+  btn.setAttribute('aria-hidden', has ? 'false' : 'true');
 }
 // Ensure an empty-state row exists when there are no data rows
 function emptyStateHtml(){
@@ -1644,7 +1929,7 @@ function ensureEmptyState(){
           '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
           '<td data-col="name">'+escapeHtml(it.name||'')+'</td>'+
           '<td data-col="desc">'+escapeHtml(it.desc||'')+'</td>'+
-          '<td data-col="qty" class="qty">'+toInt(it.qty,0)+'</td>'+
+          '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'+
           '<td class="actions"><button class="row-delete-btn" data-id="'+it.id+'" aria-label="Delete item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></td>';
         tbody.appendChild(tr);
       }
@@ -1656,19 +1941,296 @@ function ensureEmptyState(){
       const tbody=$('#invTable').querySelector('tbody');
       tbody.querySelectorAll('td').forEach(td=>{
         if(td.classList.contains('sel')) return; // skip checkbox column
-        td.addEventListener('click', ()=> startCellEdit(td));
-        td.addEventListener('dblclick', ()=> startCellEdit(td));
+        td.addEventListener('click', (e)=> startCellEdit(td, e));
+        td.addEventListener('dblclick', (e)=> startCellEdit(td, e));
       });
     }
 
+    // Mobile-friendly modal editor (helps iOS cursor/precision issues)
+    let _editItemCtx = null;
+    let _lastEditHintPref = null;
+    const _qtyCommit = new Map(); // id -> { timer, desiredQty, inFlight }
 
-    function startCellEdit(td){
+    function isIOS(){
+      try{
+        const ua = navigator.userAgent || '';
+        const platform = navigator.platform || '';
+        return /iPad|iPhone|iPod/.test(ua) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      }catch(e){ return false; }
+    }
+    function prefersModalEditing(){
+      try{
+        if(isIOS()) return true;
+        const hasTouch = ('ontouchstart' in window) || (navigator && navigator.maxTouchPoints > 0);
+        if(!hasTouch) return false;
+        return window.matchMedia && (
+          window.matchMedia('(pointer: coarse)').matches ||
+          window.matchMedia('(hover: none)').matches ||
+          window.matchMedia('(max-width: 768px)').matches
+        );
+      }catch(e){ return false; }
+    }
+    function setEditHint(){
+      const el = $('editHint');
+      if(!el) return;
+      const pref = prefersModalEditing();
+      if(pref){
+        el.innerHTML = 'Tap any cell to edit; use <b>Save</b> to apply. Use <b>+/-</b> in Qty for quick changes.';
+      }else{
+        el.innerHTML = 'Tap any cell to edit inline; <kbd>Enter</kbd> saves, <kbd>Esc</kbd> cancels.';
+      }
+      if(_lastEditHintPref !== null && pref !== _lastEditHintPref){
+        try{ renderTable(); }catch(e){}
+      }
+      _lastEditHintPref = pref;
+    }
+
+    function setEditItemMessage(msg){
+      const el = $('editItemMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function closeEditItemModal(){
+      _editItemCtx = null;
+      setEditItemMessage('');
+      show('editItemModal', false);
+    }
+    function openEditItemModal(id){
+      const it = state.items.find(x=> x.id===id); if(!it) return;
+      _editItemCtx = { id };
+
+      const sub = $('editItemSub');
+      if(sub) sub.textContent = it.name ? `Editing: ${it.name}` : '';
+      const name = $('editItemName'); if(name) name.value = String(it.name||'');
+      const desc = $('editItemDesc'); if(desc) desc.value = String(it.desc||'');
+      const qty  = $('editItemQty');  if(qty)  qty.value  = String(toInt(it.qty,0));
+
+      setEditItemMessage('');
+      show('editItemModal', true);
+      setTimeout(()=>{
+        const inp = $('editItemName');
+        if(!inp) return;
+        inp.focus();
+        try{ inp.select(); }catch(e){}
+      }, 0);
+    }
+    function bumpEditItemQty(delta){
+      const inp = $('editItemQty'); if(!inp) return;
+      const q = toInt(inp.value, 0);
+      const nv = Math.max(0, q + toSignedInt(delta, 0));
+      inp.value = String(nv);
+    }
+
+    async function commitItemUpdate(id, updates){
+      const it = state.items.find(x=> x.id===id);
+      if(!it) throw Error('Item not found');
+
+      const fields = {};
+      if(updates && 'name' in updates){
+        const nv = String(updates.name||'').trim();
+        if(!nv) throw Error('Name required');
+        const prev = String(it.name||'');
+        if(nv !== prev){
+          if(toKey(nv)!==toKey(prev) && state.items.some(x=> x.id!==id && toKey(x.name)===toKey(nv))) throw Error('Duplicate name');
+          fields.name = nv;
+        }
+      }
+      if(updates && 'desc' in updates){
+        const nv = String(updates.desc||'').replace(/[\r\n]+/g,' ').trim();
+        const prev = String(it.desc||'').replace(/[\r\n]+/g,' ').trim();
+        if(nv !== prev) fields.desc = nv;
+      }
+      if(updates && 'qty' in updates){
+        const q = toInt(updates.qty, -1); if(q < 0) throw Error('Qty must be integer ≥ 0');
+        const prev = toInt(it.qty, 0);
+        if(q !== prev) fields.qty = q;
+      }
+
+      if(Object.keys(fields).length === 0) return;
+      await sbUpdateFields(id, fields);
+      await sbLoadSnapshot();
+    }
+    async function commitItemField(id, col, rawValue){
+      if(col==='name') return commitItemUpdate(id, { name: rawValue });
+      if(col==='desc') return commitItemUpdate(id, { desc: rawValue });
+      if(col==='qty')  return commitItemUpdate(id, { qty: rawValue });
+      throw Error('Unknown field');
+    }
+
+    async function saveEditItemModal(){
+      if(!_editItemCtx) return;
       if(!requireOnline()) return;
+
+      const id = _editItemCtx.id;
+      const name = $('editItemName') ? $('editItemName').value : '';
+      const desc = $('editItemDesc') ? $('editItemDesc').value : '';
+      const qty  = $('editItemQty')  ? $('editItemQty').value  : '';
+
+      const btnSave = $('btnEditItemSave');
+      const btnCancel = $('btnEditItemCancel');
+      if(btnSave) btnSave.disabled = true;
+      if(btnCancel) btnCancel.disabled = true;
+      setEditItemMessage('');
+
+      try{
+        await commitItemUpdate(id, { name, desc, qty });
+        closeEditItemModal();
+      }catch(e){
+        const msg = (e && e.message) ? e.message : 'Update failed';
+        setEditItemMessage(msg);
+        toast(msg);
+      }finally{
+        if(btnSave) btnSave.disabled = false;
+        if(btnCancel) btnCancel.disabled = false;
+      }
+    }
+
+    // Modal editor events
+    const btnEditItemCancel = $('btnEditItemCancel');
+    if(btnEditItemCancel) btnEditItemCancel.addEventListener('click', closeEditItemModal);
+    const btnEditItemSave = $('btnEditItemSave');
+    if(btnEditItemSave) btnEditItemSave.addEventListener('click', saveEditItemModal);
+    const btnQtyMinus = $('editItemQtyMinus');
+    if(btnQtyMinus) btnQtyMinus.addEventListener('click', ()=> bumpEditItemQty(-1));
+    const btnQtyPlus = $('editItemQtyPlus');
+    if(btnQtyPlus) btnQtyPlus.addEventListener('click', ()=> bumpEditItemQty(1));
+
+    const editItemName = $('editItemName');
+    if(editItemName) editItemName.addEventListener('keydown', e=>{
+      if(e.key==='Escape'){ e.preventDefault(); closeEditItemModal(); }
+      if(e.key==='Enter'){
+        // On mobile, Enter often means "Done" — move to description instead of saving.
+        e.preventDefault();
+        $('editItemDesc')?.focus();
+      }
+    });
+    const editItemQty = $('editItemQty');
+    if(editItemQty) editItemQty.addEventListener('keydown', e=>{
+      if(e.key==='Escape'){ e.preventDefault(); closeEditItemModal(); }
+      if(e.key==='Enter'){ e.preventDefault(); saveEditItemModal(); }
+    });
+    const editItemDesc = $('editItemDesc');
+    if(editItemDesc) editItemDesc.addEventListener('keydown', e=>{
+      if(e.key==='Escape'){ e.preventDefault(); closeEditItemModal(); }
+      if((e.key==='Enter' || e.key==='NumpadEnter') && (e.metaKey || e.ctrlKey)){
+        e.preventDefault(); saveEditItemModal();
+      }
+    });
+
+    // Table Qty +/- (mobile): optimistic UI + debounced commit
+    function toSignedInt(v, f=0){
+      const n = Number(v);
+      if(!Number.isFinite(n)) return f;
+      return Math.trunc(n);
+    }
+    function adjustDisplayedTotalQty(delta){
+      const totalEl = $('totalQty'); if(!totalEl) return;
+      const m = /Total Qty:\\s*(\\d+)/.exec(totalEl.textContent || '');
+      if(!m) return;
+      const cur = toInt(m[1], 0);
+      totalEl.textContent = `Total Qty: ${Math.max(0, cur + toSignedInt(delta,0))}`;
+    }
+    function updateQtyCellUIForRow(id, qty){
+      const tr = rowElById(id);
+      const val = tr ? tr.querySelector('td[data-col="qty"] .qty-value') : null;
+      if(val) val.textContent = String(toInt(qty,0));
+    }
+    function repositionRowByQty(id){
+      const srt = getSort();
+      if(!srt || srt.col !== 'qty') return;
+      const tb = tbodyEl(); if(!tb) return;
+      const tr = rowElById(id); if(!tr) return;
+      const it = state.items.find(x=> x.id===id); if(!it) return;
+      const myQty = toInt(it.qty,0);
+      const myName = toKey(it.name||'');
+      const desc = (srt.dir === 'desc');
+      const others = Array.from(tb.querySelectorAll('tr[data-id]')).filter(x=> x!==tr);
+      let anchor = null;
+      for(const r of others){
+        const rid = r.dataset.id;
+        const o = state.items.find(x=> x.id===rid);
+        if(!o) continue;
+        const oq = toInt(o.qty,0);
+        const on = toKey(o.name||'');
+        if(desc){
+          if(oq < myQty || (oq === myQty && on > myName)){ anchor = r; break; }
+        }else{
+          if(oq > myQty || (oq === myQty && on > myName)){ anchor = r; break; }
+        }
+      }
+      if(anchor) tb.insertBefore(tr, anchor); else tb.appendChild(tr);
+    }
+    function queueQtyCommit(id, desiredQty){
+      if(!id) return;
+      const q = toInt(desiredQty, 0);
+      let entry = _qtyCommit.get(id);
+      if(!entry){
+        entry = { timer:null, desiredQty:q, inFlight:false };
+        _qtyCommit.set(id, entry);
+      }
+      entry.desiredQty = q;
+      if(entry.timer) clearTimeout(entry.timer);
+      entry.timer = setTimeout(()=> flushQtyCommit(id), 400);
+    }
+    async function flushQtyCommit(id){
+      const entry = _qtyCommit.get(id);
+      if(!entry) return;
+      entry.timer = null;
+      if(entry.inFlight) return;
+      entry.inFlight = true;
+      const qtyToSend = entry.desiredQty;
+      try{
+        await sbUpdateFields(id, { qty: qtyToSend });
+      }catch(e){
+        toast((e && e.message) ? e.message : 'Qty update failed');
+        try{ await sbLoadSnapshot(); }catch{}
+      }finally{
+        entry.inFlight = false;
+        if(entry.desiredQty !== qtyToSend){
+          queueQtyCommit(id, entry.desiredQty);
+        }
+      }
+    }
+
+    const invTable = $('invTable');
+    if(invTable){
+      invTable.addEventListener('click', (e)=>{
+        const btn = e.target.closest('button.qty-step-btn');
+        if(!btn) return;
+        const id = String(btn.dataset.id || '').trim();
+        const delta = toSignedInt(btn.dataset.delta, 0);
+        if(!id || !delta) return;
+        if(!requireOnline()) return;
+        const it = state.items.find(x=> x.id===id); if(!it) return;
+        const oldQty = toInt(it.qty,0);
+        const newQty = Math.max(0, oldQty + delta);
+        if(newQty === oldQty) return;
+        it.qty = newQty;
+        updateQtyCellUIForRow(id, newQty);
+        adjustDisplayedTotalQty(newQty - oldQty);
+        repositionRowByQty(id);
+        queueQtyCommit(id, newQty);
+      });
+    }
+
+    function startCellEdit(td, ev){
+      // If the user tapped a control inside the cell, don't open an editor.
+      if(ev && ev.target && ev.target.closest('button, input, textarea, select, a')) return;
       if(td.querySelector('input')) return;
       const col=td.getAttribute('data-col'); if(!col) return;
-      const tr=td.closest('tr'); const id=tr.dataset.id; const it=state.items.find(x=> x.id===id); if(!it) return;
+      const tr=td.closest('tr'); const id=tr?.dataset?.id; if(!id) return;
+      const it=state.items.find(x=> x.id===id); if(!it) return;
+
+      if(prefersModalEditing()){
+        if(!requireOnline()) return;
+        openEditItemModal(id);
+        return;
+      }
+
+      if(!requireOnline()) return;
       const fb = $('filterBox'); if (fb) fb.value = '';
       state._filter = '';
+      try{ updateFilterClearBtn(); }catch(e){}
+
       const oldVal = (col==='qty'? String(toInt(it.qty,0)) : String(col==='name'?it.name:(it.desc||'')));
       const inp=document.createElement('input');
       inp.type = (col==='qty')? 'number' : 'text';
@@ -1677,28 +2239,13 @@ function ensureEmptyState(){
       td.classList.add('editing'); td.innerHTML=''; td.appendChild(inp);
       setTimeout(()=>{ inp.focus(); inp.select(); }, 0);
 
-      const cancel=()=>{ td.classList.remove('editing'); td.innerHTML = (col==='qty')? toInt(it.qty,0) : escapeHtml(col==='name'?it.name:(it.desc||'')); };
+      const cancel=()=>{ td.classList.remove('editing'); td.innerHTML = (col==='qty')? String(toInt(it.qty,0)) : escapeHtml(col==='name'?it.name:(it.desc||'')); };
 
       const commit = async () => {
         let v = inp.value;
         try{
-          if(col==='name'){
-            const nv = String(v).trim();
-            if(!nv) throw Error('Name required');
-            if(toKey(nv)!==toKey(it.name) && state.items.some(x=> x!==it && toKey(x.name)===toKey(nv))) throw Error('Duplicate name');
-            await sbUpdateFields(id, { name:nv });
-            await sbLoadSnapshot();
-          }else if(col==='desc'){
-            const nv = String(v).trim();
-            await sbUpdateFields(id, { desc:nv });
-            await sbLoadSnapshot();
-          }else if(col==='qty'){
-            const q=toInt(v,-1); if(q<0) throw Error('Qty must be integer ≥ 0');
-            await sbUpdateFields(id, { qty:q });
-            await sbLoadSnapshot();
-          }
+          await commitItemField(id, col, v);
         }catch(e){
-          // Revert the cell UI without changing local state
           cancel();
           toast(e.message || 'Update failed');
         }
@@ -2722,6 +3269,7 @@ function ensureEmptyState(){
       renderOrderResults();
       renderOrderLines();
       renderOrderPreview();
+      try{ updateOrderSearchClearBtn(); }catch(e){}
 
       show('orderModal', true);
     }
@@ -2774,11 +3322,37 @@ function ensureEmptyState(){
     });
 
     const orderSearch = $('orderSearch');
-    if(orderSearch) orderSearch.addEventListener('input', ()=>{
-      const ord = orderState();
-      ord.search = orderSearch.value || '';
-      renderOrderResults();
-    });
+    if(orderSearch){
+      updateOrderSearchClearBtn();
+      orderSearch.addEventListener('input', ()=>{
+        const ord = orderState();
+        ord.search = orderSearch.value || '';
+        renderOrderResults();
+        updateOrderSearchClearBtn();
+      });
+      orderSearch.addEventListener('keydown', (e)=>{
+        if(e.key==='Escape' && orderSearch.value){
+          e.preventDefault();
+          orderSearch.value = '';
+          const ord = orderState();
+          ord.search = '';
+          renderOrderResults();
+          updateOrderSearchClearBtn();
+        }
+      });
+    }
+    const btnClearOrderSearch = $('btnClearOrderSearch');
+    if(btnClearOrderSearch && orderSearch){
+      btnClearOrderSearch.addEventListener('click', ()=>{
+        if(!orderSearch.value) return;
+        orderSearch.value = '';
+        const ord = orderState();
+        ord.search = '';
+        renderOrderResults();
+        updateOrderSearchClearBtn();
+        try{ orderSearch.focus(); }catch(e){}
+      });
+    }
     const orderEmail = $('orderEmail');
     if(orderEmail) orderEmail.addEventListener('input', ()=>{
       const ord = orderState();
@@ -3246,10 +3820,27 @@ function ensureEmptyState(){
     });
 
     // Boot
-    document.addEventListener('DOMContentLoaded', async ()=>{
+      document.addEventListener('DOMContentLoaded', async ()=>{
       load(); render();
+      try{ setEditHint(); }catch(e){}
       try{ adjustTitleSize(); if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=> requestAnimationFrame(adjustTitleSize)); } }catch(e){}
-      const fb=$('filterBox'); if(fb){ fb.value=state._filter||''; fb.addEventListener('input', ()=>{ state._filter=fb.value; renderTable(); save(); }); }
+      const fb=$('filterBox'); if(fb){
+        fb.value=state._filter||'';
+        updateFilterClearBtn();
+        fb.addEventListener('input', ()=>{ state._filter=fb.value; renderTable(); save(); updateFilterClearBtn(); });
+        fb.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && fb.value){ e.preventDefault(); fb.value=''; state._filter=''; renderTable(); save(); updateFilterClearBtn(); }});
+      }
+      const clr=$('btnClearFilter'); if(clr && fb){
+        clr.addEventListener('click', ()=>{
+          if(!fb.value) return;
+          fb.value='';
+          state._filter='';
+          renderTable();
+          save();
+          updateFilterClearBtn();
+          try{ fb.focus(); }catch(e){}
+        });
+      }
 
       document.querySelectorAll('#invTable thead th.sortable').forEach(th=>{ th.addEventListener('click', ()=>{ const col=th.getAttribute('data-col'); if(!col) return; const srt=getSort(); if(srt.col===col){ state._sort={col, dir:(srt.dir==='asc'?'desc':'asc')}; } else { state._sort={col, dir:'asc'}; } renderTable(); save(); }); });
 
@@ -3270,12 +3861,13 @@ function ensureEmptyState(){
       setInterval(checkServerHealth, 15000);
 
       // Responsive: adjust desc column width on viewport change
-      window.addEventListener('resize', ()=> { try{ requestAnimationFrame(()=>{ adjustDescColumnWidth(); adjustTitleSize(); }); }catch(e){} });
+      window.addEventListener('resize', ()=> { try{ requestAnimationFrame(()=>{ adjustDescColumnWidth(); adjustTitleSize(); setEditHint(); }); }catch(e){} });
 
       // Close modals when clicking outside (on backdrop)
       document.addEventListener('click', (e)=>{
         const modal = e.target.closest('.modal');
         if(modal && e.target === modal){
+          if(modal.id === 'editItemModal') return;
           show(modal.id, false);
         }
       });

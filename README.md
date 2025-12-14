@@ -13,7 +13,7 @@ A lightweight, mobile‑friendly inventory app that runs entirely in the browser
 
 ## ✨ Features
 
-- **Inline editing**: Tap any cell (Item, Description, Qty) and edit directly. Press `Enter` to save or `Esc` to cancel.
+- **Editing**: Tap any cell (Item, Description, Qty). Desktop edits inline (`Enter` saves, `Esc` cancels); mobile opens a larger editor modal + has `+/-` Qty buttons for quick changes.
 - **Real‑time sync**: Edits, adds, and deletes propagate instantly across devices via Supabase realtime.
 - **Import / Paste data**:
   - Upload CSV, TSV, TXT, JSON, XLSX, XLS, DOCX, DOC, or PDF files.
