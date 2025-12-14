@@ -12,6 +12,7 @@ create table if not exists public.profiles (
   last_name text not null default ''::text,
   phone text not null default ''::text,
   delivery_address text not null default ''::text,
+  low_stock_qty_global integer not null default 0,
   silence_low_stock_alerts boolean not null default false,
   updated_at timestamp with time zone not null default now()
 );
@@ -23,6 +24,8 @@ alter table public.profiles
   add column if not exists first_name text not null default ''::text;
 alter table public.profiles
   add column if not exists last_name text not null default ''::text;
+alter table public.profiles
+  add column if not exists low_stock_qty_global integer not null default 0;
 alter table public.profiles
   add column if not exists silence_low_stock_alerts boolean not null default false;
 
@@ -182,6 +185,9 @@ create index if not exists orders_created_at_idx on public.orders (created_at de
 -- =========================
 -- 5) Lock down the existing `items` table (shared inventory)
 -- =========================
+alter table public.items
+  add column if not exists low_stock_qty integer;
+
 alter table public.items enable row level security;
 
 -- Remove old demo policies (safe to run even if they don't exist)

@@ -91,27 +91,30 @@
     th.sorted-asc .sort-ind::before{ content:'\25B2'; opacity:1 }
     th.sorted-desc .sort-ind::before{ content:'\25BC'; opacity:1 }
 tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
-    td.actions{padding:8px;text-align:center}
-	    .row-delete-btn{
-	      background:none;border:none;cursor:pointer;padding:6px;
-	      color:var(--muted);display:inline-flex;align-items:center;justify-content:center;
-	      border-radius:6px;transition:background 0.15s,color 0.15s;
-	    }
-	    .row-delete-btn:hover{background:rgba(255,80,80,0.15);color:#ff6b6b}
-		    @media (hover: hover) and (pointer: fine){
-		      #invTable tbody tr[data-id]{
-		        transition: background-color 160ms ease, filter 160ms ease, outline-color 160ms ease;
-		        transition-delay: 0ms;
-		        outline: 1px solid transparent;
-		        outline-offset: -1px;
-		      }
-		      #invTable tbody tr[data-id]:hover{
-		        transition-delay: 200ms; /* avoids flicker while scrolling */
-		        background-color: rgba(90,169,255,0.12);
-		        outline-color: rgba(90,169,255,0.62);
-		        filter: drop-shadow(0 0 18px rgba(90,169,255,0.30));
-		      }
+    td.actions{padding:8px;display:flex;gap:8px;align-items:center;justify-content:flex-end}
+		    .row-delete-btn{
+		      background:none;border:none;cursor:pointer;padding:6px;
+		      color:var(--muted);display:inline-flex;align-items:center;justify-content:center;
+		      border-radius:6px;transition:background 0.15s,color 0.15s;
 		    }
+		    .row-delete-btn:hover{background:rgba(255,80,80,0.15);color:#ff6b6b}
+		    .row-stock-btn{
+		      background:none;border:none;cursor:pointer;padding:6px;
+		      color:var(--muted);display:inline-flex;align-items:center;justify-content:center;
+		      border-radius:6px;transition:background 0.15s,color 0.15s;
+		    }
+		    .row-stock-btn:hover{background:rgba(114,253,114,0.14);color:#72FD72}
+			    @media (hover: hover) and (pointer: fine){
+			      #invTable tbody tr[data-id]{
+			        transition: filter 160ms ease;
+			        transition-delay: 0ms;
+			        filter:none;
+			      }
+			      #invTable tbody tr[data-id]:hover{
+			        transition-delay: 200ms; /* avoids flicker while scrolling */
+			        filter: drop-shadow(0 0 22px rgba(114,253,114,0.55));
+			      }
+			    }
 			    /* Mobile table layout: stack fields vertically per record */
 			    @media (max-width: 768px){
 			      #invTable thead{ display:none; }
@@ -133,7 +136,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 			        position:absolute;
 			        inset:-12px;
 			        border-radius:20px;
-			        background: radial-gradient(closest-side, rgba(90,169,255,0.40), rgba(90,169,255,0.0) 72%);
+			        background: radial-gradient(closest-side, rgba(114,253,114,0.44), rgba(114,253,114,0.0) 72%);
 			        filter: blur(16px);
 			        opacity:0;
 			        transition: opacity 220ms ease, transform 220ms ease;
@@ -144,8 +147,8 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 			      #invTable tbody tr[data-id].scroll-focus{
 			        box-shadow:
 			          0 16px 36px rgba(0,0,0,0.62),
-			          0 0 46px rgba(90,169,255,0.28),
-			          0 0 82px rgba(90,169,255,0.12),
+			          0 0 48px rgba(114,253,114,0.22),
+			          0 0 92px rgba(114,253,114,0.10),
 			          inset 0 1px 0 rgba(255,255,255,0.08);
 			        transform: translateY(-3px);
 			      }
@@ -227,31 +230,38 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	        top:auto;
 	        bottom:10px;
 	        transform:none;
-	        width:48px;
+	        width:auto;
 	        padding:0;
 	        display:flex;
-        align-items:center;
-        justify-content:center;
-        z-index:2;
-      }
+	        gap:8px;
+	        align-items:center;
+	        justify-content:flex-end;
+	        z-index:2;
+	      }
       #invTable tbody tr[data-id] td.sel input[type="checkbox"]{
         width:20px;
         height:20px;
       }
-      #invTable tbody tr[data-id] td.actions .row-delete-btn{
-        width:44px;
-        height:44px;
-        padding:10px;
-        border-radius:10px;
-        border:1px solid var(--border);
-        background:#101826;
-        color:#fff;
-      }
-	      #invTable tbody tr[data-id] td.actions .row-delete-btn:hover{
-	        background:rgba(255,80,80,0.18);
-	        border-color:rgba(255,80,80,0.35);
-	        color:#ff6b6b;
+	      #invTable tbody tr[data-id] td.actions .row-delete-btn,
+	      #invTable tbody tr[data-id] td.actions .row-stock-btn{
+	        width:44px;
+	        height:44px;
+	        padding:10px;
+	        border-radius:10px;
+	        border:1px solid var(--border);
+	        background:#101826;
+	        color:#fff;
 	      }
+		      #invTable tbody tr[data-id] td.actions .row-delete-btn:hover{
+		        background:rgba(255,80,80,0.18);
+		        border-color:rgba(255,80,80,0.35);
+		        color:#ff6b6b;
+		      }
+		      #invTable tbody tr[data-id] td.actions .row-stock-btn:hover{
+		        background:rgba(114,253,114,0.14);
+		        border-color:rgba(114,253,114,0.38);
+		        color:#72FD72;
+		      }
 		    }
 		    @media (prefers-reduced-motion: reduce){
 		      #invTable tbody tr[data-id]{ transition:none !important; }
@@ -1000,18 +1010,19 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	      <div class="totals" aria-live="polite">
 	        <span id="totalItems" class="muted">Total Items: 0</span>
 	        <span id="totalInStock" class="muted">In Stock: 0</span>
+	        <span id="totalLowStock" class="muted">Low Stock: 0</span>
 	        <span id="totalQty" class="muted">Total Qty: 0</span>
 	      </div>
 
 	      <div class="scroll" id="tableWrap">
 	        <table id="invTable" role="grid" aria-label="Inventory table">
-	          <colgroup>
-	            <col style="width:42px">
-	            <col id="col-name">
-	            <col id="col-desc">
-	            <col style="width:150px">
-	            <col style="width:48px">
-	          </colgroup>
+		          <colgroup>
+		            <col style="width:42px">
+		            <col id="col-name">
+		            <col id="col-desc">
+		            <col style="width:150px">
+		            <col style="width:112px">
+		          </colgroup>
           <thead>
             <tr>
               <th class="sel"><input type="checkbox" id="chkAll" aria-label="Select all"></th>
@@ -1250,7 +1261,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	      <div class="report-metrics" aria-label="Report summary">
 	        <div class="report-metric"><div class="muted">Total Items</div><div class="val" id="reportMetricTotalItems">0</div></div>
 	        <div class="report-metric"><div class="muted">In Stock</div><div class="val" id="reportMetricInStock">0</div></div>
-	        <div class="report-metric"><div class="muted">Out of Stock</div><div class="val" id="reportMetricOutOfStock">0</div></div>
+	        <div class="report-metric"><div class="muted">Low Stock</div><div class="val" id="reportMetricOutOfStock">0</div></div>
 	        <div class="report-metric"><div class="muted">Total Qty</div><div class="val" id="reportMetricTotalQty">0</div></div>
 	      </div>
 
@@ -1312,6 +1323,8 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	        <input id="profilePhone" type="tel" placeholder="(555) 555-5555" autocomplete="tel" inputmode="tel" />
 	        <label class="muted">Shipping Address</label>
 	        <textarea id="profileDeliveryAddress" rows="3" placeholder="123 Main St&#10;City, ST 12345"></textarea>
+	        <label class="muted">Global Low Stock Qty</label>
+	        <input id="profileLowStockQtyGlobal" type="number" min="0" step="1" inputmode="numeric" placeholder="0" />
 	        <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
 	          <input id="profileSilenceLowStockAlerts" type="checkbox" style="width:20px;height:20px;" />
 	          <label for="profileSilenceLowStockAlerts" class="muted" style="font-size:13px;cursor:pointer;">Silence low stock reorder prompts</label>
@@ -1502,6 +1515,7 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	      const elLastName = $('profileLastName'); if(elLastName) elLastName.value = (SB.profile && SB.profile.last_name) ? String(SB.profile.last_name) : '';
 	      const elPhone = $('profilePhone'); if(elPhone) elPhone.value = formatPhoneNumber((SB.profile && SB.profile.phone) ? String(SB.profile.phone) : '');
 	      const elAddress = $('profileDeliveryAddress'); if(elAddress) elAddress.value = (SB.profile && SB.profile.delivery_address) ? String(SB.profile.delivery_address) : '';
+	      const elLowGlobal = $('profileLowStockQtyGlobal'); if(elLowGlobal) elLowGlobal.value = String(getGlobalLowStockQty());
 	      const elSilence = $('profileSilenceLowStockAlerts'); if(elSilence) elSilence.checked = lowStockAlertsSilenced();
 	      const note = SB.session && !SB.authorized
 	        ? 'This account is not authorized for this inventory yet. Ask an admin to add you in Supabase.'
@@ -1511,64 +1525,97 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	    async function sbEnsureProfile(){
 	      if(!SB.ready || !SB.user) return null;
 	      try{
-	        // Fetch profile with all fields
-	        const baseSelect = 'user_id,email,first_name,last_name,phone,delivery_address';
-	        let hasSilenceCol = true;
-	        let { data, error } = await SB.client
+	        const { data, error } = await SB.client
 	          .from('profiles')
-	          .select(baseSelect + ',silence_low_stock_alerts')
+	          .select('*')
 	          .eq('user_id', SB.user.id)
 	          .maybeSingle();
-	        if(error && error.message && String(error.message).includes('silence_low_stock_alerts')){
-	          hasSilenceCol = false;
-	          ({ data, error } = await SB.client
-	            .from('profiles')
-	            .select(baseSelect)
-	            .eq('user_id', SB.user.id)
-	            .maybeSingle()
-	          );
-	        }
 	        if(error) throw error;
 	        if(data){
-	          // Ensure all fields exist
 	          data.first_name = data.first_name || '';
 	          data.last_name = data.last_name || '';
 	          data.phone = data.phone || '';
 	          data.delivery_address = data.delivery_address || '';
-	          if(hasSilenceCol){
-	            data.silence_low_stock_alerts = !!data.silence_low_stock_alerts;
-	          }else{
+	          if(typeof data.silence_low_stock_alerts === 'undefined'){
 	            data.silence_low_stock_alerts = lowStockAlertsSilenced();
+	          }else{
+	            data.silence_low_stock_alerts = !!data.silence_low_stock_alerts;
 	          }
+	          if(typeof data.low_stock_qty_global === 'undefined' || data.low_stock_qty_global === null){
+	            data.low_stock_qty_global = getGlobalLowStockQty();
+	          }else{
+	            data.low_stock_qty_global = toInt(data.low_stock_qty_global, 0);
+	          }
+	          try{ localStorage.setItem('inv.pref.silenceLowStockAlerts', data.silence_low_stock_alerts ? '1' : '0'); }catch(e){}
+	          try{ localStorage.setItem('inv.pref.lowStockQtyGlobal', String(toInt(data.low_stock_qty_global,0))); }catch(e){}
 	          SB.profile = data;
 	          return data;
 	        }
-	        const row = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), first_name: '', last_name: '', phone: '', delivery_address: '' };
-	        if(hasSilenceCol) row.silence_low_stock_alerts = lowStockAlertsSilenced();
-	        let { error: insErr } = await SB.client.from('profiles').insert([row]);
-	        if(insErr && insErr.message && String(insErr.message).includes('silence_low_stock_alerts')){
-	          hasSilenceCol = false;
-	          const fallbackRow = { user_id: row.user_id, email: row.email, first_name: row.first_name, last_name: row.last_name, phone: row.phone, delivery_address: row.delivery_address };
-	          const res = await SB.client.from('profiles').insert([fallbackRow]);
-	          insErr = res.error;
-	          if(!insErr){
-	            SB.profile = { ...fallbackRow, silence_low_stock_alerts: lowStockAlertsSilenced() };
+
+	        const desiredSilence = lowStockAlertsSilenced();
+	        const desiredGlobal = getGlobalLowStockQty();
+	        const base = {
+	          user_id: SB.user.id,
+	          email: String(SB.user.email||'').trim(),
+	          first_name: '',
+	          last_name: '',
+	          phone: '',
+	        };
+	        const address = '';
+	        const attempts = [
+	          { delivery:true, silence:true, global:true },
+	          { delivery:true, silence:true, global:false },
+	          { delivery:true, silence:false, global:true },
+	          { delivery:true, silence:false, global:false },
+	          { delivery:false, silence:true, global:true },
+	          { delivery:false, silence:true, global:false },
+	          { delivery:false, silence:false, global:true },
+	          { delivery:false, silence:false, global:false },
+	        ];
+	        let lastError = null;
+	        for(const a of attempts){
+	          const row = { ...base };
+	          if(a.delivery) row.delivery_address = address;
+	          if(a.silence) row.silence_low_stock_alerts = desiredSilence;
+	          if(a.global) row.low_stock_qty_global = desiredGlobal;
+	          const res = await SB.client.from('profiles').insert([row]);
+	          if(!res.error){
+	            SB.profile = { ...row };
+	            if(!a.delivery) SB.profile.delivery_address = '';
+	            SB.profile.silence_low_stock_alerts = desiredSilence;
+	            SB.profile.low_stock_qty_global = desiredGlobal;
 	            return SB.profile;
 	          }
+	          lastError = res.error;
+	          const msg = String(res.error && res.error.message ? res.error.message : '');
+	          if(!(msg.includes('delivery_address') || msg.includes('silence_low_stock_alerts') || msg.includes('low_stock_qty_global'))){
+	            break;
+	          }
 	        }
-	        if(insErr) throw insErr;
-	        SB.profile = row;
-	        return row;
+	        if(lastError) throw lastError;
+	        throw Error('Profile create failed');
 	      }catch(e){
 	        console.warn('Profile ensure failed:', e);
-	        SB.profile = { user_id: SB.user.id, email: String(SB.user.email||'').trim(), first_name: '', last_name: '', phone: '', delivery_address: '', silence_low_stock_alerts: lowStockAlertsSilenced() };
+	        SB.profile = {
+	          user_id: SB.user.id,
+	          email: String(SB.user.email||'').trim(),
+	          first_name: '',
+	          last_name: '',
+	          phone: '',
+	          delivery_address: '',
+	          silence_low_stock_alerts: lowStockAlertsSilenced(),
+	          low_stock_qty_global: getGlobalLowStockQty(),
+	        };
 	        return SB.profile;
 	      }
 	    }
-    async function sbSaveProfile(firstName, lastName, phone, deliveryAddress, silenceLowStockAlerts){
+    async function sbSaveProfile(firstName, lastName, phone, deliveryAddress, silenceLowStockAlerts, lowStockQtyGlobal){
       if(!SB.ready || !SB.user) throw Error('Not signed in');
       const desiredSilence = !!silenceLowStockAlerts;
+      const desiredGlobal = toInt(lowStockQtyGlobal, -1);
+      if(desiredGlobal < 0) throw Error('Global low stock qty must be integer ≥ 0');
       try{ localStorage.setItem('inv.pref.silenceLowStockAlerts', desiredSilence ? '1' : '0'); }catch(e){}
+      try{ localStorage.setItem('inv.pref.lowStockQtyGlobal', String(desiredGlobal)); }catch(e){}
 
       const base = {
         user_id: SB.user.id,
@@ -1580,26 +1627,32 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       const address = String(deliveryAddress||'').trim();
 
       const attempts = [
-        { delivery:true, silence:true },
-        { delivery:true, silence:false },
-        { delivery:false, silence:true },
-        { delivery:false, silence:false },
+        { delivery:true, silence:true, global:true },
+        { delivery:true, silence:true, global:false },
+        { delivery:true, silence:false, global:true },
+        { delivery:true, silence:false, global:false },
+        { delivery:false, silence:true, global:true },
+        { delivery:false, silence:true, global:false },
+        { delivery:false, silence:false, global:true },
+        { delivery:false, silence:false, global:false },
       ];
       let lastError = null;
       for(const a of attempts){
         const row = { ...base };
         if(a.delivery) row.delivery_address = address;
         if(a.silence) row.silence_low_stock_alerts = desiredSilence;
+        if(a.global) row.low_stock_qty_global = desiredGlobal;
         const res = await SB.client.from('profiles').upsert([row], { onConflict: 'user_id' });
         if(!res.error){
           SB.profile = { ...row };
           if(!a.delivery) SB.profile.delivery_address = '';
           SB.profile.silence_low_stock_alerts = desiredSilence;
+          SB.profile.low_stock_qty_global = desiredGlobal;
           return SB.profile;
         }
         lastError = res.error;
         const msg = String(res.error && res.error.message ? res.error.message : '');
-        if(!(msg.includes('delivery_address') || msg.includes('silence_low_stock_alerts'))){
+        if(!(msg.includes('delivery_address') || msg.includes('silence_low_stock_alerts') || msg.includes('low_stock_qty_global'))){
           break;
         }
       }
@@ -1825,14 +1878,16 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
 	      const lastName = $('profileLastName')?.value || '';
 	      const phone = $('profilePhone')?.value || '';
 	      const deliveryAddress = $('profileDeliveryAddress')?.value || '';
+	      const lowStockQtyGlobal = $('profileLowStockQtyGlobal')?.value || '';
 	      const silenceLowStockAlerts = !!($('profileSilenceLowStockAlerts')?.checked);
 	      setProfileMessage('');
 	      btnProfileSave.disabled = true;
-	      try{
-	        await sbSaveProfile(firstName, lastName, phone, deliveryAddress, silenceLowStockAlerts);
-	        renderProfileUi();
-	        toast('Profile saved');
-	      }catch(e){
+		      try{
+		        await sbSaveProfile(firstName, lastName, phone, deliveryAddress, silenceLowStockAlerts, lowStockQtyGlobal);
+		        renderProfileUi();
+		        try{ renderTable(); }catch(e){}
+		        toast('Profile saved');
+		      }catch(e){
 	        setProfileMessage(e && e.message ? e.message : 'Save failed');
 	      }finally{
         btnProfileSave.disabled = false;
@@ -1849,18 +1904,40 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
         toast(e && e.message ? e.message : 'Sign out failed');
       }
     });
-    async function sbLoadSnapshot(){
-      if(!SB.ready || !SB.session || !SB.authorized) return;
-      const { data, error } = await SB.client
-        .from('items')
-        .select('id,name,description,qty,updated_at')
-        .order('name', { ascending:true });
-      if(error){ console.warn('Supabase load error', error); return; }
-      state.items = (data||[]).map(r => ({
-        id:r.id, name:r.name||'', desc:r.description||'', qty:toInt(r.qty,0), updatedAt:r.updated_at||null
-      }));
-      setUpdated(); render();
-    }
+	    async function sbLoadSnapshot(){
+	      if(!SB.ready || !SB.session || !SB.authorized) return;
+	      let data = null;
+	      try{
+	        const res = await SB.client
+	          .from('items')
+	          .select('id,name,description,qty,updated_at,low_stock_qty')
+	          .order('name', { ascending:true });
+	        if(res.error) throw res.error;
+	        data = res.data;
+	      }catch(e){
+	        const msg = String(e && e.message ? e.message : '');
+	        if(msg.includes('low_stock_qty')){
+	          const res2 = await SB.client
+	            .from('items')
+	            .select('id,name,description,qty,updated_at')
+	            .order('name', { ascending:true });
+	          if(res2.error){ console.warn('Supabase load error', res2.error); return; }
+	          data = res2.data;
+	        }else{
+	          console.warn('Supabase load error', e);
+	          return;
+	        }
+	      }
+	      state.items = (data||[]).map(r => ({
+	        id:r.id,
+	        name:r.name||'',
+	        desc:r.description||'',
+	        qty:toInt(r.qty,0),
+	        lowStockQty: (r && Object.prototype.hasOwnProperty.call(r,'low_stock_qty') && r.low_stock_qty !== null) ? toInt(r.low_stock_qty,0) : null,
+	        updatedAt:r.updated_at||null
+	      }));
+	      setUpdated(); render();
+	    }
     let _sbChannel=null;
     function sbStartRealtime(){
       if(!SB.ready || !SB.session || !SB.authorized) return;
@@ -1869,15 +1946,30 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
         .on('postgres_changes', {event:'*', schema:'public', table:'items'}, payload=>{
           const row = payload.new || payload.old;
           console.log('[realtime]', payload.eventType, row && row.id, row);
-          if(payload.eventType==='INSERT'){
-            const i = state.items.findIndex(x=> x.id===row.id);
-            if(i===-1) state.items.push({id:row.id,name:row.name,desc:row.description||'',qty:toInt(row.qty,0),updatedAt:row.updated_at});
-          }else if(payload.eventType==='UPDATE'){
-            const it = state.items.find(x=> x.id===row.id);
-            if(it){ it.name=row.name; it.desc=row.description||''; it.qty=toInt(row.qty,0); it.updatedAt=row.updated_at; }
-          }else if(payload.eventType==='DELETE'){
-            state.items = state.items.filter(x=> x.id!==row.id);
-          }
+	          if(payload.eventType==='INSERT'){
+	            const i = state.items.findIndex(x=> x.id===row.id);
+	            if(i===-1) state.items.push({
+	              id:row.id,
+	              name:row.name,
+	              desc:row.description||'',
+	              qty:toInt(row.qty,0),
+	              lowStockQty: (row && Object.prototype.hasOwnProperty.call(row,'low_stock_qty') && row.low_stock_qty !== null) ? toInt(row.low_stock_qty,0) : null,
+	              updatedAt:row.updated_at
+	            });
+	          }else if(payload.eventType==='UPDATE'){
+	            const it = state.items.find(x=> x.id===row.id);
+	            if(it){
+	              it.name=row.name;
+	              it.desc=row.description||'';
+	              it.qty=toInt(row.qty,0);
+	              if(Object.prototype.hasOwnProperty.call(row,'low_stock_qty')){
+	                it.lowStockQty = (row.low_stock_qty === null) ? null : toInt(row.low_stock_qty,0);
+	              }
+	              it.updatedAt=row.updated_at;
+	            }
+	          }else if(payload.eventType==='DELETE'){
+	            state.items = state.items.filter(x=> x.id!==row.id);
+	          }
           setUpdated(); render();
         })
         .subscribe();
@@ -1887,14 +1979,24 @@ tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middl
       const { error } = await SB.client.from('items').insert([{ id, name, description:desc||'', qty:toInt(qty,0) }]);
       if(error) throw error; return id;
     }
-    async function sbUpdateFields(id, fields){
-      const clean = {};
-      if('name' in fields) clean.name = String(fields.name||'');
-      if('desc' in fields) clean.description = String(fields.desc||'');
-      if('qty'  in fields) clean.qty  = toInt(fields.qty,0);
-      const { error } = await SB.client.from('items').update(clean).eq('id', id);
-      if(error) throw error;
-    }
+	    async function sbUpdateFields(id, fields){
+	      const clean = {};
+	      if('name' in fields) clean.name = String(fields.name||'');
+	      if('desc' in fields) clean.description = String(fields.desc||'');
+	      if('qty'  in fields) clean.qty  = toInt(fields.qty,0);
+	      if('lowStockQty' in fields){
+	        const raw = fields.lowStockQty;
+	        if(raw === null || typeof raw === 'undefined' || String(raw).trim() === ''){
+	          clean.low_stock_qty = null;
+	        }else{
+	          const v = toInt(raw, -1);
+	          if(v < 0) throw Error('Low stock qty must be integer ≥ 0');
+	          clean.low_stock_qty = v;
+	        }
+	      }
+	      const { error } = await SB.client.from('items').update(clean).eq('id', id);
+	      if(error) throw error;
+	    }
     async function sbDeleteMany(ids){
       const requested = Array.isArray(ids) ? ids.filter(Boolean) : [];
       if(requested.length===0) return { deleted:0, requested:0 };
@@ -2289,22 +2391,48 @@ function ensureEmptyState(){
 	        const inStock = items.reduce((count, it) => count + (toInt(it.qty,0) > 0 ? 1 : 0), 0);
 	        totalInStockEl.textContent = `In Stock: ${inStock}`;
 	      }
+	      // Update Low Stock for the currently displayed items
+	      const totalLowStockEl = $('totalLowStock');
+	      if (totalLowStockEl) {
+	        const lowStock = items.reduce((count, it) => count + (isLowStockItem(it) ? 1 : 0), 0);
+	        totalLowStockEl.textContent = `Low Stock: ${lowStock}`;
+	      }
 	      if(items.length===0){
 	      const tr=document.createElement('tr');
 	      tr.innerHTML = '<td colspan="5" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
 	      tbody.appendChild(tr);
       return;
       }
-		      for(const it of items){
-		        const tr=document.createElement('tr'); tr.dataset.id=it.id;
-		        tr.innerHTML =
-		          '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
-		          '<td data-col="name"><span class="cell-val">'+escapeHtml(it.name||'')+'</span></td>'+
-		          '<td data-col="desc"><span class="cell-val">'+escapeHtml(it.desc||'')+'</span></td>'+
-		          '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'+
-		          '<td class="actions"><button class="row-delete-btn" data-id="'+it.id+'" aria-label="Delete item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></td>';
-		        tbody.appendChild(tr);
-		      }
+			      for(const it of items){
+			        const tr=document.createElement('tr'); tr.dataset.id=it.id;
+			        tr.innerHTML =
+			          '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
+			          '<td data-col="name"><span class="cell-val">'+escapeHtml(it.name||'')+'</span></td>'+
+			          '<td data-col="desc"><span class="cell-val">'+escapeHtml(it.desc||'')+'</span></td>'+
+			          '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'+
+			          '<td class="actions">'+
+			            '<button class="row-stock-btn" data-id="'+it.id+'" aria-label="Set low stock qty" title="Set low stock qty">'+
+			              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+			                '<line x1="4" y1="21" x2="4" y2="14"></line>'+
+			                '<line x1="4" y1="10" x2="4" y2="3"></line>'+
+			                '<line x1="12" y1="21" x2="12" y2="12"></line>'+
+			                '<line x1="12" y1="8" x2="12" y2="3"></line>'+
+			                '<line x1="20" y1="21" x2="20" y2="16"></line>'+
+			                '<line x1="20" y1="12" x2="20" y2="3"></line>'+
+			                '<line x1="1" y1="14" x2="7" y2="14"></line>'+
+			                '<line x1="9" y1="8" x2="15" y2="8"></line>'+
+			                '<line x1="17" y1="16" x2="23" y2="16"></line>'+
+			              '</svg>'+
+			            '</button>'+
+			            '<button class="row-delete-btn" data-id="'+it.id+'" aria-label="Delete item" title="Delete item">'+
+			              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+			                '<polyline points="3 6 5 6 21 6"></polyline>'+
+			                '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>'+
+			              '</svg>'+
+			            '</button>'+
+			          '</td>';
+			        tbody.appendChild(tr);
+			      }
 	      enableInlineEditing();
 	      try{ requestAnimationFrame(()=>{ adjustDescColumnWidth(); adjustTitleSize(); refreshCenteredGlowTargets(); scheduleCenteredGlowUpdate(); }); }catch(e){}
 	    }
@@ -2501,22 +2629,46 @@ function ensureEmptyState(){
 		      const cur = toInt(m[1], 0);
 		      totalEl.textContent = `Total Qty: ${Math.max(0, cur + toSignedInt(delta,0))}`;
 		    }
-		    function adjustDisplayedInStock(prevQty, nextQty){
-		      const el = $('totalInStock'); if(!el) return;
-		      const m = /In Stock:\s*(\d+)/.exec(el.textContent || '');
-		      if(!m) return;
-		      const cur = toInt(m[1], 0);
-		      const was = toInt(prevQty, 0) > 0;
-		      const now = toInt(nextQty, 0) > 0;
-		      if(was === now) return;
-		      const delta = now ? 1 : -1;
-		      el.textContent = `In Stock: ${Math.max(0, cur + delta)}`;
+			    function adjustDisplayedInStock(prevQty, nextQty){
+			      const el = $('totalInStock'); if(!el) return;
+			      const m = /In Stock:\s*(\d+)/.exec(el.textContent || '');
+			      if(!m) return;
+			      const cur = toInt(m[1], 0);
+			      const was = toInt(prevQty, 0) > 0;
+			      const now = toInt(nextQty, 0) > 0;
+			      if(was === now) return;
+			      const delta = now ? 1 : -1;
+			      el.textContent = `In Stock: ${Math.max(0, cur + delta)}`;
+			    }
+			    function adjustDisplayedLowStock(item, prevQty, nextQty){
+			      const el = $('totalLowStock'); if(!el) return;
+			      const m = /Low Stock:\s*(\d+)/.exec(el.textContent || '');
+			      if(!m) return;
+			      const cur = toInt(m[1], 0);
+			      const thr = effectiveLowStockQty(item);
+			      const was = toInt(prevQty, 0) <= thr;
+			      const now = toInt(nextQty, 0) <= thr;
+			      if(was === now) return;
+			      const delta = now ? 1 : -1;
+			      el.textContent = `Low Stock: ${Math.max(0, cur + delta)}`;
+			    }
+			    function adjustDisplayedLowStockThreshold(item, prevThr, nextThr){
+			      const el = $('totalLowStock'); if(!el) return;
+			      const m = /Low Stock:\s*(\d+)/.exec(el.textContent || '');
+			      if(!m) return;
+			      const cur = toInt(m[1], 0);
+			      const qty = toInt(item && item.qty, 0);
+			      const was = qty <= toInt(prevThr, 0);
+			      const now = qty <= toInt(nextThr, 0);
+			      if(was === now) return;
+			      const delta = now ? 1 : -1;
+			      el.textContent = `Low Stock: ${Math.max(0, cur + delta)}`;
+			    }
+		    function updateQtyCellUIForRow(id, qty){
+		      const tr = rowElById(id);
+		      const val = tr ? tr.querySelector('td[data-col="qty"] .qty-value') : null;
+		      if(val) val.textContent = String(toInt(qty,0));
 		    }
-	    function updateQtyCellUIForRow(id, qty){
-	      const tr = rowElById(id);
-	      const val = tr ? tr.querySelector('td[data-col="qty"] .qty-value') : null;
-	      if(val) val.textContent = String(toInt(qty,0));
-	    }
     function repositionRowByQty(id){
       const srt = getSort();
       if(!srt || srt.col !== 'qty') return;
@@ -2587,14 +2739,15 @@ function ensureEmptyState(){
 	        const oldQty = toInt(it.qty,0);
 	        const newQty = Math.max(0, oldQty + delta);
 	        if(newQty === oldQty) return;
-	        it.qty = newQty;
-	        updateQtyCellUIForRow(id, newQty);
-	        adjustDisplayedTotalQty(newQty - oldQty);
-	        adjustDisplayedInStock(oldQty, newQty);
-	        repositionRowByQty(id);
-	        queueQtyCommit(id, newQty);
-	      });
-	    }
+		        it.qty = newQty;
+		        updateQtyCellUIForRow(id, newQty);
+		        adjustDisplayedTotalQty(newQty - oldQty);
+		        adjustDisplayedInStock(oldQty, newQty);
+		        adjustDisplayedLowStock(it, oldQty, newQty);
+		        repositionRowByQty(id);
+		        queueQtyCommit(id, newQty);
+		      });
+		    }
 
 	    function startCellEdit(td, ev){
 	      // If the user tapped a control inside the cell, don't open an editor.
@@ -2668,18 +2821,19 @@ function ensureEmptyState(){
 	            await sbUpdateFields(id, { desc: nv });
 	            return;
 	          }
-		          if(col==='qty'){
-		            const q = toInt(raw, -1);
-		            if(q < 0){ cancel(); toast('Qty must be integer ≥ 0'); return; }
-		            if(q === prevQty){ cancel(); return; }
-		            it.qty = q;
-		            restore();
-		            adjustDisplayedTotalQty(q - prevQty);
-		            adjustDisplayedInStock(prevQty, q);
-		            repositionRowByQty(id);
-		            queueQtyCommit(id, q);
-		            return;
-		          }
+			          if(col==='qty'){
+			            const q = toInt(raw, -1);
+			            if(q < 0){ cancel(); toast('Qty must be integer ≥ 0'); return; }
+			            if(q === prevQty){ cancel(); return; }
+			            it.qty = q;
+			            restore();
+			            adjustDisplayedTotalQty(q - prevQty);
+			            adjustDisplayedInStock(prevQty, q);
+			            adjustDisplayedLowStock(it, prevQty, q);
+			            repositionRowByQty(id);
+			            queueQtyCommit(id, q);
+			            return;
+			          }
 	          cancel();
 	        }catch(e){
 	          it.name = prevName;
@@ -2820,16 +2974,54 @@ function ensureEmptyState(){
 	    // ========================
 	    // Inventory report
 	    // ========================
-	    const LOW_STOCK_QTY_THRESHOLD = 0; // qty <= this is considered "low stock" for alerts
+	    function getGlobalLowStockQty(){
+	      try{
+	        if(SB && SB.profile && typeof SB.profile.low_stock_qty_global !== 'undefined'){
+	          const v = Number(SB.profile.low_stock_qty_global);
+	          if(Number.isFinite(v) && v >= 0) return Math.trunc(v);
+	        }
+	      }catch(e){}
+	      try{
+	        const raw = localStorage.getItem('inv.pref.lowStockQtyGlobal');
+	        const v = Number(raw);
+	        if(Number.isFinite(v) && v >= 0) return Math.trunc(v);
+	      }catch(e){}
+	      return 0;
+	    }
+	    function getItemLowStockQtyOverride(item){
+	      if(!item) return null;
+	      const v = Object.prototype.hasOwnProperty.call(item, 'lowStockQty') ? item.lowStockQty : null;
+	      if(v === null || typeof v === 'undefined') return null;
+	      const n = Number(v);
+	      if(!Number.isFinite(n)) return null;
+	      const i = Math.trunc(n);
+	      if(i < 0) return null;
+	      return i;
+	    }
+	    function effectiveLowStockQty(item){
+	      const override = getItemLowStockQtyOverride(item);
+	      return override !== null ? override : getGlobalLowStockQty();
+	    }
+	    function isLowStockItem(item){
+	      const qty = toInt(item && item.qty, 0);
+	      const thr = effectiveLowStockQty(item);
+	      return qty <= thr;
+	    }
 	    function reportDataSnapshot(){
 	      const all = (Array.isArray(state.items) ? state.items : [])
 	        .filter(Boolean)
-	        .map(it => ({ id: it.id, name: String(it.name||''), desc: String(it.desc||''), qty: toInt(it.qty,0) }))
+	        .map(it => ({
+	          id: it.id,
+	          name: String(it.name||''),
+	          desc: String(it.desc||''),
+	          qty: toInt(it.qty,0),
+	          lowStockQty: getItemLowStockQtyOverride(it),
+	        }))
 	        .sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
 	      const totalItems = all.length;
 	      const totalQty = all.reduce((sum, it) => sum + toInt(it.qty,0), 0);
 	      const inStock = all.filter(it => toInt(it.qty,0) > 0);
-	      const lowStock = all.filter(it => toInt(it.qty,0) <= LOW_STOCK_QTY_THRESHOLD);
+	      const lowStock = all.filter(it => isLowStockItem(it));
 	      return {
 	        all,
 	        inStock,
@@ -2868,7 +3060,7 @@ function ensureEmptyState(){
 	      out.push('');
 	      out.push(`Total Items: ${d.totalItems}`);
 	      out.push(`In Stock: ${d.inStockCount}`);
-	      out.push(`Out of Stock: ${d.lowStockCount}`);
+	      out.push(`Low Stock: ${d.lowStockCount}`);
 	      out.push(`Total Qty: ${d.totalQty}`);
 	      out.push('');
 	      out.push('Inventory:');
@@ -2902,28 +3094,31 @@ function ensureEmptyState(){
 	      const lowSection = $('reportLowStockSection');
 	      const lowList = $('reportLowStockList');
 	      const lowNote = $('reportLowStockNote');
-	      if(lowSection && lowList && lowNote){
-	        lowList.innerHTML = '';
-	        if(d.lowStockCount > 0){
-	          lowSection.style.display = 'block';
-	          lowNote.textContent = (LOW_STOCK_QTY_THRESHOLD === 0)
-	            ? 'These items are out of stock (Qty = 0).'
-	            : `These items are low stock (Qty ≤ ${LOW_STOCK_QTY_THRESHOLD}).`;
-	          for(const it of d.lowStock){
-	            const row = document.createElement('div');
-	            row.className = 'report-row low';
-	            row.innerHTML =
-	              `<div class="report-row-main">`+
-	                `<div class="report-item">${escapeHtml(it.name||'')}</div>`+
-	                (it.desc ? `<div class="report-desc">${escapeHtml(it.desc)}</div>` : ``)+
-	              `</div>`+
-	              `<div class="report-qty">${toInt(it.qty,0)}</div>`;
-	            lowList.appendChild(row);
-	          }
-	        }else{
-	          lowSection.style.display = 'none';
-	        }
-	      }
+		      if(lowSection && lowList && lowNote){
+		        lowList.innerHTML = '';
+		        if(d.lowStockCount > 0){
+		          lowSection.style.display = 'block';
+		          const global = getGlobalLowStockQty();
+		          lowNote.textContent = `These items are at/below their low stock thresholds. Global: ${global} (per-item overrides).`;
+		          for(const it of d.lowStock){
+		            const thr = effectiveLowStockQty(it);
+		            const row = document.createElement('div');
+		            row.className = 'report-row low';
+		            row.innerHTML =
+		              `<div class="report-row-main">`+
+		                `<div class="report-item">${escapeHtml(it.name||'')}</div>`+
+		                (it.desc ? `<div class="report-desc">${escapeHtml(it.desc)}</div>` : ``)+
+		              `</div>`+
+		              `<div class="report-qty">`+
+		                `<div>${toInt(it.qty,0)}</div>`+
+		                `<div class="muted" style="font-size:12px;margin-top:4px;">≤ ${thr}</div>`+
+		              `</div>`;
+		            lowList.appendChild(row);
+		          }
+		        }else{
+		          lowSection.style.display = 'none';
+		        }
+		      }
 
 	      const list = $('reportList');
 	      if(list){
@@ -3003,39 +3198,43 @@ function ensureEmptyState(){
 	        return raw === '1' || raw === 'true';
 	      }catch(e){ return false; }
 	    }
-	    function buildReorderFromLowStock(items){
-	      const list = Array.isArray(items) ? items : reportDataSnapshot().lowStock;
-	      if(!list.length){ toast('No low stock items'); return; }
-	      const ord = orderState();
-	      let added = 0;
-	      for(const it of list){
-	        const inv = getInventoryById(it.id) || it;
-	        if(!inv || !inv.id) continue;
-	        const existingQty = getOrderQtyForItem(inv.id);
-	        if(existingQty <= 0 && ord.lines.some(l => l.id === inv.id)){
-	          setOrderQty(inv.id, 1);
-	          added++;
-	          continue;
-	        }
-	        if(upsertOrderLineFromItem(inv, 1)) added++;
-	      }
-	      if(added) toast(`Added ${added} item(s) to order`);
-	      else toast('Order already contains low stock items');
-	      closeReportModal();
-	      openOrderModal({ addSelected:false });
-	    }
-	    function maybePromptLowStockReorder(){
-	      if(lowStockAlertsSilenced()) return;
-	      const d = reportDataSnapshot();
-	      if(!d.lowStockCount) return;
-	      const sample = d.lowStock.slice(0, 8).map(it => `${it.name} (${toInt(it.qty,0)})`).join('\n');
-	      const more = d.lowStockCount > 8 ? `\n…and ${d.lowStockCount - 8} more` : '';
-	      const label = (LOW_STOCK_QTY_THRESHOLD === 0)
-	        ? 'Out of stock'
-	        : `Qty ≤ ${LOW_STOCK_QTY_THRESHOLD}`;
-	      const ok = confirm(`Low stock alert (${label}): ${d.lowStockCount} item(s)\n\n${sample}${more}\n\nBuild a reorder list now?`);
-	      if(ok) buildReorderFromLowStock(d.lowStock);
-	    }
+		    function buildReorderFromLowStock(items){
+		      const list = Array.isArray(items) ? items : reportDataSnapshot().lowStock;
+		      if(!list.length){ toast('No low stock items'); return; }
+		      const ord = orderState();
+		      let added = 0;
+		      let updated = 0;
+		      for(const it of list){
+		        const inv = getInventoryById(it.id) || it;
+		        if(!inv || !inv.id) continue;
+		        const thr = effectiveLowStockQty(inv);
+		        const invQty = toInt(inv.qty, 0);
+		        const desiredOrderQty = Math.max(1, thr - invQty + 1);
+		        const inOrder = ord.lines.some(l => l.id === inv.id);
+		        if(inOrder){
+		          const cur = getOrderQtyForItem(inv.id);
+		          if(cur < desiredOrderQty){
+		            setOrderQty(inv.id, desiredOrderQty);
+		            updated++;
+		          }
+		          continue;
+		        }
+		        if(upsertOrderLineFromItem(inv, desiredOrderQty)) added++;
+		      }
+		      if(added || updated) toast(`Reorder built: ${added} added, ${updated} updated`);
+		      else toast('Order already contains low stock items');
+		      closeReportModal();
+		      openOrderModal({ addSelected:false });
+		    }
+		    function maybePromptLowStockReorder(){
+		      if(lowStockAlertsSilenced()) return;
+		      const d = reportDataSnapshot();
+		      if(!d.lowStockCount) return;
+		      const sample = d.lowStock.slice(0, 8).map(it => `${it.name} (${toInt(it.qty,0)} ≤ ${effectiveLowStockQty(it)})`).join('\n');
+		      const more = d.lowStockCount > 8 ? `\n…and ${d.lowStockCount - 8} more` : '';
+		      const ok = confirm(`Low stock alert: ${d.lowStockCount} item(s) at/below threshold\n\n${sample}${more}\n\nBuild a reorder list now?`);
+		      if(ok) buildReorderFromLowStock(d.lowStock);
+		    }
 	    function openReportModal(){
 	      renderInventoryReport();
 	      show('reportModal', true);
@@ -4393,12 +4592,68 @@ function ensureEmptyState(){
       }
     }
 
-    // Row delete button handler (delegated)
-    document.addEventListener('click', async (e)=>{
-      const btn = e.target.closest('.row-delete-btn');
-      if(!btn) return;
-      if(!requireOnline()) return;
-      const id = btn.dataset.id;
+	    // Row delete button handler (delegated)
+	    document.addEventListener('click', async (e)=>{
+	      const stockBtn = e.target.closest('.row-stock-btn');
+	      if(stockBtn){
+	        e.preventDefault();
+	        e.stopPropagation();
+	        if(!requireOnline()) return;
+	        const id = stockBtn.dataset.id;
+	        if(!id) return;
+	        const item = state.items.find(it => it.id === id);
+	        if(!item) return;
+
+	        const global = getGlobalLowStockQty();
+	        const currentOverride = getItemLowStockQtyOverride(item);
+	        const prevThr = (currentOverride === null) ? global : currentOverride;
+	        const currentLabel = (currentOverride === null)
+	          ? `Global (${global})`
+	          : `${currentOverride} (override; global ${global})`;
+
+	        const input = prompt(
+	          `Low stock qty for "${item.name || 'Item'}".\n\nEnter an integer ≥ 0 to override.\nLeave blank to use global (${global}).\nCurrent: ${currentLabel}`,
+	          (currentOverride === null) ? '' : String(currentOverride)
+	        );
+	        if(input === null) return;
+	        const raw = String(input).trim();
+	        let next = null;
+	        if(raw !== ''){
+	          const n = Number(raw);
+	          if(!Number.isFinite(n) || n < 0 || Math.trunc(n) !== n){
+	            toast('Low stock qty must be integer ≥ 0');
+	            return;
+	          }
+	          next = Math.trunc(n);
+	        }
+	        const nextThr = (next === null) ? global : next;
+
+	        const prev = currentOverride;
+	        item.lowStockQty = next;
+	        stockBtn.disabled = true;
+	        try{
+	          await sbUpdateFields(id, { lowStockQty: next });
+	          try{
+	            if(rowElById(id)) adjustDisplayedLowStockThreshold(item, prevThr, nextThr);
+	          }catch(e){}
+	          toast(next === null ? `Low stock uses global (${global})` : `Low stock set to ${next}`);
+	          try{
+	            const reportModal = $('reportModal');
+	            if(reportModal && reportModal.getAttribute('aria-hidden') === 'false') renderInventoryReport();
+	          }catch(e){}
+	        }catch(err){
+	          item.lowStockQty = prev;
+	          toast(err && err.message ? err.message : 'Update failed');
+	        }finally{
+	          stockBtn.disabled = false;
+	        }
+	        return;
+	      }
+
+	      const btn = e.target.closest('.row-delete-btn');
+	      if(!btn) return;
+	      if(!requireOnline()) return;
+	      const id = btn.dataset.id;
       if(!id) return;
       const item = state.items.find(it => it.id === id);
       const itemName = item ? item.name : 'this item';
