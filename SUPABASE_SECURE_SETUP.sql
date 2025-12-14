@@ -160,6 +160,19 @@ with check (
   )
 );
 
+drop policy if exists "orders_delete_own" on public.orders;
+create policy "orders_delete_own"
+on public.orders for delete
+to authenticated
+using (
+  created_by = auth.uid()
+  and exists (
+    select 1
+    from public.authorized_users au
+    where au.user_id = auth.uid()
+  )
+);
+
 create index if not exists orders_created_by_idx on public.orders (created_by);
 create index if not exists orders_created_at_idx on public.orders (created_at desc);
 
