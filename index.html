@@ -301,15 +301,13 @@
 				      #invTable tbody tr[data-id] td[data-col="qty"]::before{ content:''; display:none; }
 
 				      #invTable tbody tr[data-id] td[data-col="name"] .cell-val{ font-weight:900; }
-				      #invTable tbody tr[data-id] td[data-col="desc"] .cell-val{ color:var(--muted); }
 				      #invTable tbody tr[data-id] td[data-col="desc"] .cell-val{
-				        white-space:normal;
-				        word-break:break-word;
-				        hyphens:auto;
-		        display:-webkit-box;
-		        -webkit-box-orient:vertical;
-		        -webkit-line-clamp:2;
-		        overflow:hidden;
+				        color:var(--muted);
+				        font-size:12px;
+				        white-space:nowrap;
+				        overflow:hidden;
+				        text-overflow:ellipsis;
+				        display:block;
 		      }
 
 			      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
@@ -1112,15 +1110,11 @@
 	      box-shadow:0 0 16px rgba(34,197,94,0.35);
 	      transition: width 120ms ease;
 	    }
-	    .report-order-badge{
-	      margin:12px auto 0;
-	      cursor:default;
-	      user-select:none;
-	      max-width: fit-content;
-	    }
-	    .report-order-badge .order-counter-hint{
-	      opacity:0.85;
-	      font-size:9px;
+	    .report-pill-container{
+	      position:static;
+	      margin:12px 0 0;
+	      padding:0;
+	      background:none;
 	    }
 		    .report-section{
 		      margin-top:14px;
@@ -1461,45 +1455,51 @@
       gap:12px;
       min-width:0;
     }
-    .order-counter-badge{
-      grid-column:2;
-      justify-self:center;
+    /* Main app order pill - positioned below totals, sticky */
+    .order-pill-container{
+      position:sticky;
+      top:0;
+      z-index:15;
       display:flex;
-      flex-direction:column;
+      justify-content:center;
+      padding:10px 0;
+      background:linear-gradient(to bottom, var(--bg) 60%, transparent 100%);
+    }
+    .order-pill{
+      width:75%;
+      max-width:400px;
+      display:flex;
       align-items:center;
-      gap:1px;
+      justify-content:center;
+      gap:8px;
       background:#22c55e;
       color:#fff;
       font-weight:600;
-      padding:4px 10px;
-      border-radius:10px;
+      padding:12px 20px;
+      border-radius:14px;
       border:none;
       cursor:pointer;
-      box-shadow: 0 0 10px rgba(34,197,94,0.4), 0 2px 6px rgba(0,0,0,0.3);
+      box-shadow: 0 0 16px rgba(34,197,94,0.5), 0 4px 12px rgba(0,0,0,0.3);
       transition: transform 150ms ease, box-shadow 150ms ease;
       -webkit-tap-highlight-color: transparent;
     }
-    .order-counter-badge:active{
-      transform: scale(0.95);
+    .order-pill:active{
+      transform: scale(0.97);
     }
-    .order-counter-top{
-      display:flex;
-      align-items:center;
-      gap:4px;
-    }
-    .order-counter-value{
-      font-size:14px;
+    .order-pill-value{
+      font-size:20px;
       font-weight:700;
     }
-    .order-counter-label{
-      font-size:11px;
-      opacity:0.9;
+    .order-pill-label{
+      font-size:15px;
+      font-weight:600;
     }
-    .order-counter-hint{
-      font-size:8px;
-      opacity:0.75;
+    .order-pill-hint{
+      font-size:11px;
+      opacity:0.8;
       text-transform:uppercase;
       letter-spacing:0.3px;
+      margin-left:auto;
     }
     .menu-backdrop{
       display:none;
@@ -1560,13 +1560,6 @@
             <img class="title-logo" src="./assets/oakley/logo/oakley-logo-horizontal-h128.png" alt="Oakley Services" />
           </div>
         </div>
-        <button class="order-counter-badge" id="orderCounterBadge" data-order-reset aria-label="Shopping Cart (tap to clear selected items)" style="display:none;">
-          <div class="order-counter-top">
-            <span class="order-counter-value" id="orderCounterValue">0</span>
-            <span class="order-counter-label">Items Added</span>
-          </div>
-          <span class="order-counter-hint">Shopping Cart</span>
-        </button>
         <div class="header-right">
         <div class="profile-menu">
           <button class="profile-btn" id="profileBtn" aria-label="Account menu" aria-expanded="false">
@@ -1670,6 +1663,14 @@
 	        <span id="totalInStock" class="muted">In Stock: 0</span>
 	        <span id="totalLowStock" class="muted">Low Stock: 0</span>
 	        <span id="totalQty" class="muted">Total Qty: 0</span>
+	      </div>
+
+	      <div class="order-pill-container" id="orderPillContainer" style="display:none;">
+	        <button class="order-pill" id="orderPill" data-order-reset aria-label="Shopping Cart (tap to clear selected items)">
+	          <span class="order-pill-value" id="orderPillValue">0</span>
+	          <span class="order-pill-label">Items in Cart</span>
+	          <span class="order-pill-hint">tap to clear</span>
+	        </button>
 	      </div>
 
 	      <div class="scroll" id="tableWrap">
@@ -2001,13 +2002,13 @@
 				        <div class="report-metric"><div class="muted">Total Qty</div><div class="val" id="reportMetricTotalQty">0</div></div>
 				      </div>
 
-				      <button class="order-counter-badge report-order-badge" id="reportOrderBadge" data-order-reset role="status" aria-live="polite" aria-label="Clear shopping cart selections" style="display:none;">
-				        <div class="order-counter-top">
-				          <span class="order-counter-value" id="reportOrderCount">0</span>
-				          <span class="order-counter-label">Items Added</span>
-				        </div>
-				        <span class="order-counter-hint">Tap to Reset</span>
-				      </button>
+				      <div class="order-pill-container report-pill-container" id="reportOrderPillContainer" style="display:none;">
+				        <button class="order-pill" id="reportOrderBadge" data-order-reset role="status" aria-live="polite" aria-label="Clear shopping cart selections">
+				          <span class="order-pill-value" id="reportOrderCount">0</span>
+				          <span class="order-pill-label">Items in Cart</span>
+				          <span class="order-pill-hint">tap to clear</span>
+				        </button>
+				      </div>
 		
 				      <details class="report-section" id="reportLowStockSection">
 				        <summary class="report-summary">
@@ -4865,16 +4866,19 @@ function emptyStateHtml(){
 	    function updateReportOrderBadge(){
 	      const modal = $('reportModal');
 	      if(!modal || modal.getAttribute('aria-hidden') !== 'false') return;
-	      const badge = $('reportOrderBadge');
+	      const pillContainer = $('reportOrderPillContainer');
+	      const pill = $('reportOrderBadge');
 	      const valueEl = $('reportOrderCount');
-	      if(!badge || !valueEl) return;
+	      if(!pillContainer || !pill || !valueEl) return;
 	      const ord = orderState();
 	      const count = Array.isArray(ord.lines) ? ord.lines.length : 0;
 	      if(count > 0){
-	        badge.style.display = 'flex';
+	        pillContainer.style.display = 'flex';
 	        valueEl.textContent = String(count);
+	        const labelEl = pill.querySelector('.order-pill-label');
+	        if(labelEl) labelEl.textContent = count === 1 ? 'Item in Cart' : 'Items in Cart';
 	      }else{
-	        badge.style.display = 'none';
+	        pillContainer.style.display = 'none';
 	        valueEl.textContent = '0';
 	      }
 	    }
@@ -5307,16 +5311,19 @@ function emptyStateHtml(){
     function updateOrderCounterBadge(){
       const ord = orderState();
       const count = ord.lines.length;
-      const badge = $('orderCounterBadge');
-      const valueEl = $('orderCounterValue');
-      if(!badge) return;
-      if(count > 0){
-        badge.style.display = 'flex';
-        if(valueEl) valueEl.textContent = String(count);
-        const labelEl = badge.querySelector('.order-counter-label');
-        if(labelEl) labelEl.textContent = count === 1 ? 'Item Added' : 'Items Added';
-      }else{
-        badge.style.display = 'none';
+      // Update new main pill (below totals)
+      const pillContainer = $('orderPillContainer');
+      const pillValue = $('orderPillValue');
+      const pill = $('orderPill');
+      if(pillContainer){
+        if(count > 0){
+          pillContainer.style.display = 'flex';
+          if(pillValue) pillValue.textContent = String(count);
+          const labelEl = pill && pill.querySelector('.order-pill-label');
+          if(labelEl) labelEl.textContent = count === 1 ? 'Item in Cart' : 'Items in Cart';
+        }else{
+          pillContainer.style.display = 'none';
+        }
       }
       try{ syncReportOrderIndicators(); }catch(e){}
     }
