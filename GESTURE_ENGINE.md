@@ -16,7 +16,7 @@ Desktop behavior is out of scope.
 - Smooth, elastic, finger-tracked animation
 - Progressive icon scale + fade
 - Directional intent detection
-- Velocity + distance-based action commit
+- Velocity-based open/close + distance-based commit
 - Zero accidental triggers
 - GPU-accelerated (60fps)
 
@@ -59,10 +59,11 @@ Icons are **inline horizontally**, vertically centered to the card.
 
 ### 3.1 Action Button Styling
 
-- Action buttons are **full-height** behind the card (nearly as tall as the card surface)
-- Buttons must be **high-contrast, vibrant colors** (not dark-mode UI gray):
-  - **Low Stock**: alert yellow/amber
-  - **Edit**: bright green
+- Action buttons are **full-height** behind the card
+- SVG icons should feel **card-height** (wide buttons + large icons)
+- Use **neutral button backgrounds** and **high-contrast stroke colors** (no per-action background fills):
+  - **Low Stock**: alert yellow/amber stroke
+  - **Edit**: bright green stroke
 
 ### 3.2 Sequential Icon Reveal (No “Leak”)
 
@@ -83,10 +84,14 @@ Recommended stagger:
 
 ```js
 const REVEAL_PX = 48; // icons begin appearing
-const SNAP_PX = 96; // tray snaps open
-const COMMIT_PX = 144; // auto-trigger Edit
-const MAX_PX = 168; // elastic clamp
+const SNAP_PX = 192; // tray snaps open
+const COMMIT_PX = 288; // auto-trigger Edit
+const MAX_PX = 336; // elastic clamp
 ```
+
+Commit rule:
+
+- **Edit auto-commit is distance-based only**: require `abs(swipeX) >= COMMIT_PX` (no velocity short-circuit).
 
 ---
 
@@ -311,9 +316,9 @@ const iOS_GESTURE_CONFIG = {
   // Gesture thresholds
   thresholds: {
     REVEAL_PX: 48,
-    SNAP_PX: 96,
-    COMMIT_PX: 144,
-    MAX_PX: 168,
+    SNAP_PX: 192,
+    COMMIT_PX: 288,
+    MAX_PX: 336,
   },
 
   // Physics
