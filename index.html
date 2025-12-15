@@ -74,6 +74,9 @@
       justify-content:center;
     }
     .btn.primary{background:var(--accent);color:#06121f;border-color:transparent}
+    .btn.danger{background:#2a1212;color:#fff;border-color:#5a1c1c}
+    .btn.danger:hover{background:#351414}
+    .edit-footer .btn.danger{ margin-right:auto }
     .btn:disabled{ opacity:.55; cursor:not-allowed }
     .muted{color:var(--muted);font-size:12px}
     .time{font-size:12px;color:var(--muted)}
@@ -139,6 +142,11 @@
 				        0 0 0 1px rgba(255,255,255,0.08),
 				        0 0 10px rgba(135,245,255,0.35);
 				    }
+				    /* Hidden by default (mobile-only UI elements) */
+				    .card-leds,
+				    .card-tray{
+				      display:none;
+				    }
 				    @media (hover: hover) and (pointer: fine){
 				      #invTable tbody tr[data-id]{
 				        transition: filter 160ms ease;
@@ -153,7 +161,7 @@
 				      }
 				    }
 			    /* Mobile table layout: stack fields vertically per record */
-				    @media (max-width: 768px){
+				    @media (max-width: 768px), (pointer: coarse){
 				      #invTable thead{ display:none; }
 				      #invTable tbody tr[data-id]{
 			        position:relative;
@@ -165,6 +173,7 @@
 			        background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
 			        box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
 			        margin:0 0 8px 0;
+			        touch-action: pan-y;
 			        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 			        will-change: transform, box-shadow;
 			      }
@@ -202,13 +211,12 @@
 			      #invTable tbody tr[data-id] td[data-col]{
 			        padding:6px 0;
 			      }
-				      /* Indent left-aligned fields to avoid the absolute checkbox */
-				      #invTable tbody tr[data-id] td[data-col="desc"]{ padding-left:44px; }
 				      #invTable tbody tr[data-id] td[data-col="name"]{
-				        padding-left:44px;
-				        padding-right:110px; /* room for top-right actions */
-				        min-height:44px;
+				        padding-left:0;
+				        padding-right:0;
+				        min-height:0;
 				      }
+				      #invTable tbody tr[data-id] td[data-col="desc"]{ padding-left:0; }
 				      #invTable tbody tr[data-id] td[data-col]::before{
 				        display:block;
 				        font-size:10px;
@@ -245,58 +253,98 @@
 			      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
 			      #invTable tbody tr[data-id] td[data-col="qty"]::before{ display:block; margin:0 0 4px 0; text-align:center; }
 
-      #invTable tbody tr[data-id] td.sel{
-        position:absolute;
-        left:10px;
-        top:50%;
-        transform:translateY(-50%);
-        width:42px;
-        padding:0;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-      }
-			      #invTable tbody tr[data-id] td.actions{
+			      /* Mobile UX v2: no checkbox selection + no inline action buttons */
+			      #invTable tbody tr[data-id] td.sel{ display:none !important; }
+			      #invTable tbody tr[data-id] td.actions{ display:none !important; }
+
+			      /* Mobile UX v2: order/override LEDs */
+			      #invTable tbody tr[data-id] .card-leds{
 			        position:absolute;
-			        right:10px;
 			        top:10px;
-			        width:auto;
-			        padding:0;
+			        right:10px;
+			        display:flex;
+			        gap:6px;
+			        pointer-events:none;
 			        z-index:2;
 			      }
-		      #invTable tbody tr[data-id] td.actions .actions-wrap{
-		        display:flex;
-		        gap:8px;
-		        align-items:center;
-		        justify-content:flex-end;
-		      }
-      #invTable tbody tr[data-id] td.sel input[type="checkbox"]{
-        width:20px;
-        height:20px;
-      }
-		      #invTable tbody tr[data-id] td.actions .row-delete-btn,
-		      #invTable tbody tr[data-id] td.actions .row-stock-btn{
-		        width:44px;
-		        height:44px;
-		        padding:10px;
-		        border-radius:10px;
-		        border:none;
-		        background:transparent;
-		        color:#fff;
-		      }
-			      #invTable tbody tr[data-id] td.actions .row-delete-btn:hover{
-			        background:rgba(255,80,80,0.18);
-			        color:#ff6b6b;
+			      #invTable tbody tr[data-id] .card-led{
+			        width:8px;
+			        height:8px;
+			        border-radius:50%;
+			        background:rgba(148,163,184,0.55); /* muted/off */
+			        border:1px solid rgba(0,0,0,0.65);
+			        box-shadow:0 0 0 1px rgba(255,255,255,0.08);
 			      }
-			      #invTable tbody tr[data-id] td.actions .row-stock-btn:hover{
-			        background:rgba(135,245,255,0.14);
-			        color:#87F5FF;
+			      #invTable tbody tr[data-id] .card-led.card-led--on{ filter:saturate(1.15); }
+			      #invTable tbody tr[data-id] .card-led.card-led--order.card-led--on{
+			        background:#22c55e;
+			        box-shadow: 0 0 10px rgba(34,197,94,0.35), 0 0 0 1px rgba(255,255,255,0.10);
 			      }
+			      #invTable tbody tr[data-id] .card-led.card-led--override.card-led--on{
+			        background:#87F5FF;
+			        box-shadow: 0 0 10px rgba(135,245,255,0.32), 0 0 0 1px rgba(255,255,255,0.10);
+			      }
+
+			      /* Mobile UX v2: swipe tray (Edit + Low Stock only) */
+			      #invTable tbody tr[data-id] .card-tray{
+			        position:absolute;
+			        top:50%;
+			        transform:translateY(-50%);
+			        display:flex;
+			        flex-direction:column;
+			        gap:10px;
+			        opacity:0;
+			        pointer-events:none;
+			        transition: opacity 140ms ease, transform 140ms ease;
+			        z-index:3;
+			      }
+			      #invTable tbody tr[data-id][data-tray-side="left"] .card-tray{
+			        left:10px;
+			        transform:translateY(-50%) translateX(-8px);
+			      }
+			      #invTable tbody tr[data-id][data-tray-side="right"] .card-tray{
+			        right:10px;
+			        transform:translateY(-50%) translateX(8px);
+			      }
+			      #invTable tbody tr[data-id].tray-open .card-tray{
+			        opacity:1;
+			        pointer-events:auto;
+			      }
+			      #invTable tbody tr[data-id].tray-open[data-tray-side="left"] .card-tray{
+			        transform:translateY(-50%) translateX(0);
+			      }
+			      #invTable tbody tr[data-id].tray-open[data-tray-side="right"] .card-tray{
+			        transform:translateY(-50%) translateX(0);
+			      }
+			      #invTable tbody tr[data-id] .card-tray-btn{
+			        width:48px;
+			        height:48px;
+			        border-radius:12px;
+			        border:1px solid var(--border);
+			        background:rgba(16,24,38,0.92);
+			        color:#ffffff;
+			        display:flex;
+			        align-items:center;
+			        justify-content:center;
+			        padding:0;
+			        cursor:pointer;
+			        touch-action:manipulation;
+			        -webkit-appearance:none;
+			        appearance:none;
+			      }
+			      #invTable tbody tr[data-id] .card-tray-btn:active{
+			        background:rgba(26,38,54,0.96);
+			      }
+
+			      /* Mobile UX v2: ensure steppers meet 48×48 target */
+			      .qty-step{ min-width:48px; min-height:48px; }
+			      .qty-stepper--table .qty-step{ min-width:48px; }
 		    }
 		    @media (prefers-reduced-motion: reduce){
 		      #invTable tbody tr[data-id]{ transition:none !important; }
 		      #invTable tbody tr[data-id]::before{ transition:none !important; }
 		      #invTable tbody tr[data-id].scroll-focus{ transform:none !important; }
+		      #invTable tbody tr[data-id] .card-tray{ transition:none !important; }
 		    }
 
     /* Desktop description: keep on one line (dynamic width handles it) */
@@ -1265,13 +1313,14 @@
           </div>
         </div>
         <div id="editItemMsg" class="muted" style="margin-top:10px;"></div>
-      </div>
-      <div class="edit-footer">
-        <button class="btn" id="btnEditItemCancel">Cancel</button>
-        <button class="btn primary" id="btnEditItemSave">Save</button>
-      </div>
-    </div>
-  </div>
+	      </div>
+	      <div class="edit-footer">
+	        <button class="btn danger" id="btnEditItemDelete">Delete</button>
+	        <button class="btn" id="btnEditItemCancel">Cancel</button>
+	        <button class="btn primary" id="btnEditItemSave">Save</button>
+	      </div>
+	    </div>
+	  </div>
 
   <!-- Low stock modal -->
   <div id="lowStockModal" class="modal" aria-hidden="true">
@@ -2486,21 +2535,25 @@ function adjustTitleSize(){
 	  }catch(e){ /* no-op */ }
 	}
 
-	// Mobile scroll "focus" glow: highlight the card nearest the center of the scroll viewport
-	let _centerGlowObs = null;
-	const _centerGlowSet = new Set();
-	let _centerGlowEl = null;
-	let _centerGlowRaf = 0;
-	let _centerGlowBound = false;
+		// Mobile scroll "focus" glow: highlight the card nearest the center of the scroll viewport
+		let _centerGlowObs = null;
+		const _centerGlowSet = new Set();
+		let _centerGlowEl = null;
+		let _centerGlowRaf = 0;
+		let _centerGlowBound = false;
 
-	function isMobileStacked(){
-	  try{ return window.matchMedia && window.matchMedia('(max-width: 768px)').matches; }catch(e){ return false; }
-	}
-	function clearCenteredGlow(){
-	  if(_centerGlowEl){
-	    _centerGlowEl.classList.remove('scroll-focus');
-	    _centerGlowEl = null;
-	  }
+		function isMobileUx(){
+		  try{
+		    if(!window.matchMedia) return false;
+		    return window.matchMedia('(max-width: 768px)').matches || window.matchMedia('(pointer: coarse)').matches;
+		  }catch(e){ return false; }
+		}
+		function isMobileStacked(){ return isMobileUx(); }
+		function clearCenteredGlow(){
+		  if(_centerGlowEl){
+		    _centerGlowEl.classList.remove('scroll-focus');
+		    _centerGlowEl = null;
+		  }
 	}
 	function scheduleCenteredGlowUpdate(){
 	  if(_centerGlowRaf) return;
@@ -2549,6 +2602,7 @@ function adjustTitleSize(){
 	  if(!_centerGlowBound){
 	    _centerGlowBound = true;
 	    wrap.addEventListener('scroll', scheduleCenteredGlowUpdate, { passive: true });
+	    wrap.addEventListener('scroll', ()=>{ try{ closeMobileTray(); }catch(e){} }, { passive: true });
 	  }
 
 	  _centerGlowObs = new IntersectionObserver((entries)=>{
@@ -2574,18 +2628,65 @@ function adjustTitleSize(){
 function tbodyEl(){ return document.querySelector('#invTable tbody'); }
 function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) || null; }
 	function cellEl(tr, col){ return tr?.querySelector(`td[data-col="${col}"]`) || null; }
+	let _openTrayId = '';
+	function setMobileTrayA11y(tr, open){
+	  const tray = tr ? tr.querySelector('.card-tray') : null;
+	  if(!tray) return;
+	  tray.setAttribute('aria-hidden', open ? 'false' : 'true');
+	  tray.querySelectorAll('button.card-tray-btn').forEach(btn=>{
+	    if(open) btn.removeAttribute('tabindex');
+	    else btn.setAttribute('tabindex', '-1');
+	  });
+	}
+	function closeMobileTray(){
+	  if(!_openTrayId) return;
+	  const tr = rowElById(_openTrayId);
+	  if(tr){
+	    tr.classList.remove('tray-open');
+	    try{ delete tr.dataset.traySide; }catch(e){ tr.dataset.traySide = ''; }
+	    setMobileTrayA11y(tr, false);
+	  }
+	  _openTrayId = '';
+	}
+	function openMobileTrayForRow(tr, side){
+	  if(!tr) return;
+	  const id = String(tr.dataset && tr.dataset.id ? tr.dataset.id : '').trim();
+	  if(!id) return;
+	  closeMobileTray();
+	  _openTrayId = id;
+	  tr.dataset.traySide = (side === 'left') ? 'left' : 'right';
+	  tr.classList.add('tray-open');
+	  setMobileTrayA11y(tr, true);
+	}
+	function syncOrderIndicatorForRow(id){
+	  const tr = rowElById(id);
+	  if(!tr) return;
+	  const led = tr.querySelector('.card-led--order');
+	  if(!led) return;
+	  let inOrder = false;
+	  try{
+	    const ord = orderState();
+	    inOrder = !!(ord && Array.isArray(ord.lines) && ord.lines.some(l => l && l.id === id));
+	  }catch(e){}
+	  led.classList.toggle('card-led--on', inOrder);
+	}
 	function syncLowStockOverrideIndicatorForRow(id){
 	  const tr = rowElById(id);
 	  if(!tr) return;
-	  const btn = tr.querySelector('.row-stock-btn');
-	  if(!btn) return;
 	  const item = state.items.find(x => x && x.id === id);
 	  if(!item) return;
 	  const hasLowStockOverride = getItemLowStockQtyOverride(item) !== null;
-	  btn.classList.toggle('has-override', hasLowStockOverride);
-	  const lowStockBtnLabel = hasLowStockOverride ? 'Set low stock qty (override)' : 'Set low stock qty';
-	  btn.setAttribute('aria-label', lowStockBtnLabel);
-	  btn.setAttribute('title', lowStockBtnLabel);
+
+	  const btn = tr.querySelector('.row-stock-btn');
+	  if(btn){
+	    btn.classList.toggle('has-override', hasLowStockOverride);
+	    const lowStockBtnLabel = hasLowStockOverride ? 'Set low stock qty (override)' : 'Set low stock qty';
+	    btn.setAttribute('aria-label', lowStockBtnLabel);
+	    btn.setAttribute('title', lowStockBtnLabel);
+	  }
+
+	  const led = tr.querySelector('.card-led--override');
+	  if(led) led.classList.toggle('card-led--on', hasLowStockOverride);
 	}
 	function qtyCellHTML(it){
 	  const q = toInt(it.qty,0);
@@ -2598,18 +2699,48 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 	    '</div>'
 	  );
 	}
-		function buildRowHTML(it){
-		  const id = escapeHtmlAttr(it.id || '');
-		  const hasLowStockOverride = getItemLowStockQtyOverride(it) !== null;
-		  const lowStockBtnLabel = hasLowStockOverride ? 'Set low stock qty (override)' : 'Set low stock qty';
-		  const lowStockBtnClass = hasLowStockOverride ? 'row-stock-btn has-override' : 'row-stock-btn';
-		  return (
-		    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+id+'"></td>'+
-		    '<td data-col="name"><span class="cell-val">'+escapeHtml(it.name||'')+'</span></td>'+
-		    '<td data-col="desc"><span class="cell-val">'+escapeHtml(it.desc||'')+'</span></td>'+
-			    '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'+
-			    '<td class="actions"><div class="actions-wrap">'+
-			      '<button class="'+lowStockBtnClass+'" data-id="'+id+'" aria-label="'+escapeHtmlAttr(lowStockBtnLabel)+'" title="'+escapeHtmlAttr(lowStockBtnLabel)+'">'+
+			function buildRowHTML(it){
+			  const rawId = String(it && it.id ? it.id : '');
+			  const id = escapeHtmlAttr(rawId);
+			  const hasLowStockOverride = getItemLowStockQtyOverride(it) !== null;
+			  const lowStockBtnLabel = hasLowStockOverride ? 'Set low stock qty (override)' : 'Set low stock qty';
+			  const lowStockBtnClass = hasLowStockOverride ? 'row-stock-btn has-override' : 'row-stock-btn';
+			  const inOrder = (()=> {
+			    try{
+			      const ord = orderState();
+			      return !!(ord && Array.isArray(ord.lines) && rawId && ord.lines.some(l => l && l.id === rawId));
+			    }catch(e){ return false; }
+			  })();
+			  const orderLedClass = inOrder ? 'card-led card-led--order card-led--on' : 'card-led card-led--order';
+			  const overrideLedClass = hasLowStockOverride ? 'card-led card-led--override card-led--on' : 'card-led card-led--override';
+			  return (
+			    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+id+'"></td>'+
+			    '<td data-col="name">'+
+			      '<div class="card-leds" aria-hidden="true">'+
+			        '<span class="'+orderLedClass+'"></span>'+
+			        '<span class="'+overrideLedClass+'"></span>'+
+			      '</div>'+
+			      '<div class="card-tray" aria-hidden="true">'+
+			        '<button type="button" class="card-tray-btn" data-tray-action="edit" tabindex="-1" aria-label="Edit item" title="Edit item">'+
+			          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+			            '<path d="M12 20h9"></path>'+
+			            '<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>'+
+			          '</svg>'+
+			        '</button>'+
+			        '<button type="button" class="card-tray-btn" data-tray-action="lowStock" tabindex="-1" aria-label="Low stock override" title="Low stock override">'+
+			          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+			            '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>'+
+			            '<line x1="12" y1="9" x2="12" y2="13"></line>'+
+			            '<line x1="12" y1="17" x2="12.01" y2="17"></line>'+
+			          '</svg>'+
+			        '</button>'+
+			      '</div>'+
+			      '<span class="cell-val">'+escapeHtml(it.name||'')+'</span>'+
+			    '</td>'+
+			    '<td data-col="desc"><span class="cell-val">'+escapeHtml(it.desc||'')+'</span></td>'+
+				    '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'+
+				    '<td class="actions"><div class="actions-wrap">'+
+				      '<button class="'+lowStockBtnClass+'" data-id="'+id+'" aria-label="'+escapeHtmlAttr(lowStockBtnLabel)+'" title="'+escapeHtmlAttr(lowStockBtnLabel)+'">'+
 		        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
 		          '<line x1="4" y1="21" x2="4" y2="14"></line>'+
 		          '<line x1="4" y1="10" x2="4" y2="3"></line>'+
@@ -2774,6 +2905,7 @@ function emptyStateHtml(){
 	  const vQty = getTotalsValue('totalQty'); if(vQty !== null) setTotalsMetric('totalQty','qty', vQty);
 	}
 		    function renderTable(){
+		      try{ closeMobileTray(); }catch(e){}
 		      applySortIndicators();
 		      const tbody=$('#invTable').querySelector('tbody'); tbody.innerHTML='';
 		      const term=(state._filter||'').trim().toLowerCase();
@@ -2811,6 +2943,7 @@ function emptyStateHtml(){
 	    }
 
     function enableInlineEditing(){
+      if(isMobileUx()) return;
       const tbody=$('#invTable').querySelector('tbody');
       tbody.querySelectorAll('td').forEach(td=>{
         if(td.classList.contains('sel')) return; // skip checkbox column
@@ -2843,20 +2976,24 @@ function emptyStateHtml(){
         );
       }catch(e){ return false; }
     }
-    function setEditHint(){
-      const el = $('editHint');
-      if(!el) return;
-      const pref = prefersModalEditing();
-      if(pref){
-        el.innerHTML = 'Tap any cell to edit; use <b>Save</b> to apply. Use <b>+/-</b> in Qty for quick changes.';
-      }else{
-        el.innerHTML = 'Tap any cell to edit inline; <kbd>Enter</kbd> saves, <kbd>Esc</kbd> cancels.';
-      }
-      if(_lastEditHintPref !== null && pref !== _lastEditHintPref){
-        try{ renderTable(); }catch(e){}
-      }
-      _lastEditHintPref = pref;
-    }
+	    function setEditHint(){
+	      const el = $('editHint');
+	      if(!el) return;
+	      const mobileUx = isMobileUx();
+	      const pref = prefersModalEditing();
+	      const mode = mobileUx ? 'mobile' : (pref ? 'modal' : 'inline');
+	      if(mode === 'mobile'){
+	        el.innerHTML = 'Tap a card to add/remove it from the order. Swipe for <b>Edit</b> and <b>Low Stock</b>. Use <b>+/-</b> for Qty.';
+	      }else if(mode === 'modal'){
+	        el.innerHTML = 'Tap any cell to edit; use <b>Save</b> to apply. Use <b>+/-</b> in Qty for quick changes.';
+	      }else{
+	        el.innerHTML = 'Tap any cell to edit inline; <kbd>Enter</kbd> saves, <kbd>Esc</kbd> cancels.';
+	      }
+	      if(_lastEditHintPref !== null && mode !== _lastEditHintPref){
+	        try{ renderTable(); }catch(e){}
+	      }
+	      _lastEditHintPref = mode;
+	    }
 
     function setEditItemMessage(msg){
       const el = $('editItemMsg'); if(!el) return;
@@ -2929,9 +3066,9 @@ function emptyStateHtml(){
       throw Error('Unknown field');
     }
 
-    async function saveEditItemModal(){
-      if(!_editItemCtx) return;
-      if(!requireOnline()) return;
+	    async function saveEditItemModal(){
+	      if(!_editItemCtx) return;
+	      if(!requireOnline()) return;
 
       const id = _editItemCtx.id;
       const name = $('editItemName') ? $('editItemName').value : '';
@@ -2954,14 +3091,50 @@ function emptyStateHtml(){
       }finally{
         if(btnSave) btnSave.disabled = false;
         if(btnCancel) btnCancel.disabled = false;
-      }
-    }
+	      }
+	    }
+	
+	    async function deleteEditItemModal(){
+	      if(!_editItemCtx) return;
+	      if(!requireOnline()) return;
+	
+	      const id = _editItemCtx.id;
+	      const item = state.items.find(x=> x && x.id === id);
+	      const itemName = item && item.name ? String(item.name) : 'this item';
+	      if(!(await openConfirmModal('Delete item?', `Delete "${itemName}"?`, { okText:'Delete', cancelText:'Cancel' }))) return;
+	
+	      const btnDelete = $('btnEditItemDelete');
+	      const btnSave = $('btnEditItemSave');
+	      const btnCancel = $('btnEditItemCancel');
+	      if(btnDelete) btnDelete.disabled = true;
+	      if(btnSave) btnSave.disabled = true;
+	      if(btnCancel) btnCancel.disabled = true;
+	      setEditItemMessage('');
+	
+	      try{
+	        await sbDeleteMany([id]);
+	        try{ removeOrderLine(id); }catch(e){}
+	        await sbLoadSnapshot();
+	        closeEditItemModal();
+	        toast('Item deleted');
+	      }catch(e){
+	        const msg = (e && e.message) ? e.message : 'Delete failed';
+	        setEditItemMessage(msg);
+	        toast(msg);
+	      }finally{
+	        if(btnDelete) btnDelete.disabled = false;
+	        if(btnSave) btnSave.disabled = false;
+	        if(btnCancel) btnCancel.disabled = false;
+	      }
+	    }
 
-    // Modal editor events
-    const btnEditItemCancel = $('btnEditItemCancel');
-    if(btnEditItemCancel) btnEditItemCancel.addEventListener('click', closeEditItemModal);
-    const btnEditItemSave = $('btnEditItemSave');
-    if(btnEditItemSave) btnEditItemSave.addEventListener('click', saveEditItemModal);
+	    // Modal editor events
+	    const btnEditItemDelete = $('btnEditItemDelete');
+	    if(btnEditItemDelete) btnEditItemDelete.addEventListener('click', deleteEditItemModal);
+	    const btnEditItemCancel = $('btnEditItemCancel');
+	    if(btnEditItemCancel) btnEditItemCancel.addEventListener('click', closeEditItemModal);
+	    const btnEditItemSave = $('btnEditItemSave');
+	    if(btnEditItemSave) btnEditItemSave.addEventListener('click', saveEditItemModal);
     const btnQtyMinus = $('editItemQtyMinus');
     if(btnQtyMinus) btnQtyMinus.addEventListener('click', ()=> bumpEditItemQty(-1));
     const btnQtyPlus = $('editItemQtyPlus');
@@ -3269,12 +3442,251 @@ function emptyStateHtml(){
 		        repositionRowByQty(id);
 		        queueQtyCommit(id, newQty);
 		      });
+
+      // Mobile UX v2: tray actions (Edit + Low Stock)
+      invTable.addEventListener('click', (e)=>{
+        const trayBtn = e.target.closest('button.card-tray-btn');
+        if(!trayBtn) return;
+        const tr = trayBtn.closest('tr[data-id]');
+        const id = tr && tr.dataset ? String(tr.dataset.id || '').trim() : '';
+        const action = trayBtn.dataset ? String(trayBtn.dataset.trayAction || '').trim() : '';
+        if(!id || !action) return;
+        e.preventDefault();
+        e.stopPropagation();
+        closeMobileTray();
+        if(!requireOnline()) return;
+        if(action === 'edit'){ openEditItemModal(id); return; }
+        if(action === 'lowStock'){ openLowStockModal(id); return; }
+      });
+
+      // Mobile UX v2: card tap (add to order) + swipe to reveal tray
+      let _mobGesture = null;
+      function resetMobGesture(){ _mobGesture = null; }
+      function isAnyModalOpen(){
+        try{ return !!document.querySelector('.modal[aria-hidden="false"]'); }catch(e){ return false; }
+      }
+      function findTouchById(list, id){
+        try{
+          for(let i=0;i<list.length;i++){
+            const t = list[i];
+            if(t && t.identifier === id) return t;
+          }
+        }catch(e){}
+        return null;
+      }
+
+      invTable.addEventListener('pointerdown', (e)=>{
+        if(!isMobileUx()) return;
+        if(e && e.pointerType === 'touch') return; // prefer touch events for broader mobile compatibility
+        if(isAnyModalOpen()) return;
+
+        // If a tray is open, first tap anywhere outside the tray just closes it.
+        if(_openTrayId){
+          const openTr = rowElById(_openTrayId);
+          if(openTr){
+            const inTray = !!e.target.closest('.card-tray');
+            const sameRow = !!(e.target.closest('tr[data-id]') === openTr);
+            if(!inTray){
+              closeMobileTray();
+              if(sameRow) return;
+              return;
+            }
+            return;
+          }
+          // Stale tray state (row re-rendered)
+          closeMobileTray();
+        }
+
+        const tr = e.target.closest('tr[data-id]');
+        if(!tr) return;
+        const id = String(tr.dataset.id || '').trim();
+        if(!id) return;
+
+        // Highest-priority interaction: qty steppers (disable swipe/tap-to-add)
+        if(e.target.closest('.qty-stepper--table')) return;
+
+        // Ignore gestures starting from any other interactive control.
+        if(e.target.closest('button, input, textarea, select, a')) return;
+
+        _mobGesture = {
+          id,
+          tr,
+          kind: 'pointer',
+          pointerId: e.pointerId,
+          startX: e.clientX,
+          startY: e.clientY,
+          moved: false,
+          intent: null, // 'h' | 'v'
+        };
+        try{ tr.setPointerCapture(e.pointerId); }catch(e){}
+      }, { passive:true });
+
+      invTable.addEventListener('pointermove', (e)=>{
+        if(!isMobileUx()) return;
+        if(!_mobGesture) return;
+        if(_mobGesture.kind !== 'pointer') return;
+        if(e.pointerId !== _mobGesture.pointerId) return;
+        if(isAnyModalOpen()){ resetMobGesture(); return; }
+
+        const dx = e.clientX - _mobGesture.startX;
+        const dy = e.clientY - _mobGesture.startY;
+        const ax = Math.abs(dx);
+        const ay = Math.abs(dy);
+
+        // Any meaningful movement cancels a "tap".
+        if(ax > 8 || ay > 8) _mobGesture.moved = true;
+
+        if(!_mobGesture.intent){
+          if(ax < 10 && ay < 10) return;
+          _mobGesture.intent = (ax >= ay) ? 'h' : 'v';
+          if(_mobGesture.intent === 'v'){ resetMobGesture(); return; }
+        }
+        if(_mobGesture.intent !== 'h') return;
+
+        // Swipe: reveal tray (either direction)
+        if(ax > 26){
+          const side = (dx < 0) ? 'right' : 'left';
+          openMobileTrayForRow(_mobGesture.tr, side);
+          resetMobGesture();
+          return;
+        }
+      }, { passive:true });
+
+      invTable.addEventListener('pointerup', (e)=>{
+        if(!isMobileUx()) return;
+        if(!_mobGesture) return;
+        if(_mobGesture.kind !== 'pointer') return;
+        if(e.pointerId !== _mobGesture.pointerId) return;
+        if(isAnyModalOpen()){ resetMobGesture(); return; }
+
+        const { id, tr, moved } = _mobGesture;
+        resetMobGesture();
+        if(!id || !tr || moved) return;
+
+        const item = state.items.find(x => x && x.id === id);
+        if(!item) return;
+        const ord = orderState();
+        const exists = !!(ord && Array.isArray(ord.lines) && ord.lines.some(l => l && l.id === id));
+        if(exists) removeOrderLine(id);
+        else upsertOrderLineFromItem(item, 1);
+      }, { passive:true });
+
+      invTable.addEventListener('pointercancel', ()=>{
+        if(!isMobileUx()) return;
+        resetMobGesture();
+      }, { passive:true });
+
+      invTable.addEventListener('touchstart', (e)=>{
+        if(!isMobileUx()) return;
+        if(isAnyModalOpen()) return;
+        if(!e || !e.target) return;
+
+        // If a tray is open, first tap anywhere outside the tray just closes it.
+        if(_openTrayId){
+          const openTr = rowElById(_openTrayId);
+          if(openTr){
+            const inTray = !!e.target.closest('.card-tray');
+            const sameRow = !!(e.target.closest('tr[data-id]') === openTr);
+            if(!inTray){
+              closeMobileTray();
+              if(sameRow) return;
+              return;
+            }
+            return;
+          }
+          closeMobileTray();
+        }
+
+        const tr = e.target.closest('tr[data-id]');
+        if(!tr) return;
+        const id = String(tr.dataset.id || '').trim();
+        if(!id) return;
+
+        // Highest-priority interaction: qty steppers (disable swipe/tap-to-add)
+        if(e.target.closest('.qty-stepper--table')) return;
+
+        // Ignore gestures starting from any other interactive control.
+        if(e.target.closest('button, input, textarea, select, a')) return;
+
+        const t = (e.touches && e.touches[0]) ? e.touches[0] : null;
+        if(!t) return;
+        _mobGesture = {
+          id,
+          tr,
+          kind: 'touch',
+          touchId: t.identifier,
+          startX: t.clientX,
+          startY: t.clientY,
+          moved: false,
+          intent: null, // 'h' | 'v'
+        };
+      }, { passive:true });
+
+      invTable.addEventListener('touchmove', (e)=>{
+        if(!isMobileUx()) return;
+        if(!_mobGesture) return;
+        if(_mobGesture.kind !== 'touch') return;
+        if(isAnyModalOpen()){ resetMobGesture(); return; }
+
+        const t = findTouchById(e.touches || [], _mobGesture.touchId);
+        if(!t) return;
+
+        const dx = t.clientX - _mobGesture.startX;
+        const dy = t.clientY - _mobGesture.startY;
+        const ax = Math.abs(dx);
+        const ay = Math.abs(dy);
+
+        // Any meaningful movement cancels a "tap".
+        if(ax > 8 || ay > 8) _mobGesture.moved = true;
+
+        if(!_mobGesture.intent){
+          if(ax < 10 && ay < 10) return;
+          _mobGesture.intent = (ax >= ay) ? 'h' : 'v';
+          if(_mobGesture.intent === 'v'){ resetMobGesture(); return; }
+        }
+        if(_mobGesture.intent !== 'h') return;
+
+        // Horizontal swipe: prevent scroll once locked.
+        try{ e.preventDefault(); }catch(e){}
+
+        if(ax > 26){
+          const side = (dx < 0) ? 'right' : 'left';
+          openMobileTrayForRow(_mobGesture.tr, side);
+          resetMobGesture();
+        }
+      }, { passive:false });
+
+      invTable.addEventListener('touchend', (e)=>{
+        if(!isMobileUx()) return;
+        if(!_mobGesture) return;
+        if(_mobGesture.kind !== 'touch') return;
+        if(isAnyModalOpen()){ resetMobGesture(); return; }
+        const ended = findTouchById(e.changedTouches || [], _mobGesture.touchId);
+        if(!ended) return;
+
+        const { id, tr, moved } = _mobGesture;
+        resetMobGesture();
+        if(!id || !tr || moved) return;
+
+        const item = state.items.find(x => x && x.id === id);
+        if(!item) return;
+        const ord = orderState();
+        const exists = !!(ord && Array.isArray(ord.lines) && ord.lines.some(l => l && l.id === id));
+        if(exists) removeOrderLine(id);
+        else upsertOrderLineFromItem(item, 1);
+      }, { passive:true });
+
+      invTable.addEventListener('touchcancel', ()=>{
+        if(!isMobileUx()) return;
+        resetMobGesture();
+      }, { passive:true });
 		    }
 
 	    function startCellEdit(td, ev){
 	      // If the user tapped a control inside the cell, don't open an editor.
 	      if(ev && ev.target && ev.target.closest('button, input, textarea, select, a')) return;
 	      if(td.querySelector('input')) return;
+	      if(isMobileUx()) return;
 	      const col=td.getAttribute('data-col'); if(!col) return;
 	      const tr=td.closest('tr'); const id=tr?.dataset?.id; if(!id) return;
 	      const it=state.items.find(x=> x.id===id); if(!it) return;
@@ -4036,18 +4448,20 @@ function emptyStateHtml(){
       const line = ord.lines.find(l => l.id === id);
       return line ? toInt(line.qty, 0) : 0;
     }
-    function upsertOrderLineFromItem(it, qty = 1){
-      const ord = orderState();
-      if(!it || !it.id) return false;
-      if(ord.lines.some(l => l.id === it.id)) return false;
-      ord.lines.push({ id: it.id, name: String(it.name||'').trim(), desc: String(it.desc||'').trim(), qty: toInt(qty, 1) });
-      ord.lines.sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
-      return true;
-    }
-    function removeOrderLine(id){
-      const ord = orderState();
-      ord.lines = ord.lines.filter(l => l.id !== id);
-    }
+	    function upsertOrderLineFromItem(it, qty = 1){
+	      const ord = orderState();
+	      if(!it || !it.id) return false;
+	      if(ord.lines.some(l => l.id === it.id)) return false;
+	      ord.lines.push({ id: it.id, name: String(it.name||'').trim(), desc: String(it.desc||'').trim(), qty: toInt(qty, 1) });
+	      ord.lines.sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
+	      try{ syncOrderIndicatorForRow(String(it.id)); }catch(e){}
+	      return true;
+	    }
+	    function removeOrderLine(id){
+	      const ord = orderState();
+	      ord.lines = ord.lines.filter(l => l.id !== id);
+	      try{ syncOrderIndicatorForRow(String(id)); }catch(e){}
+	    }
     function setOrderQty(id, qty){
       const ord = orderState();
       const line = ord.lines.find(l => l.id === id);
@@ -4928,13 +5342,13 @@ function emptyStateHtml(){
         btn.disabled = !(okEmail && okLines);
       }
     }
-    function openOrderModal(opts = {}){
-	      const ord = orderState();
-	      const addSelected = !(opts && Object.prototype.hasOwnProperty.call(opts, 'addSelected') && opts.addSelected === false);
-	      if(addSelected){
-	        const selectedIds = Array.from(document.querySelectorAll('.rowChk:checked'))
-	          .map(cb => cb.dataset.id)
-	          .filter(Boolean);
+	    function openOrderModal(opts = {}){
+		      const ord = orderState();
+		      const addSelected = !isMobileUx() && !(opts && Object.prototype.hasOwnProperty.call(opts, 'addSelected') && opts.addSelected === false);
+		      if(addSelected){
+		        const selectedIds = Array.from(document.querySelectorAll('.rowChk:checked'))
+		          .map(cb => cb.dataset.id)
+		          .filter(Boolean);
 
 	        let added = 0;
 	        for(const id of selectedIds){
@@ -5613,13 +6027,14 @@ function emptyStateHtml(){
     el.style.display = 'none';
     return;
   }
-  // Show and make it accessible
-  el.style.display = 'block';
-  el.setAttribute('aria-hidden', 'false');
-
-  // Optional: auto-focus a sensible control
-  if (id === 'addOneModal') {
-    const inp = document.getElementById('addName');
+	  // Show and make it accessible
+	  el.style.display = 'block';
+	  el.setAttribute('aria-hidden', 'false');
+	  try{ closeMobileTray(); }catch(e){}
+	
+	  // Optional: auto-focus a sensible control
+	  if (id === 'addOneModal') {
+	    const inp = document.getElementById('addName');
     if (inp) setTimeout(() => inp.focus(), 0);
   } else if (id === 'pasteModal') {
     const ta = document.getElementById('pasteArea');
@@ -5777,17 +6192,24 @@ function emptyStateHtml(){
       // Keep the status fresh
       window.addEventListener('online', checkServerHealth);
       window.addEventListener('offline', checkServerHealth);
-      setInterval(checkServerHealth, 15000);
-
-      // Responsive: adjust desc column width on viewport change
-	      window.addEventListener('resize', ()=> { try{ requestAnimationFrame(()=>{ adjustDescColumnWidth(); adjustTitleSize(); setEditHint(); refreshTotalsLabels(); refreshCenteredGlowTargets(); scheduleCenteredGlowUpdate(); }); }catch(e){} });
-
-      // Close modals when clicking outside (on backdrop)
-      document.addEventListener('click', (e)=>{
-        const modal = e.target.closest('.modal');
-        if(modal && e.target === modal){
-          if(modal.id === 'editItemModal') return;
-          show(modal.id, false);
+	      setInterval(checkServerHealth, 15000);
+	
+	      // Responsive: adjust desc column width on viewport change
+		      window.addEventListener('resize', ()=> { try{ requestAnimationFrame(()=>{ closeMobileTray(); adjustDescColumnWidth(); adjustTitleSize(); setEditHint(); refreshTotalsLabels(); refreshCenteredGlowTargets(); scheduleCenteredGlowUpdate(); }); }catch(e){} });
+	
+	      // Close modals when clicking outside (on backdrop)
+	      document.addEventListener('click', (e)=>{
+	        try{
+	          if(isMobileUx() && _openTrayId){
+	            const inTray = !!e.target.closest('.card-tray');
+	            const inTable = !!e.target.closest('#invTable');
+	            if(!inTray && !inTable) closeMobileTray();
+	          }
+	        }catch(e){}
+	        const modal = e.target.closest('.modal');
+	        if(modal && e.target === modal){
+	          if(modal.id === 'editItemModal') return;
+	          show(modal.id, false);
         }
       });
 
