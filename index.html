@@ -242,26 +242,6 @@
 				      #invTable tbody tr[data-id].snap-elastic{
 				        transition: transform 380ms cubic-bezier(0.175, 0.885, 0.32, 1.175) !important;
 				      }
-				      #invTable tbody tr[data-id]::before{
-				        content:'';
-				        position:absolute;
-				        inset:-16px;
-				        border-radius:22px;
-				        background:
-				          radial-gradient(ellipse calc(var(--spot-rx) + 42px) calc(var(--spot-ry) + 64px) at var(--spot-x) var(--spot-y),
-				            rgba(135,245,255,0.22) 0%,
-				            rgba(135,245,255,0.10) 24%,
-				            rgba(135,245,255,0.0) 60%),
-				          radial-gradient(ellipse calc(var(--spot-rx) + 22px) calc(var(--spot-ry) + 36px) at calc(var(--spot-x) - 18px) calc(var(--spot-y) + 12px),
-				            rgba(135,245,255,0.16) 0%,
-				            rgba(135,245,255,0.0) 62%);
-				        filter: blur(24px);
-				        opacity: var(--spot-i, 0);
-				        transition: opacity 140ms ease;
-				        transform: translateY(0) scale(0.98);
-			        z-index:-1;
-			        pointer-events:none;
-				      }
 				      /* iMessage-style swipe layering: tray behind a card surface */
 				      #invTable tbody tr[data-id]::after{
 				        content:'';
@@ -269,19 +249,7 @@
 				        inset:0;
 				        border:1px solid var(--border);
 				        border-radius:14px;
-				        background:
-				          radial-gradient(ellipse calc(var(--spot-rx) - 40px) calc(var(--spot-ry) - 30px) at var(--spot-x) var(--spot-y),
-				            rgba(255,255,255, var(--spot-a2, 0)) 0%,
-				            rgba(255,255,255,0.0) 56%),
-				          radial-gradient(ellipse var(--spot-rx) var(--spot-ry) at var(--spot-x) var(--spot-y),
-				            rgba(135,245,255, var(--spot-a0, 0)) 0%,
-				            rgba(135,245,255, var(--spot-a1, 0)) 18%,
-				            rgba(135,245,255, var(--spot-a2, 0)) 34%,
-				            rgba(135,245,255,0.0) 56%),
-				          radial-gradient(ellipse calc(var(--spot-rx) - 24px) calc(var(--spot-ry) - 16px) at calc(var(--spot-x) + 14px) calc(var(--spot-y) - 8px),
-				            rgba(135,245,255, var(--spot-a2, 0)) 0%,
-				            rgba(135,245,255,0.0) 60%),
-				          linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
+				        background: linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
 				        box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
 				        transition: border-color 180ms ease, box-shadow 180ms ease;
 				        z-index:2;
@@ -3124,13 +3092,6 @@ function adjustTitleSize(){
 	  }catch(e){ /* no-op */ }
 	}
 
-		// Mobile scroll spotlight: subtle "under-light" glow as cards pass a fixed light source
-		let _spotlightObs = null;
-		const _spotlightSet = new Set();
-		let _spotlightRaf = 0;
-		let _spotlightBound = false;
-		const SPOTLIGHT_Y_FRAC = 0.28; // ~25–30% from top of scroll viewport
-
 		function isMobileUx(){
 		  try{
 		    if(!window.matchMedia) return false;
@@ -3138,106 +3099,6 @@ function adjustTitleSize(){
 		  }catch(e){ return false; }
 		}
 		function isMobileStacked(){ return isMobileUx(); }
-		function clamp01(n){ n = Number(n) || 0; return n < 0 ? 0 : (n > 1 ? 1 : n); }
-		function smoothstep01(t){ t = clamp01(t); return t*t*(3 - 2*t); }
-		function resetSpotlightRow(row){
-		  if(!row || !row.style) return;
-		  row.style.setProperty('--spot-i', '0');
-		  row.style.setProperty('--spot-a0', '0');
-		  row.style.setProperty('--spot-a1', '0');
-		  row.style.setProperty('--spot-a2', '0');
-		}
-		function scheduleSpotlightUpdate(){
-		  if(_spotlightRaf) return;
-		  _spotlightRaf = requestAnimationFrame(()=>{
-		    _spotlightRaf = 0;
-		    const wrap = $('tableWrap');
-		    if(!wrap || !isMobileStacked()){
-		      for(const row of _spotlightSet) resetSpotlightRow(row);
-		      _spotlightSet.clear();
-		      return;
-		    }
-		    if(_spotlightSet.size === 0) return;
-
-		    const wrapRect = wrap.getBoundingClientRect();
-		    if(!wrapRect || !Number.isFinite(wrapRect.height) || wrapRect.height <= 0) return;
-
-		    const lightY = wrapRect.top + (wrapRect.height * SPOTLIGHT_Y_FRAC);
-		    const lightX = wrapRect.left + (wrapRect.width / 2);
-		    const falloff = Math.max(140, Math.min(260, wrapRect.height * 0.28));
-
-		    for(const row of _spotlightSet){
-		      if(!row || !row.isConnected) continue;
-		      const r = row.getBoundingClientRect();
-		      if(!r || !Number.isFinite(r.height) || !Number.isFinite(r.width) || r.height <= 0 || r.width <= 0){
-		        resetSpotlightRow(row);
-		        continue;
-		      }
-		      const rowCenterY = r.top + (r.height / 2);
-		      const dist = Math.abs(rowCenterY - lightY);
-		      const t = 1 - (dist / falloff);
-		      if(t <= 0){
-		        resetSpotlightRow(row);
-		        continue;
-		      }
-		      const i = smoothstep01(t);
-
-		      // Tight ellipse, fades out before reaching card edges
-		      const rx = Math.max(86, Math.min(168, r.width * 0.24));
-		      const ry = Math.max(52, Math.min(110, r.height * 0.48));
-
-		      row.style.setProperty('--spot-i', i.toFixed(3));
-		      row.style.setProperty('--spot-a0', (i * 0.16).toFixed(3));
-		      row.style.setProperty('--spot-a1', (i * 0.10).toFixed(3));
-		      row.style.setProperty('--spot-a2', (i * 0.06).toFixed(3));
-		      row.style.setProperty('--spot-x', `${(lightX - r.left).toFixed(1)}px`);
-		      row.style.setProperty('--spot-y', `${(lightY - r.top).toFixed(1)}px`);
-		      row.style.setProperty('--spot-rx', `${rx.toFixed(1)}px`);
-		      row.style.setProperty('--spot-ry', `${ry.toFixed(1)}px`);
-		    }
-		  });
-		}
-		function refreshSpotlightTargets(){
-		  try{
-		    if(_spotlightObs){ _spotlightObs.disconnect(); _spotlightObs = null; }
-		  }catch(e){}
-		  for(const row of _spotlightSet) resetSpotlightRow(row);
-		  _spotlightSet.clear();
-
-		  const wrap = $('tableWrap');
-		  if(!wrap || !isMobileStacked()) return;
-
-		  const rows = Array.from(document.querySelectorAll('#invTable tbody tr[data-id]'));
-		  if(rows.length === 0) return;
-
-		  if(!_spotlightBound){
-		    _spotlightBound = true;
-		    wrap.addEventListener('scroll', scheduleSpotlightUpdate, { passive: true });
-		    wrap.addEventListener('scroll', ()=>{ try{ closeMobileTray(); }catch(e){} }, { passive: true });
-		  }
-
-		  if(typeof IntersectionObserver !== 'function'){
-		    for(const row of rows) _spotlightSet.add(row);
-		    scheduleSpotlightUpdate();
-		    return;
-		  }
-
-		  _spotlightObs = new IntersectionObserver((entries)=>{
-		    for(const entry of entries){
-		      const el = entry && entry.target;
-		      if(!el) continue;
-		      if(entry.isIntersecting) _spotlightSet.add(el);
-		      else{
-		        _spotlightSet.delete(el);
-		        resetSpotlightRow(el);
-		      }
-		    }
-		    scheduleSpotlightUpdate();
-		  }, { root: wrap, threshold: 0 });
-
-		  for(const row of rows) _spotlightObs.observe(row);
-		  scheduleSpotlightUpdate();
-		}
 
 	    function renderKpis(){
 	      const el=$('lastUpdate');
@@ -3651,7 +3512,7 @@ function emptyStateHtml(){
 			        tbody.appendChild(tr);
 			      }
 	      enableInlineEditing();
-	      try{ requestAnimationFrame(()=>{ adjustDescColumnWidth(); adjustTitleSize(); refreshSpotlightTargets(); scheduleSpotlightUpdate(); }); }catch(e){}
+	      try{ requestAnimationFrame(()=>{ adjustDescColumnWidth(); adjustTitleSize(); }); }catch(e){}
 	    }
 
     function enableInlineEditing(){
@@ -7407,7 +7268,7 @@ function emptyStateHtml(){
 	      setInterval(checkServerHealth, 15000);
 	
 	      // Responsive: adjust desc column width on viewport change
-		      window.addEventListener('resize', ()=> { try{ requestAnimationFrame(()=>{ closeMobileTray(); adjustDescColumnWidth(); adjustTitleSize(); setEditHint(); refreshTotalsLabels(); refreshSpotlightTargets(); scheduleSpotlightUpdate(); }); }catch(e){} });
+		      window.addEventListener('resize', ()=> { try{ requestAnimationFrame(()=>{ closeMobileTray(); adjustDescColumnWidth(); adjustTitleSize(); setEditHint(); refreshTotalsLabels(); }); }catch(e){} });
 	
 	      // Close modals when clicking outside (on backdrop)
 	      document.addEventListener('click', (e)=>{
