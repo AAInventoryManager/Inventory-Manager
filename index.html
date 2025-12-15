@@ -356,10 +356,6 @@
 			        background:#ef4444;
 			        box-shadow: 0 0 10px rgba(239,68,68,0.5), 0 0 0 1px rgba(255,255,255,0.10);
 			      }
-			      #invTable tbody tr[data-id] .card-led.card-led--override.card-led--on{
-			        background:#87F5FF;
-			        box-shadow: 0 0 10px rgba(135,245,255,0.32), 0 0 0 1px rgba(255,255,255,0.10);
-			      }
 
 			      /* Mobile UX v2: iMessage-style swipe tray (Edit + Low Stock only) */
 			      #invTable tbody tr[data-id] .card-tray{
@@ -3052,9 +3048,6 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 	    btn.setAttribute('aria-label', lowStockBtnLabel);
 	    btn.setAttribute('title', lowStockBtnLabel);
 	  }
-
-	  const led = tr.querySelector('.card-led--override');
-	  if(led) led.classList.toggle('card-led--on', hasLowStockOverride);
 	}
 	function syncLowStockIndicatorForRow(id){
 	  const tr = rowElById(id);
@@ -3102,14 +3095,12 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 			  const isOutOfStock = showLowStockLed && qty === 0;
 			  const isLowButInStock = showLowStockLed && qty > 0;
 			  const lowstockLedClass = isOutOfStock ? 'card-led card-led--lowstock card-led--outofstock' : (isLowButInStock ? 'card-led card-led--lowstock card-led--on' : 'card-led card-led--lowstock');
-			  const overrideLedClass = hasLowStockOverride ? 'card-led card-led--override card-led--on' : 'card-led card-led--override';
 			  return (
 			    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+id+'"></td>'+
 			    '<td data-col="name">'+
 			      '<div class="card-leds" aria-hidden="true">'+
 			        '<span class="'+orderLedClass+'"></span>'+
 			        '<span class="'+lowstockLedClass+'"></span>'+
-			        '<span class="'+overrideLedClass+'"></span>'+
 			      '</div>'+
 			      '<div class="card-tray" aria-hidden="true">'+
 			        '<button type="button" class="card-tray-btn" data-tray-action="lowStock" tabindex="-1" aria-label="Low stock override" title="Low stock override">'+
