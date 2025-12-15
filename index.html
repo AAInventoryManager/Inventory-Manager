@@ -5518,12 +5518,14 @@ function emptyStateHtml(){
 	    }
 	    async function sbDeleteOrder(orderId){
 	      if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
+	      const numericId = Number(orderId);
+	      if(!numericId || !Number.isFinite(numericId)) throw new Error('Invalid order ID');
 	      const { error } = await SB.client
 	        .from('orders')
-        .delete()
-        .eq('id', orderId);
-      if(error) throw error;
-    }
+	        .delete()
+	        .eq('id', numericId);
+	      if(error) throw error;
+	    }
 	    function renderOrderHistoryList(list, opts = {}){
 	      const wrap = $('orderHistoryList');
 	      if(!wrap) return;
