@@ -219,6 +219,14 @@
 			        --tray-outer: 0;
 			        --tray-inner: 0;
 			        --focus-y: 0px;
+			        --spot-i: 0;
+			        --spot-a0: 0;
+			        --spot-a1: 0;
+			        --spot-a2: 0;
+			        --spot-x: 0px;
+			        --spot-y: 0px;
+			        --spot-rx: 120px;
+			        --spot-ry: 74px;
 			        padding:6px; /* tighter cards to reduce scrolling */
 			        border-radius:14px;
 			        border:none;
@@ -229,51 +237,63 @@
 			        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 			        will-change: transform, box-shadow;
 			        transform: translateX(var(--swipe-x)) translateY(var(--focus-y));
-			      }
-			      /* Elastic snap-back animation when releasing from detent */
-			      #invTable tbody tr[data-id].snap-elastic{
-			        transition: transform 380ms cubic-bezier(0.175, 0.885, 0.32, 1.175) !important;
-			      }
+				      }
+				      /* Elastic snap-back animation when releasing from detent */
+				      #invTable tbody tr[data-id].snap-elastic{
+				        transition: transform 380ms cubic-bezier(0.175, 0.885, 0.32, 1.175) !important;
+				      }
 				      #invTable tbody tr[data-id]::before{
 				        content:'';
 				        position:absolute;
-				        inset:-14px;
+				        inset:-16px;
 				        border-radius:22px;
-				        background: radial-gradient(closest-side at 50% 50%, rgba(135,245,255,0.30) 0%, rgba(135,245,255,0.0) 72%);
-				        filter: blur(22px);
-				        opacity:0;
-				        transition: opacity 220ms ease, transform 220ms ease;
-				        transform: translateY(0) scale(0.96);
+				        background:
+				          radial-gradient(ellipse calc(var(--spot-rx) + 42px) calc(var(--spot-ry) + 64px) at var(--spot-x) var(--spot-y),
+				            rgba(135,245,255,0.22) 0%,
+				            rgba(135,245,255,0.10) 24%,
+				            rgba(135,245,255,0.0) 60%),
+				          radial-gradient(ellipse calc(var(--spot-rx) + 22px) calc(var(--spot-ry) + 36px) at calc(var(--spot-x) - 18px) calc(var(--spot-y) + 12px),
+				            rgba(135,245,255,0.16) 0%,
+				            rgba(135,245,255,0.0) 62%);
+				        filter: blur(24px);
+				        opacity: var(--spot-i, 0);
+				        transition: opacity 140ms ease;
+				        transform: translateY(0) scale(0.98);
 			        z-index:-1;
 			        pointer-events:none;
-			      }
-			      /* iMessage-style swipe layering: tray behind a card surface */
+				      }
+				      /* iMessage-style swipe layering: tray behind a card surface */
 				      #invTable tbody tr[data-id]::after{
 				        content:'';
 				        position:absolute;
 				        inset:0;
 				        border:1px solid var(--border);
 				        border-radius:14px;
-				        background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
+				        background:
+				          radial-gradient(ellipse calc(var(--spot-rx) - 40px) calc(var(--spot-ry) - 30px) at var(--spot-x) var(--spot-y),
+				            rgba(255,255,255, var(--spot-a2, 0)) 0%,
+				            rgba(255,255,255,0.0) 56%),
+				          radial-gradient(ellipse var(--spot-rx) var(--spot-ry) at var(--spot-x) var(--spot-y),
+				            rgba(135,245,255, var(--spot-a0, 0)) 0%,
+				            rgba(135,245,255, var(--spot-a1, 0)) 18%,
+				            rgba(135,245,255, var(--spot-a2, 0)) 34%,
+				            rgba(135,245,255,0.0) 56%),
+				          radial-gradient(ellipse calc(var(--spot-rx) - 24px) calc(var(--spot-ry) - 16px) at calc(var(--spot-x) + 14px) calc(var(--spot-y) - 8px),
+				            rgba(135,245,255, var(--spot-a2, 0)) 0%,
+				            rgba(135,245,255,0.0) 60%),
+				          linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
 				        box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
-				        transition: box-shadow 180ms ease;
+				        transition: border-color 180ms ease, box-shadow 180ms ease;
 				        z-index:2;
 				        pointer-events:none;
 				      }
-				      #invTable tbody tr[data-id].scroll-focus{
-				        --focus-y: -3px;
-				      }
-				      #invTable tbody tr[data-id].scroll-focus::after{
-				        background:
-				          radial-gradient(140% 140% at 50% 50%, rgba(135,245,255,0.22) 0%, rgba(135,245,255,0.0) 62%),
-				          linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
+				      #invTable tbody tr[data-id].order-selected::after{
+				        border-color: rgba(34,197,94,0.55) !important;
 				        box-shadow:
-				          0 18px 42px rgba(0,0,0,0.66),
-				          inset 0 1px 0 rgba(255,255,255,0.08);
-				      }
-				      #invTable tbody tr[data-id].scroll-focus::before{
-				        opacity:1;
-				        transform: translateY(-1px) scale(1);
+				          0 0 0 1px rgba(34,197,94,0.16),
+				          0 0 12px rgba(34,197,94,0.12),
+				          0 2px 8px rgba(0,0,0,0.3),
+				          inset 0 1px 0 rgba(255,255,255,0.05) !important;
 				      }
 		      #invTable tbody tr[data-id] td{
 		        display:block;
@@ -474,7 +494,6 @@
 		      #invTable tbody tr[data-id]{ transition:none !important; }
 		      #invTable tbody tr[data-id]::before{ transition:none !important; }
 		      #invTable tbody tr[data-id]::after{ transition:none !important; }
-		      #invTable tbody tr[data-id].scroll-focus{ --focus-y: 0px !important; }
 		      #invTable tbody tr[data-id] .card-tray{ transition:none !important; }
 		    }
 
@@ -759,6 +778,26 @@
       padding:14px;
       background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
       box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+    }
+    .order-card.order-card--selected{
+      border-color:#22c55e;
+      box-shadow:0 0 0 1px rgba(34,197,94,0.25), 0 0 12px rgba(34,197,94,0.15), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .order-card-led{
+      width:8px; height:8px; border-radius:50%; flex-shrink:0;
+      background:rgba(148,163,184,0.55);
+      box-shadow:0 0 0 1px rgba(255,255,255,0.10);
+      transition: background 180ms ease, box-shadow 180ms ease;
+    }
+    .order-card-led--on{
+      background:#22c55e;
+      box-shadow:0 0 6px rgba(34,197,94,0.5), 0 0 12px rgba(34,197,94,0.3);
+    }
+    .order-card-header{
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
     .order-card-top{ display:flex; gap:12px; align-items:flex-start; }
     .order-meta{ flex:1; min-width:0; }
@@ -885,6 +924,108 @@
 	    .btn-icon-danger:hover{
 	      color:#ef4444;
 	      background:rgba(239,68,68,0.1);
+	    }
+	    /* iOS-style qty picker */
+	    .qty-picker-modal{
+	      display:flex !important;
+	      align-items:flex-end;
+	      justify-content:center;
+	      padding:0;
+	      opacity:0;
+	      pointer-events:none;
+	      transition:opacity 250ms ease;
+	    }
+	    .qty-picker-modal[aria-hidden="false"]{
+	      opacity:1;
+	      pointer-events:auto;
+	    }
+	    .qty-picker-modal .box{ display:none; }
+	    .qty-picker-backdrop{
+	      position:absolute;
+	      inset:0;
+	      background:rgba(0,0,0,0.5);
+	    }
+	    .qty-picker-sheet{
+	      position:relative;
+	      width:100%;
+	      max-width:420px;
+	      background:#1c1c1e;
+	      border-radius:14px 14px 0 0;
+	      padding-bottom:env(safe-area-inset-bottom, 20px);
+	      transform:translateY(100%);
+	      transition:transform 300ms cubic-bezier(0.32, 0.72, 0, 1);
+	    }
+	    .qty-picker-modal[aria-hidden="false"] .qty-picker-sheet{
+	      transform:translateY(0);
+	    }
+	    .qty-picker-header{
+	      display:flex;
+	      align-items:center;
+	      justify-content:space-between;
+	      padding:12px 16px;
+	      border-bottom:1px solid rgba(255,255,255,0.1);
+	    }
+	    .qty-picker-cancel,
+	    .qty-picker-done{
+	      background:none;
+	      border:none;
+	      font-size:17px;
+	      font-weight:400;
+	      cursor:pointer;
+	      padding:8px 4px;
+	      min-width:70px;
+	    }
+	    .qty-picker-cancel{ color:#ff453a; text-align:left; }
+	    .qty-picker-done{ color:#30d158; text-align:right; font-weight:600; }
+	    .qty-picker-title{
+	      font-size:17px;
+	      font-weight:600;
+	      color:#fff;
+	      text-align:center;
+	    }
+	    .qty-picker-wheel-wrap{
+	      position:relative;
+	      height:216px;
+	      overflow:hidden;
+	      -webkit-mask-image:linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+	      mask-image:linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+	    }
+	    .qty-picker-highlight{
+	      position:absolute;
+	      top:50%;
+	      left:16px;
+	      right:16px;
+	      height:36px;
+	      transform:translateY(-50%);
+	      background:rgba(120,120,128,0.24);
+	      border-radius:8px;
+	      pointer-events:none;
+	    }
+	    .qty-picker-wheel{
+	      position:absolute;
+	      top:0;
+	      left:0;
+	      right:0;
+	      padding:90px 0;
+	      display:flex;
+	      flex-direction:column;
+	      align-items:center;
+	      transition:transform 150ms ease-out;
+	    }
+	    .qty-picker-item{
+	      height:36px;
+	      display:flex;
+	      align-items:center;
+	      justify-content:center;
+	      font-size:22px;
+	      font-weight:400;
+	      color:rgba(255,255,255,0.85);
+	      font-variant-numeric:tabular-nums;
+	      transition:opacity 100ms ease, transform 100ms ease;
+	    }
+	    .qty-picker-item.selected{
+	      font-weight:500;
+	      color:#fff;
 	    }
 	    .report-metrics{
 	      display:grid;
@@ -1451,7 +1592,7 @@
             <img class="title-logo" src="./assets/oakley/logo/oakley-logo-horizontal-h128.png" alt="Oakley Services" />
           </div>
         </div>
-        <button class="order-counter-badge" id="orderCounterBadge" aria-label="Clear shopping cart selections" style="display:none;">
+        <button class="order-counter-badge" id="orderCounterBadge" data-order-reset aria-label="Clear shopping cart selections" style="display:none;">
           <div class="order-counter-top">
             <span class="order-counter-value" id="orderCounterValue">0</span>
             <span class="order-counter-label">Items Added</span>
@@ -1806,6 +1947,22 @@
     </div>
   </div>
 
+  <!-- iOS-style qty picker -->
+  <div id="qtyPickerModal" class="modal qty-picker-modal" aria-hidden="true">
+    <div class="qty-picker-backdrop"></div>
+    <div class="qty-picker-sheet">
+      <div class="qty-picker-header">
+        <button type="button" class="qty-picker-cancel" id="qtyPickerCancel">Cancel</button>
+        <div class="qty-picker-title" id="qtyPickerTitle">Order Qty</div>
+        <button type="button" class="qty-picker-done" id="qtyPickerDone">Done</button>
+      </div>
+      <div class="qty-picker-wheel-wrap">
+        <div class="qty-picker-highlight"></div>
+        <div class="qty-picker-wheel" id="qtyPickerWheel"></div>
+      </div>
+    </div>
+  </div>
+
 	  <!-- Order history -->
 		  <div id="orderHistoryModal" class="modal" aria-hidden="true">
 		    <div class="box">
@@ -1876,13 +2033,13 @@
 				        <div class="report-metric"><div class="muted">Total Qty</div><div class="val" id="reportMetricTotalQty">0</div></div>
 				      </div>
 
-				      <div class="order-counter-badge report-order-badge" id="reportOrderBadge" role="status" aria-live="polite" style="display:none;">
+				      <button class="order-counter-badge report-order-badge" id="reportOrderBadge" data-order-reset role="status" aria-live="polite" aria-label="Clear shopping cart selections" style="display:none;">
 				        <div class="order-counter-top">
 				          <span class="order-counter-value" id="reportOrderCount">0</span>
 				          <span class="order-counter-label">Items Added</span>
 				        </div>
-				        <span class="order-counter-hint">Shopping Cart</span>
-				      </div>
+				        <span class="order-counter-hint">Tap to Reset</span>
+				      </button>
 		
 				      <details class="report-section" id="reportLowStockSection">
 				        <summary class="report-summary">
@@ -1993,21 +2150,56 @@
     </div>
   </div>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+	  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script>
-    // Polyfill for crypto.randomUUID (not available in older mobile browsers or non-HTTPS)
-    if (typeof crypto.randomUUID !== 'function') {
-      crypto.randomUUID = function() {
-        return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c =>
-          (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
-        );
-      };
-    }
+		  <script>
+		    // UUID helper (works on older mobile browsers and non-HTTPS dev hosts)
+		    let _nativeRandomUUID = null;
+		    try{
+		      if(typeof crypto !== 'undefined' && crypto && typeof crypto.randomUUID === 'function'){
+		        const candidate = crypto.randomUUID.bind(crypto);
+		        candidate(); // ensure it works (some browsers expose but throw on insecure contexts)
+		        _nativeRandomUUID = candidate;
+		      }
+		    }catch(e){
+		      _nativeRandomUUID = null;
+		    }
+		    function randomUUID(){
+		      if(_nativeRandomUUID){
+		        try{ return _nativeRandomUUID(); }catch(e){}
+		      }
+		      const cryptoObj = (typeof crypto !== 'undefined') ? crypto : null;
+		      const bytes = new Uint8Array(16);
+		      if(cryptoObj && typeof cryptoObj.getRandomValues === 'function'){
+		        try{
+		          cryptoObj.getRandomValues(bytes);
+		        }catch(e){
+		          for(let i=0;i<bytes.length;i++) bytes[i] = Math.floor(Math.random()*256);
+		        }
+		      }else{
+		        for(let i=0;i<bytes.length;i++) bytes[i] = Math.floor(Math.random()*256);
+		      }
+		      // RFC4122 v4
+		      bytes[6] = (bytes[6] & 0x0f) | 0x40;
+		      bytes[8] = (bytes[8] & 0x3f) | 0x80;
+		      const hex = Array.from(bytes, b => b.toString(16).padStart(2,'0'));
+		      return `${hex[0]}${hex[1]}${hex[2]}${hex[3]}-${hex[4]}${hex[5]}-${hex[6]}${hex[7]}-${hex[8]}${hex[9]}-${hex[10]}${hex[11]}${hex[12]}${hex[13]}${hex[14]}${hex[15]}`;
+		    }
+		    if(!_nativeRandomUUID){
+		      try{
+		        const cryptoObj = (typeof crypto !== 'undefined') ? crypto : null;
+		        if(cryptoObj) cryptoObj.randomUUID = randomUUID;
+		      }catch(e){}
+		      try{
+		        if(typeof Crypto !== 'undefined' && Crypto.prototype){
+		          Object.defineProperty(Crypto.prototype, 'randomUUID', { value: randomUUID, configurable: true, writable: true });
+		        }
+		      }catch(e){}
+		    }
 
-    // ========================
-    // State & persistence
-    // ========================
+	    // ========================
+	    // State & persistence
+	    // ========================
     const DB_KEY='inv.single.inline.mobile.v1';
 	    const state={items:[], updatedAt:null, _filter:'', _sort:{col:'name', dir:'asc'}, _order:{lines:[], email:'', subject:'', notes:'', contactName:'', search:''}};
     const APP_VERSION = '2.0.0';
@@ -2028,7 +2220,7 @@
         const k=toKey(it.name); if(!k) return false;
         if(seen.has(k)) return false;
         seen.add(k);
-        if(!it.id) it.id=crypto.randomUUID();
+        if(!it.id) it.id=randomUUID();
         it.qty = toInt(it.qty,0);
         return true;
       });
@@ -2700,7 +2892,7 @@
         .subscribe();
     }
     async function sbAddItem(name, desc, qty){
-      const id = crypto.randomUUID();
+      const id = randomUUID();
       const { error } = await SB.client.from('items').insert([{ id, name, description:desc||'', qty:toInt(qty,0) }]);
       if(error) throw error; return id;
     }
@@ -2932,12 +3124,12 @@ function adjustTitleSize(){
 	  }catch(e){ /* no-op */ }
 	}
 
-		// Mobile scroll "focus" glow: highlight the card nearest the center of the scroll viewport
-		let _centerGlowObs = null;
-		const _centerGlowSet = new Set();
-		let _centerGlowEl = null;
-		let _centerGlowRaf = 0;
-		let _centerGlowBound = false;
+		// Mobile scroll spotlight: subtle "under-light" glow as cards pass a fixed light source
+		let _spotlightObs = null;
+		const _spotlightSet = new Set();
+		let _spotlightRaf = 0;
+		let _spotlightBound = false;
+		const SPOTLIGHT_Y_FRAC = 0.28; // ~25–30% from top of scroll viewport
 
 		function isMobileUx(){
 		  try{
@@ -2946,73 +3138,106 @@ function adjustTitleSize(){
 		  }catch(e){ return false; }
 		}
 		function isMobileStacked(){ return isMobileUx(); }
-		function clearCenteredGlow(){
-		  if(_centerGlowEl){
-		    _centerGlowEl.classList.remove('scroll-focus');
-		    _centerGlowEl = null;
+		function clamp01(n){ n = Number(n) || 0; return n < 0 ? 0 : (n > 1 ? 1 : n); }
+		function smoothstep01(t){ t = clamp01(t); return t*t*(3 - 2*t); }
+		function resetSpotlightRow(row){
+		  if(!row || !row.style) return;
+		  row.style.setProperty('--spot-i', '0');
+		  row.style.setProperty('--spot-a0', '0');
+		  row.style.setProperty('--spot-a1', '0');
+		  row.style.setProperty('--spot-a2', '0');
+		}
+		function scheduleSpotlightUpdate(){
+		  if(_spotlightRaf) return;
+		  _spotlightRaf = requestAnimationFrame(()=>{
+		    _spotlightRaf = 0;
+		    const wrap = $('tableWrap');
+		    if(!wrap || !isMobileStacked()){
+		      for(const row of _spotlightSet) resetSpotlightRow(row);
+		      _spotlightSet.clear();
+		      return;
+		    }
+		    if(_spotlightSet.size === 0) return;
+
+		    const wrapRect = wrap.getBoundingClientRect();
+		    if(!wrapRect || !Number.isFinite(wrapRect.height) || wrapRect.height <= 0) return;
+
+		    const lightY = wrapRect.top + (wrapRect.height * SPOTLIGHT_Y_FRAC);
+		    const lightX = wrapRect.left + (wrapRect.width / 2);
+		    const falloff = Math.max(140, Math.min(260, wrapRect.height * 0.28));
+
+		    for(const row of _spotlightSet){
+		      if(!row || !row.isConnected) continue;
+		      const r = row.getBoundingClientRect();
+		      if(!r || !Number.isFinite(r.height) || !Number.isFinite(r.width) || r.height <= 0 || r.width <= 0){
+		        resetSpotlightRow(row);
+		        continue;
+		      }
+		      const rowCenterY = r.top + (r.height / 2);
+		      const dist = Math.abs(rowCenterY - lightY);
+		      const t = 1 - (dist / falloff);
+		      if(t <= 0){
+		        resetSpotlightRow(row);
+		        continue;
+		      }
+		      const i = smoothstep01(t);
+
+		      // Tight ellipse, fades out before reaching card edges
+		      const rx = Math.max(86, Math.min(168, r.width * 0.24));
+		      const ry = Math.max(52, Math.min(110, r.height * 0.48));
+
+		      row.style.setProperty('--spot-i', i.toFixed(3));
+		      row.style.setProperty('--spot-a0', (i * 0.16).toFixed(3));
+		      row.style.setProperty('--spot-a1', (i * 0.10).toFixed(3));
+		      row.style.setProperty('--spot-a2', (i * 0.06).toFixed(3));
+		      row.style.setProperty('--spot-x', `${(lightX - r.left).toFixed(1)}px`);
+		      row.style.setProperty('--spot-y', `${(lightY - r.top).toFixed(1)}px`);
+		      row.style.setProperty('--spot-rx', `${rx.toFixed(1)}px`);
+		      row.style.setProperty('--spot-ry', `${ry.toFixed(1)}px`);
+		    }
+		  });
+		}
+		function refreshSpotlightTargets(){
+		  try{
+		    if(_spotlightObs){ _spotlightObs.disconnect(); _spotlightObs = null; }
+		  }catch(e){}
+		  for(const row of _spotlightSet) resetSpotlightRow(row);
+		  _spotlightSet.clear();
+
+		  const wrap = $('tableWrap');
+		  if(!wrap || !isMobileStacked()) return;
+
+		  const rows = Array.from(document.querySelectorAll('#invTable tbody tr[data-id]'));
+		  if(rows.length === 0) return;
+
+		  if(!_spotlightBound){
+		    _spotlightBound = true;
+		    wrap.addEventListener('scroll', scheduleSpotlightUpdate, { passive: true });
+		    wrap.addEventListener('scroll', ()=>{ try{ closeMobileTray(); }catch(e){} }, { passive: true });
 		  }
-	}
-	function scheduleCenteredGlowUpdate(){
-	  if(_centerGlowRaf) return;
-	  _centerGlowRaf = requestAnimationFrame(()=>{
-	    _centerGlowRaf = 0;
-	    const wrap = $('tableWrap');
-	    if(!wrap || !isMobileStacked()){
-	      clearCenteredGlow();
-	      return;
-	    }
-	    if(_centerGlowSet.size === 0) return;
 
-	    const wrapRect = wrap.getBoundingClientRect();
-	    const centerY = wrapRect.top + (wrapRect.height / 2);
-	    let best = null;
-	    let bestDist = Infinity;
-	    for(const row of _centerGlowSet){
-	      if(!row || !row.isConnected) continue;
-	      const r = row.getBoundingClientRect();
-	      const rowCenter = r.top + (r.height / 2);
-	      const dist = Math.abs(rowCenter - centerY);
-	      if(dist < bestDist){ bestDist = dist; best = row; }
-	    }
+		  if(typeof IntersectionObserver !== 'function'){
+		    for(const row of rows) _spotlightSet.add(row);
+		    scheduleSpotlightUpdate();
+		    return;
+		  }
 
-	    if(!best){ clearCenteredGlow(); return; }
-	    if(_centerGlowEl !== best){
-	      clearCenteredGlow();
-	      best.classList.add('scroll-focus');
-	      _centerGlowEl = best;
-	    }
-	  });
-	}
-	function refreshCenteredGlowTargets(){
-	  try{
-	    if(_centerGlowObs){ _centerGlowObs.disconnect(); _centerGlowObs = null; }
-	  }catch(e){}
-	  _centerGlowSet.clear();
-	  clearCenteredGlow();
+		  _spotlightObs = new IntersectionObserver((entries)=>{
+		    for(const entry of entries){
+		      const el = entry && entry.target;
+		      if(!el) continue;
+		      if(entry.isIntersecting) _spotlightSet.add(el);
+		      else{
+		        _spotlightSet.delete(el);
+		        resetSpotlightRow(el);
+		      }
+		    }
+		    scheduleSpotlightUpdate();
+		  }, { root: wrap, threshold: 0 });
 
-	  const wrap = $('tableWrap');
-	  if(!wrap || !isMobileStacked()) return;
-
-	  const rows = Array.from(document.querySelectorAll('#invTable tbody tr[data-id]'));
-	  if(rows.length === 0) return;
-
-	  if(!_centerGlowBound){
-	    _centerGlowBound = true;
-	    wrap.addEventListener('scroll', scheduleCenteredGlowUpdate, { passive: true });
-	    wrap.addEventListener('scroll', ()=>{ try{ closeMobileTray(); }catch(e){} }, { passive: true });
-	  }
-
-	  _centerGlowObs = new IntersectionObserver((entries)=>{
-	    for(const entry of entries){
-	      if(entry.isIntersecting) _centerGlowSet.add(entry.target);
-	      else _centerGlowSet.delete(entry.target);
-	    }
-	    scheduleCenteredGlowUpdate();
-	  }, { root: wrap, rootMargin: '-48% 0px -48% 0px', threshold: 0 });
-
-	  for(const row of rows) _centerGlowObs.observe(row);
-	  // First paint: observer callback will arrive shortly and schedule the update
-	}
+		  for(const row of rows) _spotlightObs.observe(row);
+		  scheduleSpotlightUpdate();
+		}
 
 	    function renderKpis(){
 	      const el=$('lastUpdate');
@@ -3129,13 +3354,13 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 	  const tr = rowElById(id);
 	  if(!tr) return;
 	  const led = tr.querySelector('.card-led--order');
-	  if(!led) return;
 	  let inOrder = false;
 	  try{
 	    const ord = orderState();
 	    inOrder = !!(ord && Array.isArray(ord.lines) && ord.lines.some(l => l && l.id === id));
 	  }catch(e){}
-	  led.classList.toggle('card-led--on', inOrder);
+	  if(led) led.classList.toggle('card-led--on', inOrder);
+	  tr.classList.toggle('order-selected', inOrder);
 	}
 	function syncLowStockOverrideIndicatorForRow(id){
 	  const tr = rowElById(id);
@@ -3420,11 +3645,13 @@ function emptyStateHtml(){
       }
 			      for(const it of items){
 			        const tr=document.createElement('tr'); tr.dataset.id=it.id;
+			        const inOrder = (()=> { try{ const ord = orderState(); return !!(ord && Array.isArray(ord.lines) && it.id && ord.lines.some(l => l && l.id === it.id)); }catch(e){ return false; } })();
+			        if(inOrder) tr.classList.add('order-selected');
 			        tr.innerHTML = buildRowHTML(it);
 			        tbody.appendChild(tr);
 			      }
 	      enableInlineEditing();
-	      try{ requestAnimationFrame(()=>{ adjustDescColumnWidth(); adjustTitleSize(); refreshCenteredGlowTargets(); scheduleCenteredGlowUpdate(); }); }catch(e){}
+	      try{ requestAnimationFrame(()=>{ adjustDescColumnWidth(); adjustTitleSize(); refreshSpotlightTargets(); scheduleSpotlightUpdate(); }); }catch(e){}
 	    }
 
     function enableInlineEditing(){
@@ -6092,10 +6319,14 @@ function emptyStateHtml(){
         const inv = getInventoryById(l.id);
         const onHand = inv ? toInt(inv.qty, 0) : null;
         const card = document.createElement('div');
-        card.className = 'order-card';
+        card.className = 'order-card order-card--selected';
+        card.dataset.orderLineId = l.id;
         const desc = String(l.desc||'').trim();
         card.innerHTML =
-          `<div class="order-title">${escapeHtml(l.name||'')}</div>`+
+          `<div class="order-card-header">`+
+            `<span class="order-card-led order-card-led--on"></span>`+
+            `<div class="order-title">${escapeHtml(l.name||'')}</div>`+
+          `</div>`+
           (desc ? `<div class="order-sub">${escapeHtml(desc)}</div>` : ``)+
           `<div class="order-controls">`+
             `<div class="order-control">`+
@@ -6104,7 +6335,7 @@ function emptyStateHtml(){
             `</div>`+
             `<div class="order-control" style="margin-left:auto;">`+
               `<div class="order-control-label" style="text-align:center;">Qty</div>`+
-              `<div class="qty-stepper">`+
+              `<div class="qty-stepper" data-qty-picker-trigger="${l.id}">`+
                 `<button class="qty-stepper-btn" data-line-dec="${l.id}">−</button>`+
                 `<span class="qty-stepper-val">${toInt(l.qty,0)}</span>`+
                 `<button class="qty-stepper-btn" data-line-inc="${l.id}">+</button>`+
@@ -6822,7 +7053,7 @@ function emptyStateHtml(){
         const k=toKey(r.name); if(!k) continue;
         let it=index.get(k);
         if(!it){
-          it={id:crypto.randomUUID(), name:r.name.trim(), desc:(r.desc||'').trim(), qty:toInt(r.qty,0)};
+          it={id:randomUUID(), name:r.name.trim(), desc:(r.desc||'').trim(), qty:toInt(r.qty,0)};
           state.items.push(it); index.set(k,it); added++;
         }else{
           if(r.desc && r.desc.trim()) it.desc=r.desc.trim();
@@ -6960,6 +7191,84 @@ function emptyStateHtml(){
       }
     });
 
+    // iOS-style qty picker
+    const _qtyPicker = {
+      itemId: null,
+      itemName: '',
+      currentQty: 0,
+      selectedQty: 0,
+      maxQty: 999,
+      scrollY: 0,
+      isDragging: false,
+      startY: 0,
+      startScrollY: 0
+    };
+    function openQtyPicker(itemId, itemName, currentQty){
+      _qtyPicker.itemId = itemId;
+      _qtyPicker.itemName = itemName;
+      _qtyPicker.currentQty = currentQty;
+      _qtyPicker.selectedQty = currentQty;
+      _qtyPicker.scrollY = -currentQty * 36;
+      const title = $('qtyPickerTitle');
+      if(title) title.textContent = itemName || 'Order Qty';
+      renderQtyPickerWheel();
+      show('qtyPickerModal', true);
+    }
+    function closeQtyPicker(){
+      show('qtyPickerModal', false);
+      _qtyPicker.itemId = null;
+    }
+    function renderQtyPickerWheel(){
+      const wheel = $('qtyPickerWheel');
+      if(!wheel) return;
+      let html = '';
+      for(let i = 0; i <= _qtyPicker.maxQty; i++){
+        const isSelected = i === _qtyPicker.selectedQty;
+        html += `<div class="qty-picker-item${isSelected ? ' selected' : ''}" data-qty="${i}">${i}</div>`;
+      }
+      wheel.innerHTML = html;
+      wheel.style.transform = `translateY(${_qtyPicker.scrollY}px)`;
+    }
+    function updateQtyPickerSelection(){
+      const wheel = $('qtyPickerWheel');
+      if(!wheel) return;
+      const idx = Math.round(-_qtyPicker.scrollY / 36);
+      _qtyPicker.selectedQty = Math.max(0, Math.min(_qtyPicker.maxQty, idx));
+      wheel.querySelectorAll('.qty-picker-item').forEach((el, i) => {
+        el.classList.toggle('selected', i === _qtyPicker.selectedQty);
+      });
+    }
+    function snapQtyPicker(){
+      const idx = Math.round(-_qtyPicker.scrollY / 36);
+      const clampedIdx = Math.max(0, Math.min(_qtyPicker.maxQty, idx));
+      _qtyPicker.selectedQty = clampedIdx;
+      _qtyPicker.scrollY = -clampedIdx * 36;
+      const wheel = $('qtyPickerWheel');
+      if(wheel){
+        wheel.style.transition = 'transform 150ms ease-out';
+        wheel.style.transform = `translateY(${_qtyPicker.scrollY}px)`;
+        setTimeout(()=>{ wheel.style.transition = ''; }, 150);
+      }
+      updateQtyPickerSelection();
+    }
+    function handleQtyPickerDone(){
+      const id = _qtyPicker.itemId;
+      const qty = _qtyPicker.selectedQty;
+      if(id){
+        const ord = orderState();
+        const line = ord.lines.find(l => l.id === id);
+        if(line){
+          if(qty === 0){
+            removeOrderLine(id);
+          } else {
+            line.qty = qty;
+          }
+          renderOrderLines();
+        }
+      }
+      closeQtyPicker();
+    }
+
     // Boot
       document.addEventListener('DOMContentLoaded', async ()=>{
       load(); render();
@@ -6983,15 +7292,86 @@ function emptyStateHtml(){
 	        });
 	      }
 
-	      // Order counter badge - tap to clear all selections
-	      const orderBadge = $('orderCounterBadge');
-		      if(orderBadge){
-		        orderBadge.addEventListener('click', ()=>{
-		          clearAllOrderLines();
-		          toast('Shopping cart cleared');
-		        });
-		      }
+	      // Order counter badge - delegated handler for all [data-order-reset] elements
+	      document.addEventListener('click', (e)=>{
+	        const badge = e.target.closest('[data-order-reset]');
+	        if(!badge) return;
+	        e.preventDefault();
+	        clearAllOrderLines();
+	        toast('Shopping cart cleared');
+	        try{ syncReportOrderIndicators(); }catch(ex){}
+	      });
 	      try{ updateOrderCounterBadge(); }catch(e){}
+
+	      // iOS-style qty picker - event handlers
+	      const qtyPickerCancel = $('qtyPickerCancel');
+	      const qtyPickerDone = $('qtyPickerDone');
+	      const qtyPickerBackdrop = document.querySelector('.qty-picker-backdrop');
+	      const qtyPickerWheel = $('qtyPickerWheel');
+	      if(qtyPickerCancel) qtyPickerCancel.addEventListener('click', closeQtyPicker);
+	      if(qtyPickerDone) qtyPickerDone.addEventListener('click', handleQtyPickerDone);
+	      if(qtyPickerBackdrop) qtyPickerBackdrop.addEventListener('click', closeQtyPicker);
+
+	      // Wheel touch/mouse drag
+	      if(qtyPickerWheel){
+	        const getY = (e) => e.touches ? e.touches[0].clientY : e.clientY;
+	        qtyPickerWheel.addEventListener('touchstart', (e)=>{
+	          _qtyPicker.isDragging = true;
+	          _qtyPicker.startY = getY(e);
+	          _qtyPicker.startScrollY = _qtyPicker.scrollY;
+	          qtyPickerWheel.style.transition = '';
+	        }, { passive: true });
+	        qtyPickerWheel.addEventListener('touchmove', (e)=>{
+	          if(!_qtyPicker.isDragging) return;
+	          const deltaY = getY(e) - _qtyPicker.startY;
+	          _qtyPicker.scrollY = _qtyPicker.startScrollY + deltaY;
+	          // Clamp scroll
+	          const minScroll = -_qtyPicker.maxQty * 36;
+	          _qtyPicker.scrollY = Math.max(minScroll, Math.min(0, _qtyPicker.scrollY));
+	          qtyPickerWheel.style.transform = `translateY(${_qtyPicker.scrollY}px)`;
+	          updateQtyPickerSelection();
+	        }, { passive: true });
+	        qtyPickerWheel.addEventListener('touchend', ()=>{
+	          _qtyPicker.isDragging = false;
+	          snapQtyPicker();
+	        });
+	        // Click on item to select
+	        qtyPickerWheel.addEventListener('click', (e)=>{
+	          const item = e.target.closest('.qty-picker-item');
+	          if(!item) return;
+	          const qty = parseInt(item.dataset.qty, 10);
+	          if(!isNaN(qty)){
+	            _qtyPicker.selectedQty = qty;
+	            _qtyPicker.scrollY = -qty * 36;
+	            snapQtyPicker();
+	          }
+	        });
+	      }
+
+	      // Long-press on qty stepper in order modal to open picker
+	      let _longPressTimer = null;
+	      const orderLinesBody = $('orderLinesBody');
+	      if(orderLinesBody){
+	        orderLinesBody.addEventListener('touchstart', (e)=>{
+	          const trigger = e.target.closest('[data-qty-picker-trigger]');
+	          if(!trigger) return;
+	          const id = trigger.dataset.qtyPickerTrigger;
+	          _longPressTimer = setTimeout(()=>{
+	            const ord = orderState();
+	            const line = ord.lines.find(l => l.id === id);
+	            if(line){
+	              openQtyPicker(id, line.name, toInt(line.qty, 0));
+	            }
+	            _longPressTimer = null;
+	          }, 500);
+	        }, { passive: true });
+	        orderLinesBody.addEventListener('touchend', ()=>{
+	          if(_longPressTimer){ clearTimeout(_longPressTimer); _longPressTimer = null; }
+	        });
+	        orderLinesBody.addEventListener('touchmove', ()=>{
+	          if(_longPressTimer){ clearTimeout(_longPressTimer); _longPressTimer = null; }
+	        }, { passive: true });
+	      }
 
 	      const mobileSort = $('mobileSort');
 	      if(mobileSort){
@@ -7027,7 +7407,7 @@ function emptyStateHtml(){
 	      setInterval(checkServerHealth, 15000);
 	
 	      // Responsive: adjust desc column width on viewport change
-		      window.addEventListener('resize', ()=> { try{ requestAnimationFrame(()=>{ closeMobileTray(); adjustDescColumnWidth(); adjustTitleSize(); setEditHint(); refreshTotalsLabels(); refreshCenteredGlowTargets(); scheduleCenteredGlowUpdate(); }); }catch(e){} });
+		      window.addEventListener('resize', ()=> { try{ requestAnimationFrame(()=>{ closeMobileTray(); adjustDescColumnWidth(); adjustTitleSize(); setEditHint(); refreshTotalsLabels(); refreshSpotlightTargets(); scheduleSpotlightUpdate(); }); }catch(e){} });
 	
 	      // Close modals when clicking outside (on backdrop)
 	      document.addEventListener('click', (e)=>{
