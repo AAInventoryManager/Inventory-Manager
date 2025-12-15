@@ -79,12 +79,19 @@
     .time{font-size:12px;color:var(--muted)}
     .scroll{overflow:auto;max-height:70vh;border-radius:10px;position:relative;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
     table{width:100%;border-collapse:collapse;font-size:15px}
-    thead th{
-      text-align:center;color:#e2e8f0;font-weight:700;border-bottom:2px solid var(--border);
-      padding:14px 12px;position:sticky;top:0;background:#0d1117;z-index:7;
-      text-transform:uppercase;font-size:12px;letter-spacing:0.5px;
-      white-space:nowrap;
-    }
+	    thead th{
+	      text-align:center;color:#e2e8f0;font-weight:700;border-bottom:2px solid var(--border);
+	      padding:14px 12px;position:sticky;top:0;background:#0d1117;z-index:7;
+	      text-transform:uppercase;font-size:12px;letter-spacing:0.5px;
+	      white-space:nowrap;
+	    }
+	    /* Table header alignment + contrast */
+	    #invTable thead th[data-col="name"],
+	    #invTable thead th[data-col="desc"]{
+	      text-align:left;
+	    }
+	    #invTable tbody td[data-col="name"] .cell-val{ font-weight:900; }
+	    #invTable tbody td[data-col="desc"] .cell-val{ color:var(--muted); }
     th.sortable{ cursor:pointer; user-select:none }
     th.sortable .sort-ind{ margin-left:6px; opacity:.85; display:inline }
     
@@ -131,9 +138,9 @@
 				      }
 				    }
 			    /* Mobile table layout: stack fields vertically per record */
-			    @media (max-width: 768px){
-			      #invTable thead{ display:none; }
-			      #invTable tbody tr[data-id]{
+				    @media (max-width: 768px){
+				      #invTable thead{ display:none; }
+				      #invTable tbody tr[data-id]{
 			        position:relative;
 			        isolation:isolate;
 			        display:block;
@@ -177,56 +184,51 @@
 		        padding:0;
 		        border-bottom:none;
 		      }
-		      #invTable tbody tr[data-id] td[data-col]{
-		        padding:6px 0;
-		      }
-			      /* Indent left-aligned fields to avoid the absolute checkbox */
-			      #invTable tbody tr[data-id] td[data-col="name"],
-			      #invTable tbody tr[data-id] td[data-col="desc"]{ padding-left:44px; }
-			      #invTable tbody tr[data-id] td[data-col]::before{
-			        display:inline-block;
-			        font-size:10px;
-			        letter-spacing:.08em;
-		        text-transform:uppercase;
-		        color:var(--muted);
-		        margin:0;
-		      }
-		      #invTable tbody tr[data-id] td[data-col="name"]::before{ content:'Item'; }
-		      #invTable tbody tr[data-id] td[data-col="desc"]::before{ content:'Description'; }
-		      #invTable tbody tr[data-id] td[data-col="qty"]::before{ content:'Qty'; }
+			      #invTable tbody tr[data-id] td[data-col]{
+			        padding:6px 0;
+			      }
+				      /* Indent left-aligned fields to avoid the absolute checkbox */
+				      #invTable tbody tr[data-id] td[data-col="desc"]{ padding-left:44px; }
+				      #invTable tbody tr[data-id] td[data-col="name"]{
+				        padding-left:44px;
+				        padding-right:110px; /* room for top-right actions */
+				        min-height:44px;
+				      }
+				      #invTable tbody tr[data-id] td[data-col]::before{
+				        display:block;
+				        font-size:10px;
+				        letter-spacing:.08em;
+				        text-transform:uppercase;
+				        color:var(--muted);
+				        margin:0 0 4px 0;
+				        text-align:left;
+				      }
+				      #invTable tbody tr[data-id] td[data-col="name"]::before{ content:'Item'; }
+				      #invTable tbody tr[data-id] td[data-col="desc"]::before{ content:'Description'; }
+				      #invTable tbody tr[data-id] td[data-col="qty"]::before{ content:'Qty'; }
 
-		      /* Keep label/value on one line for compactness */
-		      #invTable tbody tr[data-id] td[data-col="name"],
-		      #invTable tbody tr[data-id] td[data-col="desc"]{
-		        display:flex;
-		        gap:10px;
-		        align-items:flex-start;
-		      }
-		      #invTable tbody tr[data-id] td[data-col="name"]{ align-items:baseline; }
-		      #invTable tbody tr[data-id] td[data-col="name"]::before,
-		      #invTable tbody tr[data-id] td[data-col="desc"]::before{
-		        min-width:86px;
-		        flex:0 0 86px;
-		        white-space:nowrap;
-		        line-height:1.2;
-		      }
-		      #invTable tbody tr[data-id] td[data-col="name"] .cell-val,
-		      #invTable tbody tr[data-id] td[data-col="desc"] .cell-val{
-		        min-width:0;
-		        flex:1;
-		      }
-		      #invTable tbody tr[data-id] td[data-col="desc"] .cell-val{
-		        white-space:normal;
-		        word-break:break-word;
-		        hyphens:auto;
+				      #invTable tbody tr[data-id] td[data-col="name"]::before{
+				        display:inline-block;
+				        padding:4px 8px;
+				        border-radius:999px;
+				        background:rgba(255,255,255,0.08);
+				        color:#ffffff;
+				        margin-right:1rem;
+				      }
+				      #invTable tbody tr[data-id] td[data-col="name"] .cell-val{ font-weight:900; }
+				      #invTable tbody tr[data-id] td[data-col="desc"] .cell-val{ color:var(--muted); }
+				      #invTable tbody tr[data-id] td[data-col="desc"] .cell-val{
+				        white-space:normal;
+				        word-break:break-word;
+				        hyphens:auto;
 		        display:-webkit-box;
 		        -webkit-box-orient:vertical;
 		        -webkit-line-clamp:2;
 		        overflow:hidden;
 		      }
 
-		      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
-		      #invTable tbody tr[data-id] td[data-col="qty"]::before{ display:block; margin:0 0 4px 0; }
+			      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
+			      #invTable tbody tr[data-id] td[data-col="qty"]::before{ display:block; margin:0 0 4px 0; text-align:center; }
 
       #invTable tbody tr[data-id] td.sel{
         position:absolute;
@@ -239,14 +241,14 @@
         align-items:center;
         justify-content:center;
       }
-		      #invTable tbody tr[data-id] td.actions{
-		        position:absolute;
-		        right:10px;
-		        bottom:10px;
-		        width:auto;
-		        padding:0;
-		        z-index:2;
-		      }
+			      #invTable tbody tr[data-id] td.actions{
+			        position:absolute;
+			        right:10px;
+			        top:10px;
+			        width:auto;
+			        padding:0;
+			        z-index:2;
+			      }
 		      #invTable tbody tr[data-id] td.actions .actions-wrap{
 		        display:flex;
 		        gap:8px;
@@ -297,12 +299,14 @@
     .logo{height:auto;width:auto;display:block}
     .brandrow{display:flex;align-items:center;justify-content:space-between;gap:14px}
     .title-logo{height:clamp(44px,9vw,62px); width:auto; display:block;}
-    .brandtext{display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:0;}
-    .input-wrap{ position:relative; width:100%; max-width:480px; }
-    .clear-input-btn{
-      position:absolute;
-      right:8px;
-      top:50%;
+	    .brandtext{display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:0;}
+	    .inv-controls{ display:flex; align-items:center; justify-content:center; gap:10px; width:100%; flex-wrap:nowrap; }
+	    .input-wrap{ position:relative; width:100%; max-width:480px; }
+	    .sort-wrap{ display:none; }
+	    .clear-input-btn{
+	      position:absolute;
+	      right:8px;
+	      top:50%;
       transform:translateY(-50%);
       width:40px;
       height:40px;
@@ -320,28 +324,35 @@
       appearance:none;
     }
     .clear-input-btn:hover{ background:#0e1621; }
-    .clear-input-btn:disabled{ opacity:.55; cursor:not-allowed; }
-    .input-wrap > input{ padding-right:52px; }
-    #filterBox{
-      width:100%; max-width:480px;
-      padding:12px 52px 12px 12px;border-radius:10px;border:1px solid var(--border);
-      background:#0d131b;color:#eaeff7;font-size:16px
-    }
+	    .clear-input-btn:disabled{ opacity:.55; cursor:not-allowed; }
+	    .input-wrap > input{ padding-right:52px; }
+	    #filterBox{
+	      width:100%; max-width:480px;
+	      padding:12px 52px 12px 12px;border-radius:10px;border:1px solid var(--border);
+	      background:#0d131b;color:#eaeff7;font-size:16px
+	    }
+	    @media (max-width: 768px){
+	      .inv-controls{ gap:8px; }
+	      .inv-controls .input-wrap{ flex:1 1 auto; max-width:none; }
+	      .sort-wrap{ display:block; flex:0 0 auto; width:160px; }
+	      #mobileSort{ padding:12px; border-radius:10px; }
+	    }
     td.editing{padding:6px}
     .toast{
       position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#0d1420;
       border:1px solid var(--border);color:var(--fg);padding:10px 14px;border-radius:10px;
       box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:100;display:none
     }
-    .modal{
-      display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;
-      overflow:auto;
-      padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
-    }
-    .modal .box{
-      max-width:580px;
-      width:100%;
-      margin:0 auto;
+	    .modal{
+	      display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;
+	      overflow:auto;
+	      padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
+	    }
+	    #reportEmailModal{ z-index:220; }
+	    .modal .box{
+	      max-width:580px;
+	      width:100%;
+	      margin:0 auto;
       background:var(--card);
       border:1px solid var(--border);
       border-radius:14px;
@@ -675,21 +686,49 @@
 	      font-size:18px;
 	      font-variant-numeric:tabular-nums;
 	    }
-	    .report-section{ margin-top:14px; }
-	    .report-section-title{
-	      display:flex;
-	      align-items:center;
-	      justify-content:space-between;
-	      gap:10px;
-	      flex-wrap:wrap;
-	      margin:0 0 10px 0;
-	    }
-	    .report-section-title h3{
-	      margin:0;
-	      font-size:13px;
-	      letter-spacing:.08em;
-	      text-transform:uppercase;
-	    }
+		    .report-section{
+		      margin-top:14px;
+		      border:1px solid var(--border);
+		      border-radius:14px;
+		      background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
+		      overflow:hidden;
+		    }
+		    .report-summary{
+		      display:flex;
+		      align-items:center;
+		      justify-content:space-between;
+		      gap:10px;
+		      padding:10px 12px;
+		      cursor:pointer;
+		      user-select:none;
+		      list-style:none;
+		    }
+		    .report-section summary::-webkit-details-marker{ display:none; }
+		    .report-section summary::marker{ content:''; }
+		    .report-summary-left h3{
+		      margin:0;
+		      font-size:13px;
+		      letter-spacing:.08em;
+		      text-transform:uppercase;
+		    }
+		    .report-summary-right{
+		      display:flex;
+		      align-items:center;
+		      justify-content:flex-end;
+		      gap:10px;
+		      flex-shrink:0;
+		    }
+		    .report-summary-right .muted{ font-size:12px; }
+		    .report-chevron{
+		      display:inline-block;
+		      color:var(--muted);
+		      font-size:14px;
+		      line-height:1;
+		      transform: rotate(0deg);
+		      transition: transform 160ms ease;
+		    }
+		    .report-section[open] .report-chevron{ transform: rotate(180deg); }
+		    .report-section[open] .report-summary{ border-bottom:1px solid rgba(255,255,255,0.08); }
 		    .report-list{
 		      display:flex;
 		      flex-direction:column;
@@ -1084,18 +1123,32 @@
 
   <main>
     <section class="card">
-      <div class="toolbar" role="toolbar" aria-label="Inventory actions" style="justify-content:center;">
-        <input type="file" id="fileImport" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.docx,.doc,.pdf" style="display:none" />
-        <div class="input-wrap">
-          <input id="filterBox" type="text" placeholder="Filter items…" aria-label="Filter items" />
-          <button class="clear-input-btn" id="btnClearFilter" type="button" aria-label="Clear filter" title="Clear filter" style="display:none">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M18 6L6 18"></path>
-              <path d="M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
+	      <div class="toolbar" role="toolbar" aria-label="Inventory actions" style="justify-content:center;">
+	        <input type="file" id="fileImport" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.docx,.doc,.pdf" style="display:none" />
+	        <div class="inv-controls">
+	          <div class="input-wrap">
+	            <input id="filterBox" type="text" placeholder="Filter items…" aria-label="Filter items" />
+	            <button class="clear-input-btn" id="btnClearFilter" type="button" aria-label="Clear filter" title="Clear filter" style="display:none">
+	              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+	                <path d="M18 6L6 18"></path>
+	                <path d="M6 6l12 12"></path>
+	              </svg>
+	            </button>
+	          </div>
+	          <div class="sort-wrap" id="mobileSortWrap">
+	            <select id="mobileSort" aria-label="Sort items">
+	              <option value="name:asc">Item (A–Z)</option>
+	              <option value="name:desc">Item (Z–A)</option>
+	              <option value="desc:asc">Description (A–Z)</option>
+	              <option value="desc:desc">Description (Z–A)</option>
+	              <option value="qty:asc">Qty (Low–High)</option>
+	              <option value="qty:desc">Qty (High–Low)</option>
+	              <option value="updatedAt:desc">Last Modified (Newest)</option>
+	              <option value="updatedAt:asc">Last Modified (Oldest)</option>
+	            </select>
+	          </div>
+	        </div>
+	      </div>
 
 	      <div class="totals" aria-live="polite">
 	        <span id="totalItems" class="muted">Total Items: 0</span>
@@ -1372,11 +1425,11 @@
 		    </div>
 		  </div>
 
-	  <!-- Inventory report -->
-	  <div id="reportModal" class="modal" aria-hidden="true">
-	    <div class="box">
-	      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-	        <h2 style="margin:0;font-size:16px;">Inventory Report</h2>
+		  <!-- Inventory report -->
+		  <div id="reportModal" class="modal" aria-hidden="true">
+		    <div class="box">
+		      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+		        <h2 style="margin:0;font-size:16px;">Inventory Report</h2>
 	        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
 	          <button class="btn btn-icon" id="btnReportShare" type="button" title="Share report" aria-label="Share report">
 	            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1396,44 +1449,71 @@
 	        </div>
 	      </div>
 
-		      <div class="report-metrics" aria-label="Report summary">
-		        <div class="report-metric"><div class="muted">Total Items</div><div class="val" id="reportMetricTotalItems">0</div></div>
-		        <div class="report-metric"><div class="muted">In Stock</div><div class="val" id="reportMetricInStock">0</div></div>
-		        <div class="report-metric"><div class="muted">Low Stock</div><div class="val" id="reportMetricOutOfStock">0</div></div>
-		        <div class="report-metric"><div class="muted">Total Qty</div><div class="val" id="reportMetricTotalQty">0</div></div>
-		      </div>
+			      <div class="report-metrics" aria-label="Report summary">
+			        <div class="report-metric"><div class="muted">Total Items</div><div class="val" id="reportMetricTotalItems">0</div></div>
+			        <div class="report-metric"><div class="muted">In Stock</div><div class="val" id="reportMetricInStock">0</div></div>
+			        <div class="report-metric"><div class="muted">Low Stock</div><div class="val" id="reportMetricOutOfStock">0</div></div>
+			        <div class="report-metric"><div class="muted">Total Qty</div><div class="val" id="reportMetricTotalQty">0</div></div>
+			      </div>
 	
-		      <div id="reportLowStockBanner" class="report-banner" style="display:none">
-		        <div id="reportLowStockBannerText" class="report-banner-text"></div>
-		        <div class="report-banner-actions">
-		          <button class="btn small" id="btnReportBannerBuildReorder" type="button">Build Reorder</button>
-		          <button class="btn small" id="btnReportBannerDismiss" type="button">Dismiss</button>
-		        </div>
+			      <details class="report-section" id="reportLowStockSection" style="display:none" open>
+			        <summary class="report-summary">
+			          <div class="report-summary-left">
+			            <h3>Low Stock Items</h3>
+			          </div>
+			          <div class="report-summary-right">
+			            <button class="btn small" id="btnReportBuildReorder" type="button">Re-order Low Stock Items</button>
+			            <span class="report-chevron" aria-hidden="true">▾</span>
+			          </div>
+			        </summary>
+			        <div class="muted" id="reportLowStockNote" style="margin:10px 2px 10px;"></div>
+			        <div class="report-list" id="reportLowStockList"></div>
+			      </details>
+
+			      <details class="report-section" id="reportInventorySection" open>
+			        <summary class="report-summary">
+			          <div class="report-summary-left">
+			            <h3>Current Inventory</h3>
+			          </div>
+			          <div class="report-summary-right">
+			            <div class="muted" id="reportGeneratedAt"></div>
+			            <span class="report-chevron" aria-hidden="true">▾</span>
+			          </div>
+			        </summary>
+			        <div class="report-list" id="reportList" aria-live="polite"></div>
+			      </details>
+		    </div>
+		  </div>
+
+		  <!-- Email inventory report -->
+		  <div id="reportEmailModal" class="modal" aria-hidden="true">
+		    <div class="box">
+		      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+		        <h2 style="margin:0;font-size:16px;">Email Inventory Report</h2>
+		        <button class="btn" id="btnReportEmailClose" type="button">Close</button>
 		      </div>
+		      <div style="display:grid; grid-template-columns:1fr; gap:8px; margin-top:10px;">
+		        <label class="muted">To</label>
+		        <input id="reportEmailTo" type="email" placeholder="recipient@example.com" autocomplete="email" inputmode="email" />
+		        <label class="muted">Subject</label>
+		        <input id="reportEmailSubject" type="text" placeholder="Inventory Report" />
+		      </div>
+		      <div class="order-preview" style="margin-top:12px;">
+		        <div class="muted" style="margin-bottom:6px;">Email Preview</div>
+		        <div id="reportEmailPreview" class="order-preview-html"></div>
+		      </div>
+		      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+		        <div id="reportEmailMsg" class="muted" style="margin-right:auto;"></div>
+		        <button class="btn" id="btnReportEmailCopy" type="button">Copy</button>
+		        <button class="btn primary" id="btnReportEmailSend" type="button">Send</button>
+		      </div>
+		    </div>
+		  </div>
 
-		      <div class="report-section" id="reportLowStockSection" style="display:none">
-		        <div class="report-section-title">
-		          <h3>Low Stock Alerts</h3>
-	          <button class="btn small" id="btnReportBuildReorder" type="button">Build Reorder</button>
-	        </div>
-	        <div class="muted" id="reportLowStockNote" style="margin:-4px 0 10px;"></div>
-	        <div class="report-list" id="reportLowStockList"></div>
-	      </div>
-
-	      <div class="report-section">
-	        <div class="report-section-title">
-	          <h3>Inventory</h3>
-	          <div class="muted" id="reportGeneratedAt"></div>
-	        </div>
-	        <div class="report-list" id="reportList" aria-live="polite"></div>
-	      </div>
-	    </div>
-	  </div>
-
-	  <!-- Auth modal -->
-	  <div id="authModal" class="modal" aria-hidden="true">
-	    <div class="box">
-      <h2 style="margin:0 0 10px;font-size:16px;">Sign In</h2>
+		  <!-- Auth modal -->
+		  <div id="authModal" class="modal" aria-hidden="true">
+		    <div class="box">
+	      <h2 style="margin:0 0 10px;font-size:16px;">Sign In</h2>
       <div style="display:grid; grid-template-columns:1fr; gap:8px;">
         <label class="muted">Email</label>
         <input id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" inputmode="email" />
@@ -2311,29 +2391,43 @@ function adjustTitleSize(){
   }catch(e){}
 }
 
-function getSort(){ return state._sort || {col:'name',dir:'asc'}; }
-function applySortIndicators(){
-  const srt=getSort();
-  document.querySelectorAll('#invTable thead th.sortable').forEach(th=>{
-    const col=th.getAttribute('data-col');
-    th.removeAttribute('aria-sort');
+	function getSort(){ return state._sort || {col:'name',dir:'asc'}; }
+	function syncMobileSortSelect(){
+	  const sel = $('mobileSort');
+	  if(!sel) return;
+	  const srt = getSort();
+	  const key = `${srt.col}:${srt.dir}`;
+	  const has = Array.from(sel.options || []).some(o => o.value === key);
+	  if(has) sel.value = key;
+	}
+	function applySortIndicators(){
+	  const srt=getSort();
+	  document.querySelectorAll('#invTable thead th.sortable').forEach(th=>{
+	    const col=th.getAttribute('data-col');
+	    th.removeAttribute('aria-sort');
     th.classList.remove('sorted-asc','sorted-desc');
     if(col===srt.col){
       const desc = (srt.dir==='desc');
       th.setAttribute('aria-sort', desc ? 'descending' : 'ascending');
-      th.classList.add(desc ? 'sorted-desc' : 'sorted-asc');
-    }
-  });
-}
+	      th.classList.add(desc ? 'sorted-desc' : 'sorted-asc');
+	    }
+	  });
+	  syncMobileSortSelect();
+	}
 
-function sortItems(arr){
-  const srt=getSort(); const dir = srt.dir==='desc' ? -1 : 1; const col=srt.col||'name';
-  return arr.sort((a,b)=>{
-    if(col==='qty') return (toInt(a.qty,0)-toInt(b.qty,0))*dir;
-    const av=toKey(String((a && a[col])||'')); const bv=toKey(String((b && b[col])||''));
-    return av.localeCompare(bv)*dir;
-  });
-}
+	function toTime(v){
+	  const t = Date.parse(String(v || ''));
+	  return Number.isFinite(t) ? t : 0;
+	}
+	function sortItems(arr){
+	  const srt=getSort(); const dir = srt.dir==='desc' ? -1 : 1; const col=srt.col||'name';
+	  return arr.sort((a,b)=>{
+	    if(col==='qty') return (toInt(a.qty,0)-toInt(b.qty,0))*dir;
+	    if(col==='updatedAt') return (toTime(a.updatedAt)-toTime(b.updatedAt))*dir;
+	    const av=toKey(String((a && a[col])||'')); const bv=toKey(String((b && b[col])||''));
+	    return av.localeCompare(bv)*dir;
+	  });
+	}
 
 
 	function adjustDescColumnWidth(){
@@ -3390,14 +3484,13 @@ function emptyStateHtml(){
 	      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='inventory.csv'; a.click(); URL.revokeObjectURL(url);
 	    });
 
-		    // ========================
-		    // Inventory report
-		    // ========================
-		    let _reportLowStockBannerDismissed = false;
-		    function getGlobalLowStockQty(){
-	      try{
-	        if(SB && SB.profile && typeof SB.profile.low_stock_qty_global !== 'undefined'){
-	          const v = Number(SB.profile.low_stock_qty_global);
+			    // ========================
+			    // Inventory report
+			    // ========================
+			    function getGlobalLowStockQty(){
+		      try{
+		        if(SB && SB.profile && typeof SB.profile.low_stock_qty_global !== 'undefined'){
+		          const v = Number(SB.profile.low_stock_qty_global);
 	          if(Number.isFinite(v) && v >= 0) return Math.trunc(v);
 	        }
 	      }catch(e){}
@@ -3539,29 +3632,17 @@ function emptyStateHtml(){
 	      html += '</tbody></table>';
 	      return html;
 	    }
-	    function renderInventoryReport(){
-	      const d = reportDataSnapshot();
-	      const elTotal = $('reportMetricTotalItems'); if(elTotal) elTotal.textContent = String(d.totalItems);
-	      const elIn = $('reportMetricInStock'); if(elIn) elIn.textContent = String(d.inStockCount);
-	      const elOut = $('reportMetricOutOfStock'); if(elOut) elOut.textContent = String(d.lowStockCount);
-	      const elQty = $('reportMetricTotalQty'); if(elQty) elQty.textContent = String(d.totalQty);
-	      const elWhen = $('reportGeneratedAt'); if(elWhen) elWhen.textContent = formatEasternDateTime(new Date());
-	
-	      const banner = $('reportLowStockBanner');
-	      const bannerText = $('reportLowStockBannerText');
-	      if(banner && bannerText){
-	        if(!_reportLowStockBannerDismissed && !lowStockAlertsSilenced() && d.lowStockCount > 0){
-	          banner.style.display = 'flex';
-	          bannerText.textContent = `Low stock alert: ${d.lowStockCount} item(s) at/below threshold`;
-	        }else{
-	          banner.style.display = 'none';
-	          bannerText.textContent = '';
-	        }
-	      }
+		    function renderInventoryReport(){
+		      const d = reportDataSnapshot();
+		      const elTotal = $('reportMetricTotalItems'); if(elTotal) elTotal.textContent = String(d.totalItems);
+		      const elIn = $('reportMetricInStock'); if(elIn) elIn.textContent = String(d.inStockCount);
+		      const elOut = $('reportMetricOutOfStock'); if(elOut) elOut.textContent = String(d.lowStockCount);
+		      const elQty = $('reportMetricTotalQty'); if(elQty) elQty.textContent = String(d.totalQty);
+		      const elWhen = $('reportGeneratedAt'); if(elWhen) elWhen.textContent = formatEasternDateTime(new Date());
 
-	      const lowSection = $('reportLowStockSection');
-	      const lowList = $('reportLowStockList');
-	      const lowNote = $('reportLowStockNote');
+		      const lowSection = $('reportLowStockSection');
+		      const lowList = $('reportLowStockList');
+		      const lowNote = $('reportLowStockNote');
 	      if(lowSection && lowList && lowNote){
 	        lowList.innerHTML = '';
 	        if(d.lowStockCount > 0){
@@ -3587,10 +3668,10 @@ function emptyStateHtml(){
 	        }
 	      }
 	    }
-	    function downloadInventoryReportCsv(){
-	      try{
-	        const csv = buildInventoryReportCsv(reportDataSnapshot());
-	        const stamp = new Date().toISOString().slice(0,10);
+		    function downloadInventoryReportCsv(){
+		      try{
+		        const csv = buildInventoryReportCsv(reportDataSnapshot());
+		        const stamp = new Date().toISOString().slice(0,10);
 	        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
 	        const url = URL.createObjectURL(blob);
 	        const a = document.createElement('a');
@@ -3602,34 +3683,173 @@ function emptyStateHtml(){
 	        URL.revokeObjectURL(url);
 	      }catch(e){
 	        toast((e && e.message) ? e.message : 'Download failed');
-	      }
-	    }
-	    async function shareInventoryReport(){
-	      const data = reportDataSnapshot();
-	      const text = buildInventoryReportText(data, { maxLines: 180 });
-	      const csv = buildInventoryReportCsv(data);
-	      const stamp = new Date().toISOString().slice(0,10);
-	      const fileName = `inventory-report-${stamp}.csv`;
+		      }
+		    }
+		    function inventoryReportEmailTableHtml(items, opts = {}){
+		      const rows = Array.isArray(items) ? items : [];
+		      const showThreshold = !!opts.showThreshold;
 
-	      if(navigator.share){
-	        const payload = { title: 'Inventory Report', text };
-	        try{
-	          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-	          const file = new File([blob], fileName, { type: blob.type });
-	          if(navigator.canShare && navigator.canShare({ files: [file] })){
-	            payload.files = [file];
-	          }
-	        }catch{}
-	        try{
-	          await navigator.share(payload);
-	          return;
-	        }catch(e){}
-	      }
+		      const th = (label, alignRight) => (
+		        `<th style="padding:10px;border:1px solid #d0d7de;${alignRight ? 'text-align:right;' : 'text-align:left;'}background:#f6f8fa;font-size:12px;text-transform:uppercase;letter-spacing:.06em;">${label}</th>`
+		      );
+		      const td = (value, alignRight, extra = '') => (
+		        `<td style="padding:10px;border:1px solid #d0d7de;${alignRight ? 'text-align:right;font-variant-numeric:tabular-nums;font-weight:700;' : 'text-align:left;'}${extra}">${value}</td>`
+		      );
 
-	      const subject = `Inventory Report (${stamp})`;
-	      const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
-	      window.location.href = mailto;
-	    }
+		      let html = `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #d0d7de;">`;
+		      html += `<thead><tr>`;
+		      html += th('Item', false);
+		      html += th('Description', false);
+		      html += th('Qty', true);
+		      if(showThreshold) html += th('Low', true);
+		      html += `</tr></thead><tbody>`;
+
+		      for(const it of rows){
+		        const name = escapeHtml(it && it.name ? it.name : '');
+		        const descRaw = String(it && it.desc ? it.desc : '').replace(/[\r\n]+/g,' ').trim();
+		        const desc = escapeHtml(descRaw);
+		        const qty = toInt(it && it.qty, 0);
+		        html += `<tr>`;
+		        html += td(`<strong>${name}</strong>`, false, 'word-break:break-word;overflow-wrap:anywhere;');
+		        html += td(desc, false, 'word-break:break-word;overflow-wrap:anywhere;');
+		        html += td(String(qty), true, '');
+		        if(showThreshold){
+		          const thr = effectiveLowStockQty(it);
+		          html += td(String(toInt(thr,0)), true, '');
+		        }
+		        html += `</tr>`;
+		      }
+
+		      html += `</tbody></table>`;
+		      return html;
+		    }
+		    function buildInventoryReportEmailHtml(data){
+		      const d = data || reportDataSnapshot();
+		      const when = formatEasternDateTime(new Date());
+		      const global = getGlobalLowStockQty();
+
+		      const metricsRow = (label, val) => (
+		        `<tr>`+
+		          `<td style="padding:8px 10px;border:1px solid #d0d7de;background:#f6f8fa;font-weight:700;">${label}</td>`+
+		          `<td style="padding:8px 10px;border:1px solid #d0d7de;text-align:right;font-variant-numeric:tabular-nums;font-weight:800;">${val}</td>`+
+		        `</tr>`
+		      );
+
+		      const metricsTable =
+		        `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #d0d7de;margin:12px 0 18px;">`+
+		          `<tbody>`+
+		            metricsRow('Total Items', String(d.totalItems))+
+		            metricsRow('In Stock', String(d.inStockCount))+
+		            metricsRow('Low Stock', String(d.lowStockCount))+
+		            metricsRow('Total Qty', String(d.totalQty))+
+		          `</tbody>`+
+		        `</table>`;
+
+		      const lowStockBlock = d.lowStock && d.lowStock.length
+		        ? (
+		          `<div style="margin:0 0 18px;">`+
+		            `<div style="font-weight:800;font-size:14px;margin:0 0 8px;">Low Stock Items</div>`+
+		            `<div style="font-size:12px;color:#57606a;margin:0 0 10px;">Thresholds use global <strong>${global}</strong> unless an item override is set.</div>`+
+		            inventoryReportEmailTableHtml(d.lowStock, { showThreshold:true })+
+		          `</div>`
+		        )
+		        : '';
+
+		      const inventoryBlock = d.inStock && d.inStock.length
+		        ? (
+		          `<div style="margin:0 0 18px;">`+
+		            `<div style="font-weight:800;font-size:14px;margin:0 0 8px;">Current Inventory</div>`+
+		            inventoryReportEmailTableHtml(d.inStock, { showThreshold:false })+
+		          `</div>`
+		        )
+		        : (
+		          `<div style="margin:0 0 18px;">`+
+		            `<div style="font-weight:800;font-size:14px;margin:0 0 8px;">Current Inventory</div>`+
+		            `<div style="color:#57606a;">No in-stock items.</div>`+
+		          `</div>`
+		        );
+
+		      return (
+		        `<!doctype html>`+
+		        `<html><body style="margin:0;padding:0;background:#ffffff;">`+
+		          `<div style="max-width:760px;margin:0 auto;padding:18px 16px;font-family:Arial,Helvetica,sans-serif;color:#111;line-height:1.35;">`+
+		            `<h2 style="margin:0 0 10px;font-size:18px;">Inventory Report</h2>`+
+		            `<div style="font-size:13px;color:#444;margin:0 0 6px;"><strong>Generated:</strong> ${escapeHtml(when)}</div>`+
+		            `${metricsTable}`+
+		            `${lowStockBlock}`+
+		            `${inventoryBlock}`+
+		            `<div style="margin-top:18px;font-size:12px;color:#6a737d;">Built by james.johns83@gmail.com for Oakley Services, LLC | v${escapeHtml(APP_VERSION)}</div>`+
+		          `</div>`+
+		        `</body></html>`
+		      );
+		    }
+
+		    let _reportEmailHtml = '';
+		    function setReportEmailMessage(msg){
+		      const el = $('reportEmailMsg');
+		      if(el) el.textContent = String(msg || '');
+		    }
+		    function renderReportEmailPreview(html){
+		      const wrap = $('reportEmailPreview');
+		      if(!wrap) return;
+		      const safe = String(html || '').replace(/"/g, '&quot;');
+		      wrap.innerHTML = `<iframe srcdoc="${safe}" sandbox="allow-same-origin"></iframe>`;
+		    }
+		    function defaultInventoryReportEmailSubject(){
+		      const stamp = new Date().toISOString().slice(0,10);
+		      return `Inventory Report (${stamp})`;
+		    }
+		    function openReportEmailModal(){
+		      const data = reportDataSnapshot();
+		      _reportEmailHtml = buildInventoryReportEmailHtml(data);
+		      const to = $('reportEmailTo');
+		      const subject = $('reportEmailSubject');
+		      if(subject) subject.value = defaultInventoryReportEmailSubject();
+		      if(to && !String(to.value || '').trim()){
+		        const signed = getSignedInEmail();
+		        if(signed) to.value = signed;
+		      }
+		      renderReportEmailPreview(_reportEmailHtml);
+		      setReportEmailMessage('');
+		      show('reportEmailModal', true);
+		    }
+		    function closeReportEmailModal(){
+		      show('reportEmailModal', false);
+		      setReportEmailMessage('');
+		    }
+		    async function sendInventoryReportEmailViaApi({ toEmail, subjectLine, html }){
+		      const to = String(toEmail || '').trim();
+		      const subject = String(subjectLine || '').trim() || defaultInventoryReportEmailSubject();
+		      const replyTo = getSignedInEmail();
+		      const apiUrl = getOrderApiUrl();
+
+		      const headers = { 'content-type': 'application/json' };
+		      const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
+		      const sbKey = (typeof window.SB_ANON === 'string') ? window.SB_ANON.trim() : '';
+		      if(sbUrl && apiUrl.startsWith(sbUrl) && sbKey){
+		        headers['apikey'] = sbKey;
+		        if(SB.session && SB.session.access_token){
+		          headers['Authorization'] = `Bearer ${SB.session.access_token}`;
+		        }
+		      }
+
+		      const res = await fetch(apiUrl, {
+		        method: 'POST',
+		        headers,
+		        body: JSON.stringify({ to, subject, html: String(html || ''), replyTo }),
+		      });
+		      let data = null;
+		      try { data = await res.json(); } catch {}
+		      if(!res.ok || !data || data.ok !== true){
+		        const msg = (data && data.error) ? String(data.error) : `Send failed (${res.status})`;
+		        throw Object.assign(new Error(msg), { status: res.status, data });
+		      }
+		      return data;
+		    }
+
+		    async function shareInventoryReport(){
+		      openReportEmailModal();
+		    }
 	    function lowStockAlertsSilenced(){
 	      try{
 	        if(SB && SB.profile && typeof SB.profile.silence_low_stock_alerts !== 'undefined'){
@@ -3669,11 +3889,17 @@ function emptyStateHtml(){
 		      closeReportModal();
 		      openOrderModal({ addSelected:false });
 		    }
-		    function openReportModal(){
-		      _reportLowStockBannerDismissed = false;
-		      renderInventoryReport();
-		      show('reportModal', true);
-		    }
+			    function openReportModal(){
+			      renderInventoryReport();
+			      const invSection = $('reportInventorySection');
+			      if(invSection){
+			        const isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+			        invSection.open = !isMobile;
+			      }
+			      const lowSection = $('reportLowStockSection');
+			      if(lowSection) lowSection.open = true;
+			      show('reportModal', true);
+			    }
 	    function closeReportModal(){ show('reportModal', false); }
 
 	    // ========================
@@ -4389,35 +4615,50 @@ function emptyStateHtml(){
 	      });
 	      renderOrderHistoryList(out, { emptyText: 'No matching orders.' });
 	    }
-	    let _orderSuggestTimer = null;
-	    function renderOrderEmailSuggestions(list){
-	      const wrap = $('orderEmailSuggest');
-	      if(!wrap) return;
-      wrap.innerHTML = '';
-      const rows = Array.isArray(list) ? list.filter(r=> r && r.email) : [];
-      if(!rows.length){ wrap.classList.remove('has-suggest'); return; }
-      wrap.classList.add('has-suggest');
-      rows.forEach(r=>{
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'suggest-chip';
-        btn.dataset.suggestEmail = String(r.email);
-        btn.textContent = String(r.email);
-        wrap.appendChild(btn);
-      });
-    }
-    function requestOrderEmailSuggestions(prefix){
-      if(_orderSuggestTimer) clearTimeout(_orderSuggestTimer);
-      const q = String(prefix||'');
-      _orderSuggestTimer = setTimeout(async ()=>{
-        try{
-          const data = await sbFetchOrderRecipientSuggestions(q);
-          renderOrderEmailSuggestions(data);
-        }catch{
-          renderOrderEmailSuggestions([]);
-        }
-      }, 160);
-    }
+		    let _orderSuggestTimer = null;
+		    function renderOrderEmailSuggestions(list){
+		      const wrap = $('orderEmailSuggest');
+		      if(!wrap) return;
+	      wrap.innerHTML = '';
+	      const rows = Array.isArray(list) ? list.filter(r=> r && r.email) : [];
+	      if(!rows.length){ wrap.classList.remove('has-suggest'); return; }
+	      wrap.classList.add('has-suggest');
+	      rows.forEach(r=>{
+	        const btn = document.createElement('button');
+	        btn.type = 'button';
+	        btn.className = 'suggest-chip';
+	        btn.dataset.suggestEmail = String(r.email);
+	        btn.textContent = String(r.email);
+	        wrap.appendChild(btn);
+	      });
+	    }
+	    function hideOrderEmailSuggestions(){
+	      if(_orderSuggestTimer){ clearTimeout(_orderSuggestTimer); _orderSuggestTimer = null; }
+	      renderOrderEmailSuggestions([]);
+	    }
+	    function requestOrderEmailSuggestions(prefix){
+	      if(_orderSuggestTimer) clearTimeout(_orderSuggestTimer);
+	      const q = String(prefix||'');
+	      _orderSuggestTimer = setTimeout(async ()=>{
+	        const wrap = $('orderEmailSuggest');
+	        const inp = $('orderEmail');
+	        const ae = document.activeElement;
+	        const allow = (inp && ae === inp) || (wrap && ae && wrap.contains(ae));
+	        if(!allow){ hideOrderEmailSuggestions(); return; }
+	        try{
+	          const data = await sbFetchOrderRecipientSuggestions(q);
+	          // If focus moved away while we awaited, don't reopen the list.
+	          const wrap2 = $('orderEmailSuggest');
+	          const inp2 = $('orderEmail');
+	          const ae2 = document.activeElement;
+	          const allow2 = (inp2 && ae2 === inp2) || (wrap2 && ae2 && wrap2.contains(ae2));
+	          if(!allow2){ hideOrderEmailSuggestions(); return; }
+	          renderOrderEmailSuggestions(data);
+	        }catch{
+	          renderOrderEmailSuggestions([]);
+	        }
+	      }, 160);
+	    }
 
     const _forwardSuggestTimers = new Map();
     function renderForwardEmailSuggestions(orderId, list){
@@ -4724,19 +4965,61 @@ function emptyStateHtml(){
 	    if(menuReport) menuReport.addEventListener('click', ()=>{ toggleMenu(false); openReportModal(); });
 	    const btnReportClose = $('btnReportClose');
 	    if(btnReportClose) btnReportClose.addEventListener('click', closeReportModal);
-	    const btnReportDownload = $('btnReportDownload');
-	    if(btnReportDownload) btnReportDownload.addEventListener('click', downloadInventoryReportCsv);
-	    const btnReportShare = $('btnReportShare');
-	    if(btnReportShare) btnReportShare.addEventListener('click', ()=>{ void shareInventoryReport(); });
+		    const btnReportDownload = $('btnReportDownload');
+		    if(btnReportDownload) btnReportDownload.addEventListener('click', downloadInventoryReportCsv);
+		    const btnReportShare = $('btnReportShare');
+		    if(btnReportShare) btnReportShare.addEventListener('click', ()=>{ void shareInventoryReport(); });
 		    const btnReportBuildReorder = $('btnReportBuildReorder');
-		    if(btnReportBuildReorder) btnReportBuildReorder.addEventListener('click', ()=> buildReorderFromLowStock());
-		    const btnReportBannerBuildReorder = $('btnReportBannerBuildReorder');
-		    if(btnReportBannerBuildReorder) btnReportBannerBuildReorder.addEventListener('click', ()=> buildReorderFromLowStock());
-		    const btnReportBannerDismiss = $('btnReportBannerDismiss');
-		    if(btnReportBannerDismiss) btnReportBannerDismiss.addEventListener('click', ()=>{
-		      _reportLowStockBannerDismissed = true;
-		      const banner = $('reportLowStockBanner');
-		      if(banner) banner.style.display = 'none';
+		    if(btnReportBuildReorder) btnReportBuildReorder.addEventListener('click', (e)=>{
+		      e.preventDefault();
+		      e.stopPropagation(); // do not toggle <details> when clicking inside <summary>
+		      buildReorderFromLowStock();
+		    });
+		    const btnReportEmailClose = $('btnReportEmailClose');
+		    if(btnReportEmailClose) btnReportEmailClose.addEventListener('click', closeReportEmailModal);
+		    const btnReportEmailCopy = $('btnReportEmailCopy');
+		    if(btnReportEmailCopy) btnReportEmailCopy.addEventListener('click', async ()=>{
+		      try{
+		        const html = String(_reportEmailHtml || '').trim();
+		        if(!html){ toast('Nothing to copy'); return; }
+		        await navigator.clipboard.writeText(html);
+		        toast('Copied');
+		      }catch(e){
+		        toast('Copy failed');
+		      }
+		    });
+		    const btnReportEmailSend = $('btnReportEmailSend');
+		    if(btnReportEmailSend) btnReportEmailSend.addEventListener('click', async ()=>{
+		      const to = String($('reportEmailTo')?.value || '').trim();
+		      const subjectLine = String($('reportEmailSubject')?.value || '').trim() || defaultInventoryReportEmailSubject();
+		      const html = String(_reportEmailHtml || '').trim();
+		      setReportEmailMessage('');
+		      if(!looksLikeEmailAddress(to)){ setReportEmailMessage('Enter a valid email.'); return; }
+		      if(!html){ setReportEmailMessage('Nothing to send.'); return; }
+
+		      const prior = btnReportEmailSend.textContent;
+		      btnReportEmailSend.disabled = true;
+		      btnReportEmailSend.textContent = 'Sending…';
+		      try{
+		        await sendInventoryReportEmailViaApi({ toEmail: to, subjectLine, html });
+		        toast('Report sent');
+		        closeReportEmailModal();
+		      }catch(e){
+		        const msg = (e && e.message) ? String(e.message) : 'Send failed';
+		        setReportEmailMessage(msg);
+		        const fallback = await openConfirmModal('Send failed', `${msg}\n\nOpen your email app with a text report instead?`, { okText:'Open Email', cancelText:'Stay' });
+		        if(fallback){
+		          const data = reportDataSnapshot();
+		          const text = buildInventoryReportText(data, { maxLines: 180 });
+		          const stamp = new Date().toISOString().slice(0,10);
+		          const subject = subjectLine || `Inventory Report (${stamp})`;
+		          const mailto = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+		          window.location.href = mailto;
+		        }
+		      }finally{
+		        btnReportEmailSend.disabled = false;
+		        btnReportEmailSend.textContent = prior || 'Send';
+		      }
 		    });
 	    const btnOrderHistory = $('btnOrderHistory');
 	    if(btnOrderHistory) btnOrderHistory.addEventListener('click', ()=> openOrderHistoryModal({ returnToOrder: true }));
@@ -4845,19 +5128,29 @@ function emptyStateHtml(){
         try{ orderSearch.focus(); }catch(e){}
       });
     }
-    const orderEmail = $('orderEmail');
-    if(orderEmail) orderEmail.addEventListener('input', ()=>{
-      const ord = orderState();
-      ord.email = orderEmail.value || '';
-      renderOrderPreview();
-      requestOrderEmailSuggestions(ord.email);
-    });
-    if(orderEmail) orderEmail.addEventListener('focus', ()=> requestOrderEmailSuggestions(orderEmail.value || ''));
-    const orderSubject = $('orderSubject');
-    if(orderSubject) orderSubject.addEventListener('input', ()=>{
-      const ord = orderState();
-      ord.subject = orderSubject.value || '';
-    });
+	    const orderEmail = $('orderEmail');
+	    if(orderEmail) orderEmail.addEventListener('input', ()=>{
+	      const ord = orderState();
+	      ord.email = orderEmail.value || '';
+	      renderOrderPreview();
+	      requestOrderEmailSuggestions(ord.email);
+	    });
+	    if(orderEmail) orderEmail.addEventListener('focus', ()=> requestOrderEmailSuggestions(orderEmail.value || ''));
+	    if(orderEmail) orderEmail.addEventListener('blur', ()=>{
+	      // Defer so clicks on suggestions can still be handled.
+	      setTimeout(()=>{
+	        const wrap = $('orderEmailSuggest');
+	        if(!wrap || !wrap.classList.contains('has-suggest')) return;
+	        const ae = document.activeElement;
+	        if(ae && wrap.contains(ae)) return;
+	        hideOrderEmailSuggestions();
+	      }, 0);
+	    });
+	    const orderSubject = $('orderSubject');
+	    if(orderSubject) orderSubject.addEventListener('input', ()=>{
+	      const ord = orderState();
+	      ord.subject = orderSubject.value || '';
+	    });
     const orderNotes = $('orderNotes');
     if(orderNotes) orderNotes.addEventListener('input', ()=>{
       const ord = orderState();
@@ -4894,18 +5187,36 @@ function emptyStateHtml(){
       }
     });
 
-    const orderEmailSuggest = $('orderEmailSuggest');
-    if(orderEmailSuggest) orderEmailSuggest.addEventListener('click', (e)=>{
-      const btn = e.target.closest('button[data-suggest-email]');
-      if(!btn) return;
-      const email = String(btn.dataset.suggestEmail || '').trim();
+	    const orderEmailSuggest = $('orderEmailSuggest');
+	    if(orderEmailSuggest) orderEmailSuggest.addEventListener('click', (e)=>{
+	      const btn = e.target.closest('button[data-suggest-email]');
+	      if(!btn) return;
+	      const email = String(btn.dataset.suggestEmail || '').trim();
       if(!email) return;
       const ord = orderState();
       ord.email = email;
       const inp = $('orderEmail'); if(inp) inp.value = email;
-      renderOrderPreview();
-      renderOrderEmailSuggestions([]);
-    });
+	      renderOrderPreview();
+	      hideOrderEmailSuggestions();
+	    });
+	    if(orderEmailSuggest) orderEmailSuggest.addEventListener('mouseleave', (e)=>{
+	      // Only close when the mouse leaves below the last entry (not when moving back to the input).
+	      try{
+	        const rect = orderEmailSuggest.getBoundingClientRect();
+	        if(e && typeof e.clientY === 'number' && e.clientY >= rect.bottom - 1){
+	          hideOrderEmailSuggestions();
+	        }
+	      }catch(e){}
+	    });
+	    document.addEventListener('pointerdown', (e)=>{
+	      const wrap = $('orderEmailSuggest');
+	      if(!wrap || !wrap.classList.contains('has-suggest')) return;
+	      const inp = $('orderEmail');
+	      const t = e && e.target ? e.target : null;
+	      if(t && wrap.contains(t)) return;
+	      if(inp && (t === inp || (t && inp.contains(t)))) return;
+	      hideOrderEmailSuggestions();
+	    });
 
     const orderHistoryList = $('orderHistoryList');
     if(orderHistoryList) orderHistoryList.addEventListener('input', (e)=>{
@@ -5414,22 +5725,37 @@ function emptyStateHtml(){
         fb.addEventListener('input', ()=>{ state._filter=fb.value; renderTable(); save(); updateFilterClearBtn(); });
         fb.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && fb.value){ e.preventDefault(); fb.value=''; state._filter=''; renderTable(); save(); updateFilterClearBtn(); }});
       }
-      const clr=$('btnClearFilter'); if(clr && fb){
-        clr.addEventListener('click', ()=>{
-          if(!fb.value) return;
-          fb.value='';
-          state._filter='';
+	      const clr=$('btnClearFilter'); if(clr && fb){
+	        clr.addEventListener('click', ()=>{
+	          if(!fb.value) return;
+	          fb.value='';
+	          state._filter='';
           renderTable();
           save();
           updateFilterClearBtn();
           try{ fb.focus(); }catch(e){}
-        });
-      }
+	        });
+	      }
 
-      document.querySelectorAll('#invTable thead th.sortable').forEach(th=>{ th.addEventListener('click', ()=>{ const col=th.getAttribute('data-col'); if(!col) return; const srt=getSort(); if(srt.col===col){ state._sort={col, dir:(srt.dir==='asc'?'desc':'asc')}; } else { state._sort={col, dir:'asc'}; } renderTable(); save(); }); });
+	      const mobileSort = $('mobileSort');
+	      if(mobileSort){
+	        syncMobileSortSelect();
+	        mobileSort.addEventListener('change', ()=>{
+	          const raw = String(mobileSort.value || '');
+	          const parts = raw.split(':');
+	          const col = (parts[0] || '').trim();
+	          const dir = (parts[1] || '').trim() === 'desc' ? 'desc' : 'asc';
+	          if(!col) return;
+	          state._sort = { col, dir };
+	          renderTable();
+	          save();
+	        });
+	      }
 
-      // Supabase init and health check
-      try{
+	      document.querySelectorAll('#invTable thead th.sortable').forEach(th=>{ th.addEventListener('click', ()=>{ const col=th.getAttribute('data-col'); if(!col) return; const srt=getSort(); if(srt.col===col){ state._sort={col, dir:(srt.dir==='asc'?'desc':'asc')}; } else { state._sort={col, dir:'asc'}; } renderTable(); save(); }); });
+
+	      // Supabase init and health check
+	      try{
         sbInit();
         updateStatusBar();
         await sbAuthBoot();
