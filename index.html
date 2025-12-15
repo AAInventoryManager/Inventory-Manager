@@ -168,6 +168,7 @@
 			        isolation:isolate;
 			        display:block;
 			        --swipe-x: 0px;
+			        --tray-progress: 0;
 			        --focus-y: 0px;
 			        padding:8px; /* tighter cards to reduce scrolling */
 			        border-radius:14px;
@@ -298,17 +299,17 @@
 			        box-shadow: 0 0 10px rgba(135,245,255,0.32), 0 0 0 1px rgba(255,255,255,0.10);
 			      }
 
-			      /* Mobile UX v2: swipe tray (Edit + Low Stock only) */
+			      /* Mobile UX v2: iMessage-style swipe tray (Edit + Low Stock only) */
 			      #invTable tbody tr[data-id] .card-tray{
 			        position:absolute;
 			        top:50%;
 			        transform:translateY(-50%) translateX(calc(0px - var(--swipe-x, 0px)));
 			        display:flex;
-			        flex-direction:column;
+			        flex-direction:row;
+			        align-items:center;
 			        gap:10px;
-			        opacity:0;
+			        opacity:1;
 			        pointer-events:none;
-			        transition: opacity 140ms ease, transform 180ms ease;
 			        z-index:1;
 			      }
 			      #invTable tbody tr[data-id][data-tray-side="left"] .card-tray{
@@ -317,15 +318,9 @@
 			      #invTable tbody tr[data-id][data-tray-side="right"] .card-tray{
 			        right:10px;
 			      }
-			      #invTable tbody tr[data-id].tray-peek .card-tray{
-			        opacity:1;
-			      }
 			      #invTable tbody tr[data-id].tray-open .card-tray{
-			        opacity:1;
 			        pointer-events:auto;
 			      }
-			      #invTable tbody tr[data-id].tray-peek .card-tray{ pointer-events:none; }
-			      #invTable tbody tr[data-id].swiping .card-tray{ transition: opacity 140ms ease; }
 			      #invTable tbody tr[data-id] .card-tray-btn{
 			        width:48px;
 			        height:48px;
@@ -333,6 +328,9 @@
 			        border:1px solid var(--border);
 			        background:rgba(16,24,38,0.92);
 			        color:#ffffff;
+			        opacity:var(--tray-progress, 0);
+			        transform:scale(calc(0.85 + (0.15 * var(--tray-progress, 0))));
+			        transition: opacity 160ms ease, transform 160ms ease;
 			        display:flex;
 			        align-items:center;
 			        justify-content:center;
@@ -345,10 +343,18 @@
 			      #invTable tbody tr[data-id] .card-tray-btn:active{
 			        background:rgba(26,38,54,0.96);
 			      }
+			      #invTable tbody tr[data-id].commit-armed .card-tray-btn[data-tray-action="edit"]{
+			        border-color: rgba(135,245,255,0.85);
+			        box-shadow:
+			          0 0 0 1px rgba(135,245,255,0.18),
+			          0 0 20px rgba(135,245,255,0.22);
+			      }
 
 			      /* Mobile UX v2: ensure steppers meet 48×48 target */
 			      .qty-step{ min-width:48px; min-height:48px; }
 			      .qty-stepper--table .qty-step{ min-width:48px; }
+			      #invTable tbody tr[data-id].swiping .card-tray,
+			      #invTable tbody tr[data-id].swiping .card-tray-btn{ transition:none !important; }
 			      #invTable tbody tr[data-id].swiping{ transition:none !important; }
 		    }
 		    @media (prefers-reduced-motion: reduce){
@@ -2641,11 +2647,17 @@ function tbodyEl(){ return document.querySelector('#invTable tbody'); }
 function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) || null; }
 	function cellEl(tr, col){ return tr?.querySelector(`td[data-col="${col}"]`) || null; }
 	let _openTrayId = '';
-	const MOBILE_TRAY_MAX_PX = 92;
-	const MOBILE_TRAY_OPEN_PX = 72;
-	const MOBILE_TRAY_OPEN_THRESHOLD_PX = 42;
+	const REVEAL_PX = 48; // icons begin appearing
+	const SNAP_PX = 96; // tray snaps open
+	const COMMIT_PX = 144; // auto-trigger Edit (swipe left only)
+	const MAX_PX = 168; // elastic clamp
 	function clampNum(v, min, max){
 	  return Math.max(min, Math.min(max, v));
+	}
+	function trayProgressForSwipeX(x){
+	  const ax = Math.abs(Number(x) || 0);
+	  if(ax <= REVEAL_PX) return 0;
+	  return clampNum((ax - REVEAL_PX) / (SNAP_PX - REVEAL_PX), 0, 1);
 	}
 	function getRowSwipeX(tr){
 	  if(!tr || !tr.style) return 0;
@@ -2655,11 +2667,15 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 	}
 	function setRowSwipeX(tr, x){
 	  if(!tr || !tr.style) return;
-	  const v = clampNum(Number(x) || 0, -MOBILE_TRAY_MAX_PX, MOBILE_TRAY_MAX_PX);
+	  const v = clampNum(Number(x) || 0, -MAX_PX, MAX_PX);
 	  tr.style.setProperty('--swipe-x', `${v}px`);
+	  tr.style.setProperty('--tray-progress', String(trayProgressForSwipeX(v)));
+	  const side = (tr && tr.dataset) ? String(tr.dataset.traySide || '') : '';
+	  const commitArmed = (side === 'right') && (Math.abs(v) >= COMMIT_PX);
+	  tr.classList.toggle('commit-armed', commitArmed);
 	}
 	function traySideToSwipeX(side){
-	  return (side === 'left') ? MOBILE_TRAY_OPEN_PX : -MOBILE_TRAY_OPEN_PX;
+	  return (side === 'left') ? SNAP_PX : -SNAP_PX;
 	}
 	function setMobileTrayA11y(tr, open){
 	  const tray = tr ? tr.querySelector('.card-tray') : null;
@@ -2770,17 +2786,17 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 			        '<span class="'+overrideLedClass+'"></span>'+
 			      '</div>'+
 			      '<div class="card-tray" aria-hidden="true">'+
-			        '<button type="button" class="card-tray-btn" data-tray-action="edit" tabindex="-1" aria-label="Edit item" title="Edit item">'+
-			          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
-			            '<path d="M12 20h9"></path>'+
-			            '<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>'+
-			          '</svg>'+
-			        '</button>'+
 			        '<button type="button" class="card-tray-btn" data-tray-action="lowStock" tabindex="-1" aria-label="Low stock override" title="Low stock override">'+
 			          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
 			            '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>'+
 			            '<line x1="12" y1="9" x2="12" y2="13"></line>'+
 			            '<line x1="12" y1="17" x2="12.01" y2="17"></line>'+
+			          '</svg>'+
+			        '</button>'+
+			        '<button type="button" class="card-tray-btn" data-tray-action="edit" tabindex="-1" aria-label="Edit item" title="Edit item">'+
+			          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+			            '<path d="M12 20h9"></path>'+
+			            '<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>'+
 			          '</svg>'+
 			        '</button>'+
 			      '</div>'+
@@ -3553,6 +3569,7 @@ function emptyStateHtml(){
         // Ignore gestures starting from any other interactive control.
         if(e.target.closest('button, input, textarea, select, a')) return;
 
+        const now = performance.now();
         const startSwipeX = getRowSwipeX(tr);
         const startSide = (startSwipeX < 0) ? 'right' : ((startSwipeX > 0) ? 'left' : null);
         _mobGesture = {
@@ -3562,6 +3579,11 @@ function emptyStateHtml(){
           pointerId: e.pointerId,
           startX: e.clientX,
           startY: e.clientY,
+          startTime: now,
+          prevMoveTime: now,
+          lastMoveTime: now,
+          prevMoveClientX: e.clientX,
+          lastMoveClientX: e.clientX,
           startSwipeX,
           swipeX: startSwipeX,
           moved: false,
@@ -3593,10 +3615,16 @@ function emptyStateHtml(){
         }
         if(_mobGesture.intent !== 'h') return;
 
+        const now = performance.now();
+        _mobGesture.prevMoveTime = _mobGesture.lastMoveTime;
+        _mobGesture.prevMoveClientX = _mobGesture.lastMoveClientX;
+        _mobGesture.lastMoveTime = now;
+        _mobGesture.lastMoveClientX = e.clientX;
+
         const tr = _mobGesture.tr;
         if(!tr || !tr.isConnected){ resetMobGesture(); return; }
 
-        const nextX = clampNum(_mobGesture.startSwipeX + dx, -MOBILE_TRAY_MAX_PX, MOBILE_TRAY_MAX_PX);
+        const nextX = clampNum(_mobGesture.startSwipeX + dx, -MAX_PX, MAX_PX);
         _mobGesture.swipeX = nextX;
 
         let side = _mobGesture.side;
@@ -3616,7 +3644,7 @@ function emptyStateHtml(){
         if(e.pointerId !== _mobGesture.pointerId) return;
         if(isAnyModalOpen()){ resetMobGesture(); return; }
 
-        const { id, tr, moved, intent, swipeX } = _mobGesture;
+        const { id, tr, moved, intent, swipeX, startTime, startX, prevMoveTime, lastMoveTime, prevMoveClientX, lastMoveClientX } = _mobGesture;
         resetMobGesture();
         if(!id || !tr) return;
 
@@ -3637,8 +3665,31 @@ function emptyStateHtml(){
         if(intent === 'h'){
           tr.classList.remove('swiping');
           const finalX = Number.isFinite(swipeX) ? swipeX : getRowSwipeX(tr);
-          if(Math.abs(finalX) >= MOBILE_TRAY_OPEN_THRESHOLD_PX){
-            const side = (finalX < 0) ? 'right' : 'left';
+          const ax = Math.abs(finalX);
+          const side = (finalX < 0) ? 'right' : 'left';
+
+          let vx = 0;
+          try{
+            if(Number.isFinite(lastMoveTime) && Number.isFinite(prevMoveTime) && lastMoveTime > prevMoveTime){
+              const dt = lastMoveTime - prevMoveTime;
+              vx = dt > 0 ? (lastMoveClientX - prevMoveClientX) / dt : 0;
+            }else{
+              const tNow = performance.now();
+              const dt = tNow - (Number(startTime) || tNow);
+              vx = dt > 0 ? (e.clientX - startX) / dt : 0;
+            }
+          }catch(e){ vx = 0; }
+
+          const shouldCommitEdit = (side === 'right') && (ax >= COMMIT_PX || (vx <= -0.9 && ax >= SNAP_PX));
+          if(shouldCommitEdit){
+            closeMobileTray();
+            if(!requireOnline()) return;
+            openEditItemModal(id);
+            return;
+          }
+
+          const fastOpen = (side === 'right') ? (vx <= -0.55) : (vx >= 0.55);
+          if(ax >= SNAP_PX || (ax >= REVEAL_PX && fastOpen)){
             openMobileTrayForRow(tr, side);
           }else{
             closeMobileTray();
@@ -3683,6 +3734,7 @@ function emptyStateHtml(){
 
         const t = (e.touches && e.touches[0]) ? e.touches[0] : null;
         if(!t) return;
+        const now = performance.now();
         const startSwipeX = getRowSwipeX(tr);
         const startSide = (startSwipeX < 0) ? 'right' : ((startSwipeX > 0) ? 'left' : null);
         _mobGesture = {
@@ -3692,6 +3744,11 @@ function emptyStateHtml(){
           touchId: t.identifier,
           startX: t.clientX,
           startY: t.clientY,
+          startTime: now,
+          prevMoveTime: now,
+          lastMoveTime: now,
+          prevMoveClientX: t.clientX,
+          lastMoveClientX: t.clientX,
           startSwipeX,
           swipeX: startSwipeX,
           moved: false,
@@ -3727,10 +3784,16 @@ function emptyStateHtml(){
         // Horizontal swipe: prevent scroll once locked.
         try{ e.preventDefault(); }catch(e){}
 
+        const now = performance.now();
+        _mobGesture.prevMoveTime = _mobGesture.lastMoveTime;
+        _mobGesture.prevMoveClientX = _mobGesture.lastMoveClientX;
+        _mobGesture.lastMoveTime = now;
+        _mobGesture.lastMoveClientX = t.clientX;
+
         const tr = _mobGesture.tr;
         if(!tr || !tr.isConnected){ resetMobGesture(); return; }
 
-        const nextX = clampNum(_mobGesture.startSwipeX + dx, -MOBILE_TRAY_MAX_PX, MOBILE_TRAY_MAX_PX);
+        const nextX = clampNum(_mobGesture.startSwipeX + dx, -MAX_PX, MAX_PX);
         _mobGesture.swipeX = nextX;
 
         let side = _mobGesture.side;
@@ -3751,7 +3814,7 @@ function emptyStateHtml(){
         const ended = findTouchById(e.changedTouches || [], _mobGesture.touchId);
         if(!ended) return;
 
-        const { id, tr, moved, intent, swipeX } = _mobGesture;
+        const { id, tr, moved, intent, swipeX, startTime, startX, prevMoveTime, lastMoveTime, prevMoveClientX, lastMoveClientX } = _mobGesture;
         resetMobGesture();
         if(!id || !tr) return;
 
@@ -3772,8 +3835,31 @@ function emptyStateHtml(){
         if(intent === 'h'){
           tr.classList.remove('swiping');
           const finalX = Number.isFinite(swipeX) ? swipeX : getRowSwipeX(tr);
-          if(Math.abs(finalX) >= MOBILE_TRAY_OPEN_THRESHOLD_PX){
-            const side = (finalX < 0) ? 'right' : 'left';
+          const ax = Math.abs(finalX);
+          const side = (finalX < 0) ? 'right' : 'left';
+
+          let vx = 0;
+          try{
+            if(Number.isFinite(lastMoveTime) && Number.isFinite(prevMoveTime) && lastMoveTime > prevMoveTime){
+              const dt = lastMoveTime - prevMoveTime;
+              vx = dt > 0 ? (lastMoveClientX - prevMoveClientX) / dt : 0;
+            }else{
+              const tNow = performance.now();
+              const dt = tNow - (Number(startTime) || tNow);
+              vx = dt > 0 ? (ended.clientX - startX) / dt : 0;
+            }
+          }catch(e){ vx = 0; }
+
+          const shouldCommitEdit = (side === 'right') && (ax >= COMMIT_PX || (vx <= -0.9 && ax >= SNAP_PX));
+          if(shouldCommitEdit){
+            closeMobileTray();
+            if(!requireOnline()) return;
+            openEditItemModal(id);
+            return;
+          }
+
+          const fastOpen = (side === 'right') ? (vx <= -0.55) : (vx >= 0.55);
+          if(ax >= SNAP_PX || (ax >= REVEAL_PX && fastOpen)){
             openMobileTrayForRow(tr, side);
           }else{
             closeMobileTray();

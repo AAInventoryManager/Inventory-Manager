@@ -92,6 +92,7 @@ Quantity entry is the highest-priority interaction on mobile.
 - Swipe gestures are enabled on inventory cards (mobile only)
 - Vertical scrolling always takes priority over horizontal swipe
 - Only one swipe tray may be open at a time
+- For iOS-accurate thresholds/animation, see `GESTURE_ENGINE.md`
 
 ### 6.2 Swipe Tray Contents
 
