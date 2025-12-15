@@ -111,6 +111,7 @@
 				      align-items:center;
 				      justify-content:center;
 				      border-radius:6px;
+				      position:relative;
 				      transition:background 0.15s,color 0.15s;
 				      touch-action:manipulation;
 				      -webkit-appearance:none;
@@ -124,6 +125,20 @@
 			    }
 				    .row-delete-btn:hover{background:rgba(255,80,80,0.15);color:#ff6b6b}
 				    .row-stock-btn:hover{background:rgba(135,245,255,0.12);color:#87F5FF}
+				    .row-stock-btn.has-override::after{
+				      content:'';
+				      position:absolute;
+				      bottom:4px;
+				      right:4px;
+				      width:8px;
+				      height:8px;
+				      border-radius:50%;
+				      background:#87F5FF;
+				      border:2px solid rgba(0,0,0,0.9);
+				      box-shadow:
+				        0 0 0 1px rgba(255,255,255,0.08),
+				        0 0 10px rgba(135,245,255,0.35);
+				    }
 				    @media (hover: hover) and (pointer: fine){
 				      #invTable tbody tr[data-id]{
 				        transition: filter 160ms ease;
@@ -2559,6 +2574,19 @@ function adjustTitleSize(){
 function tbodyEl(){ return document.querySelector('#invTable tbody'); }
 function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) || null; }
 	function cellEl(tr, col){ return tr?.querySelector(`td[data-col="${col}"]`) || null; }
+	function syncLowStockOverrideIndicatorForRow(id){
+	  const tr = rowElById(id);
+	  if(!tr) return;
+	  const btn = tr.querySelector('.row-stock-btn');
+	  if(!btn) return;
+	  const item = state.items.find(x => x && x.id === id);
+	  if(!item) return;
+	  const hasLowStockOverride = getItemLowStockQtyOverride(item) !== null;
+	  btn.classList.toggle('has-override', hasLowStockOverride);
+	  const lowStockBtnLabel = hasLowStockOverride ? 'Set low stock qty (override)' : 'Set low stock qty';
+	  btn.setAttribute('aria-label', lowStockBtnLabel);
+	  btn.setAttribute('title', lowStockBtnLabel);
+	}
 	function qtyCellHTML(it){
 	  const q = toInt(it.qty,0);
 	  const id = escapeHtmlAttr(it.id || '');
@@ -2572,13 +2600,16 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 	}
 		function buildRowHTML(it){
 		  const id = escapeHtmlAttr(it.id || '');
+		  const hasLowStockOverride = getItemLowStockQtyOverride(it) !== null;
+		  const lowStockBtnLabel = hasLowStockOverride ? 'Set low stock qty (override)' : 'Set low stock qty';
+		  const lowStockBtnClass = hasLowStockOverride ? 'row-stock-btn has-override' : 'row-stock-btn';
 		  return (
 		    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+id+'"></td>'+
 		    '<td data-col="name"><span class="cell-val">'+escapeHtml(it.name||'')+'</span></td>'+
 		    '<td data-col="desc"><span class="cell-val">'+escapeHtml(it.desc||'')+'</span></td>'+
 			    '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'+
 			    '<td class="actions"><div class="actions-wrap">'+
-			      '<button class="row-stock-btn" data-id="'+id+'" aria-label="Set low stock qty" title="Set low stock qty">'+
+			      '<button class="'+lowStockBtnClass+'" data-id="'+id+'" aria-label="'+escapeHtmlAttr(lowStockBtnLabel)+'" title="'+escapeHtmlAttr(lowStockBtnLabel)+'">'+
 		        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
 		          '<line x1="4" y1="21" x2="4" y2="14"></line>'+
 		          '<line x1="4" y1="10" x2="4" y2="3"></line>'+
@@ -2772,32 +2803,7 @@ function emptyStateHtml(){
       }
 			      for(const it of items){
 			        const tr=document.createElement('tr'); tr.dataset.id=it.id;
-			        tr.innerHTML =
-			          '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+it.id+'"></td>'+
-			          '<td data-col="name"><span class="cell-val">'+escapeHtml(it.name||'')+'</span></td>'+
-			          '<td data-col="desc"><span class="cell-val">'+escapeHtml(it.desc||'')+'</span></td>'+
-			          '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'+
-				          '<td class="actions"><div class="actions-wrap">'+
-				            '<button class="row-stock-btn" data-id="'+it.id+'" aria-label="Set low stock qty" title="Set low stock qty">'+
-				              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
-				                '<line x1="4" y1="21" x2="4" y2="14"></line>'+
-				                '<line x1="4" y1="10" x2="4" y2="3"></line>'+
-			                '<line x1="12" y1="21" x2="12" y2="12"></line>'+
-			                '<line x1="12" y1="8" x2="12" y2="3"></line>'+
-			                '<line x1="20" y1="21" x2="20" y2="16"></line>'+
-			                '<line x1="20" y1="12" x2="20" y2="3"></line>'+
-			                '<line x1="1" y1="14" x2="7" y2="14"></line>'+
-			                '<line x1="9" y1="8" x2="15" y2="8"></line>'+
-			                '<line x1="17" y1="16" x2="23" y2="16"></line>'+
-			              '</svg>'+
-			            '</button>'+
-				            '<button class="row-delete-btn" data-id="'+it.id+'" aria-label="Delete item" title="Delete item">'+
-				              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
-				                '<polyline points="3 6 5 6 21 6"></polyline>'+
-				                '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>'+
-				              '</svg>'+
-				            '</button>'+
-				          '</div></td>';
+			        tr.innerHTML = buildRowHTML(it);
 			        tbody.appendChild(tr);
 			      }
 	      enableInlineEditing();
@@ -3057,7 +3063,10 @@ function emptyStateHtml(){
 	      try{
 	        await sbUpdateFields(id, { lowStockQty: next, reorderEnabled: nextEnabled });
 	        try{
-	          if(prevEnabled === nextEnabled && rowElById(id)) adjustDisplayedLowStockThreshold(item, prevThr, nextThr);
+	          if(prevEnabled === nextEnabled && rowElById(id)){
+	            adjustDisplayedLowStockThreshold(item, prevThr, nextThr);
+	            syncLowStockOverrideIndicatorForRow(id);
+	          }
 	          else renderTable();
 	        }catch(e){}
 	        toast('Saved');
