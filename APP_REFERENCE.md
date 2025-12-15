@@ -86,6 +86,7 @@ When `isMobileUx()` is true (`max-width: 768px` OR `(pointer: coarse)`), the inv
 - **Swipe left/right**: slides the whole card (iMessage-style) to reveal a per-row utility tray with exactly two actions:
   - **Edit** → opens `#editItemModal`
   - **Low Stock** → opens `#lowStockModal`
+- **Extended swipe-left**: auto-opens **Edit** (non-destructive)
 - **Safety rule**: delete is only available inside `#editItemModal` (requires confirmation).
 - **LED dots on each card**:
   - Order membership (on when the item is in the current order)

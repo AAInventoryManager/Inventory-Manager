@@ -98,20 +98,26 @@ Quantity entry is the highest-priority interaction on mobile.
 
 Swiping **either direction** reveals a utility tray containing **exactly two actions**:
 
-1. **Edit Item (✏️)**
+1. **Low Stock Override (⚠️)**
+
+   - Opens the Low Stock modal
+
+2. **Edit Item (✏️)**
 
    - Opens the Edit Item modal
 
-2. **Low Stock Override (⚠️)**
-   - Opens the Low Stock modal
+### 6.3 Extended Swipe (Left)
+
+- Extended swipe **left** (past the commit threshold) auto-opens **Edit Item**
 
 ### Explicitly Excluded
 
 - No swipe-to-delete
 - No swipe-to-add
-- No auto-executing swipe actions
+- No auto-executing destructive swipe actions
+- No auto-executing Low Stock override (always requires a tap)
 
-All swipe actions require an explicit tap.
+All swipe actions require an explicit tap, except extended swipe-left auto-open for **Edit Item**.
 
 ---
 
