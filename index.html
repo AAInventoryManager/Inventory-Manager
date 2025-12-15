@@ -237,45 +237,44 @@
 				      #invTable tbody tr[data-id]::before{
 				        content:'';
 				        position:absolute;
-				        inset:-12px;
-				        border-radius:20px;
-				        background: radial-gradient(closest-side, rgba(135,245,255,0.38), rgba(135,245,255,0.0) 72%);
-				        filter: blur(16px);
+				        inset:-14px;
+				        border-radius:22px;
+				        background: radial-gradient(closest-side at 50% 50%, rgba(135,245,255,0.30) 0%, rgba(135,245,255,0.0) 72%);
+				        filter: blur(22px);
 				        opacity:0;
 				        transition: opacity 220ms ease, transform 220ms ease;
-				        transform: translateY(0);
+				        transform: translateY(0) scale(0.96);
 			        z-index:-1;
 			        pointer-events:none;
 			      }
 			      /* iMessage-style swipe layering: tray behind a card surface */
-			      #invTable tbody tr[data-id]::after{
-			        content:'';
-			        position:absolute;
-			        inset:0;
-			        border:1px solid var(--border);
-			        border-radius:14px;
-			        background:
-			          radial-gradient(120% 140% at 50% 20%, rgba(135,245,255,0.16) 0%, rgba(135,245,255,0.0) 58%),
-			          linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
-			        box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
-			        transition: box-shadow 180ms ease;
-			        z-index:2;
-			        pointer-events:none;
-			      }
+				      #invTable tbody tr[data-id]::after{
+				        content:'';
+				        position:absolute;
+				        inset:0;
+				        border:1px solid var(--border);
+				        border-radius:14px;
+				        background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
+				        box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+				        transition: box-shadow 180ms ease;
+				        z-index:2;
+				        pointer-events:none;
+				      }
 				      #invTable tbody tr[data-id].scroll-focus{
 				        --focus-y: -3px;
 				      }
-			      #invTable tbody tr[data-id].scroll-focus::after{
-			        box-shadow:
-			          0 16px 36px rgba(0,0,0,0.62),
-			          0 0 44px rgba(135,245,255,0.18),
-			          0 0 86px rgba(135,245,255,0.08),
-			          inset 0 1px 0 rgba(255,255,255,0.08);
-			      }
-			      #invTable tbody tr[data-id].scroll-focus::before{
-			        opacity:1;
-			        transform: translateY(-1px);
-			      }
+				      #invTable tbody tr[data-id].scroll-focus::after{
+				        background:
+				          radial-gradient(140% 140% at 50% 50%, rgba(135,245,255,0.22) 0%, rgba(135,245,255,0.0) 62%),
+				          linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
+				        box-shadow:
+				          0 18px 42px rgba(0,0,0,0.66),
+				          inset 0 1px 0 rgba(255,255,255,0.08);
+				      }
+				      #invTable tbody tr[data-id].scroll-focus::before{
+				        opacity:1;
+				        transform: translateY(-1px) scale(1);
+				      }
 		      #invTable tbody tr[data-id] td{
 		        display:block;
 		        width:100%;
@@ -1143,15 +1142,11 @@
 	      outline:2px solid rgba(90,169,255,0.65);
 	      outline-offset:2px;
 	    }
-	    .report-row[aria-pressed="true"]{
-	      border-color:rgba(34,197,94,0.55);
-	      box-shadow:0 0 0 1px rgba(34,197,94,0.16), 0 10px 24px rgba(0,0,0,0.35);
-	    }
-	    .report-row.low{
-	      border-color:rgba(239,68,68,0.35);
-	      box-shadow:0 0 0 1px rgba(239,68,68,0.10);
-	    }
-	    .report-row-main{ min-width:0; flex:1; }
+		    .report-row[aria-pressed="true"]{
+		      border-color:rgba(34,197,94,0.55);
+		      box-shadow:0 0 0 1px rgba(34,197,94,0.16), 0 10px 24px rgba(0,0,0,0.35);
+		    }
+		    .report-row-main{ min-width:0; flex:1; }
 	    .report-item{
 	      display:flex;
 	      align-items:center;
@@ -1456,10 +1451,10 @@
             <img class="title-logo" src="./assets/oakley/logo/oakley-logo-horizontal-h128.png" alt="Oakley Services" />
           </div>
         </div>
-        <button class="order-counter-badge" id="orderCounterBadge" aria-label="Clear order selections" style="display:none;">
+        <button class="order-counter-badge" id="orderCounterBadge" aria-label="Clear shopping cart selections" style="display:none;">
           <div class="order-counter-top">
             <span class="order-counter-value" id="orderCounterValue">0</span>
-            <span class="order-counter-label">Items Added to Order</span>
+            <span class="order-counter-label">Items Added</span>
           </div>
           <span class="order-counter-hint">Tap to Reset</span>
         </button>
@@ -1884,9 +1879,9 @@
 				      <div class="order-counter-badge report-order-badge" id="reportOrderBadge" role="status" aria-live="polite" style="display:none;">
 				        <div class="order-counter-top">
 				          <span class="order-counter-value" id="reportOrderCount">0</span>
-				          <span class="order-counter-label">Items Added to Order</span>
+				          <span class="order-counter-label">Items Added</span>
 				        </div>
-				        <span class="order-counter-hint">Order Queue</span>
+				        <span class="order-counter-hint">Shopping Cart</span>
 				      </div>
 		
 				      <details class="report-section" id="reportLowStockSection">
@@ -1907,7 +1902,6 @@
 				            <h3>Current Inventory <span class="report-count" id="reportInStockCount">(0)</span></h3>
 				          </div>
 				          <div class="report-summary-right">
-				            <div class="muted" id="reportGeneratedAt"></div>
 				            <span class="report-chevron" aria-hidden="true">▾</span>
 				          </div>
 				        </summary>
@@ -4746,10 +4740,9 @@ function emptyStateHtml(){
 	      const selected = reportOrderHasItem(id);
 	      const dotClass = selected ? 'led-dot--green' : 'led-dot--off';
 	      const pressed = selected ? 'true' : 'false';
-	      const lowClass = showThreshold ? ' low' : '';
 
 	      return (
-	        `<button type="button" class="report-row${lowClass}" data-report-order-id="${safeId}" aria-pressed="${pressed}">`+
+	        `<button type="button" class="report-row" data-report-order-id="${safeId}" aria-pressed="${pressed}">`+
 	          `<div class="report-row-main">`+
 	            `<div class="report-item">`+
 	              `<span class="led-dot ${dotClass}" aria-hidden="true"></span>`+
@@ -4810,7 +4803,6 @@ function emptyStateHtml(){
 		      const d = reportDataSnapshot();
 		      const elTotal = $('reportMetricTotalItems'); if(elTotal) elTotal.textContent = String(d.totalItems);
 		      const elQty = $('reportMetricTotalQty'); if(elQty) elQty.textContent = String(d.totalQty);
-		      const elWhen = $('reportGeneratedAt'); if(elWhen) elWhen.textContent = formatEasternDateTime(new Date());
 		      const elLowCount = $('reportLowStockCount'); if(elLowCount) elLowCount.textContent = `(${d.lowStockCount})`;
 		      const elInCount = $('reportInStockCount'); if(elInCount) elInCount.textContent = `(${d.inStockCount})`;
 
@@ -5225,7 +5217,7 @@ function emptyStateHtml(){
         badge.style.display = 'flex';
         if(valueEl) valueEl.textContent = String(count);
         const labelEl = badge.querySelector('.order-counter-label');
-        if(labelEl) labelEl.textContent = count === 1 ? 'Item Added to Order' : 'Items Added to Order';
+        if(labelEl) labelEl.textContent = count === 1 ? 'Item Added' : 'Items Added';
       }else{
         badge.style.display = 'none';
       }
@@ -6984,12 +6976,12 @@ function emptyStateHtml(){
 
 	      // Order counter badge - tap to clear all selections
 	      const orderBadge = $('orderCounterBadge');
-	      if(orderBadge){
-	        orderBadge.addEventListener('click', ()=>{
-	          clearAllOrderLines();
-	          toast('Order cleared');
-	        });
-	      }
+		      if(orderBadge){
+		        orderBadge.addEventListener('click', ()=>{
+		          clearAllOrderLines();
+		          toast('Shopping cart cleared');
+		        });
+		      }
 	      try{ updateOrderCounterBadge(); }catch(e){}
 
 	      const mobileSort = $('mobileSort');
