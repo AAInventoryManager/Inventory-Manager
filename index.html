@@ -167,15 +167,18 @@
 			        position:relative;
 			        isolation:isolate;
 			        display:block;
-			        padding:10px; /* tighter cards to reduce scrolling */
-			        border:1px solid var(--border);
+			        --swipe-x: 0px;
+			        --focus-y: 0px;
+			        padding:8px; /* tighter cards to reduce scrolling */
 			        border-radius:14px;
-			        background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
-			        box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
-			        margin:0 0 8px 0;
+			        border:none;
+			        background:none;
+			        box-shadow:none;
+			        margin:0 0 6px 0;
 			        touch-action: pan-y;
 			        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 			        will-change: transform, box-shadow;
+			        transform: translateX(var(--swipe-x)) translateY(var(--focus-y));
 			      }
 				      #invTable tbody tr[data-id]::before{
 				        content:'';
@@ -190,14 +193,29 @@
 			        z-index:-1;
 			        pointer-events:none;
 			      }
+			      /* iMessage-style swipe layering: tray behind a card surface */
+			      #invTable tbody tr[data-id]::after{
+			        content:'';
+			        position:absolute;
+			        inset:0;
+			        border:1px solid var(--border);
+			        border-radius:14px;
+			        background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
+			        box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+			        transition: box-shadow 180ms ease;
+			        z-index:2;
+			        pointer-events:none;
+			      }
 				      #invTable tbody tr[data-id].scroll-focus{
-				        box-shadow:
-				          0 16px 36px rgba(0,0,0,0.62),
-				          0 0 44px rgba(135,245,255,0.18),
-				          0 0 86px rgba(135,245,255,0.08),
-				          inset 0 1px 0 rgba(255,255,255,0.08);
-				        transform: translateY(-3px);
+				        --focus-y: -3px;
 				      }
+			      #invTable tbody tr[data-id].scroll-focus::after{
+			        box-shadow:
+			          0 16px 36px rgba(0,0,0,0.62),
+			          0 0 44px rgba(135,245,255,0.18),
+			          0 0 86px rgba(135,245,255,0.08),
+			          inset 0 1px 0 rgba(255,255,255,0.08);
+			      }
 			      #invTable tbody tr[data-id].scroll-focus::before{
 			        opacity:1;
 			        transform: translateY(-1px);
@@ -207,9 +225,11 @@
 		        width:100%;
 		        padding:0;
 		        border-bottom:none;
+		        position:relative;
+		        z-index:3;
 		      }
 			      #invTable tbody tr[data-id] td[data-col]{
-			        padding:6px 0;
+			        padding:4px 0;
 			      }
 				      #invTable tbody tr[data-id] td[data-col="name"]{
 				        padding-left:0;
@@ -226,18 +246,11 @@
 				        margin:0 0 4px 0;
 				        text-align:left;
 				      }
-				      #invTable tbody tr[data-id] td[data-col="name"]::before{ content:'Item'; }
-				      #invTable tbody tr[data-id] td[data-col="desc"]::before{ content:'Description'; }
+				      /* Mobile UX v2: remove Item/Description labels to reduce vertical height */
+				      #invTable tbody tr[data-id] td[data-col="name"]::before{ content:''; display:none; }
+				      #invTable tbody tr[data-id] td[data-col="desc"]::before{ content:''; display:none; }
 				      #invTable tbody tr[data-id] td[data-col="qty"]::before{ content:'Qty'; }
 
-				      #invTable tbody tr[data-id] td[data-col="name"]::before{
-				        display:inline-block;
-				        padding:4px 8px;
-				        border-radius:999px;
-				        background:rgba(255,255,255,0.08);
-				        color:#ffffff;
-				        margin-right:1rem;
-				      }
 				      #invTable tbody tr[data-id] td[data-col="name"] .cell-val{ font-weight:900; }
 				      #invTable tbody tr[data-id] td[data-col="desc"] .cell-val{ color:var(--muted); }
 				      #invTable tbody tr[data-id] td[data-col="desc"] .cell-val{
@@ -260,12 +273,12 @@
 			      /* Mobile UX v2: order/override LEDs */
 			      #invTable tbody tr[data-id] .card-leds{
 			        position:absolute;
-			        top:10px;
-			        right:10px;
+			        top:8px;
+			        right:8px;
 			        display:flex;
 			        gap:6px;
 			        pointer-events:none;
-			        z-index:2;
+			        z-index:4;
 			      }
 			      #invTable tbody tr[data-id] .card-led{
 			        width:8px;
@@ -289,33 +302,30 @@
 			      #invTable tbody tr[data-id] .card-tray{
 			        position:absolute;
 			        top:50%;
-			        transform:translateY(-50%);
+			        transform:translateY(-50%) translateX(calc(0px - var(--swipe-x, 0px)));
 			        display:flex;
 			        flex-direction:column;
 			        gap:10px;
 			        opacity:0;
 			        pointer-events:none;
-			        transition: opacity 140ms ease, transform 140ms ease;
-			        z-index:3;
+			        transition: opacity 140ms ease, transform 180ms ease;
+			        z-index:1;
 			      }
 			      #invTable tbody tr[data-id][data-tray-side="left"] .card-tray{
 			        left:10px;
-			        transform:translateY(-50%) translateX(-8px);
 			      }
 			      #invTable tbody tr[data-id][data-tray-side="right"] .card-tray{
 			        right:10px;
-			        transform:translateY(-50%) translateX(8px);
+			      }
+			      #invTable tbody tr[data-id].tray-peek .card-tray{
+			        opacity:1;
 			      }
 			      #invTable tbody tr[data-id].tray-open .card-tray{
 			        opacity:1;
 			        pointer-events:auto;
 			      }
-			      #invTable tbody tr[data-id].tray-open[data-tray-side="left"] .card-tray{
-			        transform:translateY(-50%) translateX(0);
-			      }
-			      #invTable tbody tr[data-id].tray-open[data-tray-side="right"] .card-tray{
-			        transform:translateY(-50%) translateX(0);
-			      }
+			      #invTable tbody tr[data-id].tray-peek .card-tray{ pointer-events:none; }
+			      #invTable tbody tr[data-id].swiping .card-tray{ transition: opacity 140ms ease; }
 			      #invTable tbody tr[data-id] .card-tray-btn{
 			        width:48px;
 			        height:48px;
@@ -339,11 +349,13 @@
 			      /* Mobile UX v2: ensure steppers meet 48×48 target */
 			      .qty-step{ min-width:48px; min-height:48px; }
 			      .qty-stepper--table .qty-step{ min-width:48px; }
+			      #invTable tbody tr[data-id].swiping{ transition:none !important; }
 		    }
 		    @media (prefers-reduced-motion: reduce){
 		      #invTable tbody tr[data-id]{ transition:none !important; }
 		      #invTable tbody tr[data-id]::before{ transition:none !important; }
-		      #invTable tbody tr[data-id].scroll-focus{ transform:none !important; }
+		      #invTable tbody tr[data-id]::after{ transition:none !important; }
+		      #invTable tbody tr[data-id].scroll-focus{ --focus-y: 0px !important; }
 		      #invTable tbody tr[data-id] .card-tray{ transition:none !important; }
 		    }
 
@@ -2629,6 +2641,26 @@ function tbodyEl(){ return document.querySelector('#invTable tbody'); }
 function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) || null; }
 	function cellEl(tr, col){ return tr?.querySelector(`td[data-col="${col}"]`) || null; }
 	let _openTrayId = '';
+	const MOBILE_TRAY_MAX_PX = 92;
+	const MOBILE_TRAY_OPEN_PX = 72;
+	const MOBILE_TRAY_OPEN_THRESHOLD_PX = 42;
+	function clampNum(v, min, max){
+	  return Math.max(min, Math.min(max, v));
+	}
+	function getRowSwipeX(tr){
+	  if(!tr || !tr.style) return 0;
+	  const raw = String(tr.style.getPropertyValue('--swipe-x') || '').trim();
+	  const n = Number.parseFloat(raw);
+	  return Number.isFinite(n) ? n : 0;
+	}
+	function setRowSwipeX(tr, x){
+	  if(!tr || !tr.style) return;
+	  const v = clampNum(Number(x) || 0, -MOBILE_TRAY_MAX_PX, MOBILE_TRAY_MAX_PX);
+	  tr.style.setProperty('--swipe-x', `${v}px`);
+	}
+	function traySideToSwipeX(side){
+	  return (side === 'left') ? MOBILE_TRAY_OPEN_PX : -MOBILE_TRAY_OPEN_PX;
+	}
 	function setMobileTrayA11y(tr, open){
 	  const tray = tr ? tr.querySelector('.card-tray') : null;
 	  if(!tray) return;
@@ -2642,21 +2674,38 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 	  if(!_openTrayId) return;
 	  const tr = rowElById(_openTrayId);
 	  if(tr){
+	    tr.classList.remove('swiping');
+	    tr.classList.remove('tray-peek');
 	    tr.classList.remove('tray-open');
+	    setRowSwipeX(tr, 0);
 	    try{ delete tr.dataset.traySide; }catch(e){ tr.dataset.traySide = ''; }
 	    setMobileTrayA11y(tr, false);
 	  }
 	  _openTrayId = '';
 	}
+	function prepareMobileTrayForRow(tr, side){
+	  if(!tr) return;
+	  const id = String(tr.dataset && tr.dataset.id ? tr.dataset.id : '').trim();
+	  if(!id) return;
+	  if(_openTrayId && _openTrayId !== id) closeMobileTray();
+	  _openTrayId = id;
+	  tr.dataset.traySide = (side === 'left') ? 'left' : 'right';
+	  tr.classList.remove('tray-open');
+	  tr.classList.add('tray-peek');
+	  setMobileTrayA11y(tr, false);
+	}
 	function openMobileTrayForRow(tr, side){
 	  if(!tr) return;
 	  const id = String(tr.dataset && tr.dataset.id ? tr.dataset.id : '').trim();
 	  if(!id) return;
-	  closeMobileTray();
+	  if(_openTrayId && _openTrayId !== id) closeMobileTray();
 	  _openTrayId = id;
 	  tr.dataset.traySide = (side === 'left') ? 'left' : 'right';
+	  tr.classList.remove('tray-peek');
 	  tr.classList.add('tray-open');
 	  setMobileTrayA11y(tr, true);
+	  const targetX = traySideToSwipeX(tr.dataset.traySide);
+	  try{ requestAnimationFrame(()=> setRowSwipeX(tr, targetX)); }catch(e){ setRowSwipeX(tr, targetX); }
 	}
 	function syncOrderIndicatorForRow(id){
 	  const tr = rowElById(id);
@@ -3459,7 +3508,7 @@ function emptyStateHtml(){
         if(action === 'lowStock'){ openLowStockModal(id); return; }
       });
 
-      // Mobile UX v2: card tap (add to order) + swipe to reveal tray
+      // Mobile UX v2: card tap (toggle order) + iMessage-style swipe to reveal tray
       let _mobGesture = null;
       function resetMobGesture(){ _mobGesture = null; }
       function isAnyModalOpen(){
@@ -3486,15 +3535,11 @@ function emptyStateHtml(){
           if(openTr){
             const inTray = !!e.target.closest('.card-tray');
             const sameRow = !!(e.target.closest('tr[data-id]') === openTr);
-            if(!inTray){
-              closeMobileTray();
-              if(sameRow) return;
-              return;
-            }
-            return;
+            if(inTray) return;
+            if(!sameRow) closeMobileTray();
           }
           // Stale tray state (row re-rendered)
-          closeMobileTray();
+          else closeMobileTray();
         }
 
         const tr = e.target.closest('tr[data-id]');
@@ -3508,6 +3553,8 @@ function emptyStateHtml(){
         // Ignore gestures starting from any other interactive control.
         if(e.target.closest('button, input, textarea, select, a')) return;
 
+        const startSwipeX = getRowSwipeX(tr);
+        const startSide = (startSwipeX < 0) ? 'right' : ((startSwipeX > 0) ? 'left' : null);
         _mobGesture = {
           id,
           tr,
@@ -3515,8 +3562,11 @@ function emptyStateHtml(){
           pointerId: e.pointerId,
           startX: e.clientX,
           startY: e.clientY,
+          startSwipeX,
+          swipeX: startSwipeX,
           moved: false,
           intent: null, // 'h' | 'v'
+          side: startSide, // 'left' | 'right'
         };
         try{ tr.setPointerCapture(e.pointerId); }catch(e){}
       }, { passive:true });
@@ -3543,13 +3593,20 @@ function emptyStateHtml(){
         }
         if(_mobGesture.intent !== 'h') return;
 
-        // Swipe: reveal tray (either direction)
-        if(ax > 26){
-          const side = (dx < 0) ? 'right' : 'left';
-          openMobileTrayForRow(_mobGesture.tr, side);
-          resetMobGesture();
-          return;
-        }
+        const tr = _mobGesture.tr;
+        if(!tr || !tr.isConnected){ resetMobGesture(); return; }
+
+        const nextX = clampNum(_mobGesture.startSwipeX + dx, -MOBILE_TRAY_MAX_PX, MOBILE_TRAY_MAX_PX);
+        _mobGesture.swipeX = nextX;
+
+        let side = _mobGesture.side;
+        if(Math.abs(nextX) > 6) side = (nextX < 0) ? 'right' : 'left';
+        else if(!side) side = (dx < 0) ? 'right' : 'left';
+        _mobGesture.side = side || 'left';
+
+        prepareMobileTrayForRow(tr, _mobGesture.side);
+        tr.classList.add('swiping');
+        setRowSwipeX(tr, nextX);
       }, { passive:true });
 
       invTable.addEventListener('pointerup', (e)=>{
@@ -3559,20 +3616,40 @@ function emptyStateHtml(){
         if(e.pointerId !== _mobGesture.pointerId) return;
         if(isAnyModalOpen()){ resetMobGesture(); return; }
 
-        const { id, tr, moved } = _mobGesture;
+        const { id, tr, moved, intent, swipeX } = _mobGesture;
         resetMobGesture();
-        if(!id || !tr || moved) return;
+        if(!id || !tr) return;
 
-        const item = state.items.find(x => x && x.id === id);
-        if(!item) return;
-        const ord = orderState();
-        const exists = !!(ord && Array.isArray(ord.lines) && ord.lines.some(l => l && l.id === id));
-        if(exists) removeOrderLine(id);
-        else upsertOrderLineFromItem(item, 1);
+        if(!moved){
+          if(_openTrayId === id && tr.classList.contains('tray-open')){
+            closeMobileTray();
+            return;
+          }
+          const item = state.items.find(x => x && x.id === id);
+          if(!item) return;
+          const ord = orderState();
+          const exists = !!(ord && Array.isArray(ord.lines) && ord.lines.some(l => l && l.id === id));
+          if(exists) removeOrderLine(id);
+          else upsertOrderLineFromItem(item, 1);
+          return;
+        }
+
+        if(intent === 'h'){
+          tr.classList.remove('swiping');
+          const finalX = Number.isFinite(swipeX) ? swipeX : getRowSwipeX(tr);
+          if(Math.abs(finalX) >= MOBILE_TRAY_OPEN_THRESHOLD_PX){
+            const side = (finalX < 0) ? 'right' : 'left';
+            openMobileTrayForRow(tr, side);
+          }else{
+            closeMobileTray();
+          }
+        }
       }, { passive:true });
 
       invTable.addEventListener('pointercancel', ()=>{
         if(!isMobileUx()) return;
+        try{ if(_mobGesture && _mobGesture.tr) _mobGesture.tr.classList.remove('swiping'); }catch(e){}
+        try{ closeMobileTray(); }catch(e){}
         resetMobGesture();
       }, { passive:true });
 
@@ -3587,14 +3664,10 @@ function emptyStateHtml(){
           if(openTr){
             const inTray = !!e.target.closest('.card-tray');
             const sameRow = !!(e.target.closest('tr[data-id]') === openTr);
-            if(!inTray){
-              closeMobileTray();
-              if(sameRow) return;
-              return;
-            }
-            return;
+            if(inTray) return;
+            if(!sameRow) closeMobileTray();
           }
-          closeMobileTray();
+          else closeMobileTray();
         }
 
         const tr = e.target.closest('tr[data-id]');
@@ -3610,6 +3683,8 @@ function emptyStateHtml(){
 
         const t = (e.touches && e.touches[0]) ? e.touches[0] : null;
         if(!t) return;
+        const startSwipeX = getRowSwipeX(tr);
+        const startSide = (startSwipeX < 0) ? 'right' : ((startSwipeX > 0) ? 'left' : null);
         _mobGesture = {
           id,
           tr,
@@ -3617,8 +3692,11 @@ function emptyStateHtml(){
           touchId: t.identifier,
           startX: t.clientX,
           startY: t.clientY,
+          startSwipeX,
+          swipeX: startSwipeX,
           moved: false,
           intent: null, // 'h' | 'v'
+          side: startSide, // 'left' | 'right'
         };
       }, { passive:true });
 
@@ -3649,11 +3727,20 @@ function emptyStateHtml(){
         // Horizontal swipe: prevent scroll once locked.
         try{ e.preventDefault(); }catch(e){}
 
-        if(ax > 26){
-          const side = (dx < 0) ? 'right' : 'left';
-          openMobileTrayForRow(_mobGesture.tr, side);
-          resetMobGesture();
-        }
+        const tr = _mobGesture.tr;
+        if(!tr || !tr.isConnected){ resetMobGesture(); return; }
+
+        const nextX = clampNum(_mobGesture.startSwipeX + dx, -MOBILE_TRAY_MAX_PX, MOBILE_TRAY_MAX_PX);
+        _mobGesture.swipeX = nextX;
+
+        let side = _mobGesture.side;
+        if(Math.abs(nextX) > 6) side = (nextX < 0) ? 'right' : 'left';
+        else if(!side) side = (dx < 0) ? 'right' : 'left';
+        _mobGesture.side = side || 'left';
+
+        prepareMobileTrayForRow(tr, _mobGesture.side);
+        tr.classList.add('swiping');
+        setRowSwipeX(tr, nextX);
       }, { passive:false });
 
       invTable.addEventListener('touchend', (e)=>{
@@ -3664,20 +3751,40 @@ function emptyStateHtml(){
         const ended = findTouchById(e.changedTouches || [], _mobGesture.touchId);
         if(!ended) return;
 
-        const { id, tr, moved } = _mobGesture;
+        const { id, tr, moved, intent, swipeX } = _mobGesture;
         resetMobGesture();
-        if(!id || !tr || moved) return;
+        if(!id || !tr) return;
 
-        const item = state.items.find(x => x && x.id === id);
-        if(!item) return;
-        const ord = orderState();
-        const exists = !!(ord && Array.isArray(ord.lines) && ord.lines.some(l => l && l.id === id));
-        if(exists) removeOrderLine(id);
-        else upsertOrderLineFromItem(item, 1);
+        if(!moved){
+          if(_openTrayId === id && tr.classList.contains('tray-open')){
+            closeMobileTray();
+            return;
+          }
+          const item = state.items.find(x => x && x.id === id);
+          if(!item) return;
+          const ord = orderState();
+          const exists = !!(ord && Array.isArray(ord.lines) && ord.lines.some(l => l && l.id === id));
+          if(exists) removeOrderLine(id);
+          else upsertOrderLineFromItem(item, 1);
+          return;
+        }
+
+        if(intent === 'h'){
+          tr.classList.remove('swiping');
+          const finalX = Number.isFinite(swipeX) ? swipeX : getRowSwipeX(tr);
+          if(Math.abs(finalX) >= MOBILE_TRAY_OPEN_THRESHOLD_PX){
+            const side = (finalX < 0) ? 'right' : 'left';
+            openMobileTrayForRow(tr, side);
+          }else{
+            closeMobileTray();
+          }
+        }
       }, { passive:true });
 
       invTable.addEventListener('touchcancel', ()=>{
         if(!isMobileUx()) return;
+        try{ if(_mobGesture && _mobGesture.tr) _mobGesture.tr.classList.remove('swiping'); }catch(e){}
+        try{ closeMobileTray(); }catch(e){}
         resetMobGesture();
       }, { passive:true });
 		    }

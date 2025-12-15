@@ -82,7 +82,8 @@ On small screens (`max-width: 768px`), rows render as stacked cards. The app hig
 When `isMobileUx()` is true (`max-width: 768px` OR `(pointer: coarse)`), the inventory list has additional mobile-only behaviors (specified in `CODEX_MOBILE_UX_V2.md`):
 
 - **Tap card body**: toggles the item in the Order Engine (`state._order.lines`) (tap to add; tap again to remove).
-- **Swipe left/right**: opens a per-row utility tray with exactly two actions:
+- **Compact cards**: field labels like “Item” and “Description” are hidden to reduce vertical scrolling.
+- **Swipe left/right**: slides the whole card (iMessage-style) to reveal a per-row utility tray with exactly two actions:
   - **Edit** → opens `#editItemModal`
   - **Low Stock** → opens `#lowStockModal`
 - **Safety rule**: delete is only available inside `#editItemModal` (requires confirmation).

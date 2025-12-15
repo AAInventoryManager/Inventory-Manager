@@ -44,9 +44,10 @@ Outside these conditions, the app behaves exactly as defined in `APP_REFERENCE.m
 ## 3. UX Summary (Mobile Only)
 
 - Inventory rows render as tappable cards
+- Cards are compact: field labels like “Item” and “Description” are not shown
 - Tapping a card toggles the item in the Create Order engine (add/remove)
 - Quantity steppers remain the primary interaction
-- Swipe gestures reveal utility actions (Edit, Low Stock)
+- Swipe gestures slide the whole card (iMessage-style) to reveal utility actions (Edit, Low Stock)
 - No destructive actions exist on the card
 - Delete is only available inside the Edit Item modal
 - Two LED dots communicate item state
