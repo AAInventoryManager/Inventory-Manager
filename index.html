@@ -1996,6 +1996,15 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
+    // Polyfill for crypto.randomUUID (not available in older mobile browsers or non-HTTPS)
+    if (typeof crypto.randomUUID !== 'function') {
+      crypto.randomUUID = function() {
+        return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c =>
+          (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+        );
+      };
+    }
+
     // ========================
     // State & persistence
     // ========================
