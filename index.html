@@ -957,6 +957,63 @@
 	      background:#06b6d4;
 	      box-shadow:0 0 6px rgba(6,182,212,0.5), 0 0 12px rgba(6,182,212,0.3);
 	    }
+	    .led-dot--off{
+	      background:rgba(148,163,184,0.55);
+	      box-shadow:0 0 0 1px rgba(255,255,255,0.10);
+	    }
+	    .report-count{
+	      color:var(--muted);
+	      font-weight:900;
+	      font-variant-numeric:tabular-nums;
+	    }
+	    .report-progress{
+	      margin-top:12px;
+	      padding:10px 12px;
+	      border:1px solid var(--border);
+	      border-radius:14px;
+	      background:#0d1420;
+	    }
+	    .report-progress-label{
+	      display:flex;
+	      align-items:center;
+	      justify-content:space-between;
+	      gap:10px;
+	      color:var(--muted);
+	      font-size:11px;
+	      font-weight:900;
+	      letter-spacing:0.08em;
+	      text-transform:uppercase;
+	    }
+	    .report-progress-value{
+	      flex:0 0 auto;
+	      font-variant-numeric:tabular-nums;
+	    }
+	    .report-progress-track{
+	      margin-top:10px;
+	      height:10px;
+	      border-radius:999px;
+	      background:rgba(255,255,255,0.10);
+	      overflow:hidden;
+	      border:1px solid rgba(255,255,255,0.10);
+	    }
+	    .report-progress-bar{
+	      height:100%;
+	      width:0%;
+	      border-radius:999px;
+	      background:linear-gradient(90deg, rgba(34,197,94,1), rgba(135,245,255,0.9));
+	      box-shadow:0 0 16px rgba(34,197,94,0.35);
+	      transition: width 120ms ease;
+	    }
+	    .report-order-badge{
+	      margin:12px auto 0;
+	      cursor:default;
+	      user-select:none;
+	      max-width: fit-content;
+	    }
+	    .report-order-badge .order-counter-hint{
+	      opacity:0.85;
+	      font-size:9px;
+	    }
 		    .report-section{
 		      margin-top:14px;
 		      border:1px solid var(--border);
@@ -1070,10 +1127,25 @@
 		      align-items:flex-start;
 		      justify-content:space-between;
 		      gap:12px;
+		      width:100%;
+		      text-align:left;
+		      cursor:pointer;
 	      padding:10px 12px;
 	      border:1px solid var(--border);
 	      border-radius:12px;
 	      background:linear-gradient(145deg, #1a1f26 0%, #12161c 100%);
+	      color:inherit;
+	      -webkit-appearance:none;
+	      appearance:none;
+	    }
+	    .report-row:active{ transform:scale(0.99); }
+	    .report-row:focus-visible{
+	      outline:2px solid rgba(90,169,255,0.65);
+	      outline-offset:2px;
+	    }
+	    .report-row[aria-pressed="true"]{
+	      border-color:rgba(34,197,94,0.55);
+	      box-shadow:0 0 0 1px rgba(34,197,94,0.16), 0 10px 24px rgba(0,0,0,0.35);
 	    }
 	    .report-row.low{
 	      border-color:rgba(239,68,68,0.35);
@@ -1081,11 +1153,18 @@
 	    }
 	    .report-row-main{ min-width:0; flex:1; }
 	    .report-item{
+	      display:flex;
+	      align-items:center;
+	      gap:8px;
+	      min-width:0;
 	      font-weight:800;
 	      letter-spacing:.02em;
+	    }
+	    .report-item-name{
 	      overflow:hidden;
 	      text-overflow:ellipsis;
 	      white-space:nowrap;
+	      min-width:0;
 	    }
 	    .report-desc{
 	      margin-top:4px;
@@ -1103,7 +1182,12 @@
 	      text-align:right;
 	      font-weight:900;
 	      font-variant-numeric:tabular-nums;
+	      display:flex;
+	      flex-direction:column;
+	      align-items:flex-end;
+	      gap:4px;
 	    }
+	    .report-qty .muted{ font-size:10px; }
 	    .history-kv{ margin-top:10px; font-size:13px; }
 	    .history-kv div{ margin-top:4px; }
 	    .history-table{
@@ -1781,49 +1865,57 @@
 	        </div>
 	      </div>
 
-			      <div class="report-metrics" aria-label="Report summary">
-			        <div class="report-metric"><div class="muted">Total Items</div><div class="val" id="reportMetricTotalItems">0</div></div>
-			        <div class="report-metric"><div class="muted">In Stock</div><div class="val" id="reportMetricInStock">0</div></div>
-			        <div class="report-metric report-metric--actionable" id="reportMetricLowStockCard">
-			          <div class="muted"><span class="led-dot led-dot--amber"></span>Low Stock</div>
-			          <div class="val" id="reportMetricOutOfStock">0</div>
-			          <button type="button" class="report-metric-action" id="btnReportBuildReorder" title="Re-order low stock items" aria-label="Re-order low stock items">
-			            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-			              <circle cx="9" cy="21" r="1"></circle>
-			              <circle cx="20" cy="21" r="1"></circle>
-			              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-			            </svg>
-			          </button>
+			      <div class="report-progress" id="reportProgress" style="display:none;" aria-live="polite">
+			        <div class="report-progress-label">
+			          <span id="reportProgressLabel">Analyzing Low Stock Items...</span>
+			          <span class="report-progress-value" id="reportProgressValue">0%</span>
 			        </div>
-			        <div class="report-metric"><div class="muted">Total Qty</div><div class="val" id="reportMetricTotalQty">0</div></div>
+			        <div class="report-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+			          <div class="report-progress-bar" id="reportProgressBar" style="width:0%"></div>
+			        </div>
 			      </div>
-	
-			      <details class="report-section" id="reportLowStockSection" style="display:none" open>
-			        <summary class="report-summary">
-			          <div class="report-summary-left">
-			            <h3><span class="led-dot led-dot--amber"></span>Low Stock Items</h3>
-			          </div>
-			          <div class="report-summary-right">
-			            <span class="report-chevron" aria-hidden="true">▾</span>
-			          </div>
-			        </summary>
-			        <div class="report-list" id="reportLowStockList"></div>
-			      </details>
 
-			      <details class="report-section" id="reportInventorySection" open>
-			        <summary class="report-summary">
-			          <div class="report-summary-left">
-			            <h3>Current Inventory</h3>
-			          </div>
-			          <div class="report-summary-right">
-			            <div class="muted" id="reportGeneratedAt"></div>
-			            <span class="report-chevron" aria-hidden="true">▾</span>
-			          </div>
-			        </summary>
-			        <div class="report-list" id="reportList" aria-live="polite"></div>
-			      </details>
-		    </div>
-		  </div>
+			      <div id="reportContent" style="display:none;">
+				      <div class="report-metrics" aria-label="Report summary">
+				        <div class="report-metric"><div class="muted">Total Items</div><div class="val" id="reportMetricTotalItems">0</div></div>
+				        <div class="report-metric"><div class="muted">Total Qty</div><div class="val" id="reportMetricTotalQty">0</div></div>
+				      </div>
+
+				      <div class="order-counter-badge report-order-badge" id="reportOrderBadge" role="status" aria-live="polite" style="display:none;">
+				        <div class="order-counter-top">
+				          <span class="order-counter-value" id="reportOrderCount">0</span>
+				          <span class="order-counter-label">Items Added to Order</span>
+				        </div>
+				        <span class="order-counter-hint">Order Queue</span>
+				      </div>
+		
+				      <details class="report-section" id="reportLowStockSection">
+				        <summary class="report-summary">
+				          <div class="report-summary-left">
+				            <h3><span class="led-dot led-dot--amber"></span>Low Stock Items <span class="report-count" id="reportLowStockCount">(0)</span></h3>
+				          </div>
+				          <div class="report-summary-right">
+				            <span class="report-chevron" aria-hidden="true">▾</span>
+				          </div>
+				        </summary>
+				        <div class="report-list" id="reportLowStockList"></div>
+				      </details>
+
+				      <details class="report-section" id="reportInventorySection">
+				        <summary class="report-summary">
+				          <div class="report-summary-left">
+				            <h3>Current Inventory <span class="report-count" id="reportInStockCount">(0)</span></h3>
+				          </div>
+				          <div class="report-summary-right">
+				            <div class="muted" id="reportGeneratedAt"></div>
+				            <span class="report-chevron" aria-hidden="true">▾</span>
+				          </div>
+				        </summary>
+				        <div class="report-list" id="reportList" aria-live="polite"></div>
+				      </details>
+			      </div>
+			    </div>
+			  </div>
 
 		  <!-- Email inventory report -->
 		  <div id="reportEmailModal" class="modal" aria-hidden="true">
@@ -4635,38 +4727,104 @@ function emptyStateHtml(){
 	      html += '</tbody></table>';
 	      return html;
 	    }
+	    function reportOrderHasItem(id){
+	      const ord = orderState();
+	      const key = String(id || '').trim();
+	      return !!(key && ord && Array.isArray(ord.lines) && ord.lines.some(l => String(l && l.id ? l.id : '').trim() === key));
+	    }
+	    function reportRowButtonHtml(item, opts = {}){
+	      const it = item || {};
+	      const id = String(it.id || '').trim();
+	      if(!id) return '';
+	      const safeId = id.replace(/"/g, '&quot;');
+	      const name = escapeHtml(String(it.name || '').trim());
+	      const descRaw = String(it.desc || '').replace(/[\r\n]+/g,' ').trim();
+	      const desc = escapeHtml(descRaw);
+	      const qty = toInt(it.qty, 0);
+	      const showThreshold = !!opts.showThreshold;
+	      const thr = showThreshold ? toInt(effectiveLowStockQty(it), 0) : null;
+	      const selected = reportOrderHasItem(id);
+	      const dotClass = selected ? 'led-dot--green' : 'led-dot--off';
+	      const pressed = selected ? 'true' : 'false';
+	      const lowClass = showThreshold ? ' low' : '';
+
+	      return (
+	        `<button type="button" class="report-row${lowClass}" data-report-order-id="${safeId}" aria-pressed="${pressed}">`+
+	          `<div class="report-row-main">`+
+	            `<div class="report-item">`+
+	              `<span class="led-dot ${dotClass}" aria-hidden="true"></span>`+
+	              `<span class="report-item-name">${name}</span>`+
+	            `</div>`+
+	            (desc ? `<div class="report-desc">${desc}</div>` : ``)+
+	          `</div>`+
+	          `<div class="report-qty">`+
+	            `${qty}`+
+	            (showThreshold ? `<div class="muted">Low: ${thr}</div>` : ``)+
+	          `</div>`+
+	        `</button>`
+	      );
+	    }
+	    function reportRowsHtml(items, opts = {}){
+	      const rows = Array.isArray(items) ? items : [];
+	      if(!rows.length){
+	        const emptyText = (opts && typeof opts.emptyText === 'string') ? opts.emptyText : 'No items.';
+	        return `<div class="order-empty">${escapeHtml(emptyText)}</div>`;
+	      }
+	      return rows.map(it => reportRowButtonHtml(it, opts)).join('');
+	    }
+	    function updateReportOrderBadge(){
+	      const modal = $('reportModal');
+	      if(!modal || modal.getAttribute('aria-hidden') !== 'false') return;
+	      const badge = $('reportOrderBadge');
+	      const valueEl = $('reportOrderCount');
+	      if(!badge || !valueEl) return;
+	      const ord = orderState();
+	      const count = Array.isArray(ord.lines) ? ord.lines.length : 0;
+	      if(count > 0){
+	        badge.style.display = 'flex';
+	        valueEl.textContent = String(count);
+	      }else{
+	        badge.style.display = 'none';
+	        valueEl.textContent = '0';
+	      }
+	    }
+	    function syncReportOrderIndicators(){
+	      const modal = $('reportModal');
+	      if(!modal || modal.getAttribute('aria-hidden') !== 'false') return;
+	      const ord = orderState();
+	      const ids = new Set((Array.isArray(ord.lines) ? ord.lines : []).map(l => String(l && l.id ? l.id : '').trim()).filter(Boolean));
+	      document.querySelectorAll('[data-report-order-id]').forEach(el=>{
+	        const id = String(el.dataset && el.dataset.reportOrderId ? el.dataset.reportOrderId : '').trim();
+	        if(!id) return;
+	        const selected = ids.has(id);
+	        el.setAttribute('aria-pressed', selected ? 'true' : 'false');
+	        const dot = el.querySelector('.led-dot');
+	        if(dot){
+	          dot.classList.toggle('led-dot--green', selected);
+	          dot.classList.toggle('led-dot--off', !selected);
+	        }
+	      });
+	      updateReportOrderBadge();
+	    }
 		    function renderInventoryReport(){
 		      const d = reportDataSnapshot();
 		      const elTotal = $('reportMetricTotalItems'); if(elTotal) elTotal.textContent = String(d.totalItems);
-		      const elIn = $('reportMetricInStock'); if(elIn) elIn.textContent = String(d.inStockCount);
-		      const elOut = $('reportMetricOutOfStock'); if(elOut) elOut.textContent = String(d.lowStockCount);
 		      const elQty = $('reportMetricTotalQty'); if(elQty) elQty.textContent = String(d.totalQty);
 		      const elWhen = $('reportGeneratedAt'); if(elWhen) elWhen.textContent = formatEasternDateTime(new Date());
+		      const elLowCount = $('reportLowStockCount'); if(elLowCount) elLowCount.textContent = `(${d.lowStockCount})`;
+		      const elInCount = $('reportInStockCount'); if(elInCount) elInCount.textContent = `(${d.inStockCount})`;
 
 		      const lowSection = $('reportLowStockSection');
 		      const lowList = $('reportLowStockList');
-	      if(lowSection && lowList){
-	        lowList.innerHTML = '';
-	        if(d.lowStockCount > 0){
-	          lowSection.style.display = 'block';
-	          lowList.innerHTML = reportTableHtml(d.lowStock, { showThreshold:true });
-	        }else{
-	          lowSection.style.display = 'none';
-	        }
-	      }
+		      if(lowSection && lowList){
+		        lowList.innerHTML = reportRowsHtml(d.lowStock, { showThreshold:true, emptyText:'No low stock items.' });
+		      }
 
 	      const list = $('reportList');
 	      if(list){
-	        list.innerHTML = '';
-	        if(!d.inStock.length){
-	          const empty = document.createElement('div');
-	          empty.className = 'order-empty';
-	          empty.textContent = 'No in-stock items.';
-	          list.appendChild(empty);
-	        }else{
-	          list.innerHTML = reportTableHtml(d.inStock, { showThreshold:false });
-	        }
+	        list.innerHTML = reportRowsHtml(d.inStock, { showThreshold:false, emptyText:'No in-stock items.' });
 	      }
+	      updateReportOrderBadge();
 	    }
 		    function downloadInventoryReportCsv(){
 		      try{
@@ -4849,57 +5007,96 @@ function emptyStateHtml(){
 		    async function shareInventoryReport(){
 		      openReportEmailModal();
 		    }
-	    function lowStockAlertsSilenced(){
-	      try{
-	        if(SB && SB.profile && typeof SB.profile.silence_low_stock_alerts !== 'undefined'){
-	          return !!SB.profile.silence_low_stock_alerts;
-	        }
+		    function lowStockAlertsSilenced(){
+		      try{
+		        if(SB && SB.profile && typeof SB.profile.silence_low_stock_alerts !== 'undefined'){
+		          return !!SB.profile.silence_low_stock_alerts;
+		        }
 	      }catch(e){}
 	      try{
 	        const raw = localStorage.getItem('inv.pref.silenceLowStockAlerts');
 	        return raw === '1' || raw === 'true';
-	      }catch(e){ return false; }
-	    }
-		    function buildReorderFromLowStock(items){
-		      const list = Array.isArray(items) ? items : reportDataSnapshot().lowStock;
-		      if(!list.length){ toast('No low stock items'); return; }
-		      const ord = orderState();
-		      let added = 0;
-		      let updated = 0;
-		      for(const it of list){
-		        const inv = getInventoryById(it.id) || it;
-		        if(!inv || !inv.id) continue;
-		        const thr = effectiveLowStockQty(inv);
-		        const invQty = toInt(inv.qty, 0);
-		        const desiredOrderQty = Math.max(1, thr - invQty + 1);
-		        const inOrder = ord.lines.some(l => l.id === inv.id);
-		        if(inOrder){
-		          const cur = getOrderQtyForItem(inv.id);
-		          if(cur < desiredOrderQty){
-		            setOrderQty(inv.id, desiredOrderQty);
-		            updated++;
-		          }
-		          continue;
-		        }
-		        if(upsertOrderLineFromItem(inv, desiredOrderQty)) added++;
-		      }
-		      if(added || updated) toast(`Reorder built: ${added} added, ${updated} updated`);
-		      else toast('Order already contains low stock items');
-		      closeReportModal();
-		      openOrderModal({ addSelected:false });
+		      }catch(e){ return false; }
 		    }
-			    function openReportModal(){
-			      renderInventoryReport();
-			      const invSection = $('reportInventorySection');
-			      if(invSection){
-			        const isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
-			        invSection.open = !isMobile;
-			      }
-			      const lowSection = $('reportLowStockSection');
-			      if(lowSection) lowSection.open = true;
-			      show('reportModal', true);
-			    }
-	    function closeReportModal(){ show('reportModal', false); }
+		    let _reportLoadToken = 0;
+		    function setReportLoading(isLoading){
+		      const prog = $('reportProgress');
+		      const content = $('reportContent');
+		      if(prog) prog.style.display = isLoading ? 'block' : 'none';
+		      if(content) content.style.display = isLoading ? 'none' : 'block';
+		    }
+		    function setReportProgress(progress, label){
+		      const p = Math.max(0, Math.min(100, Math.round(Number(progress) || 0)));
+		      const labelEl = $('reportProgressLabel');
+		      const valueEl = $('reportProgressValue');
+		      const barEl = $('reportProgressBar');
+		      const trackEl = $('reportProgress')?.querySelector('.report-progress-track');
+		      if(labelEl && typeof label === 'string') labelEl.textContent = label;
+		      if(valueEl) valueEl.textContent = `${p}%`;
+		      if(barEl) barEl.style.width = `${p}%`;
+		      if(trackEl) trackEl.setAttribute('aria-valuenow', String(p));
+		    }
+		    function simulateReportProgress(token){
+		      let progress = 0;
+		      const baseMs = 2000;
+		      const phaseOneTarget = 40 + Math.random() * 10; // 40–50%
+		      let phaseTwo = false;
+		      let label = 'Analyzing Low Stock Items...';
+		      const start = performance.now();
+		      setReportProgress(0, label);
+
+		      const tick = () => {
+		        if(token !== _reportLoadToken) return;
+		        const modal = $('reportModal');
+		        if(!modal || modal.getAttribute('aria-hidden') !== 'false') return;
+
+		        const elapsed = performance.now() - start;
+		        const timeCap = Math.min(100, (elapsed / baseMs) * 100 + 12);
+		        const increment = (Math.random() * 9) + 3; // 3–12%
+		        progress = Math.min(progress + increment, timeCap, 100);
+
+		        if(!phaseTwo && progress >= phaseOneTarget){
+		          phaseTwo = true;
+		          label = 'Generating Current Inventory...';
+		        }
+		        setReportProgress(progress, label);
+
+		        if(progress >= 100 || elapsed >= baseMs){
+		          setReportProgress(100, label);
+		          finishReportLoad(token);
+		          return;
+		        }
+
+		        let delay = (Math.random() * 100) + 50; // 50–150ms
+		        if(Math.random() < 0.14) delay += (Math.random() * 250) + 200; // occasional pause
+		        setTimeout(tick, delay);
+		      };
+		      tick();
+		    }
+		    function finishReportLoad(token){
+		      if(token !== _reportLoadToken) return;
+		      setReportLoading(false);
+		      renderInventoryReport();
+		      const lowSection = $('reportLowStockSection'); if(lowSection) lowSection.open = false;
+		      const invSection = $('reportInventorySection'); if(invSection) invSection.open = false;
+		      try{ syncReportOrderIndicators(); }catch(e){}
+		    }
+		    function startReportLoad(){
+		      _reportLoadToken++;
+		      const token = _reportLoadToken;
+		      setReportLoading(true);
+		      const lowSection = $('reportLowStockSection'); if(lowSection) lowSection.open = false;
+		      const invSection = $('reportInventorySection'); if(invSection) invSection.open = false;
+		      simulateReportProgress(token);
+		    }
+				    function openReportModal(){
+				      show('reportModal', true);
+				      startReportLoad();
+				    }
+		    function closeReportModal(){
+		      _reportLoadToken++;
+		      show('reportModal', false);
+		    }
 
 	    // ========================
 	    // Order engine (email-based)
@@ -5032,6 +5229,7 @@ function emptyStateHtml(){
       }else{
         badge.style.display = 'none';
       }
+      try{ syncReportOrderIndicators(); }catch(e){}
     }
     function clearAllOrderLines(){
       const ord = orderState();
@@ -5992,19 +6190,32 @@ function emptyStateHtml(){
 	    if(menuReport) menuReport.addEventListener('click', ()=>{ toggleMenu(false); openReportModal(); });
 	    const btnReportClose = $('btnReportClose');
 	    if(btnReportClose) btnReportClose.addEventListener('click', closeReportModal);
-		    const btnReportDownload = $('btnReportDownload');
-		    if(btnReportDownload) btnReportDownload.addEventListener('click', downloadInventoryReportCsv);
-		    const btnReportShare = $('btnReportShare');
-		    if(btnReportShare) btnReportShare.addEventListener('click', ()=>{ void shareInventoryReport(); });
-		    const btnReportBuildReorder = $('btnReportBuildReorder');
-		    if(btnReportBuildReorder) btnReportBuildReorder.addEventListener('click', (e)=>{
-		      e.preventDefault();
-		      e.stopPropagation(); // do not toggle <details> when clicking inside <summary>
-		      buildReorderFromLowStock();
-		    });
-		    const btnReportEmailClose = $('btnReportEmailClose');
-		    if(btnReportEmailClose) btnReportEmailClose.addEventListener('click', closeReportEmailModal);
-		    const btnReportEmailCopy = $('btnReportEmailCopy');
+			    const btnReportDownload = $('btnReportDownload');
+			    if(btnReportDownload) btnReportDownload.addEventListener('click', downloadInventoryReportCsv);
+			    const btnReportShare = $('btnReportShare');
+			    if(btnReportShare) btnReportShare.addEventListener('click', ()=>{ void shareInventoryReport(); });
+			    const reportLowStockList = $('reportLowStockList');
+			    const reportInventoryList = $('reportList');
+			    function toggleOrderFromReportClick(e){
+			      const row = e.target.closest('button[data-report-order-id]');
+			      if(!row) return;
+			      e.preventDefault();
+			      e.stopPropagation();
+			      const id = String(row.dataset.reportOrderId || '').trim();
+			      if(!id) return;
+			      const item = getInventoryById(id);
+			      if(!item) return;
+			      const ord = orderState();
+			      const exists = Array.isArray(ord.lines) && ord.lines.some(l => String(l && l.id ? l.id : '').trim() === id);
+			      if(exists) removeOrderLine(id);
+			      else upsertOrderLineFromItem(item, 1);
+			      try{ syncReportOrderIndicators(); }catch(e){}
+			    }
+			    if(reportLowStockList) reportLowStockList.addEventListener('click', toggleOrderFromReportClick);
+			    if(reportInventoryList) reportInventoryList.addEventListener('click', toggleOrderFromReportClick);
+			    const btnReportEmailClose = $('btnReportEmailClose');
+			    if(btnReportEmailClose) btnReportEmailClose.addEventListener('click', closeReportEmailModal);
+			    const btnReportEmailCopy = $('btnReportEmailCopy');
 		    if(btnReportEmailCopy) btnReportEmailCopy.addEventListener('click', async ()=>{
 		      try{
 		        const html = String(_reportEmailHtml || '').trim();
