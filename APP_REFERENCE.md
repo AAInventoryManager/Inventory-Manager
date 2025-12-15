@@ -147,9 +147,21 @@ There is also a per‑item toggle for reorder eligibility:
 - `items.reorder_enabled` (defaults to `true` when missing)
 - If `false`, the item is excluded from low‑stock counts and reorder suggestions.
 
+#### Low Stock LED indicators
+
+Each inventory card displays up to three LED dots indicating status:
+
+1. **Order LED** (green): Item is in the current order
+2. **Low Stock LED** (amber/red): Item is at or below low stock threshold
+   - **Red** (`card-led--outofstock`): qty = 0 (out of stock)
+   - **Amber** (`card-led--on`): qty > 0 but ≤ threshold (low stock)
+3. **Override LED** (cyan): Item has a per-item low stock override
+
+The low stock LED can be hidden via the "Hide low stock LED indicators" toggle in Profile Settings.
+
 #### Low Stock override indicator (LED dot)
 
-If an item has a per-item low stock override (non‑null `low_stock_qty`), the row’s low‑stock icon button gets a small LED dot:
+If an item has a per-item low stock override (non‑null `low_stock_qty`), the row's low‑stock icon button gets a small LED dot:
 
 - CSS: `.row-stock-btn.has-override::after`
 - Applied when rows render, and updated after saving the Low Stock modal (`syncLowStockOverrideIndicatorForRow`).
@@ -229,15 +241,17 @@ Controls:
 
 - `#editItemName`, `#editItemDesc`, `#editItemQty`
 - qty stepper: `#editItemQtyMinus`, `#editItemQtyPlus`
-- actions: `#btnEditItemCancel`, `#btnEditItemSave`
+- actions: `#btnEditItemDelete`, `#btnEditItemCancel` (Close)
+
+Auto-save: Changes are automatically saved on blur/change (debounced 600ms). No manual save button required.
 
 Keyboard:
 
-- `Escape`: cancel/close
+- `Escape`: close
 - `Enter` behavior:
-  - name input: moves to description (mobile “Done” UX)
-  - qty input: saves
-  - description: `Cmd/Ctrl+Enter` saves
+  - name input: moves to description (mobile "Done" UX)
+  - qty input: saves and closes
+  - description: `Cmd/Ctrl+Enter` saves and closes
 
 ### `lowStockModal` — Per-item low stock threshold
 
@@ -246,28 +260,30 @@ Controls:
 - labels: `#lowStockItemLabel`, `#lowStockCurrentLabel`, `#lowStockGlobalLabel`
 - qty: `#lowStockValue` + steppers `#lowStockMinus`, `#lowStockPlus`
 - toggle: `#lowStockReorderEnabled`
-- actions: `#btnLowStockUseGlobal`, `#btnLowStockCancel`, `#btnLowStockSave`
+- actions: `#btnLowStockUseGlobal`, `#btnLowStockCancel` (Close)
+
+Auto-save: Changes are automatically saved on blur/change (debounced 600ms). No manual save button required.
 
 Behavior:
 
-- Blank input means “use global”.
-- `Use Global` sets the modal to “global mode” and stores `low_stock_qty = null` when saved.
-- `Enter` saves, `Escape` cancels.
-- After save, the table’s low-stock totals and the override LED indicator update without requiring a full re-render (when possible).
+- Blank input means "use global".
+- `Use Global` sets the modal to "global mode" and immediately saves `low_stock_qty = null`.
+- `Enter` saves and closes, `Escape` closes.
+- After save, the table's low-stock totals and the override LED indicator update without requiring a full re-render (when possible).
 
 ### `reportModal` — Inventory report
 
 Shows:
 
-- summary metrics: total items, in stock, low stock, total qty
-- Low Stock Items section (if any) with “Re-order Low Stock Items”
+- summary metrics: total items, in stock, low stock (with amber LED + cart icon), total qty
+- Low Stock Items section (if any) with amber LED indicator
 - Current Inventory section (collapsible; defaults collapsed on mobile)
 
 Actions:
 
 - `#btnReportDownload`: download report CSV
 - `#btnReportShare`: opens `#reportEmailModal`
-- `#btnReportBuildReorder`: builds an order from low-stock items
+- `#btnReportBuildReorder`: cart icon on Low Stock metric card, builds an order from low-stock items
 - `#btnReportClose`: close
 
 Low stock calculation uses:
@@ -300,6 +316,7 @@ Sections:
 
 Actions:
 
+- `#btnResetOrderList`: reset/clear all order lines
 - `#btnOrderCancel`: close
 - `#btnOrderCopy`: copy plain‑text order body
 - `#btnOrderSubmit`: send order
@@ -356,8 +373,10 @@ Controls:
 - `#profilePhone` (auto-formatted)
 - `#profileDeliveryAddress`
 - `#profileLowStockQtyGlobal` (integer ≥ 0)
-- `#profileSilenceLowStockAlerts` (persisted; currently used as a stored preference)
-- actions: `#btnProfileClose`, `#btnSignOut`, `#btnProfileSave`
+- `#profileSilenceLowStockAlerts` (modern toggle switch; hides low stock LED indicators when enabled)
+- actions: `#btnSignOut`, `#btnProfileClose`
+
+Auto-save: Changes are automatically saved on blur/change (debounced 600ms). Toggle changes save immediately. No manual save button required.
 
 ### `msgModal` — App message/alert replacement
 
