@@ -169,6 +169,8 @@
 			        display:block;
 			        --swipe-x: 0px;
 			        --tray-progress: 0;
+			        --tray-outer: 0;
+			        --tray-inner: 0;
 			        --focus-y: 0px;
 			        padding:8px; /* tighter cards to reduce scrolling */
 			        border-radius:14px;
@@ -226,6 +228,11 @@
 		        width:100%;
 		        padding:0;
 		        border-bottom:none;
+		        position:relative;
+		      }
+		      #invTable tbody tr[data-id] td[data-col]::before,
+		      #invTable tbody tr[data-id] td[data-col] .cell-val,
+		      #invTable tbody tr[data-id] td[data-col="qty"] .qty-stepper{
 		        position:relative;
 		        z-index:3;
 		      }
@@ -302,35 +309,34 @@
 			      /* Mobile UX v2: iMessage-style swipe tray (Edit + Low Stock only) */
 			      #invTable tbody tr[data-id] .card-tray{
 			        position:absolute;
-			        top:50%;
-			        transform:translateY(-50%) translateX(calc(0px - var(--swipe-x, 0px)));
+			        inset:0;
+			        transform:translateX(calc(0px - var(--swipe-x, 0px)));
 			        display:flex;
 			        flex-direction:row;
-			        align-items:center;
-			        gap:10px;
+			        align-items:stretch;
+			        justify-content:flex-end;
+			        gap:0;
 			        opacity:1;
 			        pointer-events:none;
 			        z-index:1;
 			      }
 			      #invTable tbody tr[data-id][data-tray-side="left"] .card-tray{
-			        left:10px;
+			        justify-content:flex-start;
 			      }
 			      #invTable tbody tr[data-id][data-tray-side="right"] .card-tray{
-			        right:10px;
+			        justify-content:flex-end;
 			      }
 			      #invTable tbody tr[data-id].tray-open .card-tray{
 			        pointer-events:auto;
 			      }
 			      #invTable tbody tr[data-id] .card-tray-btn{
 			        width:48px;
-			        height:48px;
-			        border-radius:12px;
-			        border:1px solid var(--border);
-			        background:rgba(16,24,38,0.92);
+			        height:100%;
+			        border:0;
+			        border-radius:0;
+			        background:#111827;
 			        color:#ffffff;
-			        opacity:var(--tray-progress, 0);
-			        transform:scale(calc(0.85 + (0.15 * var(--tray-progress, 0))));
-			        transition: opacity 160ms ease, transform 160ms ease;
+			        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
 			        display:flex;
 			        align-items:center;
 			        justify-content:center;
@@ -341,20 +347,68 @@
 			        appearance:none;
 			      }
 			      #invTable tbody tr[data-id] .card-tray-btn:active{
-			        background:rgba(26,38,54,0.96);
+			        filter:brightness(0.96);
 			      }
+
+			      #invTable tbody tr[data-id] .card-tray-btn svg{
+			        width:34px;
+			        height:34px;
+			        display:block;
+			        opacity:0;
+			        transform:scale(0.85);
+			        transition: opacity 160ms ease, transform 160ms ease;
+			      }
+
+			      /* Vibrant, high-contrast action colors */
+			      #invTable tbody tr[data-id] .card-tray-btn[data-tray-action="lowStock"]{
+			        background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+			        color:#0b0f14;
+			      }
+			      #invTable tbody tr[data-id] .card-tray-btn[data-tray-action="edit"]{
+			        background: linear-gradient(180deg, #34d399 0%, #22c55e 100%);
+			        color:#ffffff;
+			      }
+
+			      /* Sequential icon reveal: outer icon first, then inner icon */
+			      #invTable tbody tr[data-id][data-tray-side="right"] .card-tray-btn:last-child svg{
+			        opacity: var(--tray-outer, 0);
+			        transform: scale(calc(0.85 + (0.15 * var(--tray-outer, 0))));
+			      }
+			      #invTable tbody tr[data-id][data-tray-side="right"] .card-tray-btn:first-child svg{
+			        opacity: var(--tray-inner, 0);
+			        transform: scale(calc(0.85 + (0.15 * var(--tray-inner, 0))));
+			      }
+			      #invTable tbody tr[data-id][data-tray-side="left"] .card-tray-btn:first-child svg{
+			        opacity: var(--tray-outer, 0);
+			        transform: scale(calc(0.85 + (0.15 * var(--tray-outer, 0))));
+			      }
+			      #invTable tbody tr[data-id][data-tray-side="left"] .card-tray-btn:last-child svg{
+			        opacity: var(--tray-inner, 0);
+			        transform: scale(calc(0.85 + (0.15 * var(--tray-inner, 0))));
+			      }
+
+			      /* Rounded outer corners to match the card */
+			      #invTable tbody tr[data-id][data-tray-side="right"] .card-tray-btn:last-child{
+			        border-top-right-radius:14px;
+			        border-bottom-right-radius:14px;
+			      }
+			      #invTable tbody tr[data-id][data-tray-side="left"] .card-tray-btn:first-child{
+			        border-top-left-radius:14px;
+			        border-bottom-left-radius:14px;
+			      }
+
 			      #invTable tbody tr[data-id].commit-armed .card-tray-btn[data-tray-action="edit"]{
-			        border-color: rgba(135,245,255,0.85);
 			        box-shadow:
-			          0 0 0 1px rgba(135,245,255,0.18),
-			          0 0 20px rgba(135,245,255,0.22);
+			          inset 0 0 0 2px rgba(255,255,255,0.55),
+			          0 0 24px rgba(34,197,94,0.38);
 			      }
 
 			      /* Mobile UX v2: ensure steppers meet 48×48 target */
 			      .qty-step{ min-width:48px; min-height:48px; }
 			      .qty-stepper--table .qty-step{ min-width:48px; }
 			      #invTable tbody tr[data-id].swiping .card-tray,
-			      #invTable tbody tr[data-id].swiping .card-tray-btn{ transition:none !important; }
+			      #invTable tbody tr[data-id].swiping .card-tray-btn,
+			      #invTable tbody tr[data-id].swiping .card-tray-btn svg{ transition:none !important; }
 			      #invTable tbody tr[data-id].swiping{ transition:none !important; }
 		    }
 		    @media (prefers-reduced-motion: reduce){
@@ -2651,6 +2705,7 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 	const SNAP_PX = 96; // tray snaps open
 	const COMMIT_PX = 144; // auto-trigger Edit (swipe left only)
 	const MAX_PX = 168; // elastic clamp
+	const INNER_REVEAL_PX = Math.round((REVEAL_PX + SNAP_PX) / 2); // second icon begins appearing
 	function clampNum(v, min, max){
 	  return Math.max(min, Math.min(max, v));
 	}
@@ -2668,8 +2723,13 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 	function setRowSwipeX(tr, x){
 	  if(!tr || !tr.style) return;
 	  const v = clampNum(Number(x) || 0, -MAX_PX, MAX_PX);
+	  const ax = Math.abs(v);
+	  const outer = trayProgressForSwipeX(v);
+	  const inner = (ax <= INNER_REVEAL_PX) ? 0 : clampNum((ax - INNER_REVEAL_PX) / (SNAP_PX - INNER_REVEAL_PX), 0, 1);
 	  tr.style.setProperty('--swipe-x', `${v}px`);
-	  tr.style.setProperty('--tray-progress', String(trayProgressForSwipeX(v)));
+	  tr.style.setProperty('--tray-progress', String(outer));
+	  tr.style.setProperty('--tray-outer', String(outer));
+	  tr.style.setProperty('--tray-inner', String(inner));
 	  const side = (tr && tr.dataset) ? String(tr.dataset.traySide || '') : '';
 	  const commitArmed = (side === 'right') && (Math.abs(v) >= COMMIT_PX);
 	  tr.classList.toggle('commit-armed', commitArmed);

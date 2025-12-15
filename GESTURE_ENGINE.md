@@ -57,6 +57,26 @@ Optional future support (mirrors iOS):
 
 Icons are **inline horizontally**, vertically centered to the card.
 
+### 3.1 Action Button Styling
+
+- Action buttons are **full-height** behind the card (nearly as tall as the card surface)
+- Buttons must be **high-contrast, vibrant colors** (not dark-mode UI gray):
+  - **Low Stock**: alert yellow/amber
+  - **Edit**: bright green
+
+### 3.2 Sequential Icon Reveal (No “Leak”)
+
+The icon fade-in must feel like it’s being **revealed behind the sliding card**:
+
+- Icons stay at `opacity: 0` until the card slide has reached `REVEAL_PX`
+- The **outermost** action icon (nearest the revealed edge) fades/scales in first
+- The **inner** action icon begins fading in only after additional slide distance
+
+Recommended stagger:
+
+- Outer icon: fade/scale from `REVEAL_PX → SNAP_PX`
+- Inner icon: fade/scale from `((REVEAL_PX + SNAP_PX) / 2) → SNAP_PX`
+
 ---
 
 ## 4. Gesture Thresholds (Pixels)
