@@ -78,6 +78,49 @@
     .btn.danger:hover{background:#351414}
     .edit-footer .btn.danger{ margin-right:auto }
     .btn:disabled{ opacity:.55; cursor:not-allowed }
+    /* Modern toggle switch */
+    .toggle-switch{
+      position:relative;
+      width:48px;
+      height:26px;
+      flex-shrink:0;
+    }
+    .toggle-switch input{
+      opacity:0;
+      width:0;
+      height:0;
+      position:absolute;
+    }
+    .toggle-slider{
+      position:absolute;
+      cursor:pointer;
+      inset:0;
+      background:#374151;
+      border-radius:26px;
+      transition:background 0.25s ease, box-shadow 0.25s ease;
+    }
+    .toggle-slider::before{
+      content:'';
+      position:absolute;
+      width:20px;
+      height:20px;
+      left:3px;
+      bottom:3px;
+      background:#fff;
+      border-radius:50%;
+      transition:transform 0.25s ease;
+      box-shadow:0 1px 3px rgba(0,0,0,0.3);
+    }
+    .toggle-switch input:checked + .toggle-slider{
+      background:#22c55e;
+      box-shadow:0 0 8px rgba(34,197,94,0.4);
+    }
+    .toggle-switch input:checked + .toggle-slider::before{
+      transform:translateX(22px);
+    }
+    .toggle-switch input:focus + .toggle-slider{
+      box-shadow:0 0 0 2px rgba(34,197,94,0.3);
+    }
     .muted{color:var(--muted);font-size:12px}
     .time{font-size:12px;color:var(--muted)}
     .scroll{overflow:auto;max-height:70vh;border-radius:10px;position:relative;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
@@ -304,6 +347,10 @@
 			      #invTable tbody tr[data-id] .card-led.card-led--order.card-led--on{
 			        background:#22c55e;
 			        box-shadow: 0 0 10px rgba(34,197,94,0.35), 0 0 0 1px rgba(255,255,255,0.10);
+			      }
+			      #invTable tbody tr[data-id] .card-led.card-led--lowstock.card-led--on{
+			        background:#f59e0b;
+			        box-shadow: 0 0 10px rgba(245,158,11,0.45), 0 0 0 1px rgba(255,255,255,0.10);
 			      }
 			      #invTable tbody tr[data-id] .card-led.card-led--override.card-led--on{
 			        background:#87F5FF;
@@ -602,13 +649,33 @@
     .section-title{
       display:flex;
       justify-content:space-between;
-      align-items:baseline;
+      align-items:center;
       gap:12px;
       margin:0 0 10px;
       font-size:12px;
       letter-spacing:.08em;
       text-transform:uppercase;
       color:var(--muted);
+    }
+    .btn-icon-inline{
+      background:transparent;
+      border:none;
+      padding:4px;
+      margin-left:auto;
+      cursor:pointer;
+      color:var(--muted);
+      border-radius:6px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:color 0.15s, background 0.15s;
+    }
+    .btn-icon-inline:hover{
+      color:#fff;
+      background:rgba(255,255,255,0.1);
+    }
+    .btn-icon-inline:active{
+      background:rgba(255,255,255,0.15);
     }
     .order-box{
       padding:0;
@@ -1248,9 +1315,9 @@
         <button class="order-counter-badge" id="orderCounterBadge" aria-label="Clear order selections" style="display:none;">
           <div class="order-counter-top">
             <span class="order-counter-value" id="orderCounterValue">0</span>
-            <span class="order-counter-label">items</span>
+            <span class="order-counter-label">Items Added to Order</span>
           </div>
-          <span class="order-counter-hint">Tap to Reset Order</span>
+          <span class="order-counter-hint">Tap to Reset</span>
         </button>
         <div class="header-right">
         <div class="profile-menu">
@@ -1417,7 +1484,7 @@
       </div>
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
         <button class="btn" id="btnAddCancel">Cancel</button>
-        <button class="btn primary" id="btnAddSave">Save</button>
+        <button class="btn primary" id="btnAddSave">Add</button>
       </div>
     </div>
   </div>
@@ -1453,8 +1520,7 @@
 	      </div>
 	      <div class="edit-footer">
 	        <button class="btn danger" id="btnEditItemDelete">Delete</button>
-	        <button class="btn" id="btnEditItemCancel">Cancel</button>
-	        <button class="btn primary" id="btnEditItemSave">Save</button>
+	        <button class="btn" id="btnEditItemCancel">Close</button>
 	      </div>
 	    </div>
 	  </div>
@@ -1477,8 +1543,7 @@
 	      </label>
 	      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
 	        <button class="btn" id="btnLowStockUseGlobal" type="button">Use Global</button>
-	        <button class="btn" id="btnLowStockCancel" type="button">Cancel</button>
-	        <button class="btn primary" id="btnLowStockSave" type="button">Save</button>
+	        <button class="btn" id="btnLowStockCancel" type="button">Close</button>
       </div>
     </div>
   </div>
@@ -1559,12 +1624,18 @@
           <div class="section-title">
             <span>Order List</span>
             <span id="orderLinesInfo"></span>
+            <button type="button" id="btnResetOrderList" class="btn-icon-inline" aria-label="Reset order list" title="Reset order list">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+              </svg>
+            </button>
           </div>
           <div id="orderLinesBody" class="order-list"></div>
         </div>
 
         <div class="section">
-          <div class="section-title"><span>Select Order Recipient</span></div>
+          <div class="section-title"><span>Order Fulfillment - Email Address</span></div>
           <input id="orderEmail" type="email" placeholder="recipient@example.com" autocomplete="email" inputmode="email" />
           <div id="orderEmailSuggest" class="order-suggest" aria-label="Email suggestions"></div>
         </div>
@@ -1752,15 +1823,17 @@
 	        <textarea id="profileDeliveryAddress" rows="3" placeholder="123 Main St&#10;City, ST 12345"></textarea>
 	        <label class="muted">Global Low Stock Qty</label>
 	        <input id="profileLowStockQtyGlobal" type="number" min="0" step="1" inputmode="numeric" placeholder="0" />
-	        <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
-	          <input id="profileSilenceLowStockAlerts" type="checkbox" style="width:20px;height:20px;" />
-	          <label for="profileSilenceLowStockAlerts" class="muted" style="font-size:13px;cursor:pointer;">Silence low stock reorder prompts</label>
+	        <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
+	          <label class="toggle-switch">
+	            <input id="profileSilenceLowStockAlerts" type="checkbox" />
+	            <span class="toggle-slider"></span>
+	          </label>
+	          <label for="profileSilenceLowStockAlerts" class="muted" style="font-size:13px;cursor:pointer;">Hide low stock LED indicators</label>
 	        </div>
 	      </div>
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
-        <button class="btn" id="btnProfileClose">Close</button>
         <button class="btn" id="btnSignOut">Sign Out</button>
-        <button class="btn primary" id="btnProfileSave">Save</button>
+        <button class="btn" id="btnProfileClose">Close</button>
       </div>
       <div id="profileMsg" class="muted" style="margin-top:10px;"></div>
     </div>
@@ -2154,7 +2227,9 @@
 
       function toggleProfileDropdown(open){
         if(profileDropdown){
+          profileDropdown.style.display = '';
           profileDropdown.classList.toggle('open', open);
+          profileDropdown.setAttribute('aria-hidden', open ? 'false' : 'true');
           if(profileBtn) profileBtn.setAttribute('aria-expanded', open);
         }
       }
@@ -2279,11 +2354,19 @@
     });
 
     const btnProfileClose = $('btnProfileClose');
-    if(btnProfileClose) btnProfileClose.addEventListener('click', ()=> show('profileModal', false));
+    if(btnProfileClose) btnProfileClose.addEventListener('click', ()=> {
+      if(_profileAutoSaveTimer){ clearTimeout(_profileAutoSaveTimer); _profileAutoSaveTimer = null; }
+      show('profileModal', false);
+    });
 
     const openProfileSettings = $('openProfileSettings');
     if(openProfileSettings) openProfileSettings.addEventListener('click', ()=>{
-      show('profileDropdown', false);
+      const profileDropdown = $('profileDropdown');
+      if(profileDropdown){
+        profileDropdown.classList.remove('open');
+        profileDropdown.style.display = '';
+        profileDropdown.setAttribute('aria-hidden', 'true');
+      }
       $('profileBtn')?.setAttribute('aria-expanded', 'false');
       renderProfileUi();
       show('profileModal', true);
@@ -2302,27 +2385,41 @@
       });
     }
 
-	    const btnProfileSave = $('btnProfileSave');
-	    if(btnProfileSave) btnProfileSave.addEventListener('click', async ()=>{
-	      const firstName = $('profileFirstName')?.value || '';
-	      const lastName = $('profileLastName')?.value || '';
-	      const phone = $('profilePhone')?.value || '';
-	      const deliveryAddress = $('profileDeliveryAddress')?.value || '';
-	      const lowStockQtyGlobal = $('profileLowStockQtyGlobal')?.value || '';
-	      const silenceLowStockAlerts = !!($('profileSilenceLowStockAlerts')?.checked);
-	      setProfileMessage('');
-	      btnProfileSave.disabled = true;
-		      try{
-		        await sbSaveProfile(firstName, lastName, phone, deliveryAddress, silenceLowStockAlerts, lowStockQtyGlobal);
-		        renderProfileUi();
-		        try{ renderTable(); }catch(e){}
-		        toast('Profile saved');
-		      }catch(e){
-	        setProfileMessage(e && e.message ? e.message : 'Save failed');
-	      }finally{
-        btnProfileSave.disabled = false;
+	    // Profile auto-save
+    let _profileAutoSaveTimer = null;
+    async function autoSaveProfile(){
+      const modal = $('profileModal');
+      if(!modal || modal.getAttribute('aria-hidden') === 'true') return;
+      const firstName = $('profileFirstName')?.value || '';
+      const lastName = $('profileLastName')?.value || '';
+      const phone = $('profilePhone')?.value || '';
+      const deliveryAddress = $('profileDeliveryAddress')?.value || '';
+      const lowStockQtyGlobal = $('profileLowStockQtyGlobal')?.value || '';
+      const silenceLowStockAlerts = !!($('profileSilenceLowStockAlerts')?.checked);
+      setProfileMessage('');
+      try{
+        await sbSaveProfile(firstName, lastName, phone, deliveryAddress, silenceLowStockAlerts, lowStockQtyGlobal);
+        renderProfileUi();
+        try{ renderTable(); }catch(e){}
+        toast('Auto-saved');
+      }catch(e){
+        setProfileMessage(e && e.message ? e.message : 'Save failed');
+      }
+    }
+    function scheduleProfileAutoSave(){
+      if(_profileAutoSaveTimer) clearTimeout(_profileAutoSaveTimer);
+      _profileAutoSaveTimer = setTimeout(()=> autoSaveProfile(), 600);
+    }
+    // Attach auto-save listeners to profile inputs
+    ['profileFirstName','profileLastName','profilePhone','profileDeliveryAddress','profileLowStockQtyGlobal'].forEach(id=>{
+      const el = $(id);
+      if(el){
+        el.addEventListener('blur', scheduleProfileAutoSave);
+        el.addEventListener('change', scheduleProfileAutoSave);
       }
     });
+    const profileSilenceToggle = $('profileSilenceLowStockAlerts');
+    if(profileSilenceToggle) profileSilenceToggle.addEventListener('change', ()=> autoSaveProfile());
 
     const btnSignOut = $('btnSignOut');
     if(btnSignOut) btnSignOut.addEventListener('click', async ()=>{
@@ -2895,6 +2992,16 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 	  const led = tr.querySelector('.card-led--override');
 	  if(led) led.classList.toggle('card-led--on', hasLowStockOverride);
 	}
+	function syncLowStockIndicatorForRow(id){
+	  const tr = rowElById(id);
+	  if(!tr) return;
+	  const item = state.items.find(x => x && x.id === id);
+	  if(!item) return;
+	  const silenced = lowStockAlertsSilenced();
+	  const isLowStock = !silenced && isLowStockItem(item);
+	  const led = tr.querySelector('.card-led--lowstock');
+	  if(led) led.classList.toggle('card-led--on', isLowStock);
+	}
 	function qtyCellHTML(it){
 	  const q = toInt(it.qty,0);
 	  const id = escapeHtmlAttr(it.id || '');
@@ -2910,6 +3017,7 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 			  const rawId = String(it && it.id ? it.id : '');
 			  const id = escapeHtmlAttr(rawId);
 			  const hasLowStockOverride = getItemLowStockQtyOverride(it) !== null;
+			  const isLowStock = isLowStockItem(it);
 			  const lowStockBtnLabel = hasLowStockOverride ? 'Set low stock qty (override)' : 'Set low stock qty';
 			  const lowStockBtnClass = hasLowStockOverride ? 'row-stock-btn has-override' : 'row-stock-btn';
 			  const inOrder = (()=> {
@@ -2919,12 +3027,15 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 			    }catch(e){ return false; }
 			  })();
 			  const orderLedClass = inOrder ? 'card-led card-led--order card-led--on' : 'card-led card-led--order';
+			  const showLowStockLed = isLowStock && !lowStockAlertsSilenced();
+			  const lowstockLedClass = showLowStockLed ? 'card-led card-led--lowstock card-led--on' : 'card-led card-led--lowstock';
 			  const overrideLedClass = hasLowStockOverride ? 'card-led card-led--override card-led--on' : 'card-led card-led--override';
 			  return (
 			    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+id+'"></td>'+
 			    '<td data-col="name">'+
 			      '<div class="card-leds" aria-hidden="true">'+
 			        '<span class="'+orderLedClass+'"></span>'+
+			        '<span class="'+lowstockLedClass+'"></span>'+
 			        '<span class="'+overrideLedClass+'"></span>'+
 			      '</div>'+
 			      '<div class="card-tray" aria-hidden="true">'+
@@ -3190,11 +3301,11 @@ function emptyStateHtml(){
 	      const pref = prefersModalEditing();
 	      const mode = mobileUx ? 'mobile' : (pref ? 'modal' : 'inline');
 	      if(mode === 'mobile'){
-	        el.innerHTML = 'Tap a card to add/remove it from the order. Swipe for <b>Edit</b> and <b>Low Stock</b>. Use <b>+/-</b> for Qty.';
+	        el.innerHTML = '';
 	      }else if(mode === 'modal'){
-	        el.innerHTML = 'Tap any cell to edit; use <b>Save</b> to apply. Use <b>+/-</b> in Qty for quick changes.';
+	        el.innerHTML = 'Tap any cell to edit. Changes auto-save.';
 	      }else{
-	        el.innerHTML = 'Tap any cell to edit inline; <kbd>Enter</kbd> saves, <kbd>Esc</kbd> cancels.';
+	        el.innerHTML = 'Tap any cell to edit inline; <kbd>Enter</kbd> confirms, <kbd>Esc</kbd> cancels.';
 	      }
 	      if(_lastEditHintPref !== null && mode !== _lastEditHintPref){
 	        try{ renderTable(); }catch(e){}
@@ -3273,8 +3384,10 @@ function emptyStateHtml(){
       throw Error('Unknown field');
     }
 
-	    async function saveEditItemModal(){
+	    async function autoSaveEditItem(){
 	      if(!_editItemCtx) return;
+	      const modal = $('editItemModal');
+	      if(!modal || modal.getAttribute('aria-hidden') === 'true') return;
 	      if(!requireOnline()) return;
 
       const id = _editItemCtx.id;
@@ -3282,39 +3395,39 @@ function emptyStateHtml(){
       const desc = $('editItemDesc') ? $('editItemDesc').value : '';
       const qty  = $('editItemQty')  ? $('editItemQty').value  : '';
 
-      const btnSave = $('btnEditItemSave');
       const btnCancel = $('btnEditItemCancel');
-      if(btnSave) btnSave.disabled = true;
       if(btnCancel) btnCancel.disabled = true;
       setEditItemMessage('');
 
       try{
         await commitItemUpdate(id, { name, desc, qty });
-        closeEditItemModal();
+        toast('Auto-saved');
       }catch(e){
         const msg = (e && e.message) ? e.message : 'Update failed';
         setEditItemMessage(msg);
         toast(msg);
       }finally{
-        if(btnSave) btnSave.disabled = false;
         if(btnCancel) btnCancel.disabled = false;
 	      }
+	    }
+	    let _editItemAutoSaveTimer = null;
+	    function scheduleEditItemAutoSave(){
+	      if(_editItemAutoSaveTimer) clearTimeout(_editItemAutoSaveTimer);
+	      _editItemAutoSaveTimer = setTimeout(()=> autoSaveEditItem(), 600);
 	    }
 	
 	    async function deleteEditItemModal(){
 	      if(!_editItemCtx) return;
 	      if(!requireOnline()) return;
-	
+
 	      const id = _editItemCtx.id;
 	      const item = state.items.find(x=> x && x.id === id);
 	      const itemName = item && item.name ? String(item.name) : 'this item';
 	      if(!(await openConfirmModal('Delete item?', `Delete "${itemName}"?`, { okText:'Delete', cancelText:'Cancel' }))) return;
-	
+
 	      const btnDelete = $('btnEditItemDelete');
-	      const btnSave = $('btnEditItemSave');
 	      const btnCancel = $('btnEditItemCancel');
 	      if(btnDelete) btnDelete.disabled = true;
-	      if(btnSave) btnSave.disabled = true;
 	      if(btnCancel) btnCancel.disabled = true;
 	      setEditItemMessage('');
 	
@@ -3330,7 +3443,6 @@ function emptyStateHtml(){
 	        toast(msg);
 	      }finally{
 	        if(btnDelete) btnDelete.disabled = false;
-	        if(btnSave) btnSave.disabled = false;
 	        if(btnCancel) btnCancel.disabled = false;
 	      }
 	    }
@@ -3340,12 +3452,18 @@ function emptyStateHtml(){
 	    if(btnEditItemDelete) btnEditItemDelete.addEventListener('click', deleteEditItemModal);
 	    const btnEditItemCancel = $('btnEditItemCancel');
 	    if(btnEditItemCancel) btnEditItemCancel.addEventListener('click', closeEditItemModal);
-	    const btnEditItemSave = $('btnEditItemSave');
-	    if(btnEditItemSave) btnEditItemSave.addEventListener('click', saveEditItemModal);
+	    // Auto-save listeners for edit item modal
+	    ['editItemName','editItemDesc','editItemQty'].forEach(id=>{
+	      const el = $(id);
+	      if(el){
+	        el.addEventListener('blur', scheduleEditItemAutoSave);
+	        el.addEventListener('change', scheduleEditItemAutoSave);
+	      }
+	    });
     const btnQtyMinus = $('editItemQtyMinus');
-    if(btnQtyMinus) btnQtyMinus.addEventListener('click', ()=> bumpEditItemQty(-1));
+    if(btnQtyMinus) btnQtyMinus.addEventListener('click', ()=> { bumpEditItemQty(-1); scheduleEditItemAutoSave(); });
     const btnQtyPlus = $('editItemQtyPlus');
-    if(btnQtyPlus) btnQtyPlus.addEventListener('click', ()=> bumpEditItemQty(1));
+    if(btnQtyPlus) btnQtyPlus.addEventListener('click', ()=> { bumpEditItemQty(1); scheduleEditItemAutoSave(); });
 
     const editItemName = $('editItemName');
     if(editItemName) editItemName.addEventListener('keydown', e=>{
@@ -3359,13 +3477,13 @@ function emptyStateHtml(){
     const editItemQty = $('editItemQty');
     if(editItemQty) editItemQty.addEventListener('keydown', e=>{
       if(e.key==='Escape'){ e.preventDefault(); closeEditItemModal(); }
-      if(e.key==='Enter'){ e.preventDefault(); saveEditItemModal(); }
+      if(e.key==='Enter'){ e.preventDefault(); autoSaveEditItem().then(()=> closeEditItemModal()); }
     });
 	    const editItemDesc = $('editItemDesc');
 	    if(editItemDesc) editItemDesc.addEventListener('keydown', e=>{
 	      if(e.key==='Escape'){ e.preventDefault(); closeEditItemModal(); }
 	      if((e.key==='Enter' || e.key==='NumpadEnter') && (e.metaKey || e.ctrlKey)){
-	        e.preventDefault(); saveEditItemModal();
+	        e.preventDefault(); autoSaveEditItem().then(()=> closeEditItemModal());
 	      }
 	    });
 	
@@ -3401,19 +3519,21 @@ function emptyStateHtml(){
 	
 	      show('lowStockModal', true);
 	    }
-	    async function saveLowStockModal(){
+	    async function autoSaveLowStock(){
 	      if(!_lowStockCtx) return;
+	      const modal = $('lowStockModal');
+	      if(!modal || modal.getAttribute('aria-hidden') === 'true') return;
 	      if(!requireOnline()) return;
-	
+
 	      const id = _lowStockCtx.id;
 	      const item = state.items.find(it => it.id === id);
-	      if(!item){ closeLowStockModal(); return; }
-	
+	      if(!item){ return; }
+
 	      const global = getGlobalLowStockQty();
 	      const prev = getItemLowStockQtyOverride(item);
 	      const prevEnabled = getItemReorderEnabled(item);
 	      const prevThr = (prev === null) ? global : prev;
-	
+
 	      const inp = $('lowStockValue');
 	      const raw = String(inp && typeof inp.value !== 'undefined' ? inp.value : '').trim();
 	      let next = null;
@@ -3430,14 +3550,12 @@ function emptyStateHtml(){
 	      const nextThr = (next === null) ? global : next;
 	      const chk = $('lowStockReorderEnabled');
 	      const nextEnabled = chk ? !!chk.checked : true;
-	
-	      const btnSave = $('btnLowStockSave');
+
 	      const btnCancel = $('btnLowStockCancel');
 	      const btnGlobal = $('btnLowStockUseGlobal');
-	      if(btnSave) btnSave.disabled = true;
 	      if(btnCancel) btnCancel.disabled = true;
 	      if(btnGlobal) btnGlobal.disabled = true;
-	
+
 	      item.lowStockQty = next;
 	      item.reorderEnabled = nextEnabled;
 	      try{
@@ -3446,15 +3564,15 @@ function emptyStateHtml(){
 	          if(prevEnabled === nextEnabled && rowElById(id)){
 	            adjustDisplayedLowStockThreshold(item, prevThr, nextThr);
 	            syncLowStockOverrideIndicatorForRow(id);
+	            syncLowStockIndicatorForRow(id);
 	          }
 	          else renderTable();
 	        }catch(e){}
-	        toast('Saved');
+	        toast('Auto-saved');
 	        try{
 	          const reportModal = $('reportModal');
 	          if(reportModal && reportModal.getAttribute('aria-hidden') === 'false') renderInventoryReport();
 	        }catch(e){}
-	        closeLowStockModal();
 	      }catch(err){
 	        item.lowStockQty = prev;
 	        item.reorderEnabled = prevEnabled;
@@ -3466,10 +3584,14 @@ function emptyStateHtml(){
 	          toast(err && err.message ? err.message : 'Update failed');
 	        }
 	      }finally{
-	        if(btnSave) btnSave.disabled = false;
 	        if(btnCancel) btnCancel.disabled = false;
 	        if(btnGlobal) btnGlobal.disabled = false;
 	      }
+	    }
+	    let _lowStockAutoSaveTimer = null;
+	    function scheduleLowStockAutoSave(){
+	      if(_lowStockAutoSaveTimer) clearTimeout(_lowStockAutoSaveTimer);
+	      _lowStockAutoSaveTimer = setTimeout(()=> autoSaveLowStock(), 600);
 	    }
 	    const btnLowStockCancel = $('btnLowStockCancel');
 	    if(btnLowStockCancel) btnLowStockCancel.addEventListener('click', closeLowStockModal);
@@ -3487,9 +3609,9 @@ function emptyStateHtml(){
 	      try{ inp.focus(); }catch(e){}
 	    }
 	    const btnLowStockMinus = $('lowStockMinus');
-	    if(btnLowStockMinus) btnLowStockMinus.addEventListener('click', ()=> bumpLowStockValue(-1));
+	    if(btnLowStockMinus) btnLowStockMinus.addEventListener('click', ()=> { bumpLowStockValue(-1); scheduleLowStockAutoSave(); });
 	    const btnLowStockPlus = $('lowStockPlus');
-	    if(btnLowStockPlus) btnLowStockPlus.addEventListener('click', ()=> bumpLowStockValue(1));
+	    if(btnLowStockPlus) btnLowStockPlus.addEventListener('click', ()=> { bumpLowStockValue(1); scheduleLowStockAutoSave(); });
 	    const btnLowStockUseGlobal = $('btnLowStockUseGlobal');
 	    if(btnLowStockUseGlobal) btnLowStockUseGlobal.addEventListener('click', ()=>{
 	      const inp = $('lowStockValue');
@@ -3501,14 +3623,19 @@ function emptyStateHtml(){
 	      }
 	      const elCurrent = $('lowStockCurrentLabel');
 	      if(elCurrent) elCurrent.textContent = `This item: Global (${global})`;
+	      autoSaveLowStock();
 	    });
-	    const btnLowStockSave = $('btnLowStockSave');
-	    if(btnLowStockSave) btnLowStockSave.addEventListener('click', saveLowStockModal);
 	    const lowStockValue = $('lowStockValue');
-	    if(lowStockValue) lowStockValue.addEventListener('keydown', e=>{
-	      if(e.key==='Escape'){ e.preventDefault(); closeLowStockModal(); }
-	      if(e.key==='Enter'){ e.preventDefault(); saveLowStockModal(); }
-	    });
+	    if(lowStockValue){
+	      lowStockValue.addEventListener('keydown', e=>{
+	        if(e.key==='Escape'){ e.preventDefault(); closeLowStockModal(); }
+	        if(e.key==='Enter'){ e.preventDefault(); autoSaveLowStock().then(()=> closeLowStockModal()); }
+	      });
+	      lowStockValue.addEventListener('blur', scheduleLowStockAutoSave);
+	      lowStockValue.addEventListener('change', scheduleLowStockAutoSave);
+	    }
+	    const lowStockReorderChk = $('lowStockReorderEnabled');
+	    if(lowStockReorderChk) lowStockReorderChk.addEventListener('change', ()=> autoSaveLowStock());
 	    if(lowStockValue) lowStockValue.addEventListener('input', ()=>{
 	      if(!_lowStockCtx) return;
 	      _lowStockCtx.useGlobal = false;
@@ -3646,6 +3773,7 @@ function emptyStateHtml(){
 		        adjustDisplayedTotalQty(newQty - oldQty);
 		        adjustDisplayedInStock(oldQty, newQty);
 		        adjustDisplayedLowStock(it, oldQty, newQty);
+		        try{ syncLowStockIndicatorForRow(id); }catch(e){}
 		        repositionRowByQty(id);
 		        queueQtyCommit(id, newQty);
 		      });
@@ -4147,6 +4275,7 @@ function emptyStateHtml(){
 			            adjustDisplayedLowStock(it, prevQty, q);
 			            repositionRowByQty(id);
 			            queueQtyCommit(id, q);
+			            try{ syncLowStockIndicatorForRow(id); }catch(e){}
 			            return;
 			          }
 	          cancel();
@@ -4831,7 +4960,7 @@ function emptyStateHtml(){
         badge.style.display = 'flex';
         if(valueEl) valueEl.textContent = String(count);
         const labelEl = badge.querySelector('.order-counter-label');
-        if(labelEl) labelEl.textContent = count === 1 ? 'item' : 'items';
+        if(labelEl) labelEl.textContent = count === 1 ? 'Item Added to Order' : 'Items Added to Order';
       }else{
         badge.style.display = 'none';
       }
@@ -5889,6 +6018,12 @@ function emptyStateHtml(){
 	    }
 	    const btnOrderCancel = $('btnOrderCancel');
 	    if(btnOrderCancel) btnOrderCancel.addEventListener('click', ()=> show('orderModal', false));
+    const btnResetOrderList = $('btnResetOrderList');
+    if(btnResetOrderList) btnResetOrderList.addEventListener('click', ()=> {
+      clearAllOrderLines();
+      renderOrderLines();
+      toast('Order list cleared');
+    });
     const btnOrderCopy = $('btnOrderCopy');
     if(btnOrderCopy) btnOrderCopy.addEventListener('click', copyOrderToClipboard);
     const btnOrderSubmit = $('btnOrderSubmit');
