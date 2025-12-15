@@ -172,7 +172,7 @@
 			        --tray-outer: 0;
 			        --tray-inner: 0;
 			        --focus-y: 0px;
-			        padding:8px; /* tighter cards to reduce scrolling */
+			        padding:6px; /* tighter cards to reduce scrolling */
 			        border-radius:14px;
 			        border:none;
 			        background:none;
@@ -182,6 +182,10 @@
 			        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 			        will-change: transform, box-shadow;
 			        transform: translateX(var(--swipe-x)) translateY(var(--focus-y));
+			      }
+			      /* Elastic snap-back animation when releasing from detent */
+			      #invTable tbody tr[data-id].snap-elastic{
+			        transition: transform 380ms cubic-bezier(0.175, 0.885, 0.32, 1.175) !important;
 			      }
 				      #invTable tbody tr[data-id]::before{
 				        content:'';
@@ -237,12 +241,13 @@
 		        z-index:3;
 		      }
 			      #invTable tbody tr[data-id] td[data-col]{
-			        padding:4px 0;
+			        padding:2px 0;
 			      }
 				      #invTable tbody tr[data-id] td[data-col="name"]{
 				        padding-left:0;
 				        padding-right:0;
 				        min-height:0;
+				        position:static; /* Allow tray to position relative to tr, not td */
 				      }
 				      #invTable tbody tr[data-id] td[data-col="desc"]{ padding-left:0; }
 				      #invTable tbody tr[data-id] td[data-col]::before{
@@ -257,7 +262,7 @@
 				      /* Mobile UX v2: remove Item/Description labels to reduce vertical height */
 				      #invTable tbody tr[data-id] td[data-col="name"]::before{ content:''; display:none; }
 				      #invTable tbody tr[data-id] td[data-col="desc"]::before{ content:''; display:none; }
-				      #invTable tbody tr[data-id] td[data-col="qty"]::before{ content:'Qty'; }
+				      #invTable tbody tr[data-id] td[data-col="qty"]::before{ content:''; display:none; }
 
 				      #invTable tbody tr[data-id] td[data-col="name"] .cell-val{ font-weight:900; }
 				      #invTable tbody tr[data-id] td[data-col="desc"] .cell-val{ color:var(--muted); }
@@ -272,8 +277,7 @@
 		      }
 
 			      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
-			      #invTable tbody tr[data-id] td[data-col="qty"]::before{ display:block; margin:0 0 4px 0; text-align:center; }
-
+			      
 			      /* Mobile UX v2: no checkbox selection + no inline action buttons */
 			      #invTable tbody tr[data-id] td.sel{ display:none !important; }
 			      #invTable tbody tr[data-id] td.actions{ display:none !important; }
@@ -289,8 +293,8 @@
 			        z-index:4;
 			      }
 			      #invTable tbody tr[data-id] .card-led{
-			        width:8px;
-			        height:8px;
+			        width:10px;
+			        height:10px;
 			        border-radius:50%;
 			        background:rgba(148,163,184,0.55); /* muted/off */
 			        border:1px solid rgba(0,0,0,0.65);
@@ -313,7 +317,7 @@
 			        transform:translateX(calc(0px - var(--swipe-x, 0px)));
 			        display:flex;
 			        flex-direction:row;
-			        align-items:stretch;
+			        align-items:center;
 			        justify-content:flex-end;
 			        gap:0;
 			        opacity:1;
@@ -334,9 +338,8 @@
 				        height:100%;
 				        border:0;
 				        border-radius:0;
-				        background:#0b0f14;
+				        background:transparent;
 				        color:#e5e7eb;
-				        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14);
 				        display:flex;
 				        align-items:center;
 				        justify-content:center;
@@ -351,11 +354,11 @@
 				      }
 
 				      #invTable tbody tr[data-id] .card-tray-btn svg{
-				        width:100%;
-				        height:100%;
+				        width:61px;
+				        height:61px;
 				        display:block;
 				        opacity:0;
-				        transform:scale(0.85);
+				        transform:scale(0.4);
 				        transition: opacity 160ms ease, transform 160ms ease;
 				      }
 				      #invTable tbody tr[data-id] .card-tray-btn svg *{
@@ -373,19 +376,19 @@
 			      /* Sequential icon reveal: outer icon first, then inner icon */
 			      #invTable tbody tr[data-id][data-tray-side="right"] .card-tray-btn:last-child svg{
 			        opacity: var(--tray-outer, 0);
-			        transform: scale(calc(0.85 + (0.15 * var(--tray-outer, 0))));
+			        transform: scale(calc(0.4 + (0.6 * var(--tray-outer, 0))));
 			      }
 			      #invTable tbody tr[data-id][data-tray-side="right"] .card-tray-btn:first-child svg{
 			        opacity: var(--tray-inner, 0);
-			        transform: scale(calc(0.85 + (0.15 * var(--tray-inner, 0))));
+			        transform: scale(calc(0.4 + (0.6 * var(--tray-inner, 0))));
 			      }
 			      #invTable tbody tr[data-id][data-tray-side="left"] .card-tray-btn:first-child svg{
 			        opacity: var(--tray-outer, 0);
-			        transform: scale(calc(0.85 + (0.15 * var(--tray-outer, 0))));
+			        transform: scale(calc(0.4 + (0.6 * var(--tray-outer, 0))));
 			      }
 			      #invTable tbody tr[data-id][data-tray-side="left"] .card-tray-btn:last-child svg{
 			        opacity: var(--tray-inner, 0);
-			        transform: scale(calc(0.85 + (0.15 * var(--tray-inner, 0))));
+			        transform: scale(calc(0.4 + (0.6 * var(--tray-inner, 0))));
 			      }
 
 			      /* Rounded outer corners to match the card */
@@ -398,10 +401,13 @@
 			        border-bottom-left-radius:14px;
 			      }
 
-			      #invTable tbody tr[data-id].commit-armed .card-tray-btn[data-tray-action="edit"]{
-			        box-shadow:
-			          inset 0 0 0 2px rgba(255,255,255,0.55),
-			          0 0 24px rgba(34,197,94,0.38);
+			      /* Glow effect on edit icon - fades in based on --commit-progress variable */
+			      #invTable tbody tr[data-id] .card-tray-btn[data-tray-action="edit"] svg{
+			        filter: drop-shadow(0 0 calc(16px * var(--commit-progress, 0)) rgba(34,197,94, var(--commit-progress, 0)));
+			      }
+			      /* Elastic stretch effect on edit icon when approaching commit threshold */
+			      #invTable tbody tr[data-id].commit-armed .card-tray-btn[data-tray-action="edit"] svg{
+			        transform: scale(1.03) !important;
 			      }
 
 			      /* Mobile UX v2: ensure steppers meet 48×48 target */
@@ -480,9 +486,11 @@
       box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:100;display:none
     }
 	    .modal{
-	      display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;
+	      display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;
 	      overflow:auto;
 	      padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
+	      -webkit-backdrop-filter: blur(8px);
+	      backdrop-filter: blur(8px);
 	    }
 	    #reportEmailModal{ z-index:220; }
 	    .modal .box{
@@ -1118,18 +1126,65 @@
       margin:4px 0;
     }
     .header-row{
-      display:flex;
+      display:grid;
+      grid-template-columns:auto minmax(0, 1fr) auto;
       align-items:center;
-      justify-content:space-between;
       gap:12px;
     }
+    .header-right{
+      grid-column:3;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+    }
     .header-left{
+      grid-column:1;
       display:flex;
       align-items:center;
       justify-content:flex-start;
       gap:12px;
-      flex:1;
       min-width:0;
+    }
+    .order-counter-badge{
+      grid-column:2;
+      justify-self:center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:1px;
+      background:#22c55e;
+      color:#fff;
+      font-weight:600;
+      padding:4px 10px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      box-shadow: 0 0 10px rgba(34,197,94,0.4), 0 2px 6px rgba(0,0,0,0.3);
+      transition: transform 150ms ease, box-shadow 150ms ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .order-counter-badge:active{
+      transform: scale(0.95);
+    }
+    .order-counter-top{
+      display:flex;
+      align-items:center;
+      gap:4px;
+    }
+    .order-counter-value{
+      font-size:14px;
+      font-weight:700;
+    }
+    .order-counter-label{
+      font-size:11px;
+      opacity:0.9;
+    }
+    .order-counter-hint{
+      font-size:8px;
+      opacity:0.75;
+      text-transform:uppercase;
+      letter-spacing:0.3px;
     }
     .menu-backdrop{
       display:none;
@@ -1190,6 +1245,14 @@
             <img class="title-logo" src="./assets/oakley/logo/oakley-logo-horizontal-h128.png" alt="Oakley Services" />
           </div>
         </div>
+        <button class="order-counter-badge" id="orderCounterBadge" aria-label="Clear order selections" style="display:none;">
+          <div class="order-counter-top">
+            <span class="order-counter-value" id="orderCounterValue">0</span>
+            <span class="order-counter-label">items</span>
+          </div>
+          <span class="order-counter-hint">Tap to Reset Order</span>
+        </button>
+        <div class="header-right">
         <div class="profile-menu">
           <button class="profile-btn" id="profileBtn" aria-label="Account menu" aria-expanded="false">
             <span class="profile-status" id="profileStatus"></span>
@@ -1251,6 +1314,7 @@
               Order History
             </button>
           </nav>
+        </div>
         </div>
       </div>
       <div id="menuBackdrop" class="menu-backdrop"></div>
@@ -2727,10 +2791,12 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 	  const ax = Math.abs(v);
 	  const outer = trayProgressForSwipeX(v);
 	  const inner = (ax <= INNER_REVEAL_PX) ? 0 : clampNum((ax - INNER_REVEAL_PX) / (SNAP_PX - INNER_REVEAL_PX), 0, 1);
+	  const commitProgress = (ax <= SNAP_PX) ? 0 : clampNum((ax - SNAP_PX) / (COMMIT_PX - SNAP_PX), 0, 1);
 	  tr.style.setProperty('--swipe-x', `${v}px`);
 	  tr.style.setProperty('--tray-progress', String(outer));
 	  tr.style.setProperty('--tray-outer', String(outer));
 	  tr.style.setProperty('--tray-inner', String(inner));
+	  tr.style.setProperty('--commit-progress', String(commitProgress));
 	  const side = (tr && tr.dataset) ? String(tr.dataset.traySide || '') : '';
 	  const commitArmed = (side === 'right') && (Math.abs(v) >= COMMIT_PX);
 	  tr.classList.toggle('commit-armed', commitArmed);
@@ -2757,6 +2823,21 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 	    setRowSwipeX(tr, 0);
 	    try{ delete tr.dataset.traySide; }catch(e){ tr.dataset.traySide = ''; }
 	    setMobileTrayA11y(tr, false);
+	  }
+	  _openTrayId = '';
+	}
+	function closeMobileTrayElastic(targetTr){
+	  const tr = targetTr || (_openTrayId ? rowElById(_openTrayId) : null);
+	  if(tr){
+	    tr.classList.remove('swiping');
+	    tr.classList.remove('tray-peek');
+	    tr.classList.remove('tray-open');
+	    tr.classList.add('snap-elastic');
+	    setRowSwipeX(tr, 0);
+	    try{ delete tr.dataset.traySide; }catch(e){ tr.dataset.traySide = ''; }
+	    setMobileTrayA11y(tr, false);
+	    // Remove elastic class after animation completes
+	    setTimeout(()=>{ try{ tr.classList.remove('snap-elastic'); }catch(e){} }, 400);
 	  }
 	  _openTrayId = '';
 	}
@@ -2848,14 +2929,14 @@ function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) |
 			      '</div>'+
 			      '<div class="card-tray" aria-hidden="true">'+
 			        '<button type="button" class="card-tray-btn" data-tray-action="lowStock" tabindex="-1" aria-label="Low stock override" title="Low stock override">'+
-			          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+			          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
 			            '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>'+
 			            '<line x1="12" y1="9" x2="12" y2="13"></line>'+
 			            '<line x1="12" y1="17" x2="12.01" y2="17"></line>'+
 			          '</svg>'+
 			        '</button>'+
 			        '<button type="button" class="card-tray-btn" data-tray-action="edit" tabindex="-1" aria-label="Edit item" title="Edit item">'+
-			          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+			          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
 			            '<path d="M12 20h9"></path>'+
 			            '<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>'+
 			          '</svg>'+
@@ -3685,7 +3766,21 @@ function emptyStateHtml(){
         const tr = _mobGesture.tr;
         if(!tr || !tr.isConnected){ resetMobGesture(); return; }
 
-        const nextX = clampNum(_mobGesture.startSwipeX + dx, -MAX_PX, MAX_PX);
+        // Elastic resistance when swiping back from detent toward origin
+        const startAx = Math.abs(_mobGesture.startSwipeX);
+        const isAtDetent = startAx >= SNAP_PX - 10;
+        const isSwipingBack = (_mobGesture.startSwipeX < 0 && dx > 0) || (_mobGesture.startSwipeX > 0 && dx < 0);
+
+        let nextX;
+        if(isAtDetent && isSwipingBack){
+          // Apply damping for sticky/elastic feel (0.35x movement)
+          const dampedDx = dx * 0.35;
+          nextX = clampNum(_mobGesture.startSwipeX + dampedDx, -MAX_PX, MAX_PX);
+          _mobGesture.closingFromDetent = true;
+        }else{
+          nextX = clampNum(_mobGesture.startSwipeX + dx, -MAX_PX, MAX_PX);
+          _mobGesture.closingFromDetent = false;
+        }
         _mobGesture.swipeX = nextX;
 
         let side = _mobGesture.side;
@@ -3705,13 +3800,13 @@ function emptyStateHtml(){
         if(e.pointerId !== _mobGesture.pointerId) return;
         if(isAnyModalOpen()){ resetMobGesture(); return; }
 
-        const { id, tr, moved, intent, swipeX, startTime, startX, prevMoveTime, lastMoveTime, prevMoveClientX, lastMoveClientX } = _mobGesture;
+        const { id, tr, moved, intent, swipeX, startTime, startX, prevMoveTime, lastMoveTime, prevMoveClientX, lastMoveClientX, closingFromDetent } = _mobGesture;
         resetMobGesture();
         if(!id || !tr) return;
 
         if(!moved){
           if(_openTrayId === id && tr.classList.contains('tray-open')){
-            closeMobileTray();
+            closeMobileTrayElastic(tr);
             return;
           }
           const item = state.items.find(x => x && x.id === id);
@@ -3728,6 +3823,12 @@ function emptyStateHtml(){
           const finalX = Number.isFinite(swipeX) ? swipeX : getRowSwipeX(tr);
           const ax = Math.abs(finalX);
           const side = (finalX < 0) ? 'right' : 'left';
+
+          // If user was swiping back from detent, always snap back with elastic animation
+          if(closingFromDetent){
+            closeMobileTrayElastic(tr);
+            return;
+          }
 
           let vx = 0;
           try{
@@ -3750,7 +3851,10 @@ function emptyStateHtml(){
 	          }
 
           const fastOpen = (side === 'right') ? (vx <= -0.55) : (vx >= 0.55);
-          if(ax >= SNAP_PX || (ax >= REVEAL_PX && fastOpen)){
+          const fastClose = (side === 'right') ? (vx >= 0.55) : (vx <= -0.55);
+          if(fastClose && ax < COMMIT_PX){
+            closeMobileTray();
+          }else if(ax >= SNAP_PX || (ax >= REVEAL_PX && fastOpen)){
             openMobileTrayForRow(tr, side);
           }else{
             closeMobileTray();
@@ -3854,7 +3958,21 @@ function emptyStateHtml(){
         const tr = _mobGesture.tr;
         if(!tr || !tr.isConnected){ resetMobGesture(); return; }
 
-        const nextX = clampNum(_mobGesture.startSwipeX + dx, -MAX_PX, MAX_PX);
+        // Elastic resistance when swiping back from detent toward origin
+        const startAx = Math.abs(_mobGesture.startSwipeX);
+        const isAtDetent = startAx >= SNAP_PX - 10;
+        const isSwipingBack = (_mobGesture.startSwipeX < 0 && dx > 0) || (_mobGesture.startSwipeX > 0 && dx < 0);
+
+        let nextX;
+        if(isAtDetent && isSwipingBack){
+          // Apply damping for sticky/elastic feel (0.35x movement)
+          const dampedDx = dx * 0.35;
+          nextX = clampNum(_mobGesture.startSwipeX + dampedDx, -MAX_PX, MAX_PX);
+          _mobGesture.closingFromDetent = true;
+        }else{
+          nextX = clampNum(_mobGesture.startSwipeX + dx, -MAX_PX, MAX_PX);
+          _mobGesture.closingFromDetent = false;
+        }
         _mobGesture.swipeX = nextX;
 
         let side = _mobGesture.side;
@@ -3875,13 +3993,13 @@ function emptyStateHtml(){
         const ended = findTouchById(e.changedTouches || [], _mobGesture.touchId);
         if(!ended) return;
 
-        const { id, tr, moved, intent, swipeX, startTime, startX, prevMoveTime, lastMoveTime, prevMoveClientX, lastMoveClientX } = _mobGesture;
+        const { id, tr, moved, intent, swipeX, startTime, startX, prevMoveTime, lastMoveTime, prevMoveClientX, lastMoveClientX, closingFromDetent } = _mobGesture;
         resetMobGesture();
         if(!id || !tr) return;
 
         if(!moved){
           if(_openTrayId === id && tr.classList.contains('tray-open')){
-            closeMobileTray();
+            closeMobileTrayElastic(tr);
             return;
           }
           const item = state.items.find(x => x && x.id === id);
@@ -3898,6 +4016,12 @@ function emptyStateHtml(){
           const finalX = Number.isFinite(swipeX) ? swipeX : getRowSwipeX(tr);
           const ax = Math.abs(finalX);
           const side = (finalX < 0) ? 'right' : 'left';
+
+          // If user was swiping back from detent, always snap back with elastic animation
+          if(closingFromDetent){
+            closeMobileTrayElastic(tr);
+            return;
+          }
 
           let vx = 0;
           try{
@@ -3920,7 +4044,10 @@ function emptyStateHtml(){
 	          }
 
           const fastOpen = (side === 'right') ? (vx <= -0.55) : (vx >= 0.55);
-          if(ax >= SNAP_PX || (ax >= REVEAL_PX && fastOpen)){
+          const fastClose = (side === 'right') ? (vx >= 0.55) : (vx <= -0.55);
+          if(fastClose && ax < COMMIT_PX){
+            closeMobileTray();
+          }else if(ax >= SNAP_PX || (ax >= REVEAL_PX && fastOpen)){
             openMobileTrayForRow(tr, side);
           }else{
             closeMobileTray();
@@ -4694,6 +4821,28 @@ function emptyStateHtml(){
       }
       return state._order;
     }
+    function updateOrderCounterBadge(){
+      const ord = orderState();
+      const count = ord.lines.length;
+      const badge = $('orderCounterBadge');
+      const valueEl = $('orderCounterValue');
+      if(!badge) return;
+      if(count > 0){
+        badge.style.display = 'flex';
+        if(valueEl) valueEl.textContent = String(count);
+        const labelEl = badge.querySelector('.order-counter-label');
+        if(labelEl) labelEl.textContent = count === 1 ? 'item' : 'items';
+      }else{
+        badge.style.display = 'none';
+      }
+    }
+    function clearAllOrderLines(){
+      const ord = orderState();
+      const ids = ord.lines.map(l => l.id);
+      ord.lines = [];
+      ids.forEach(id => { try{ syncOrderIndicatorForRow(String(id)); }catch(e){} });
+      updateOrderCounterBadge();
+    }
     function getInventoryById(id){
       return state.items.find(x => x && x.id === id) || null;
     }
@@ -4709,12 +4858,14 @@ function emptyStateHtml(){
 	      ord.lines.push({ id: it.id, name: String(it.name||'').trim(), desc: String(it.desc||'').trim(), qty: toInt(qty, 1) });
 	      ord.lines.sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
 	      try{ syncOrderIndicatorForRow(String(it.id)); }catch(e){}
+	      try{ updateOrderCounterBadge(); }catch(e){}
 	      return true;
 	    }
 	    function removeOrderLine(id){
 	      const ord = orderState();
 	      ord.lines = ord.lines.filter(l => l.id !== id);
 	      try{ syncOrderIndicatorForRow(String(id)); }catch(e){}
+	      try{ updateOrderCounterBadge(); }catch(e){}
 	    }
     function setOrderQty(id, qty){
       const ord = orderState();
@@ -6414,6 +6565,16 @@ function emptyStateHtml(){
           try{ fb.focus(); }catch(e){}
 	        });
 	      }
+
+	      // Order counter badge - tap to clear all selections
+	      const orderBadge = $('orderCounterBadge');
+	      if(orderBadge){
+	        orderBadge.addEventListener('click', ()=>{
+	          clearAllOrderLines();
+	          toast('Order cleared');
+	        });
+	      }
+	      try{ updateOrderCounterBadge(); }catch(e){}
 
 	      const mobileSort = $('mobileSort');
 	      if(mobileSort){
