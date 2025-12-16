@@ -374,19 +374,19 @@
 			      }
 
 			      /* Mobile UX v2: iMessage-style swipe tray (Edit + Low Stock only) */
-			      #invTable tbody tr[data-id] .card-tray{
-			        position:absolute;
-			        inset:0;
-			        transform:translateX(calc(0px - var(--swipe-x, 0px)));
-			        display:flex;
-			        flex-direction:row;
-			        align-items:center;
-			        justify-content:flex-end;
-			        gap:0;
-			        opacity:1;
-			        pointer-events:none;
-			        z-index:1;
-			      }
+				      #invTable tbody tr[data-id] .card-tray{
+				        position:absolute;
+				        inset:0;
+				        transform:translateX(calc(0px - var(--swipe-x, 0px)));
+				        display:flex;
+				        flex-direction:row;
+				        align-items:center;
+				        justify-content:flex-end;
+				        gap:8px;
+				        opacity:1;
+				        pointer-events:none;
+				        z-index:1;
+				      }
 				      #invTable tbody tr[data-id][data-tray-side="left"] .card-tray{
 				        justify-content:flex-start;
 				      }
@@ -3272,13 +3272,24 @@ function adjustTitleSize(){
 	function tbodyEl(){ return document.querySelector('#invTable tbody'); }
 	function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) || null; }
 		function cellEl(tr, col){ return tr?.querySelector(`td[data-col="${col}"]`) || null; }
-		let _openTrayId = '';
-		let _expandedCardId = '';
+			let _openTrayId = '';
+			let _expandedCardId = '';
 			const REVEAL_PX = 48; // icons begin appearing
-			const SNAP_PX = 192; // tray snaps open
-			const COMMIT_PX = 210; // auto-trigger action (edit/order) (~60% of MAX, safely above SNAP)
+			const TRAY_BTN_W = 86; // keep in sync with .card-tray-btn width
+			const TRAY_SNAP_PAD = 20; // extra reveal beyond icons
+			const COMMIT_PX = 210; // auto-trigger action (edit/order)
 			const MAX_PX = 336; // elastic clamp
-		const INNER_REVEAL_PX = Math.round((REVEAL_PX + SNAP_PX) / 2); // second icon begins appearing
+
+			function traySideFromSwipeX(x){
+			  return (Number(x) || 0) < 0 ? 'right' : 'left';
+			}
+			function trayIconCountForSide(side){
+			  return (side === 'left') ? 1 : 2;
+			}
+			function traySnapPxForSide(side){
+			  const iconCount = trayIconCountForSide(side);
+			  return (iconCount * TRAY_BTN_W) + TRAY_SNAP_PAD;
+			}
 
 		function collapseExpandedCard(){
 		  if(!_expandedCardId) return;
@@ -3305,36 +3316,47 @@ function adjustTitleSize(){
 	function clampNum(v, min, max){
 	  return Math.max(min, Math.min(max, v));
 	}
-	function trayProgressForSwipeX(x){
-	  const ax = Math.abs(Number(x) || 0);
-	  if(ax <= REVEAL_PX) return 0;
-	  return clampNum((ax - REVEAL_PX) / (SNAP_PX - REVEAL_PX), 0, 1);
-	}
+		function trayProgressForSwipeX(x){
+		  const ax = Math.abs(Number(x) || 0);
+		  const side = traySideFromSwipeX(x);
+		  const snapPx = traySnapPxForSide(side);
+		  if(ax <= REVEAL_PX) return 0;
+		  return clampNum((ax - REVEAL_PX) / Math.max(1, (snapPx - REVEAL_PX)), 0, 1);
+		}
 	function getRowSwipeX(tr){
 	  if(!tr || !tr.style) return 0;
 	  const raw = String(tr.style.getPropertyValue('--swipe-x') || '').trim();
 	  const n = Number.parseFloat(raw);
 	  return Number.isFinite(n) ? n : 0;
 	}
-	function setRowSwipeX(tr, x){
-	  if(!tr || !tr.style) return;
-	  const v = clampNum(Number(x) || 0, -MAX_PX, MAX_PX);
-	  const ax = Math.abs(v);
-	  const outer = trayProgressForSwipeX(v);
-	  const inner = (ax <= INNER_REVEAL_PX) ? 0 : clampNum((ax - INNER_REVEAL_PX) / (SNAP_PX - INNER_REVEAL_PX), 0, 1);
-	  const commitProgress = (ax <= SNAP_PX) ? 0 : clampNum((ax - SNAP_PX) / (COMMIT_PX - SNAP_PX), 0, 1);
-	  tr.style.setProperty('--swipe-x', `${v}px`);
-	  tr.style.setProperty('--tray-progress', String(outer));
-	  tr.style.setProperty('--tray-outer', String(outer));
-		  tr.style.setProperty('--tray-inner', String(inner));
-		  tr.style.setProperty('--commit-progress', String(commitProgress));
-		  const side = (tr && tr.dataset) ? String(tr.dataset.traySide || '') : '';
-		  const commitArmed = (!!side) && (Math.abs(v) >= COMMIT_PX);
-		  tr.classList.toggle('commit-armed', commitArmed);
+		function setRowSwipeX(tr, x){
+		  if(!tr || !tr.style) return;
+		  const v = clampNum(Number(x) || 0, -MAX_PX, MAX_PX);
+		  const ax = Math.abs(v);
+		  const side = traySideFromSwipeX(v);
+		  const snapPx = traySnapPxForSide(side);
+		  const outer = trayProgressForSwipeX(v);
+		  let inner = 0;
+		  if(trayIconCountForSide(side) > 1){
+		    const innerRevealPx = Math.round((REVEAL_PX + snapPx) / 2);
+		    inner = (ax <= innerRevealPx) ? 0 : clampNum((ax - innerRevealPx) / Math.max(1, (snapPx - innerRevealPx)), 0, 1);
+		  }
+		  const commitDen = Math.max(1, (COMMIT_PX - snapPx));
+		  const commitProgress = (ax <= snapPx) ? 0 : clampNum((ax - snapPx) / commitDen, 0, 1);
+		  tr.style.setProperty('--swipe-x', `${v}px`);
+		  tr.style.setProperty('--tray-progress', String(outer));
+		  tr.style.setProperty('--tray-outer', String(outer));
+			  tr.style.setProperty('--tray-inner', String(inner));
+			  tr.style.setProperty('--commit-progress', String(commitProgress));
+			  const traySide = (tr && tr.dataset) ? String(tr.dataset.traySide || '') : '';
+			  const commitArmed = (!!traySide) && (Math.abs(v) >= COMMIT_PX);
+			  tr.classList.toggle('commit-armed', commitArmed);
+			}
+		function traySideToSwipeX(side){
+		  const s = (side === 'left') ? 'left' : 'right';
+		  const snapPx = traySnapPxForSide(s);
+		  return (s === 'left') ? snapPx : -snapPx;
 		}
-	function traySideToSwipeX(side){
-	  return (side === 'left') ? SNAP_PX : -SNAP_PX;
-	}
 	function setMobileTrayA11y(tr, open){
 	  const tray = tr ? tr.querySelector('.card-tray') : null;
 	  if(!tray) return;
@@ -4424,7 +4446,9 @@ function emptyStateHtml(){
 
         // Elastic resistance when swiping back from detent toward origin
         const startAx = Math.abs(_mobGesture.startSwipeX);
-        const isAtDetent = startAx >= SNAP_PX - 10;
+        const startSide = traySideFromSwipeX(_mobGesture.startSwipeX);
+        const startSnapPx = traySnapPxForSide(startSide);
+        const isAtDetent = startAx >= startSnapPx - 10;
         const isSwipingBack = (_mobGesture.startSwipeX < 0 && dx > 0) || (_mobGesture.startSwipeX > 0 && dx < 0);
 
         let nextX;
@@ -4507,14 +4531,15 @@ function emptyStateHtml(){
 		            return;
 		          }
 
-	          const fastOpen = (side === 'right') ? (vx <= -0.55) : (vx >= 0.55);
-	          const fastClose = (side === 'right') ? (vx >= 0.55) : (vx <= -0.55);
-	          if(fastClose && ax < COMMIT_PX){
-            closeMobileTray();
-          }else if(ax >= SNAP_PX || (ax >= REVEAL_PX && fastOpen)){
-            openMobileTrayForRow(tr, side);
-          }else{
-            closeMobileTray();
+		          const fastOpen = (side === 'right') ? (vx <= -0.55) : (vx >= 0.55);
+		          const fastClose = (side === 'right') ? (vx >= 0.55) : (vx <= -0.55);
+		          const snapPx = traySnapPxForSide(side);
+		          if(fastClose && ax < COMMIT_PX){
+	            closeMobileTray();
+	          }else if(ax >= snapPx || (ax >= REVEAL_PX && fastOpen)){
+	            openMobileTrayForRow(tr, side);
+	          }else{
+	            closeMobileTray();
           }
         }
       }, { passive:true });
@@ -4615,10 +4640,12 @@ function emptyStateHtml(){
         const tr = _mobGesture.tr;
         if(!tr || !tr.isConnected){ resetMobGesture(); return; }
 
-        // Elastic resistance when swiping back from detent toward origin
-        const startAx = Math.abs(_mobGesture.startSwipeX);
-        const isAtDetent = startAx >= SNAP_PX - 10;
-        const isSwipingBack = (_mobGesture.startSwipeX < 0 && dx > 0) || (_mobGesture.startSwipeX > 0 && dx < 0);
+	        // Elastic resistance when swiping back from detent toward origin
+	        const startAx = Math.abs(_mobGesture.startSwipeX);
+	        const startSide = traySideFromSwipeX(_mobGesture.startSwipeX);
+	        const startSnapPx = traySnapPxForSide(startSide);
+	        const isAtDetent = startAx >= startSnapPx - 10;
+	        const isSwipingBack = (_mobGesture.startSwipeX < 0 && dx > 0) || (_mobGesture.startSwipeX > 0 && dx < 0);
 
         let nextX;
         if(isAtDetent && isSwipingBack){
@@ -4702,15 +4729,16 @@ function emptyStateHtml(){
 		            return;
 		          }
 
-	          const fastOpen = (side === 'right') ? (vx <= -0.55) : (vx >= 0.55);
-	          const fastClose = (side === 'right') ? (vx >= 0.55) : (vx <= -0.55);
-	          if(fastClose && ax < COMMIT_PX){
-            closeMobileTray();
-          }else if(ax >= SNAP_PX || (ax >= REVEAL_PX && fastOpen)){
-            openMobileTrayForRow(tr, side);
-          }else{
-            closeMobileTray();
-          }
+		          const fastOpen = (side === 'right') ? (vx <= -0.55) : (vx >= 0.55);
+		          const fastClose = (side === 'right') ? (vx >= 0.55) : (vx <= -0.55);
+		          const snapPx = traySnapPxForSide(side);
+		          if(fastClose && ax < COMMIT_PX){
+	            closeMobileTray();
+	          }else if(ax >= snapPx || (ax >= REVEAL_PX && fastOpen)){
+	            openMobileTrayForRow(tr, side);
+	          }else{
+	            closeMobileTray();
+	          }
         }
       }, { passive:false });
 
