@@ -256,10 +256,12 @@
 				        pointer-events:none;
 				      }
 				      #invTable tbody tr[data-id].order-selected::after{
-				        border-color: rgba(34,197,94,0.55) !important;
+				        background:
+				          radial-gradient(200px 110px at 50% 40%, rgba(34,197,94,0.20), rgba(34,197,94,0) 70%),
+				          linear-gradient(145deg, rgba(34,197,94,0.10) 0%, #12161c 100%) !important;
 				        box-shadow:
-				          0 0 0 1px rgba(34,197,94,0.16),
-				          0 0 12px rgba(34,197,94,0.12),
+				          0 0 0 1px rgba(34,197,94,0.12),
+				          0 0 16px rgba(34,197,94,0.10),
 				          0 2px 8px rgba(0,0,0,0.3),
 				          inset 0 1px 0 rgba(255,255,255,0.05) !important;
 				      }
@@ -518,9 +520,15 @@
 	    }
     td.editing{padding:6px}
     .toast{
-      position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#0d1420;
-      border:1px solid var(--border);color:var(--fg);padding:10px 14px;border-radius:10px;
-      box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:100;display:none
+      position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));
+      background:rgba(255,255,255,0.96);
+      border:1px solid rgba(0,0,0,0.12);
+      color:#0b1020;
+      font-weight:800;
+      padding:10px 14px;border-radius:10px;
+      box-shadow:0 12px 30px rgba(0,0,0,.55);
+      z-index:300;
+      display:none
     }
 	    .modal{
 	      display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;
@@ -747,8 +755,10 @@
       transition: border-color 180ms ease, box-shadow 180ms ease;
     }
     .order-card.order-card--selected{
-      border-color:#22c55e;
-      box-shadow:0 0 0 1px rgba(34,197,94,0.25), 0 0 12px rgba(34,197,94,0.15), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+      background:
+        radial-gradient(220px 120px at 40% 35%, rgba(34,197,94,0.20), rgba(34,197,94,0) 70%),
+        linear-gradient(145deg, rgba(34,197,94,0.10) 0%, #12161c 100%);
+      box-shadow:0 0 0 1px rgba(34,197,94,0.12), 0 0 16px rgba(34,197,94,0.10), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
     }
     .order-card-led{
       width:8px; height:8px; border-radius:50%; flex-shrink:0;
@@ -765,6 +775,21 @@
       align-items:center;
       gap:8px;
     }
+    .order-inline-kpi{
+      margin-left:auto;
+      display:flex;
+      align-items:baseline;
+      gap:6px;
+      white-space:nowrap;
+      font-size:12px;
+      color:var(--muted);
+      font-variant-numeric:tabular-nums;
+    }
+    .order-inline-kpi-val{
+      color:var(--fg);
+      font-weight:800;
+      font-size:14px;
+    }
     .order-card-top{ display:flex; gap:12px; align-items:flex-start; }
     .order-meta{ flex:1; min-width:0; }
     .order-title{ font-weight:700; font-size:15px; letter-spacing:-0.01em; }
@@ -780,6 +805,13 @@
       display:flex;
       gap:12px;
       align-items:flex-end;
+    }
+    .order-controls.order-controls--compact{
+      margin-top:10px;
+      padding-top:10px;
+      align-items:center;
+      justify-content:flex-end;
+      gap:10px;
     }
     .order-control{ flex-shrink:0; display:flex; flex-direction:column; }
     .order-control.qty{ width:64px; margin-left:auto; text-align:center; }
@@ -1246,9 +1278,30 @@
 	      outline-offset:2px;
 	    }
 		    .report-row[aria-pressed="true"]{
-		      border-color:rgba(34,197,94,0.55);
-		      box-shadow:0 0 0 1px rgba(34,197,94,0.16), 0 10px 24px rgba(0,0,0,0.35);
+		      background:
+		        radial-gradient(180px 90px at 50% 40%, rgba(34,197,94,0.20), rgba(34,197,94,0) 68%),
+		        linear-gradient(145deg, rgba(34,197,94,0.10) 0%, #12161c 100%);
+		      box-shadow:0 0 0 1px rgba(34,197,94,0.12), 0 10px 24px rgba(0,0,0,0.35);
 		    }
+		    .report-separator{
+		      display:flex;
+		      align-items:center;
+		      gap:10px;
+		      margin:12px 0;
+		      color:rgba(255,255,255,0.55);
+		      font-size:11px;
+		      text-transform:uppercase;
+		      letter-spacing:0.08em;
+		      user-select:none;
+		    }
+		    .report-separator::before,
+		    .report-separator::after{
+		      content:'';
+		      flex:1;
+		      height:1px;
+		      background:rgba(255,255,255,0.10);
+		    }
+		    .report-separator span{ padding:0 2px; }
 		    .report-row-main{ min-width:0; flex:1; }
 	    .report-item{
 	      display:flex;
@@ -1472,16 +1525,23 @@
       align-items:center;
       justify-content:center;
       gap:8px;
-      background:#22c55e;
+      background:rgba(34,197,94,0.18);
+      border:1px solid rgba(34,197,94,0.55);
       color:#fff;
       font-weight:600;
       padding:12px 20px;
       border-radius:14px;
-      border:none;
       cursor:pointer;
-      box-shadow: 0 0 16px rgba(34,197,94,0.5), 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.12), 0 10px 24px rgba(0,0,0,0.35);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
       transition: transform 150ms ease, box-shadow 150ms ease;
       -webkit-tap-highlight-color: transparent;
+      animation: orderPillIn 220ms ease;
+    }
+    @keyframes orderPillIn{
+      from{ opacity:0; transform:translateY(-8px); }
+      to{ opacity:1; transform:translateY(0); }
     }
     .order-pill:active{
       transform: scale(0.97);
@@ -4861,7 +4921,21 @@ function emptyStateHtml(){
 	        const emptyText = (opts && typeof opts.emptyText === 'string') ? opts.emptyText : 'No items.';
 	        return `<div class="order-empty">${escapeHtml(emptyText)}</div>`;
 	      }
-	      return rows.map(it => reportRowButtonHtml(it, opts)).join('');
+	      const sepText = (opts && typeof opts.separatorText === 'string') ? opts.separatorText : 'Not in Cart';
+	      const selected = [];
+	      const rest = [];
+	      for(const it of rows){
+	        const id = String(it && it.id ? it.id : '').trim();
+	        if(id && reportOrderHasItem(id)) selected.push(it);
+	        else rest.push(it);
+	      }
+	      let html = '';
+	      if(selected.length) html += selected.map(it => reportRowButtonHtml(it, opts)).join('');
+	      if(selected.length && rest.length){
+	        html += `<div class="report-separator" role="separator"><span>${escapeHtml(sepText)}</span></div>`;
+	      }
+	      if(rest.length) html += rest.map(it => reportRowButtonHtml(it, opts)).join('');
+	      return html;
 	    }
 	    function updateReportOrderBadge(){
 	      const modal = $('reportModal');
@@ -5131,7 +5205,7 @@ function emptyStateHtml(){
 		    }
 		    function simulateReportProgress(token){
 		      let progress = 0;
-		      const baseMs = 2000;
+		      const baseMs = 1000;
 		      const phaseOneTarget = 40 + Math.random() * 10; // 40–50%
 		      let phaseTwo = false;
 		      let label = 'Analyzing Low Stock Items...';
@@ -5325,7 +5399,15 @@ function emptyStateHtml(){
           pillContainer.style.display = 'none';
         }
       }
-      try{ syncReportOrderIndicators(); }catch(e){}
+      try{
+        const modal = $('reportModal');
+        const content = $('reportContent');
+        if(modal && modal.getAttribute('aria-hidden') === 'false' && content && content.style.display !== 'none'){
+          renderInventoryReport();
+        }else{
+          syncReportOrderIndicators();
+        }
+      }catch(e){}
     }
     function clearAllOrderLines(){
       const ord = orderState();
@@ -6194,27 +6276,18 @@ function emptyStateHtml(){
           `<div class="order-card-header">`+
             `<span class="order-card-led order-card-led--on"></span>`+
             `<div class="order-title">${escapeHtml(l.name||'')}</div>`+
+            `<div class="order-inline-kpi"><span class="muted">On Hand</span><span class="order-inline-kpi-val">${onHand===null ? '—' : onHand}</span></div>`+
           `</div>`+
           (desc ? `<div class="order-sub">${escapeHtml(desc)}</div>` : ``)+
-          `<div class="order-controls">`+
-            `<div class="order-control">`+
-              `<div class="order-control-label">On Hand</div>`+
-              `<div class="order-control-value">${onHand===null ? '—' : onHand}</div>`+
+          `<div class="order-controls order-controls--compact">`+
+            `<div class="qty-stepper" data-qty-picker-trigger="${l.id}">`+
+              `<button class="qty-stepper-btn" data-line-dec="${l.id}">−</button>`+
+              `<span class="qty-stepper-val">${toInt(l.qty,0)}</span>`+
+              `<button class="qty-stepper-btn" data-line-inc="${l.id}">+</button>`+
             `</div>`+
-            `<div class="order-control" style="margin-left:auto;">`+
-              `<div class="order-control-label" style="text-align:center;">Qty</div>`+
-              `<div class="qty-stepper" data-qty-picker-trigger="${l.id}">`+
-                `<button class="qty-stepper-btn" data-line-dec="${l.id}">−</button>`+
-                `<span class="qty-stepper-val">${toInt(l.qty,0)}</span>`+
-                `<button class="qty-stepper-btn" data-line-inc="${l.id}">+</button>`+
-              `</div>`+
-            `</div>`+
-            `<div class="order-control">`+
-              `<div class="order-control-spacer"></div>`+
-              `<button class="order-remove-btn" data-remove-order-id="${l.id}" title="Remove">`+
-                `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>`+
-              `</button>`+
-            `</div>`+
+            `<button class="order-remove-btn" data-remove-order-id="${l.id}" title="Remove">`+
+              `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>`+
+            `</button>`+
           `</div>`;
         list.appendChild(card);
       }
@@ -6305,12 +6378,11 @@ function emptyStateHtml(){
 			      if(!id) return;
 			      const item = getInventoryById(id);
 			      if(!item) return;
-			      const ord = orderState();
-			      const exists = Array.isArray(ord.lines) && ord.lines.some(l => String(l && l.id ? l.id : '').trim() === id);
-			      if(exists) removeOrderLine(id);
-			      else upsertOrderLineFromItem(item, 1);
-			      try{ syncReportOrderIndicators(); }catch(e){}
-			    }
+				      const ord = orderState();
+				      const exists = Array.isArray(ord.lines) && ord.lines.some(l => String(l && l.id ? l.id : '').trim() === id);
+				      if(exists) removeOrderLine(id);
+				      else upsertOrderLineFromItem(item, 1);
+				    }
 			    if(reportLowStockList) reportLowStockList.addEventListener('click', toggleOrderFromReportClick);
 			    if(reportInventoryList) reportInventoryList.addEventListener('click', toggleOrderFromReportClick);
 			    const btnReportEmailClose = $('btnReportEmailClose');
