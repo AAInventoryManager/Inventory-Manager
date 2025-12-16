@@ -3798,13 +3798,15 @@ function emptyStateHtml(){
 
 	      const name = $('editItemName'); if(name) name.value = String(it.name||'');
 	      const desc = $('editItemDesc'); if(desc) desc.value = String(it.desc||'');
-	      const qty  = $('editItemQty');  if(qty)  qty.value  = String(toInt(it.qty,0));
-	      const globalLowStock = getGlobalLowStockQty();
-	      const lowStockOverride = getItemLowStockQtyOverride(it);
-	      const lowStockQty = $('editLowStockQty');
-	      if(lowStockQty) lowStockQty.value = (lowStockOverride === null) ? '' : String(lowStockOverride);
-	      const reorderEnabled = $('editReorderEnabled');
-	      if(reorderEnabled) reorderEnabled.checked = getItemReorderEnabled(it);
+		      const qty  = $('editItemQty');  if(qty)  qty.value  = String(toInt(it.qty,0));
+		      const globalLowStock = getGlobalLowStockQty();
+		      const lowStockOverride = getItemLowStockQtyOverride(it);
+		      const lowStockQty = $('editLowStockQty');
+		      if(lowStockQty) lowStockQty.value = (lowStockOverride === null) ? '' : String(lowStockOverride);
+		      const btnUseGlobal = $('btnEditUseGlobal');
+		      if(btnUseGlobal) btnUseGlobal.textContent = `Use Global (${globalLowStock})`;
+		      const reorderEnabled = $('editReorderEnabled');
+		      if(reorderEnabled) reorderEnabled.checked = getItemReorderEnabled(it);
 
 	      setEditItemMessage('');
 	      show('editItemModal', true);
