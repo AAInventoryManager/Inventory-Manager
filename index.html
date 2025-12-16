@@ -312,11 +312,20 @@
 				        display:block;
 		      }
 
-			      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
-			      
-			      /* Mobile UX v2: no checkbox selection + no inline action buttons */
-			      #invTable tbody tr[data-id] td.sel{ display:none !important; }
-			      #invTable tbody tr[data-id] td.actions{ display:none !important; }
+				      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
+				      /* Mobile: hide qty steppers while scrolling for a cleaner list */
+				      #tableWrap .qty-stepper--table{
+				        opacity:1;
+				        transition: opacity 200ms ease;
+				        will-change: opacity;
+				      }
+				      #tableWrap.scrolling .qty-stepper--table{
+				        opacity:0;
+				      }
+				      
+				      /* Mobile UX v2: no checkbox selection + no inline action buttons */
+				      #invTable tbody tr[data-id] td.sel{ display:none !important; }
+				      #invTable tbody tr[data-id] td.actions{ display:none !important; }
 
 			      /* Mobile UX v2: order/override LEDs */
 			      #invTable tbody tr[data-id] .card-leds{
@@ -553,12 +562,36 @@
       overflow:auto;
       -webkit-overflow-scrolling:touch;
     }
-    .modal .box.edit-box{
-      padding:0;
-      overflow:hidden; /* body scrolls */
-      display:flex;
-      flex-direction:column;
+    #lowStockModal .lowstock-item{
+      margin-bottom:10px;
     }
+    #lowStockModal .lowstock-item-name{
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:0.01em;
+    }
+    #lowStockModal .lowstock-item-desc{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.3;
+      white-space:pre-wrap;
+    }
+    #lowStockModal .lowstock-meta{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+    }
+    #lowStockModal .qty-stepper--modal input[type=number]{
+      font-size:22px;
+      font-weight:900;
+    }
+	    .modal .box.edit-box{
+	      padding:0;
+	      overflow:hidden; /* body scrolls */
+	      display:flex;
+	      flex-direction:column;
+	    }
     .edit-header{
       padding:14px 14px 12px;
       border-bottom:1px solid var(--border);
@@ -1834,17 +1867,20 @@
 	    </div>
 	  </div>
 
-  <!-- Low stock modal -->
-  <div id="lowStockModal" class="modal" aria-hidden="true">
-    <div class="box">
-      <h2 style="margin:0 0 10px;font-size:16px;">Low Stock</h2>
-      <div id="lowStockItemLabel" class="muted" style="margin-bottom:8px;"></div>
-	      <div id="lowStockCurrentLabel" class="muted"></div>
-	      <div id="lowStockGlobalLabel" class="muted" style="margin-bottom:10px;"></div>
-	      <div class="qty-stepper qty-stepper--modal" aria-label="Low stock qty controls">
-	        <button class="qty-step" id="lowStockMinus" type="button" aria-label="Decrease low stock">−</button>
-	        <input id="lowStockValue" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
-	        <button class="qty-step" id="lowStockPlus" type="button" aria-label="Increase low stock">+</button>
+	  <!-- Low stock modal -->
+	  <div id="lowStockModal" class="modal" aria-hidden="true">
+	    <div class="box">
+	      <h2 style="margin:0 0 10px;font-size:16px;">Low Stock</h2>
+	      <div class="lowstock-item">
+	        <div id="lowStockItemName" class="lowstock-item-name"></div>
+	        <div id="lowStockItemDesc" class="lowstock-item-desc"></div>
+	      </div>
+	      <div id="lowStockCurrentLabel" class="lowstock-meta"></div>
+	      <div id="lowStockGlobalLabel" class="lowstock-meta" style="margin-bottom:10px;"></div>
+		      <div class="qty-stepper qty-stepper--modal" aria-label="Low stock qty controls">
+		        <button class="qty-step" id="lowStockMinus" type="button" aria-label="Decrease low stock">−</button>
+		        <input id="lowStockValue" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
+		        <button class="qty-step" id="lowStockPlus" type="button" aria-label="Increase low stock">+</button>
 	      </div>
 	      <label style="display:flex;align-items:center;gap:10px;margin-top:10px;">
 	        <input id="lowStockReorderEnabled" type="checkbox" />
@@ -3820,10 +3856,24 @@ function emptyStateHtml(){
 	        ? `This item: Global (${global})`
 	        : `This item: ${currentOverride} (override)`;
 	
-	      const elItem = $('lowStockItemLabel');
+	      const elName = $('lowStockItemName');
+	      const elDesc = $('lowStockItemDesc');
 	      const elCurrent = $('lowStockCurrentLabel');
 	      const elGlobal = $('lowStockGlobalLabel');
-	      if(elItem) elItem.textContent = `Item: ${item.name || 'Item'}`;
+	      if(elName){
+	        const name = String(item.name || '').trim() || 'Item';
+	        elName.textContent = name;
+	      }
+	      if(elDesc){
+	        const desc = String(item.desc || '').trim();
+	        if(desc){
+	          elDesc.textContent = desc;
+	          elDesc.style.display = '';
+	        }else{
+	          elDesc.textContent = '';
+	          elDesc.style.display = 'none';
+	        }
+	      }
 	      if(elCurrent) elCurrent.textContent = currentLabel;
 	      if(elGlobal) elGlobal.textContent = `Global: ${global}`;
 	
@@ -4071,11 +4121,25 @@ function emptyStateHtml(){
       }
     }
 
-    const invTable = $('invTable');
-    if(invTable){
-      invTable.addEventListener('click', (e)=>{
-        const btn = e.target.closest('button.qty-step-btn');
-        if(!btn) return;
+	    const invTable = $('invTable');
+	    const tableWrap = $('tableWrap');
+	    if(tableWrap){
+	      let _tableWrapScrollTimer = null;
+	      const onTableWrapScroll = () => {
+	        if(!isMobileUx()) return;
+	        tableWrap.classList.add('scrolling');
+	        if(_tableWrapScrollTimer) clearTimeout(_tableWrapScrollTimer);
+	        _tableWrapScrollTimer = setTimeout(()=>{
+	          try{ tableWrap.classList.remove('scrolling'); }catch(e){}
+	          _tableWrapScrollTimer = null;
+	        }, 150);
+	      };
+	      tableWrap.addEventListener('scroll', onTableWrapScroll, { passive:true });
+	    }
+	    if(invTable){
+	      invTable.addEventListener('click', (e)=>{
+	        const btn = e.target.closest('button.qty-step-btn');
+	        if(!btn) return;
         const id = String(btn.dataset.id || '').trim();
         const delta = toSignedInt(btn.dataset.delta, 0);
         if(!id || !delta) return;
