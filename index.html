@@ -1897,10 +1897,7 @@
 	          </div>
 		          <div class="edit-steppers">
 		            <label class="muted" for="editItemQty">Qty</label>
-		            <label class="muted" for="editLowStockQty">
-		              Low Stock Threshold
-		              <span class="edit-label-meta">Global: <span id="editLowStockGlobalVal">0</span></span>
-		            </label>
+		            <label class="muted" for="editLowStockQty">Low Stock Threshold</label>
 		            <div class="qty-stepper qty-stepper--modal">
 		              <button class="qty-step" id="editItemQtyMinus" type="button" aria-label="Decrease qty">−</button>
 		              <input id="editItemQty" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
@@ -3806,8 +3803,6 @@ function emptyStateHtml(){
 	      const lowStockOverride = getItemLowStockQtyOverride(it);
 	      const lowStockQty = $('editLowStockQty');
 	      if(lowStockQty) lowStockQty.value = (lowStockOverride === null) ? '' : String(lowStockOverride);
-	      const lowStockGlobalEl = $('editLowStockGlobalVal');
-	      if(lowStockGlobalEl) lowStockGlobalEl.textContent = String(globalLowStock);
 	      const reorderEnabled = $('editReorderEnabled');
 	      if(reorderEnabled) reorderEnabled.checked = getItemReorderEnabled(it);
 
