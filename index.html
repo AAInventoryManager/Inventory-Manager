@@ -325,8 +325,8 @@
 					        flex-direction:column;
 					        align-items:center;
 					        justify-content:flex-start;
-					        gap:6px;
-					        padding-top:6px;
+					        gap:0;
+					        padding-top:4px;
 					      }
 					      #invTable tbody tr[data-id] .qty-compact{
 					        display:inline-flex;
@@ -358,8 +358,10 @@
 					      #invTable tbody tr[data-id] .qty-stepper-wrap{
 					        max-height:0;
 					        opacity:0;
+					        min-height:0;
+					        margin-top:0;
 					        overflow:hidden;
-					        transition: max-height 240ms ease, opacity 240ms ease;
+					        transition: max-height 240ms ease, opacity 240ms ease, margin-top 240ms ease;
 					        will-change:max-height, opacity;
 					        width:100%;
 					        display:flex;
@@ -369,6 +371,7 @@
 					      #invTable tbody tr[data-id].card-expanded .qty-stepper-wrap{
 					        max-height:90px;
 					        opacity:1;
+					        margin-top:6px;
 					        pointer-events:auto;
 					      }
 					      #invTable tbody tr[data-id].card-expanded .qty-compact{
