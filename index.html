@@ -318,73 +318,28 @@
 				        display:block;
 		      }
 
-					      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
-					      /* Mobile: compact cards by default (tap to expand qty stepper) */
-					      #invTable tbody tr[data-id] td[data-col="qty"]{
-					        display:flex;
-					        flex-direction:column;
-					        align-items:center;
-					        justify-content:flex-start;
-					        gap:0;
-					        padding-top:4px;
-					      }
-					      #invTable tbody tr[data-id] .qty-compact{
-					        display:inline-flex;
-					        align-items:baseline;
-					        justify-content:center;
-					        gap:8px;
-					        padding:6px 10px;
-					        border-radius:999px;
-					        border:1px solid rgba(148,163,184,0.18);
-					        background:rgba(13,20,32,0.55);
-					        max-height:44px;
-					        overflow:hidden;
-					        opacity:1;
-					        transition: max-height 220ms ease, opacity 220ms ease, padding 220ms ease;
-					      }
-					      #invTable tbody tr[data-id] .qty-compact-label{
-					        font-size:10px;
-					        letter-spacing:.08em;
-					        text-transform:uppercase;
-					        color:var(--muted);
-					        font-weight:800;
-					      }
-					      #invTable tbody tr[data-id] .qty-compact-value{
-					        font-variant-numeric:tabular-nums;
-					        font-weight:900;
-					        font-size:16px;
-					        line-height:1;
-					      }
-					      #invTable tbody tr[data-id] .qty-stepper-wrap{
-					        max-height:0;
-					        opacity:0;
-					        min-height:0;
-					        margin-top:0;
-					        overflow:hidden;
-					        transition: max-height 240ms ease, opacity 240ms ease, margin-top 240ms ease;
-					        will-change:max-height, opacity;
-					        width:100%;
-					        display:flex;
-					        justify-content:center;
-					        pointer-events:none;
-					      }
-					      #invTable tbody tr[data-id].card-expanded .qty-stepper-wrap{
-					        max-height:90px;
-					        opacity:1;
-					        margin-top:6px;
-					        pointer-events:auto;
-					      }
-					      #invTable tbody tr[data-id].card-expanded .qty-compact{
-					        max-height:0;
-					        opacity:0;
-					        padding-top:0;
-					        padding-bottom:0;
-					        border-width:0;
-					      }
-					      
-					      /* Mobile UX v2: no checkbox selection + no inline action buttons */
-					      #invTable tbody tr[data-id] td.sel{ display:none !important; }
-					      #invTable tbody tr[data-id] td.actions{ display:none !important; }
+						      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
+						      /* Mobile: compact cards by default (tap card to expand qty stepper) */
+						      #invTable tbody tr[data-id] td[data-col="qty"]{
+						        max-height:0;
+						        opacity:0;
+						        overflow:hidden;
+						        padding:0;
+						        margin:0;
+						        pointer-events:none;
+						        transition: max-height 240ms ease, opacity 240ms ease, padding 240ms ease, margin-top 240ms ease;
+						      }
+						      #invTable tbody tr[data-id].card-expanded td[data-col="qty"]{
+						        max-height:96px;
+						        opacity:1;
+						        padding:6px 0 2px;
+						        margin-top:6px;
+						        pointer-events:auto;
+						      }
+						      
+						      /* Mobile UX v2: no checkbox selection + no inline action buttons */
+						      #invTable tbody tr[data-id] td.sel{ display:none !important; }
+						      #invTable tbody tr[data-id] td.actions{ display:none !important; }
 
 			      /* Mobile UX v2: order/override LEDs */
 			      #invTable tbody tr[data-id] .card-leds{
@@ -720,7 +675,6 @@
 	    .qty-stepper.qty-stepper--table{ gap:6px; }
 	    .qty-stepper--table .qty-step{ min-width:38px; }
 	    .qty-stepper--table .qty-value{ min-width:30px; font-size:15px; }
-	    .qty-compact{ display:none; }
 	    .qty-step{
 	      cursor:pointer;
 	      border:1px solid var(--border);
@@ -3553,16 +3507,10 @@ function adjustTitleSize(){
 		  const q = toInt(it.qty,0);
 		  const id = escapeHtmlAttr(it.id || '');
 		  return (
-		    '<div class="qty-compact" aria-label="Qty">'+
-		      '<span class="qty-compact-label">Qty</span>'+
-		      '<span class="qty-compact-value">'+q+'</span>'+
-		    '</div>'+
-		    '<div class="qty-stepper-wrap">'+
-		      '<div class="qty-stepper qty-stepper--table" aria-label="Qty controls">'+
-		        '<button type="button" class="qty-step qty-step-btn" data-id="'+id+'" data-delta="-1" aria-label="Decrease qty">−</button>'+
-		        '<span class="qty-value" aria-label="Qty">'+q+'</span>'+
-		        '<button type="button" class="qty-step qty-step-btn" data-id="'+id+'" data-delta="1" aria-label="Increase qty">+</button>'+
-		      '</div>'+
+		    '<div class="qty-stepper qty-stepper--table" aria-label="Qty controls">'+
+		      '<button type="button" class="qty-step qty-step-btn" data-id="'+id+'" data-delta="-1" aria-label="Decrease qty">−</button>'+
+		      '<span class="qty-value" aria-label="Qty">'+q+'</span>'+
+		      '<button type="button" class="qty-step qty-step-btn" data-id="'+id+'" data-delta="1" aria-label="Increase qty">+</button>'+
 		    '</div>'
 		  );
 		}
@@ -3671,15 +3619,13 @@ function repositionRowByName(id){
 	function updateCellDisplay(id, col, value){
 	  const tr = rowElById(id); if(!tr) return;
 	  const td = cellEl(tr, col); if(!td) return;
-	  if(col==='qty'){
-	    const v = String(toInt(value,0));
-	    const el = td.querySelector('.qty-value');
-	    if(el) el.textContent = v;
-	    const compact = td.querySelector('.qty-compact-value');
-	    if(compact) compact.textContent = v;
-	    if(!el && !compact) td.textContent = v;
-	    return;
-	  }
+		  if(col==='qty'){
+		    const v = String(toInt(value,0));
+		    const el = td.querySelector('.qty-value');
+		    if(el) el.textContent = v;
+		    else td.textContent = v;
+		    return;
+		  }
 	  td.textContent = String(value||'');
 	}
 
@@ -4271,8 +4217,6 @@ function emptyStateHtml(){
 			      const nextVal = String(toInt(qty,0));
 			      const val = tr ? tr.querySelector('td[data-col="qty"] .qty-value') : null;
 			      if(val) val.textContent = nextVal;
-			      const compactVal = tr ? tr.querySelector('td[data-col="qty"] .qty-compact-value') : null;
-			      if(compactVal) compactVal.textContent = nextVal;
 			    }
     function repositionRowByQty(id){
       const srt = getSort();
