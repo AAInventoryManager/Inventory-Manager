@@ -207,12 +207,19 @@
 				          drop-shadow(0 0 46px rgba(135,245,255,0.08));
 				      }
 				    }
-			    /* Mobile table layout: stack fields vertically per record */
-				    @media (max-width: 768px), (pointer: coarse){
-				      #invTable thead{ display:none; }
-				      #invTable tbody tr[data-id]{
-			        position:relative;
-			        isolation:isolate;
+				    /* Mobile table layout: stack fields vertically per record */
+					    @media (max-width: 768px), (pointer: coarse){
+					      /* Ensure last card can scroll above mobile browser UI controls */
+					      #tableWrap{
+					        box-sizing:border-box;
+					        padding-bottom:96px;
+					        padding-bottom:calc(96px + env(safe-area-inset-bottom));
+					        scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom));
+					      }
+					      #invTable thead{ display:none; }
+					      #invTable tbody tr[data-id]{
+				        position:relative;
+				        isolation:isolate;
 			        display:block;
 			        --swipe-x: 0px;
 			        --tray-progress: 0;
@@ -1412,11 +1419,11 @@
 		      .totals > span{ font-size:10px; }
 		      .totals > span + span::before{ margin:0 4px; }
 		    }
-    @media (max-width:640px){
-      .toolbar{gap:6px}
-      .toolbar .btn{flex:1}
-      .scroll{max-height:calc(100vh - 240px)}
-    }
+	    @media (max-width:640px){
+	      .toolbar{gap:6px}
+	      .toolbar .btn{flex:1}
+	      .scroll{max-height:calc(100vh - 240px); max-height:calc(100dvh - 240px)}
+	    }
     /* no right-side logo anymore */
     @media (max-width:360px){ .toolbar{gap:4px} }
   
