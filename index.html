@@ -3274,10 +3274,10 @@ function adjustTitleSize(){
 		function cellEl(tr, col){ return tr?.querySelector(`td[data-col="${col}"]`) || null; }
 		let _openTrayId = '';
 		let _expandedCardId = '';
-		const REVEAL_PX = 48; // icons begin appearing
-		const SNAP_PX = 192; // tray snaps open
-		const COMMIT_PX = 288; // auto-trigger action (edit/order)
-		const MAX_PX = 336; // elastic clamp
+			const REVEAL_PX = 48; // icons begin appearing
+			const SNAP_PX = 192; // tray snaps open
+			const COMMIT_PX = 210; // auto-trigger action (edit/order) (~60% of MAX, safely above SNAP)
+			const MAX_PX = 336; // elastic clamp
 		const INNER_REVEAL_PX = Math.round((REVEAL_PX + SNAP_PX) / 2); // second icon begins appearing
 
 		function collapseExpandedCard(){
