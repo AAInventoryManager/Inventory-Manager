@@ -1968,13 +1968,13 @@
         </div>
       </div>
 
-	      <div class="order-footer">
-	        <button class="btn" id="btnOrderCancel">Close</button>
-	        <button class="btn" id="btnOrderCopy">Copy</button>
-	        <button class="btn primary order-send" id="btnOrderSubmit">Submit Order</button>
-	      </div>
-	    </div>
-	  </div>
+      <div class="order-footer">
+        <button class="btn" id="btnOrderCancel">Close</button>
+        <button class="btn" id="btnOrderCopy">Copy</button>
+        <button class="btn primary order-send" id="btnOrderSubmit">Submit Order</button>
+      </div>
+    </div>
+  </div>
 
   <!-- iOS-style qty picker -->
   <div id="qtyPickerModal" class="modal qty-picker-modal" aria-hidden="true">
@@ -6114,7 +6114,7 @@ function emptyStateHtml(){
 
       const btn = document.querySelector(`button[data-forward-send-id="${id}"]`);
       const prior = btn ? btn.textContent : '';
-      if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
+	      if(btn){ btn.disabled = true; btn.textContent = 'Submitting…'; }
 
       try{
         const subjectLine = String(row.subject||'').trim() || defaultOrderSubject();
@@ -6508,10 +6508,10 @@ function emptyStateHtml(){
 	        if(fallback){ window.location.href = url; }
 	        else { toast(msg); }
 	      }finally{
-	        if(btn){ btn.textContent = priorText || 'Send'; }
-	        renderOrderPreview();
-	      }
-    });
+		        if(btn){ btn.textContent = priorText || 'Submit Order'; }
+		        renderOrderPreview();
+		      }
+	    });
 
     const orderSearch = $('orderSearch');
     if(orderSearch){
