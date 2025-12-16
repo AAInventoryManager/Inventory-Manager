@@ -4436,7 +4436,6 @@ function emptyStateHtml(){
         if(isAnyModalOpen()){ resetMobGesture(); return; }
         const ended = findTouchById(e.changedTouches || [], _mobGesture.touchId);
         if(!ended) return;
-        // Prevent the follow-up synthetic click (can land on newly shown order pill and clear the cart).
         try{ e.preventDefault(); }catch(e){}
 
         const { id, tr, moved, intent, swipeX, startTime, startX, prevMoveTime, lastMoveTime, prevMoveClientX, lastMoveClientX, closingFromDetent } = _mobGesture;
