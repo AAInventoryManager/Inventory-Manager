@@ -4187,9 +4187,10 @@ function emptyStateHtml(){
         if(action === 'lowStock'){ openLowStockModal(id); return; }
       });
 
-      // Mobile UX v2: card tap (toggle order) + iMessage-style swipe to reveal tray
-      let _mobGesture = null;
-      function resetMobGesture(){ _mobGesture = null; }
+	      // Mobile UX v2: card tap (toggle order) + iMessage-style swipe to reveal tray
+	      let _mobGesture = null;
+	      const MOB_GESTURE_INTENT_PX = 10;
+	      function resetMobGesture(){ _mobGesture = null; }
       function isAnyModalOpen(){
         try{ return !!document.querySelector('.modal[aria-hidden="false"]'); }catch(e){ return false; }
       }
@@ -4266,16 +4267,16 @@ function emptyStateHtml(){
         const dx = e.clientX - _mobGesture.startX;
         const dy = e.clientY - _mobGesture.startY;
         const ax = Math.abs(dx);
-        const ay = Math.abs(dy);
+	        const ay = Math.abs(dy);
 
-        // Any meaningful movement cancels a "tap".
-        if(ax > 8 || ay > 8) _mobGesture.moved = true;
+	        // Any meaningful movement cancels a "tap".
+	        if(ax >= MOB_GESTURE_INTENT_PX || ay >= MOB_GESTURE_INTENT_PX) _mobGesture.moved = true;
 
-        if(!_mobGesture.intent){
-          if(ax < 10 && ay < 10) return;
-          _mobGesture.intent = (ax >= ay) ? 'h' : 'v';
-          if(_mobGesture.intent === 'v'){ resetMobGesture(); return; }
-        }
+	        if(!_mobGesture.intent){
+	          if(ax < MOB_GESTURE_INTENT_PX && ay < MOB_GESTURE_INTENT_PX) return;
+	          _mobGesture.intent = (ax >= ay) ? 'h' : 'v';
+	          if(_mobGesture.intent === 'v'){ resetMobGesture(); return; }
+	        }
         if(_mobGesture.intent !== 'h') return;
 
         const now = performance.now();
@@ -4455,16 +4456,16 @@ function emptyStateHtml(){
         const dx = t.clientX - _mobGesture.startX;
         const dy = t.clientY - _mobGesture.startY;
         const ax = Math.abs(dx);
-        const ay = Math.abs(dy);
+	        const ay = Math.abs(dy);
 
-        // Any meaningful movement cancels a "tap".
-        if(ax > 8 || ay > 8) _mobGesture.moved = true;
+	        // Any meaningful movement cancels a "tap".
+	        if(ax >= MOB_GESTURE_INTENT_PX || ay >= MOB_GESTURE_INTENT_PX) _mobGesture.moved = true;
 
-        if(!_mobGesture.intent){
-          if(ax < 10 && ay < 10) return;
-          _mobGesture.intent = (ax >= ay) ? 'h' : 'v';
-          if(_mobGesture.intent === 'v'){ resetMobGesture(); return; }
-        }
+	        if(!_mobGesture.intent){
+	          if(ax < MOB_GESTURE_INTENT_PX && ay < MOB_GESTURE_INTENT_PX) return;
+	          _mobGesture.intent = (ax >= ay) ? 'h' : 'v';
+	          if(_mobGesture.intent === 'v'){ resetMobGesture(); return; }
+	        }
         if(_mobGesture.intent !== 'h') return;
 
         // Horizontal swipe: prevent scroll once locked.
