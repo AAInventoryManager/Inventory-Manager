@@ -680,6 +680,21 @@
     }
     .edit-header h2{ margin:0; font-size:16px; }
     .edit-sub{ margin-top:6px; color:var(--muted); font-size:12px; }
+    .modal-title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .modal-title .modal-title-icon{
+      width:20px;
+      height:20px;
+      flex:0 0 auto;
+      display:block;
+      opacity:0.95;
+    }
+    .modal-title--edit .modal-title-icon{ color:#22c55e; }
+    .modal-title--lowstock .modal-title-icon{ color:#fbbf24; }
+    #lowStockModal h2.modal-title{ margin:0 0 10px; font-size:16px; }
     .edit-body{
       padding:12px 14px 14px;
       overflow:auto;
@@ -1914,12 +1929,18 @@
   </div>
 
   <!-- Mobile-friendly cell edit modal -->
-  <div id="editItemModal" class="modal" aria-hidden="true">
-    <div class="box edit-box">
-      <div class="edit-header">
-        <h2 id="editItemTitle">Edit Item</h2>
-        <div class="edit-sub" id="editItemSub"></div>
-      </div>
+	  <div id="editItemModal" class="modal" aria-hidden="true">
+	    <div class="box edit-box">
+	      <div class="edit-header">
+	        <h2 id="editItemTitle" class="modal-title modal-title--edit">
+	          <svg class="modal-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+	            <path d="M12 20h9"></path>
+	            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+	          </svg>
+	          <span>Edit Item</span>
+	        </h2>
+	        <div class="edit-sub" id="editItemSub"></div>
+	      </div>
       <div class="edit-body">
         <div style="display:grid; grid-template-columns:1fr; gap:10px;">
           <div>
@@ -1949,14 +1970,21 @@
 	    </div>
 	  </div>
 
-	  <!-- Low stock modal -->
-	  <div id="lowStockModal" class="modal" aria-hidden="true">
-	    <div class="box">
-	      <h2 style="margin:0 0 10px;font-size:16px;">Low Stock</h2>
-	      <div class="lowstock-item">
-	        <div id="lowStockItemName" class="lowstock-item-name"></div>
-	        <div id="lowStockItemDesc" class="lowstock-item-desc"></div>
-	      </div>
+		  <!-- Low stock modal -->
+		  <div id="lowStockModal" class="modal" aria-hidden="true">
+		    <div class="box">
+		      <h2 class="modal-title modal-title--lowstock">
+		        <svg class="modal-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+		          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+		          <line x1="12" y1="9" x2="12" y2="13"></line>
+		          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+		        </svg>
+		        <span>Low Stock</span>
+		      </h2>
+		      <div class="lowstock-item">
+		        <div id="lowStockItemName" class="lowstock-item-name"></div>
+		        <div id="lowStockItemDesc" class="lowstock-item-desc"></div>
+		      </div>
 	      <div id="lowStockCurrentLabel" class="lowstock-meta"></div>
 	      <div id="lowStockGlobalLabel" class="lowstock-meta" style="margin-bottom:10px;"></div>
 		      <div class="qty-stepper qty-stepper--modal" aria-label="Low stock qty controls">
@@ -2047,13 +2075,13 @@
 	          <div id="orderResultsBody" class="order-list" style="margin-top:10px;"></div>
 	        </div>
 
-        <div class="section">
-          <div class="section-title">
-            <span>Order List</span>
-            <span id="orderLinesInfo"></span>
-            <button type="button" id="btnResetOrderList" class="btn-icon-inline" aria-label="Reset order list" title="Reset order list">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+	        <div class="section">
+	          <div class="section-title">
+	            <span>Shopping Cart</span>
+	            <span id="orderLinesInfo"></span>
+	            <button type="button" id="btnResetOrderList" class="btn-icon-inline" aria-label="Reset order list" title="Reset order list">
+	              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+	                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                 <path d="M3 3v5h5"/>
               </svg>
             </button>
