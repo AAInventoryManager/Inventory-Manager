@@ -212,9 +212,9 @@
 					      /* Ensure last card can scroll above mobile browser UI controls */
 					      #tableWrap{
 					        box-sizing:border-box;
-					        padding-bottom:96px;
-					        padding-bottom:calc(96px + env(safe-area-inset-bottom));
-					        scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom));
+					        padding-bottom:12px;
+					        padding-bottom:calc(12px + env(safe-area-inset-bottom));
+					        scroll-padding-bottom:calc(12px + env(safe-area-inset-bottom));
 					      }
 					      #invTable thead{ display:none; }
 					      #invTable tbody tr[data-id]{
@@ -320,14 +320,17 @@
 		      }
 
 				      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
-				      /* Mobile: hide qty steppers while scrolling for a cleaner list */
-				      #tableWrap .qty-stepper--table{
+				      /* Mobile: compact list while scrolling (collapse qty controls) */
+				      #invTable tbody tr[data-id] td[data-col="qty"]{
+				        max-height:80px;
+				        overflow:hidden;
 				        opacity:1;
-				        transition: opacity 200ms ease;
-				        will-change: opacity;
+				        transition: max-height 200ms ease, opacity 200ms ease, padding 200ms ease;
 				      }
-				      #tableWrap.scrolling .qty-stepper--table{
+				      #tableWrap.scrolling #invTable tbody tr[data-id] td[data-col="qty"]{
+				        max-height:0;
 				        opacity:0;
+				        padding:0;
 				      }
 				      
 				      /* Mobile UX v2: no checkbox selection + no inline action buttons */
