@@ -613,27 +613,37 @@
 	    .edit-body textarea{
 	      min-height:30vh;
 	    }
-	    .edit-lowstock-section .edit-lowstock-row{
+	    .edit-steppers{
+	      display:grid;
+	      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	      gap:12px;
+	      align-items:start;
+	    }
+	    .edit-stepper-label-row{
 	      display:flex;
 	      align-items:center;
+	      justify-content:space-between;
 	      gap:10px;
+	      margin-bottom:6px;
+	    }
+	    .edit-stepper-label-row label{ margin:0; }
+	    .edit-label-meta{
+	      margin-left:8px;
+	      font-weight:600;
+	      opacity:0.85;
+	      font-size:12px;
+	    }
+	    .edit-toggle-row{
+	      display:flex;
+	      align-items:center;
+	      gap:12px;
+	      margin-top:12px;
 	      flex-wrap:wrap;
 	    }
-	    .edit-lowstock-section .edit-lowstock-row .btn{
-	      height:44px;
-	      padding:0 12px;
-	    }
-	    .edit-lowstock-section .edit-lowstock-meta{
-	      margin-top:6px;
-	      color:var(--muted);
+	    .edit-toggle-row label[for]{
+	      cursor:pointer;
 	      font-size:13px;
-	      font-weight:700;
-	    }
-	    .edit-lowstock-section .edit-reorder-label{
-	      display:flex;
-	      align-items:center;
-	      gap:10px;
-	      margin-top:10px;
+	      line-height:1.35;
 	    }
     .qty-stepper.qty-stepper--modal,
     .qty-stepper.qty-stepper--table{
@@ -647,8 +657,8 @@
       overflow:visible;
       height:auto;
     }
-	    .qty-stepper.qty-stepper--modal{ gap:10px; }
-	    .qty-stepper.qty-stepper--table{ gap:6px; }
+		    .qty-stepper.qty-stepper--modal{ gap:8px; }
+		    .qty-stepper.qty-stepper--table{ gap:6px; }
 	    .qty-stepper--table .qty-step{ min-width:38px; }
 	    .qty-stepper--table .qty-value{ min-width:30px; font-size:15px; }
 	    .qty-step{
@@ -680,7 +690,7 @@
       line-height:1;
     }
 	    .qty-stepper.qty-stepper--modal input[type=number]{
-	      width:4rem;
+	      width:3.25rem;
 	      text-align:center;
 	      font-variant-numeric:tabular-nums;
 	      font-size:22px;
@@ -1868,45 +1878,49 @@
 		          <svg class="modal-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
 	            <path d="M12 20h9"></path>
 	            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
-	          </svg>
-	          <span>Edit Item</span>
-	        </h2>
-	        <div class="edit-sub" id="editItemSub"></div>
-	      </div>
-      <div class="edit-body">
-        <div style="display:grid; grid-template-columns:1fr; gap:10px;">
-          <div>
+		          </svg>
+		          <span>Edit Item</span>
+		        </h2>
+		      </div>
+	      <div class="edit-body">
+	        <div style="display:grid; grid-template-columns:1fr; gap:10px;">
+	          <div>
             <label class="muted" for="editItemName">Item</label>
             <input id="editItemName" type="text" placeholder="Item" autocapitalize="off" autocomplete="off" spellcheck="false" />
           </div>
           <div>
-            <label class="muted" for="editItemDesc">Description</label>
-            <textarea id="editItemDesc" rows="6" placeholder="Description" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea>
-          </div>
-	          <div>
-	            <label class="muted" for="editItemQty">Qty</label>
-	            <div class="qty-stepper qty-stepper--modal">
-	              <button class="qty-step" id="editItemQtyMinus" type="button" aria-label="Decrease qty">−</button>
-	              <input id="editItemQty" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
-	              <button class="qty-step" id="editItemQtyPlus" type="button" aria-label="Increase qty">+</button>
-	            </div>
-	            <div class="muted" style="margin-top:6px;">Tap +/- for small changes, or type a number.</div>
+	            <label class="muted" for="editItemDesc">Description</label>
+	            <textarea id="editItemDesc" rows="6" placeholder="Description" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea>
 	          </div>
-	          <div class="edit-lowstock-section">
-	            <label class="muted" for="editLowStockQty">Low Stock Threshold</label>
-	            <div class="edit-lowstock-row">
+	          <div class="edit-steppers">
+	            <div class="edit-stepper-group">
+	              <div class="edit-stepper-label-row">
+	                <label class="muted" for="editItemQty">Qty</label>
+	              </div>
+	              <div class="qty-stepper qty-stepper--modal">
+	                <button class="qty-step" id="editItemQtyMinus" type="button" aria-label="Decrease qty">−</button>
+	                <input id="editItemQty" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
+	                <button class="qty-step" id="editItemQtyPlus" type="button" aria-label="Increase qty">+</button>
+	              </div>
+	            </div>
+	            <div class="edit-stepper-group">
+	              <div class="edit-stepper-label-row">
+	                <label class="muted" for="editLowStockQty">Low Stock Threshold <span class="edit-label-meta">(Global: <span id="editLowStockGlobalVal">0</span>)</span></label>
+	                <button type="button" id="btnEditUseGlobal" class="btn small">Use Global</button>
+	              </div>
 	              <div class="qty-stepper qty-stepper--modal" aria-label="Low stock qty controls">
 	                <button type="button" id="editLowStockMinus" class="qty-step" aria-label="Decrease low stock">−</button>
 	                <input type="number" id="editLowStockQty" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done">
 	                <button type="button" id="editLowStockPlus" class="qty-step" aria-label="Increase low stock">+</button>
 	              </div>
-	              <button type="button" id="btnEditUseGlobal" class="btn">Use Global</button>
 	            </div>
-	            <div class="edit-lowstock-meta">Global: <span id="editLowStockGlobalVal">0</span> • Leave blank to use global</div>
-	            <label class="edit-reorder-label">
+	          </div>
+	          <div class="edit-toggle-row">
+	            <label class="toggle-switch">
 	              <input type="checkbox" id="editReorderEnabled" checked>
-	              <span class="muted" style="font-size:13px;">Include in reorder suggestions</span>
+	              <span class="toggle-slider"></span>
 	            </label>
+	            <label for="editReorderEnabled" class="muted">Include this Part # in the batch Re-Order?</label>
 	          </div>
 	        </div>
 	        <div id="editItemMsg" class="muted" style="margin-top:10px;"></div>
@@ -3784,8 +3798,6 @@ function emptyStateHtml(){
 	      const it = state.items.find(x=> x.id===id); if(!it) return;
 	      _editItemCtx = { id };
 
-	      const sub = $('editItemSub');
-	      if(sub) sub.textContent = it.name ? `Editing: ${it.name}` : '';
 	      const name = $('editItemName'); if(name) name.value = String(it.name||'');
 	      const desc = $('editItemDesc'); if(desc) desc.value = String(it.desc||'');
 	      const qty  = $('editItemQty');  if(qty)  qty.value  = String(toInt(it.qty,0));
