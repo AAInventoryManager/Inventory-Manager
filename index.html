@@ -6114,7 +6114,7 @@ function emptyStateHtml(){
 
       const btn = document.querySelector(`button[data-forward-send-id="${id}"]`);
       const prior = btn ? btn.textContent : '';
-	      if(btn){ btn.disabled = true; btn.textContent = 'Submitting…'; }
+      if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
 
       try{
         const subjectLine = String(row.subject||'').trim() || defaultOrderSubject();
@@ -6487,7 +6487,7 @@ function emptyStateHtml(){
 
       const btn = $('btnOrderSubmit');
       const priorText = btn ? btn.textContent : '';
-      if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
+      if(btn){ btn.disabled = true; btn.textContent = 'Submitting…'; }
 
 	      try{
 	        const sendRes = await sendOrderViaApi();
