@@ -616,22 +616,25 @@
 	    .edit-steppers{
 	      display:grid;
 	      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-	      gap:12px;
-	      align-items:start;
-	    }
-	    .edit-stepper-label-row{
-	      display:flex;
+	      gap:8px 12px;
 	      align-items:center;
-	      justify-content:space-between;
-	      gap:10px;
-	      margin-bottom:6px;
+	      justify-items:center;
 	    }
-	    .edit-stepper-label-row label{ margin:0; }
+	    .edit-steppers label.muted{
+	      margin:0;
+	      text-align:center;
+	    }
 	    .edit-label-meta{
-	      margin-left:8px;
+	      display:block;
+	      margin-top:2px;
 	      font-weight:600;
 	      opacity:0.85;
 	      font-size:12px;
+	    }
+	    .edit-stepper-actions{
+	      width:100%;
+	      display:flex;
+	      justify-content:center;
 	    }
 	    .edit-toggle-row{
 	      display:flex;
@@ -1892,29 +1895,27 @@
 	            <label class="muted" for="editItemDesc">Description</label>
 	            <textarea id="editItemDesc" rows="6" placeholder="Description" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea>
 	          </div>
-	          <div class="edit-steppers">
-	            <div class="edit-stepper-group">
-	              <div class="edit-stepper-label-row">
-	                <label class="muted" for="editItemQty">Qty</label>
-	              </div>
-	              <div class="qty-stepper qty-stepper--modal">
-	                <button class="qty-step" id="editItemQtyMinus" type="button" aria-label="Decrease qty">−</button>
-	                <input id="editItemQty" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
-	                <button class="qty-step" id="editItemQtyPlus" type="button" aria-label="Increase qty">+</button>
-	              </div>
-	            </div>
-	            <div class="edit-stepper-group">
-	              <div class="edit-stepper-label-row">
-	                <label class="muted" for="editLowStockQty">Low Stock Threshold <span class="edit-label-meta">(Global: <span id="editLowStockGlobalVal">0</span>)</span></label>
-	                <button type="button" id="btnEditUseGlobal" class="btn small">Use Global</button>
-	              </div>
-	              <div class="qty-stepper qty-stepper--modal" aria-label="Low stock qty controls">
-	                <button type="button" id="editLowStockMinus" class="qty-step" aria-label="Decrease low stock">−</button>
-	                <input type="number" id="editLowStockQty" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done">
-	                <button type="button" id="editLowStockPlus" class="qty-step" aria-label="Increase low stock">+</button>
-	              </div>
-	            </div>
-	          </div>
+		          <div class="edit-steppers">
+		            <label class="muted" for="editItemQty">Qty</label>
+		            <label class="muted" for="editLowStockQty">
+		              Low Stock Threshold
+		              <span class="edit-label-meta">Global: <span id="editLowStockGlobalVal">0</span></span>
+		            </label>
+		            <div class="qty-stepper qty-stepper--modal">
+		              <button class="qty-step" id="editItemQtyMinus" type="button" aria-label="Decrease qty">−</button>
+		              <input id="editItemQty" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
+		              <button class="qty-step" id="editItemQtyPlus" type="button" aria-label="Increase qty">+</button>
+		            </div>
+		            <div class="qty-stepper qty-stepper--modal" aria-label="Low stock qty controls">
+		              <button type="button" id="editLowStockMinus" class="qty-step" aria-label="Decrease low stock">−</button>
+		              <input type="number" id="editLowStockQty" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done">
+		              <button type="button" id="editLowStockPlus" class="qty-step" aria-label="Increase low stock">+</button>
+		            </div>
+		            <div class="edit-stepper-actions" aria-hidden="true"></div>
+		            <div class="edit-stepper-actions">
+		              <button type="button" id="btnEditUseGlobal" class="btn small">Use Global</button>
+		            </div>
+		          </div>
 	          <div class="edit-toggle-row">
 	            <label class="toggle-switch">
 	              <input type="checkbox" id="editReorderEnabled" checked>
