@@ -212,9 +212,8 @@
 					      /* Ensure last card can scroll above mobile browser UI controls */
 					      #tableWrap{
 					        box-sizing:border-box;
-					        padding-bottom:12px;
-					        padding-bottom:calc(12px + env(safe-area-inset-bottom));
-					        scroll-padding-bottom:calc(12px + env(safe-area-inset-bottom));
+					        padding-bottom:env(safe-area-inset-bottom);
+					        scroll-padding-bottom:env(safe-area-inset-bottom);
 					      }
 					      #invTable thead{ display:none; }
 					      #invTable tbody tr[data-id]{
@@ -319,23 +318,11 @@
 				        display:block;
 		      }
 
-				      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
-				      /* Mobile: compact list while scrolling (collapse qty controls) */
-				      #invTable tbody tr[data-id] td[data-col="qty"]{
-				        max-height:80px;
-				        overflow:hidden;
-				        opacity:1;
-				        transition: max-height 200ms ease, opacity 200ms ease, padding 200ms ease;
-				      }
-				      #tableWrap.scrolling #invTable tbody tr[data-id] td[data-col="qty"]{
-				        max-height:0;
-				        opacity:0;
-				        padding:0;
-				      }
-				      
-				      /* Mobile UX v2: no checkbox selection + no inline action buttons */
-				      #invTable tbody tr[data-id] td.sel{ display:none !important; }
-				      #invTable tbody tr[data-id] td.actions{ display:none !important; }
+					      #invTable tbody tr[data-id] td[data-col="qty"]{ text-align:center; }
+					      
+					      /* Mobile UX v2: no checkbox selection + no inline action buttons */
+					      #invTable tbody tr[data-id] td.sel{ display:none !important; }
+					      #invTable tbody tr[data-id] td.actions{ display:none !important; }
 
 			      /* Mobile UX v2: order/override LEDs */
 			      #invTable tbody tr[data-id] .card-leds{
@@ -1425,7 +1412,7 @@
 	    @media (max-width:640px){
 	      .toolbar{gap:6px}
 	      .toolbar .btn{flex:1}
-	      .scroll{max-height:calc(100vh - 240px); max-height:calc(100dvh - 240px)}
+	      .scroll{max-height:calc(100vh - 240px); max-height:calc(100svh - 240px); max-height:calc(100dvh - 240px)}
 	    }
     /* no right-side logo anymore */
     @media (max-width:360px){ .toolbar{gap:4px} }
@@ -4131,25 +4118,11 @@ function emptyStateHtml(){
       }
     }
 
-	    const invTable = $('invTable');
-	    const tableWrap = $('tableWrap');
-	    if(tableWrap){
-	      let _tableWrapScrollTimer = null;
-	      const onTableWrapScroll = () => {
-	        if(!isMobileUx()) return;
-	        tableWrap.classList.add('scrolling');
-	        if(_tableWrapScrollTimer) clearTimeout(_tableWrapScrollTimer);
-	        _tableWrapScrollTimer = setTimeout(()=>{
-	          try{ tableWrap.classList.remove('scrolling'); }catch(e){}
-	          _tableWrapScrollTimer = null;
-	        }, 150);
-	      };
-	      tableWrap.addEventListener('scroll', onTableWrapScroll, { passive:true });
-	    }
-	    if(invTable){
-	      invTable.addEventListener('click', (e)=>{
-	        const btn = e.target.closest('button.qty-step-btn');
-	        if(!btn) return;
+		    const invTable = $('invTable');
+		    if(invTable){
+		      invTable.addEventListener('click', (e)=>{
+		        const btn = e.target.closest('button.qty-step-btn');
+		        if(!btn) return;
         const id = String(btn.dataset.id || '').trim();
         const delta = toSignedInt(btn.dataset.delta, 0);
         if(!id || !delta) return;
