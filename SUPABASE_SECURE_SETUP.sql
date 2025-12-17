@@ -138,6 +138,16 @@ create table if not exists public.orders (
   provider_result jsonb
 );
 
+-- Receipt/undo state (safe to re-run)
+alter table public.orders add column if not exists receiving_at timestamp with time zone;
+alter table public.orders add column if not exists receiving_by uuid references auth.users(id) on delete set null;
+alter table public.orders add column if not exists receiving_snapshot jsonb;
+alter table public.orders add column if not exists received_at timestamp with time zone;
+alter table public.orders add column if not exists received_by uuid references auth.users(id) on delete set null;
+alter table public.orders add column if not exists received_snapshot jsonb;
+alter table public.orders add column if not exists received_undone_at timestamp with time zone;
+alter table public.orders add column if not exists received_undone_by uuid references auth.users(id) on delete set null;
+
 alter table public.orders enable row level security;
 
 drop policy if exists "orders_select_own" on public.orders;
@@ -157,6 +167,27 @@ drop policy if exists "orders_insert_own" on public.orders;
 create policy "orders_insert_own"
 on public.orders for insert
 to authenticated
+with check (
+  created_by = auth.uid()
+  and exists (
+    select 1
+    from public.authorized_users au
+    where au.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "orders_update_own" on public.orders;
+create policy "orders_update_own"
+on public.orders for update
+to authenticated
+using (
+  created_by = auth.uid()
+  and exists (
+    select 1
+    from public.authorized_users au
+    where au.user_id = auth.uid()
+  )
+)
 with check (
   created_by = auth.uid()
   and exists (

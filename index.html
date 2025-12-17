@@ -1011,6 +1011,38 @@
       gap:8px;
     }
     .history-title{ flex:1; }
+    .history-actions{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-shrink:0;
+    }
+    .btn-icon-receive,
+    .btn-icon-undo{
+      background:transparent;
+      border:none;
+      color:var(--muted);
+      cursor:pointer;
+      padding:4px;
+      border-radius:4px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:color 0.15s, background 0.15s, opacity 0.15s;
+    }
+    .btn-icon-receive:hover{
+      color:#22c55e;
+      background:rgba(34,197,94,0.12);
+    }
+    .btn-icon-undo:hover{
+      color:#f59e0b;
+      background:rgba(245,158,11,0.12);
+    }
+    .btn-icon-receive[aria-disabled="true"],
+    .btn-icon-undo[aria-disabled="true"]{
+      opacity:0.4;
+      cursor:not-allowed;
+    }
     .btn-icon-danger{
       background:transparent;
       border:none;
@@ -2031,13 +2063,13 @@
 	          <div id="orderResultsBody" class="order-list" style="margin-top:10px;"></div>
 	        </div>
 
-	        <div class="section">
-	          <div class="section-title">
-	            <span>Shopping Cart</span>
-	            <span id="orderLinesInfo"></span>
-	            <button type="button" id="btnResetOrderList" class="btn-icon-inline" aria-label="Reset order list" title="Reset order list">
-	              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-	                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+        <div class="section">
+          <div class="section-title">
+            <span>Shopping Cart</span>
+            <span id="orderLinesInfo"></span>
+            <button type="button" id="btnResetOrderList" class="btn-icon-inline" aria-label="Reset order list" title="Reset order list">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                 <path d="M3 3v5h5"/>
               </svg>
             </button>
@@ -2360,10 +2392,10 @@
     // Shallow clone of items for optimistic-UI rollback
     function snapshotItems(){ return state.items.map(it => ({...it})); }
 
-    // ========================
-    // Supabase (cloud sync) — optional
-    // ========================
-	    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null, itemsHasLowStockQty:null, itemsHasReorderEnabled:null, warnedLowStockSchema:false, warnedReorderSchema:false };
+	    // ========================
+	    // Supabase (cloud sync) — optional
+	    // ========================
+	    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null, itemsHasLowStockQty:null, itemsHasReorderEnabled:null, ordersHasReceipt:null, warnedLowStockSchema:false, warnedReorderSchema:false, warnedOrdersReceiptSchema:false };
     function sbInit(){
       const url = window.SB_URL, key = window.SB_ANON;
       if(!url || !key || SB.client){ return; }
@@ -3047,6 +3079,40 @@
 	      if(error) throw error;
 	    }
 
+	    async function sbFetchItemQtyMap(ids){
+	      if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
+	      const requested = Array.isArray(ids) ? ids.map(x=> String(x||'').trim()).filter(Boolean) : [];
+	      const out = new Map();
+	      if(!requested.length) return out;
+	      const size = 200;
+	      for(let i=0;i<requested.length;i+=size){
+	        const chunk = requested.slice(i, i+size);
+	        const { data, error } = await SB.client
+	          .from('items')
+	          .select('id,qty')
+	          .in('id', chunk);
+	        if(error) throw error;
+	        (Array.isArray(data) ? data : []).forEach(r=>{
+	          if(r && r.id) out.set(String(r.id), toInt(r.qty, 0));
+	        });
+	      }
+	      return out;
+	    }
+
+	    async function sbUpdateItemQtyIfMatch(itemId, expectedQty, nextQty){
+	      if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
+	      const id = String(itemId || '').trim();
+	      if(!id) throw new Error('Invalid item ID');
+	      const { data, error } = await SB.client
+	        .from('items')
+	        .update({ qty: toInt(nextQty, 0) })
+	        .eq('id', id)
+	        .eq('qty', toInt(expectedQty, 0))
+	        .select('id');
+	      if(error) throw error;
+	      return Array.isArray(data) && data.length > 0;
+	    }
+
 	    function errToText(err){
 	      if(!err) return '';
 	      if(typeof err === 'string') return err;
@@ -3067,6 +3133,22 @@
 	      if(!lower.includes('schema cache')) return false;
 	      if(column && !lower.includes(String(column).toLowerCase())) return false;
 	      return true;
+	    }
+
+	    function isPostgrestMissingColumnError(err, column){
+	      const msg = errToText(err);
+	      if(!msg) return false;
+	      const lower = msg.toLowerCase();
+	      if(column && !lower.includes(String(column).toLowerCase())) return false;
+	      return lower.includes('schema cache') || (lower.includes('column') && lower.includes('does not exist'));
+	    }
+
+	    function isOrdersReceiptColumnsMissingError(err){
+	      return [
+	        'receiving_at','receiving_by','receiving_snapshot',
+	        'received_at','received_by','received_snapshot',
+	        'received_undone_at','received_undone_by',
+	      ].some(c => isPostgrestMissingColumnError(err, c));
 	    }
 	
 	    function showSchemaCacheReloadHelp(tableName, columnName){
@@ -5560,10 +5642,11 @@ function emptyStateHtml(){
       const arr = Array.isArray(lineItems) ? lineItems : [];
       return arr
         .map((x) => {
+          const item_id = String(x?.item_id || x?.itemId || x?.id || '').trim();
           const part = String(x?.part || x?.name || x?.item || '').trim();
           const desc = String(x?.desc || x?.description || '').trim();
           const qty = toInt(x?.qty, 0);
-          return { part, desc, qty };
+          return { item_id, part, desc, qty };
         })
         .filter((x) => x.part && x.qty > 0)
         .sort((a,b)=> toKey(a.part).localeCompare(toKey(b.part)));
@@ -5852,6 +5935,7 @@ function emptyStateHtml(){
       const arr = Array.isArray(value) ? value : [];
       return arr
         .map((x) => {
+          const item_id = String(x?.item_id || x?.itemId || x?.id || '').trim();
           const part = String(x?.part || x?.name || x?.item || '').trim();
           let desc = String(x?.desc || x?.description || '').trim();
           // Fallback: look up description from inventory if not stored
@@ -5860,13 +5944,13 @@ function emptyStateHtml(){
             if(inv) desc = String(inv.desc || '').trim();
           }
           const qty = toInt(x?.qty, 0);
-          return { part, desc, qty };
+          return { item_id, part, desc, qty };
         })
         .filter((x) => x.part);
     }
     async function sbInsertOrderHistoryFromData({ toEmail, subjectLine, contactName, notes, lineItems, providerResult }){
       if(!SB.ready || !SB.session || !SB.authorized || !SB.user) return;
-      const cleaned = normalizeEmailLineItems(lineItems).map(x => ({ part: x.part, desc: x.desc, qty: x.qty }));
+      const cleaned = normalizeEmailLineItems(lineItems).map(x => ({ item_id: x.item_id ? String(x.item_id).trim() : null, part: x.part, desc: x.desc, qty: x.qty }));
       const row = {
         created_by: SB.user.id,
         to_email: String(toEmail||'').trim(),
@@ -5882,7 +5966,7 @@ function emptyStateHtml(){
     }
     async function sbInsertOrderHistory(providerResult){
       const ord = orderState();
-      const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), desc: String(l.desc||'').trim(), qty: toInt(l.qty, 0) }));
+      const lineItems = orderActiveLines().map(l => ({ item_id: String(l.id || '').trim() || null, part: String(l.name||'').trim(), desc: String(l.desc||'').trim(), qty: toInt(l.qty, 0) }));
       return sbInsertOrderHistoryFromData({
         toEmail: String(ord.email||'').trim(),
         subjectLine: String(ord.subject||'').trim() || defaultOrderSubject(),
@@ -5895,12 +5979,29 @@ function emptyStateHtml(){
 	    async function sbFetchOrders(limit = 50){
 	      if(!SB.ready || !SB.session || !SB.authorized) return [];
 	      const lim = Math.max(1, Math.min(200, toInt(limit, 50)));
+	      let sel = 'id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items';
+	      if(SB.ordersHasReceipt !== false){
+	        sel += ',receiving_at,receiving_by,receiving_snapshot,received_at,received_by,received_snapshot,received_undone_at,received_undone_by';
+	      }
 	      const { data, error } = await SB.client
 	        .from('orders')
-	        .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items')
+	        .select(sel)
 	        .order('created_at', { ascending:false })
 	        .limit(lim);
-	      if(error) throw error;
+	      if(error){
+	        if(SB.ordersHasReceipt !== false && isOrdersReceiptColumnsMissingError(error)){
+	          SB.ordersHasReceipt = false;
+	          const { data: data2, error: err2 } = await SB.client
+	            .from('orders')
+	            .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items')
+	            .order('created_at', { ascending:false })
+	            .limit(lim);
+	          if(err2) throw err2;
+	          return Array.isArray(data2) ? data2 : [];
+	        }
+	        throw error;
+	      }
+	      if(sel.includes('received_at')) SB.ordersHasReceipt = true;
 	      return Array.isArray(data) ? data : [];
 	    }
 	    async function sbFetchAllOrders(pageSize = 200){
@@ -5909,12 +6010,32 @@ function emptyStateHtml(){
 	      let offset = 0;
 	      const out = [];
 	      for(let page=0; page<200; page++){
+	        let sel = 'id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items';
+	        if(SB.ordersHasReceipt !== false){
+	          sel += ',receiving_at,receiving_by,receiving_snapshot,received_at,received_by,received_snapshot,received_undone_at,received_undone_by';
+	        }
 	        const { data, error } = await SB.client
 	          .from('orders')
-	          .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items')
+	          .select(sel)
 	          .order('created_at', { ascending:false })
 	          .range(offset, offset + size - 1);
-	        if(error) throw error;
+	        if(error){
+	          if(SB.ordersHasReceipt !== false && isOrdersReceiptColumnsMissingError(error)){
+	            SB.ordersHasReceipt = false;
+	            const { data: data2, error: err2 } = await SB.client
+	              .from('orders')
+	              .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items')
+	              .order('created_at', { ascending:false })
+	              .range(offset, offset + size - 1);
+	            if(err2) throw err2;
+	            const rows2 = Array.isArray(data2) ? data2 : [];
+	            out.push(...rows2);
+	            if(rows2.length < size) break;
+	            offset += size;
+	            continue;
+	          }
+	          throw error;
+	        }
 	        const rows = Array.isArray(data) ? data : [];
 	        out.push(...rows);
 	        if(rows.length < size) break;
@@ -6020,6 +6141,421 @@ function emptyStateHtml(){
 	        .eq('id', id);
 	      if(error) throw error;
 	    }
+
+	    async function sbUpdateOrder(orderId, fields){
+	      if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
+	      const id = String(orderId || '').trim();
+	      if(!id) throw new Error('Invalid order ID');
+	      const { error } = await SB.client
+	        .from('orders')
+	        .update(fields || {})
+	        .eq('id', id);
+	      if(error) throw error;
+	    }
+
+	    function isOrderCurrentlyReceived(orderRow){
+	      const rAt = String(orderRow && orderRow.received_at ? orderRow.received_at : '').trim();
+	      if(!rAt) return false;
+	      const uAt = String(orderRow && orderRow.received_undone_at ? orderRow.received_undone_at : '').trim();
+	      if(!uAt) return true;
+	      return new Date(uAt).getTime() < new Date(rAt).getTime();
+	    }
+
+	    function orderReceiptMetaText(orderRow){
+	      if(SB.ordersHasReceipt === false) return '';
+	      const o = orderRow || {};
+	      const receivingAt = String(o.receiving_at || '').trim();
+	      const receivedAt = String(o.received_at || '').trim();
+	      if(receivingAt && !receivedAt) return 'Receiving…';
+	      if(receivedAt){
+	        const undoneAt = String(o.received_undone_at || '').trim();
+	        if(undoneAt && new Date(undoneAt).getTime() >= new Date(receivedAt).getTime()) return 'Received (undone)';
+	        return 'Received';
+	      }
+	      return '';
+	    }
+
+	    function getOrderHistoryRowById(orderId){
+	      const id = String(orderId || '').trim();
+	      if(!id) return null;
+	      if(state._orderHistoryById && typeof state._orderHistoryById.get === 'function'){
+	        const row = state._orderHistoryById.get(id) || null;
+	        if(row) return row;
+	      }
+	      const rows = Array.isArray(state._orderHistoryRows) ? state._orderHistoryRows : [];
+	      return rows.find(r => String(r && r.id ? r.id : '').trim() === id) || null;
+	    }
+
+	    function patchOrderHistoryRow(orderId, patch){
+	      const id = String(orderId || '').trim();
+	      if(!id || !patch || typeof patch !== 'object') return;
+	      try{
+	        const row = getOrderHistoryRowById(id);
+	        if(row) Object.assign(row, patch);
+	      }catch(e){}
+	      try{
+	        if(state._orderHistoryById && typeof state._orderHistoryById.get === 'function'){
+	          const row2 = state._orderHistoryById.get(id) || null;
+	          if(row2) Object.assign(row2, patch);
+	        }
+	      }catch(e){}
+	      try{
+	        if(Array.isArray(state._orderHistoryRows)){
+	          const i = state._orderHistoryRows.findIndex(r => String(r && r.id ? r.id : '').trim() === id);
+	          if(i >= 0 && state._orderHistoryRows[i]) Object.assign(state._orderHistoryRows[i], patch);
+	        }
+	      }catch(e){}
+	    }
+
+	    function setLocalItemQty(itemId, qty){
+	      const id = String(itemId || '').trim();
+	      if(!id) return;
+	      const it = state.items.find(x => x && x.id === id);
+	      if(!it) return;
+	      it.qty = toInt(qty, 0);
+	    }
+
+	    function resolveInventoryItemForOrderLine(line){
+	      const storedId = String(line && line.item_id ? line.item_id : '').trim();
+	      if(storedId){
+	        const byId = getInventoryById(storedId);
+	        if(byId) return byId;
+	      }
+	      const part = String(line && line.part ? line.part : '').trim();
+	      const k = toKey(part);
+	      if(!k) return null;
+	      return state.items.find(it => it && toKey(it.name) === k) || null;
+	    }
+
+	    function normalizeReceiptLines(value){
+	      const arr = Array.isArray(value) ? value : [];
+	      return arr
+	        .map((x) => ({
+	          item_id: String(x && x.item_id ? x.item_id : '').trim(),
+	          part: String(x && x.part ? x.part : '').trim(),
+	          delta_qty: toInt(x && x.delta_qty, 0),
+	          prev_qty: toInt(x && x.prev_qty, 0),
+	          next_qty: toInt(x && x.next_qty, 0),
+	        }))
+	        .filter((l) => l.item_id && l.part && l.delta_qty > 0);
+	    }
+
+	    function normalizeReceiptSkipped(value){
+	      const arr = Array.isArray(value) ? value : [];
+	      return arr
+	        .map((x) => ({
+	          part: String(x && (x.part || x.name || x.item) ? (x.part || x.name || x.item) : '').trim(),
+	          reason: String(x && x.reason ? x.reason : '').trim() || 'not_found',
+	        }))
+	        .filter((s) => s.part);
+	    }
+
+	    function receiptSkipText(s){
+	      const reason = String(s && s.reason ? s.reason : '').trim();
+	      const part = String(s && s.part ? s.part : '').trim();
+	      if(reason === 'conflict') return `${part} (qty changed)`;
+	      if(reason === 'deleted') return `${part} (item deleted)`;
+	      return `${part} (not found)`;
+	    }
+
+	    function receiptAppliedLineText(line, mode){
+	      const l = line || {};
+	      const part = String(l.part || '').trim();
+	      const delta = toInt(l.delta_qty, 0);
+	      const prev = toInt(l.prev_qty, 0);
+	      const next = toInt(l.next_qty, 0);
+	      if(mode === 'undo') return `${part}: -${delta} (${next} → ${prev})`;
+	      return `${part}: +${delta} (${prev} → ${next})`;
+	    }
+
+	    function buildReceiptSummary({ subject, applied, skipped, mode }){
+	      const title = (mode === 'undo') ? 'Receive undone' : 'Order received';
+	      const lines = Array.isArray(applied) ? applied : [];
+	      const skips = Array.isArray(skipped) ? skipped : [];
+	      const body = [
+	        subject ? `Order: ${subject}` : '',
+	        '',
+	        `Applied: ${lines.length}`,
+	        `Skipped: ${skips.length}`,
+	        '',
+	        'Applied lines:',
+	        lines.length ? lines.map(l => `- ${receiptAppliedLineText(l, mode)}`).join('\n') : '(none)',
+	        '',
+	        'Skipped lines:',
+	        skips.length ? skips.map(s => `- ${receiptSkipText(s)}`).join('\n') : '(none)',
+	      ].filter((x, i, arr) => !(x === '' && arr[i-1] === '')).join('\n');
+	      const copy = JSON.stringify({ mode, subject, applied: lines, skipped: skips }, null, 2);
+	      return { title, body, copy };
+	    }
+
+	    async function buildReceivingSnapshotForOrder(orderRow){
+	      const items = normalizeOrderLineItems(orderRow && orderRow.line_items ? orderRow.line_items : []);
+	      const skipped = [];
+	      const agg = new Map(); // itemId -> { item_id, part, delta_qty }
+	      for(const it of items){
+	        const delta = toInt(it && it.qty, 0);
+	        if(delta <= 0) continue;
+	        const inv = resolveInventoryItemForOrderLine(it);
+	        if(!inv){
+	          const part = String(it && it.part ? it.part : '').trim();
+	          if(part) skipped.push({ part, reason:'not_found' });
+	          continue;
+	        }
+	        const key = String(inv.id || '').trim();
+	        if(!key) continue;
+	        const existing = agg.get(key);
+	        const part = String(it && it.part ? it.part : (inv.name || '')).trim();
+	        if(existing){
+	          existing.delta_qty += delta;
+	        }else{
+	          agg.set(key, { item_id: key, part: part || String(inv.name||'').trim(), delta_qty: delta });
+	        }
+	      }
+
+	      const ids = Array.from(agg.keys());
+	      const qtyMap = await sbFetchItemQtyMap(ids);
+	      const lines = [];
+	      for(const [id, entry] of agg){
+	        const prev = qtyMap.get(id);
+	        if(typeof prev !== 'number'){
+	          const part = String(entry && entry.part ? entry.part : '').trim();
+	          if(part) skipped.push({ part, reason:'not_found' });
+	          continue;
+	        }
+	        const delta = toInt(entry.delta_qty, 0);
+	        if(delta <= 0) continue;
+	        lines.push({
+	          item_id: id,
+	          part: String(entry.part || '').trim() || id,
+	          delta_qty: delta,
+	          prev_qty: prev,
+	          next_qty: prev + delta,
+	        });
+	      }
+
+	      return {
+	        planned_at: new Date().toISOString(),
+	        planned_by: SB.user ? SB.user.id : null,
+	        lines,
+	        skipped,
+	      };
+	    }
+
+	    async function applyReceivingSnapshot(orderId, snapshot){
+	      const planned = (snapshot && typeof snapshot === 'object') ? snapshot : {};
+	      const lines = normalizeReceiptLines(planned.lines);
+	      const baseSkipped = normalizeReceiptSkipped(planned.skipped).map(s => ({ part: s.part, reason: 'not_found' }));
+	      const ids = lines.map(l => l.item_id);
+	      const qtyMap = await sbFetchItemQtyMap(ids);
+	      const applied = [];
+	      const skipped = baseSkipped.slice();
+
+	      for(const l of lines){
+	        const current = qtyMap.get(l.item_id);
+	        if(typeof current !== 'number'){
+	          skipped.push({ part: l.part, reason:'deleted' });
+	          continue;
+	        }
+	        if(current === l.next_qty){
+	          applied.push(l);
+	          setLocalItemQty(l.item_id, l.next_qty);
+	          continue;
+	        }
+	        if(current !== l.prev_qty){
+	          skipped.push({ part: l.part, reason:'conflict' });
+	          continue;
+	        }
+	        const ok = await sbUpdateItemQtyIfMatch(l.item_id, l.prev_qty, l.next_qty);
+	        if(ok){
+	          qtyMap.set(l.item_id, l.next_qty);
+	          applied.push(l);
+	          setLocalItemQty(l.item_id, l.next_qty);
+	          continue;
+	        }
+	        const refreshed = await sbFetchItemQtyMap([l.item_id]);
+	        const current2 = refreshed.get(l.item_id);
+	        if(typeof current2 !== 'number'){
+	          skipped.push({ part: l.part, reason:'deleted' });
+	          continue;
+	        }
+	        qtyMap.set(l.item_id, current2);
+	        if(current2 === l.next_qty){
+	          applied.push(l);
+	          setLocalItemQty(l.item_id, l.next_qty);
+	          continue;
+	        }
+	        skipped.push({ part: l.part, reason:'conflict' });
+	      }
+
+	      const appliedAt = new Date().toISOString();
+	      const receivedSnapshot = {
+	        applied_at: appliedAt,
+	        applied_by: SB.user ? SB.user.id : null,
+	        lines: applied,
+	        skipped,
+	      };
+	      const patch = {
+	        receiving_at: null,
+	        receiving_by: null,
+	        receiving_snapshot: null,
+	        received_at: appliedAt,
+	        received_by: SB.user ? SB.user.id : null,
+	        received_snapshot: receivedSnapshot,
+	        received_undone_at: null,
+	        received_undone_by: null,
+	      };
+	      await sbUpdateOrder(orderId, patch);
+	      patchOrderHistoryRow(orderId, patch);
+	      try{ setUpdated(); render(); }catch(e){}
+	      try{ renderOrderHistoryFiltered(); }catch(e){}
+	      return { receivedSnapshot, applied, skipped };
+	    }
+
+	    async function undoReceivedSnapshot(orderId, receivedSnapshot){
+	      const snap = (receivedSnapshot && typeof receivedSnapshot === 'object') ? receivedSnapshot : {};
+	      const lines = normalizeReceiptLines(snap.lines);
+	      if(!lines.length) return { undone: [], skipped: [] };
+
+	      const ids = lines.map(l => l.item_id);
+	      const qtyMap = await sbFetchItemQtyMap(ids);
+	      const undone = [];
+	      const skipped = [];
+
+	      for(const l of lines){
+	        const current = qtyMap.get(l.item_id);
+	        if(typeof current !== 'number'){
+	          skipped.push({ part: l.part, reason:'deleted' });
+	          continue;
+	        }
+	        if(current === l.prev_qty){
+	          undone.push(l);
+	          setLocalItemQty(l.item_id, l.prev_qty);
+	          continue;
+	        }
+	        if(current !== l.next_qty){
+	          skipped.push({ part: l.part, reason:'conflict' });
+	          continue;
+	        }
+	        const ok = await sbUpdateItemQtyIfMatch(l.item_id, l.next_qty, l.prev_qty);
+	        if(ok){
+	          qtyMap.set(l.item_id, l.prev_qty);
+	          undone.push(l);
+	          setLocalItemQty(l.item_id, l.prev_qty);
+	          continue;
+	        }
+	        const refreshed = await sbFetchItemQtyMap([l.item_id]);
+	        const current2 = refreshed.get(l.item_id);
+	        if(typeof current2 !== 'number'){
+	          skipped.push({ part: l.part, reason:'deleted' });
+	          continue;
+	        }
+	        qtyMap.set(l.item_id, current2);
+	        if(current2 === l.prev_qty){
+	          undone.push(l);
+	          setLocalItemQty(l.item_id, l.prev_qty);
+	          continue;
+	        }
+	        skipped.push({ part: l.part, reason:'conflict' });
+	      }
+
+	      const undoneAt = new Date().toISOString();
+	      const patch = {
+	        receiving_at: null,
+	        receiving_by: null,
+	        receiving_snapshot: null,
+	        received_undone_at: undoneAt,
+	        received_undone_by: SB.user ? SB.user.id : null,
+	      };
+	      await sbUpdateOrder(orderId, patch);
+	      patchOrderHistoryRow(orderId, patch);
+	      try{ setUpdated(); render(); }catch(e){}
+	      try{ renderOrderHistoryFiltered(); }catch(e){}
+	      return { undone, skipped };
+	    }
+
+	    function showOrderReceivingSetupHelp(){
+	      const sql = "NOTIFY pgrst, 'reload schema';";
+	      openMsgModal(
+	        'Enable order receiving',
+	        `Order receiving requires a Supabase schema update.\n\n`+
+	          `Run the latest SUPABASE_SECURE_SETUP.sql in Supabase SQL Editor, then run:\n${sql}\n\n`+
+	          `After that, refresh this page and tap Receive again.`,
+	        sql
+	      );
+	    }
+
+	    async function handleOrderReceiptButtonClick(orderId, btnEl){
+	      const id = String(orderId || '').trim();
+	      if(!id) return;
+	      if(!SB.ready){ toast('Supabase not configured'); return; }
+	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
+	      if(SB.ordersHasReceipt === false){
+	        showOrderReceivingSetupHelp();
+	        return;
+	      }
+
+	      const row = getOrderHistoryRowById(id);
+	      if(!row){ toast('Order not found'); return; }
+
+	      const isUndo = isOrderCurrentlyReceived(row);
+	      const subject = String(row.subject || defaultOrderSubject()).trim();
+	      const receivingAt = String(row.receiving_at || '').trim();
+	      const receivedAt = String(row.received_at || '').trim();
+	      const resumable = !isUndo && !!receivingAt && !receivedAt && row.receiving_snapshot;
+
+	      const ok = isUndo
+	        ? (await openConfirmModal('Undo receive?', 'Revert inventory changes from this received order when safe (skips conflicts).', { okText:'Undo', cancelText:'Cancel' }))
+	        : (await openConfirmModal(resumable ? 'Resume receiving?' : 'Receive order?', 'Add this order’s quantities to inventory (skips conflicts).', { okText: resumable ? 'Resume' : 'Receive', cancelText:'Cancel' }));
+	      if(!ok) return;
+
+	      const priorTitle = btnEl ? btnEl.getAttribute('title') : '';
+	      if(btnEl){
+	        btnEl.disabled = true;
+	        btnEl.setAttribute('title', isUndo ? 'Undoing…' : 'Receiving…');
+	      }
+
+	      try{
+	        if(isUndo){
+	          const receivedSnapshot = (row && typeof row.received_snapshot === 'object' && row.received_snapshot) ? row.received_snapshot : null;
+	          if(!receivedSnapshot){ toast('Nothing to undo'); return; }
+	          toast('Undoing receive…');
+	          const { undone, skipped } = await undoReceivedSnapshot(id, receivedSnapshot);
+	          const { title, body, copy } = buildReceiptSummary({ subject, applied: undone, skipped, mode:'undo' });
+	          openMsgModal(title, body, copy);
+	          toast('Undo complete');
+	        }else{
+	          toast(resumable ? 'Resuming receive…' : 'Receiving…');
+	          let planned = (resumable && typeof row.receiving_snapshot === 'object') ? row.receiving_snapshot : null;
+	          if(!planned){
+	            planned = await buildReceivingSnapshotForOrder(row);
+	            if(!planned.lines.length && !(planned.skipped && planned.skipped.length)){
+	              toast('No line items to receive');
+	              return;
+	            }
+	            const patch = {
+	              receiving_at: planned.planned_at,
+	              receiving_by: planned.planned_by,
+	              receiving_snapshot: planned,
+	            };
+	            await sbUpdateOrder(id, patch);
+	            patchOrderHistoryRow(id, patch);
+	          }
+	          const { applied, skipped } = await applyReceivingSnapshot(id, planned);
+	          const { title, body, copy } = buildReceiptSummary({ subject, applied, skipped, mode:'receive' });
+	          openMsgModal(title, body, copy);
+	          toast('Receive complete');
+	        }
+	      }catch(e){
+	        toast((e && e.message) ? e.message : 'Receive failed');
+	      }finally{
+	        if(btnEl){
+	          btnEl.disabled = false;
+	          btnEl.setAttribute('title', priorTitle || '');
+	        }
+	      }
+	    }
+
 	    function renderOrderHistoryList(list, opts = {}){
 	      const wrap = $('orderHistoryList');
 	      if(!wrap) return;
@@ -6047,6 +6583,23 @@ function emptyStateHtml(){
         const notes = String(o.notes||'').trim();
         const items = normalizeOrderLineItems(o.line_items);
 
+        const orderId = String(o.id || '');
+        const receiptMeta = orderNonEmpty(orderReceiptMetaText(o));
+        const canReceipt = (SB.ordersHasReceipt !== false);
+        const isReceived = isOrderCurrentlyReceived(o);
+        const isReceiving = canReceipt && !!String(o.receiving_at || '').trim() && !String(o.received_at || '').trim();
+        const receiveBtnTitle = !canReceipt
+          ? 'Enable order receiving (run Supabase SQL setup)'
+          : (isReceived ? 'Undo receive' : (isReceiving ? 'Resume receiving' : 'Receive into inventory'));
+        const receiveBtnClass = isReceived ? 'btn-icon-undo' : 'btn-icon-receive';
+        const receiveBtnIcon = isReceived
+          ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>`
+          : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><path d="M3.27 6.96 12 12.01l8.73-5.05"></path><path d="M12 22.08V12"></path></svg>`;
+        const receiptBtn =
+          `<button class="${receiveBtnClass}" data-receive-order-id="${escapeHtml(orderId)}" aria-disabled="${canReceipt ? 'false' : 'true'}" aria-label="${escapeHtml(receiveBtnTitle)}" title="${escapeHtml(receiveBtnTitle)}">`+
+            receiveBtnIcon+
+          `</button>`;
+
         const itemsTable = items.length ? (
           `<table class="history-table">`+
             `<thead>`+
@@ -6068,7 +6621,6 @@ function emptyStateHtml(){
           `</table>`
         ) : `<div class="order-empty" style="margin-top:10px;">(No line items)</div>`;
 
-        const orderId = String(o.id || '');
         const forwardBlock =
           `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">`+
             `<div class="muted" style="margin-bottom:8px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;">Forward</div>`+
@@ -6083,11 +6635,14 @@ function emptyStateHtml(){
           `<summary>`+
             `<div class="history-header">`+
               `<div class="history-title">${subject}</div>`+
-              `<button class="btn-icon-danger" data-delete-order-id="${orderId}" aria-label="Delete order" title="Delete order">`+
-                `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`+
-              `</button>`+
+              `<div class="history-actions">`+
+                receiptBtn+
+                `<button class="btn-icon-danger" data-delete-order-id="${orderId}" aria-label="Delete order" title="Delete order">`+
+                  `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`+
+                `</button>`+
+              `</div>`+
             `</div>`+
-            `<div class="history-meta">${created}${to ? ` • To: ${to}` : ''}</div>`+
+            `<div class="history-meta">${created}${to ? ` • To: ${to}` : ''}${receiptMeta ? ` • ${escapeHtml(receiptMeta)}` : ''}</div>`+
           `</summary>`+
           `<div class="history-kv">`+
             (replyTo ? `<div><span class="muted">Reply-To:</span> ${escapeHtml(replyTo)}</div>` : '')+
@@ -6149,6 +6704,10 @@ function emptyStateHtml(){
 	      if(_orderSuggestTimer){ clearTimeout(_orderSuggestTimer); _orderSuggestTimer = null; }
 	      renderOrderEmailSuggestions([]);
 	    }
+    function orderNonEmpty(value){
+      const s = String(value || '').trim();
+      return s ? s : '';
+    }
 	    function requestOrderEmailSuggestions(prefix){
 	      if(_orderSuggestTimer) clearTimeout(_orderSuggestTimer);
 	      const q = String(prefix||'');
@@ -6598,31 +7157,34 @@ function emptyStateHtml(){
       const priorText = btn ? btn.textContent : '';
       if(btn){ btn.disabled = true; btn.textContent = 'Submitting…'; }
 
-		      try{
-		        const sendRes = await sendOrderViaApi();
-		        let historySaved = false;
-		        try{
-		          const ord = orderState();
-		          await sbRecordOrderRecipient(ord.email, ord.contactName);
-		        }catch{}
-		        try{
-		          await sbInsertOrderHistory(sendRes && Object.prototype.hasOwnProperty.call(sendRes, 'result') ? sendRes.result : sendRes);
-		          historySaved = true;
-		        }catch{}
-		        toast(historySaved ? 'Order sent' : 'Order sent (history not saved)');
-		        show('orderModal', false);
-		        // Reset cart/highlights after a successful send.
-		        clearAllOrderLines();
-		      }catch(e){
-		        const msg = e && e.message ? e.message : 'Send failed';
-		        const fallback = await openConfirmModal('Send failed', `${msg}\n\nOpen your email app instead?`, { okText:'Open Email', cancelText:'Cancel' });
-		        if(fallback){ window.location.href = url; }
-		        else { toast(msg); }
+	      try{
+	        const sendRes = await sendOrderViaApi();
+	        let historySaved = false;
+	        try{
+	          const ord = orderState();
+	          await sbRecordOrderRecipient(ord.email, ord.contactName);
+	        }catch{}
+	        try{
+	          await sbInsertOrderHistory(sendRes && Object.prototype.hasOwnProperty.call(sendRes, 'result') ? sendRes.result : sendRes);
+	          historySaved = true;
+	        }catch{}
+	        toast(historySaved ? 'Order sent' : 'Order sent (history not saved)');
+	        try{
+	          clearAllOrderLines();
+	          renderOrderResults();
+	          renderOrderLines();
+	        }catch(e){}
+	        show('orderModal', false);
+	      }catch(e){
+	        const msg = e && e.message ? e.message : 'Send failed';
+	        const fallback = await openConfirmModal('Send failed', `${msg}\n\nOpen your email app instead?`, { okText:'Open Email', cancelText:'Cancel' });
+	        if(fallback){ window.location.href = url; }
+	        else { toast(msg); }
 	      }finally{
-		        if(btn){ btn.textContent = priorText || 'Submit Order'; }
-		        renderOrderPreview();
-		      }
-	    });
+	        if(btn){ btn.textContent = priorText || 'Submit Order'; }
+	        renderOrderPreview();
+	      }
+    });
 
     const orderSearch = $('orderSearch');
     if(orderSearch){
@@ -6764,6 +7326,15 @@ function emptyStateHtml(){
       requestForwardEmailSuggestions(id, inp.value || '');
     });
     if(orderHistoryList) orderHistoryList.addEventListener('click', async (e)=>{
+      const recvBtn = e.target.closest('button[data-receive-order-id]');
+      if(recvBtn){
+        e.preventDefault();
+        e.stopPropagation();
+        const id = String(recvBtn.dataset.receiveOrderId || '').trim();
+        if(!id) return;
+        void handleOrderReceiptButtonClick(id, recvBtn);
+        return;
+      }
       // Delete order button
       const delBtn = e.target.closest('button[data-delete-order-id]');
 	      if(delBtn){
