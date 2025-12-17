@@ -1452,18 +1452,40 @@
 		      letter-spacing:.08em;
 		      text-transform:uppercase;
 		    }
-		    .report-summary-right{
-		      display:flex;
-		      align-items:center;
-		      justify-content:flex-end;
-		      gap:10px;
-		      flex-shrink:0;
-		    }
-		    .report-summary-right .muted{ font-size:12px; }
-		    .report-chevron{
-		      display:inline-block;
-		      color:var(--muted);
-		      font-size:14px;
+			    .report-summary-right{
+			      display:flex;
+			      align-items:center;
+			      justify-content:flex-end;
+			      gap:10px;
+			      flex-shrink:0;
+			    }
+			    .report-batch-btn{
+			      width:36px;
+			      height:36px;
+			      padding:0;
+			      border-radius:10px;
+			      border:1px solid rgba(34,197,94,0.28);
+			      background:rgba(34,197,94,0.12);
+			      color:#22c55e;
+			      display:inline-flex;
+			      align-items:center;
+			      justify-content:center;
+			      cursor:pointer;
+			      -webkit-appearance:none;
+			      appearance:none;
+			      touch-action:manipulation;
+			    }
+			    .report-batch-btn:active{ filter:brightness(0.96); }
+			    .report-batch-btn svg{
+			      width:18px;
+			      height:18px;
+			      display:block;
+			    }
+			    .report-summary-right .muted{ font-size:12px; }
+			    .report-chevron{
+			      display:inline-block;
+			      color:var(--muted);
+			      font-size:14px;
 		      line-height:1;
 		      transform: rotate(0deg);
 		      transition: transform 160ms ease;
@@ -2347,16 +2369,37 @@
 				        </button>
 				      </div>
 		
-				      <details class="report-section" id="reportLowStockSection">
+					      <details class="report-section" id="reportLowStockSection">
+					        <summary class="report-summary">
+					          <div class="report-summary-left">
+					            <h3><span class="led-dot led-dot--amber"></span>Low Stock Items <span class="report-count" id="reportLowStockCount">(0)</span></h3>
+					          </div>
+					          <div class="report-summary-right">
+					            <button type="button" class="report-batch-btn" id="btnReportBatchOrder" title="Add all low stock items to cart" aria-label="Add all low stock items to shopping cart">
+					              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					                <circle cx="9" cy="21" r="1"></circle>
+					                <circle cx="20" cy="21" r="1"></circle>
+					                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+					                <path d="M16 3v6"></path>
+					                <path d="M13 6h6"></path>
+					              </svg>
+					            </button>
+					            <span class="report-chevron" aria-hidden="true">▾</span>
+					          </div>
+					        </summary>
+					        <div class="report-list" id="reportLowStockList"></div>
+				      </details>
+
+				      <details class="report-section" id="reportExemptSection">
 				        <summary class="report-summary">
 				          <div class="report-summary-left">
-				            <h3><span class="led-dot led-dot--amber"></span>Low Stock Items <span class="report-count" id="reportLowStockCount">(0)</span></h3>
+				            <h3><span class="led-dot led-dot--cyan"></span>Exempt from Batch Re-order <span class="report-count" id="reportExemptCount">(0)</span></h3>
 				          </div>
 				          <div class="report-summary-right">
 				            <span class="report-chevron" aria-hidden="true">▾</span>
 				          </div>
 				        </summary>
-				        <div class="report-list" id="reportLowStockList"></div>
+				        <div class="report-list" id="reportExemptList"></div>
 				      </details>
 
 				      <details class="report-section" id="reportInventorySection">
@@ -4457,18 +4500,19 @@ function emptyStateHtml(){
         if(e && e.pointerType === 'touch') return; // prefer touch events for broader mobile compatibility
         if(isAnyModalOpen()) return;
 
-        // If a tray is open, first tap anywhere outside the tray just closes it.
-	        if(_openTrayId){
-	          const openTr = rowElById(_openTrayId);
-	          if(openTr){
-	            const inTray = !!e.target.closest('.card-tray');
-	            const sameRow = !!(e.target.closest('tr[data-id]') === openTr);
-	            if(inTray) return;
-	            if(!sameRow){ closeMobileTray(); return; }
-	          }
-	          // Stale tray state (row re-rendered)
-	          else closeMobileTray();
-	        }
+	        // If a tray is open, the first touch/pointer down on a different row just closes it.
+		        if(_openTrayId){
+		          const openTr = rowElById(_openTrayId);
+		          if(openTr){
+		            const sameRow = !!(e.target.closest('tr[data-id]') === openTr);
+		            // Allow re-swiping/tapping the open row even though the tray overlay covers the card;
+		            // only ignore direct presses on tray buttons so normal button clicks still work.
+		            if(sameRow && e.target.closest('button.card-tray-btn')) return;
+		            if(!sameRow){ closeMobileTray(); return; }
+		          }
+		          // Stale tray state (row re-rendered)
+		          else closeMobileTray();
+		        }
 
         const tr = e.target.closest('tr[data-id]');
         if(!tr) return;
@@ -4648,17 +4692,18 @@ function emptyStateHtml(){
         if(isAnyModalOpen()) return;
         if(!e || !e.target) return;
 
-        // If a tray is open, first tap anywhere outside the tray just closes it.
-	        if(_openTrayId){
-	          const openTr = rowElById(_openTrayId);
-	          if(openTr){
-	            const inTray = !!e.target.closest('.card-tray');
-	            const sameRow = !!(e.target.closest('tr[data-id]') === openTr);
-	            if(inTray) return;
-	            if(!sameRow){ closeMobileTray(); return; }
-	          }
-	          else closeMobileTray();
-	        }
+	        // If a tray is open, the first touch on a different row just closes it.
+		        if(_openTrayId){
+		          const openTr = rowElById(_openTrayId);
+		          if(openTr){
+		            const sameRow = !!(e.target.closest('tr[data-id]') === openTr);
+		            // Allow re-swiping/tapping the open row even though the tray overlay covers the card;
+		            // only ignore direct taps on tray buttons so normal button clicks still work.
+		            if(sameRow && e.target.closest('button.card-tray-btn')) return;
+		            if(!sameRow){ closeMobileTray(); return; }
+		          }
+		          else closeMobileTray();
+		        }
 
         const tr = e.target.closest('tr[data-id]');
         if(!tr) return;
@@ -5108,6 +5153,12 @@ function emptyStateHtml(){
 	      const thr = effectiveLowStockQty(item);
 	      return qty <= thr;
 	    }
+	    function isExemptLowStockItem(item){
+	      if(getItemReorderEnabled(item)) return false;
+	      const qty = toInt(item && item.qty, 0);
+	      const thr = effectiveLowStockQty(item);
+	      return qty <= thr;
+	    }
 	    function reportDataSnapshot(){
 	      const all = (Array.isArray(state.items) ? state.items : [])
 	        .filter(Boolean)
@@ -5124,14 +5175,17 @@ function emptyStateHtml(){
 	      const totalQty = all.reduce((sum, it) => sum + toInt(it.qty,0), 0);
 	      const inStock = all.filter(it => toInt(it.qty,0) > 0);
 	      const lowStock = all.filter(it => isLowStockItem(it));
+	      const exemptLowStock = all.filter(it => isExemptLowStockItem(it));
 	      return {
 	        all,
 	        inStock,
 	        lowStock,
+	        exemptLowStock,
 	        totalItems,
 	        totalQty,
 	        inStockCount: inStock.length,
 	        lowStockCount: lowStock.length,
+	        exemptLowStockCount: exemptLowStock.length,
 	      };
 	    }
 	    function reportCsvEscape(value){
@@ -5291,11 +5345,11 @@ function emptyStateHtml(){
 	        valueEl.textContent = '0';
 	      }
 	    }
-	    function syncReportOrderIndicators(){
-	      const modal = $('reportModal');
-	      if(!modal || modal.getAttribute('aria-hidden') !== 'false') return;
-	      const ord = orderState();
-	      const ids = new Set((Array.isArray(ord.lines) ? ord.lines : []).map(l => String(l && l.id ? l.id : '').trim()).filter(Boolean));
+		    function syncReportOrderIndicators(){
+		      const modal = $('reportModal');
+		      if(!modal || modal.getAttribute('aria-hidden') !== 'false') return;
+		      const ord = orderState();
+		      const ids = new Set((Array.isArray(ord.lines) ? ord.lines : []).map(l => String(l && l.id ? l.id : '').trim()).filter(Boolean));
 	      document.querySelectorAll('[data-report-order-id]').forEach(el=>{
 	        const id = String(el.dataset && el.dataset.reportOrderId ? el.dataset.reportOrderId : '').trim();
 	        if(!id) return;
@@ -5307,27 +5361,50 @@ function emptyStateHtml(){
 	          dot.classList.toggle('led-dot--off', !selected);
 	        }
 	      });
-	      updateReportOrderBadge();
-	    }
-		    function renderInventoryReport(){
+		      updateReportOrderBadge();
+		    }
+		    function batchAddLowStockToCart(){
 		      const d = reportDataSnapshot();
-		      const elTotal = $('reportMetricTotalItems'); if(elTotal) elTotal.textContent = String(d.totalItems);
-		      const elQty = $('reportMetricTotalQty'); if(elQty) elQty.textContent = String(d.totalQty);
-		      const elLowCount = $('reportLowStockCount'); if(elLowCount) elLowCount.textContent = `(${d.lowStockCount})`;
-		      const elInCount = $('reportInStockCount'); if(elInCount) elInCount.textContent = `(${d.inStockCount})`;
-
-		      const lowSection = $('reportLowStockSection');
-		      const lowList = $('reportLowStockList');
-		      if(lowSection && lowList){
-		        lowList.innerHTML = reportRowsHtml(d.lowStock, { showThreshold:true, emptyText:'No low stock items.' });
+		      const rows = Array.isArray(d.lowStock) ? d.lowStock : [];
+		      if(!rows.length){ toast('No low stock items'); return; }
+		      let added = 0;
+		      for(const it of rows){
+		        const need = Math.max(1, toInt(effectiveLowStockQty(it), 0) - toInt(it.qty, 0));
+		        if(upsertOrderLineFromItem(it, need)) added++;
 		      }
+		      if(added){
+		        toast(`Added ${added} low stock ${added === 1 ? 'item' : 'items'} to cart`);
+		      }else{
+		        toast('Low stock items already in cart');
+		      }
+		      try{ syncReportOrderIndicators(); }catch(e){}
+		    }
+			    function renderInventoryReport(){
+			      const d = reportDataSnapshot();
+			      const elTotal = $('reportMetricTotalItems'); if(elTotal) elTotal.textContent = String(d.totalItems);
+			      const elQty = $('reportMetricTotalQty'); if(elQty) elQty.textContent = String(d.totalQty);
+			      const elLowCount = $('reportLowStockCount'); if(elLowCount) elLowCount.textContent = `(${d.lowStockCount})`;
+			      const elExemptCount = $('reportExemptCount'); if(elExemptCount) elExemptCount.textContent = `(${d.exemptLowStockCount})`;
+			      const elInCount = $('reportInStockCount'); if(elInCount) elInCount.textContent = `(${d.inStockCount})`;
 
-	      const list = $('reportList');
-	      if(list){
-	        list.innerHTML = reportRowsHtml(d.inStock, { showThreshold:false, emptyText:'No in-stock items.' });
-	      }
-	      updateReportOrderBadge();
-	    }
+			      const lowSection = $('reportLowStockSection');
+			      const lowList = $('reportLowStockList');
+			      if(lowSection && lowList){
+			        lowList.innerHTML = reportRowsHtml(d.lowStock, { showThreshold:true, emptyText:'No low stock items.' });
+			      }
+
+			      const exemptSection = $('reportExemptSection');
+			      const exemptList = $('reportExemptList');
+			      if(exemptSection && exemptList){
+			        exemptList.innerHTML = reportRowsHtml(d.exemptLowStock, { showThreshold:true, emptyText:'No exempt low stock items.' });
+			      }
+
+		      const list = $('reportList');
+		      if(list){
+		        list.innerHTML = reportRowsHtml(d.inStock, { showThreshold:false, emptyText:'No in-stock items.' });
+		      }
+		      updateReportOrderBadge();
+		    }
 		    function downloadInventoryReportCsv(){
 		      try{
 		        const csv = buildInventoryReportCsv(reportDataSnapshot());
@@ -5575,22 +5652,24 @@ function emptyStateHtml(){
 		      };
 		      tick();
 		    }
-		    function finishReportLoad(token){
-		      if(token !== _reportLoadToken) return;
-		      setReportLoading(false);
-		      renderInventoryReport();
-		      const lowSection = $('reportLowStockSection'); if(lowSection) lowSection.open = false;
-		      const invSection = $('reportInventorySection'); if(invSection) invSection.open = false;
-		      try{ syncReportOrderIndicators(); }catch(e){}
-		    }
-		    function startReportLoad(){
-		      _reportLoadToken++;
-		      const token = _reportLoadToken;
-		      setReportLoading(true);
-		      const lowSection = $('reportLowStockSection'); if(lowSection) lowSection.open = false;
-		      const invSection = $('reportInventorySection'); if(invSection) invSection.open = false;
-		      simulateReportProgress(token);
-		    }
+			    function finishReportLoad(token){
+			      if(token !== _reportLoadToken) return;
+			      setReportLoading(false);
+			      renderInventoryReport();
+			      const lowSection = $('reportLowStockSection'); if(lowSection) lowSection.open = false;
+			      const exemptSection = $('reportExemptSection'); if(exemptSection) exemptSection.open = false;
+			      const invSection = $('reportInventorySection'); if(invSection) invSection.open = false;
+			      try{ syncReportOrderIndicators(); }catch(e){}
+			    }
+			    function startReportLoad(){
+			      _reportLoadToken++;
+			      const token = _reportLoadToken;
+			      setReportLoading(true);
+			      const lowSection = $('reportLowStockSection'); if(lowSection) lowSection.open = false;
+			      const exemptSection = $('reportExemptSection'); if(exemptSection) exemptSection.open = false;
+			      const invSection = $('reportInventorySection'); if(invSection) invSection.open = false;
+			      simulateReportProgress(token);
+			    }
 				    function openReportModal(){
 				      show('reportModal', true);
 				      startReportLoad();
@@ -7302,19 +7381,25 @@ function emptyStateHtml(){
 	    if(menuOrder) menuOrder.addEventListener('click', ()=>{ toggleMenu(false); openOrderModal(); });
 	    const menuHistory = $('menuHistory');
 	    if(menuHistory) menuHistory.addEventListener('click', ()=>{ toggleMenu(false); openOrderHistoryModal({ returnToOrder: false }); });
-	    const menuReport = $('menuReport');
-	    if(menuReport) menuReport.addEventListener('click', ()=>{ toggleMenu(false); openReportModal(); });
-	    const btnReportClose = $('btnReportClose');
-	    if(btnReportClose) btnReportClose.addEventListener('click', closeReportModal);
-			    const btnReportDownload = $('btnReportDownload');
-			    if(btnReportDownload) btnReportDownload.addEventListener('click', downloadInventoryReportCsv);
-			    const btnReportShare = $('btnReportShare');
-			    if(btnReportShare) btnReportShare.addEventListener('click', ()=>{ void shareInventoryReport(); });
-			    const reportLowStockList = $('reportLowStockList');
-			    const reportInventoryList = $('reportList');
-			    function toggleOrderFromReportClick(e){
-			      const row = e.target.closest('button[data-report-order-id]');
-			      if(!row) return;
+		    const menuReport = $('menuReport');
+		    if(menuReport) menuReport.addEventListener('click', ()=>{ toggleMenu(false); openReportModal(); });
+		    const btnReportClose = $('btnReportClose');
+		    if(btnReportClose) btnReportClose.addEventListener('click', closeReportModal);
+				    const btnReportBatchOrder = $('btnReportBatchOrder');
+				    if(btnReportBatchOrder) btnReportBatchOrder.addEventListener('click', (e)=>{
+				      try{ e.preventDefault(); e.stopPropagation(); }catch(ex){}
+				      batchAddLowStockToCart();
+				    });
+				    const btnReportDownload = $('btnReportDownload');
+				    if(btnReportDownload) btnReportDownload.addEventListener('click', downloadInventoryReportCsv);
+				    const btnReportShare = $('btnReportShare');
+				    if(btnReportShare) btnReportShare.addEventListener('click', ()=>{ void shareInventoryReport(); });
+				    const reportLowStockList = $('reportLowStockList');
+				    const reportExemptList = $('reportExemptList');
+				    const reportInventoryList = $('reportList');
+				    function toggleOrderFromReportClick(e){
+				      const row = e.target.closest('button[data-report-order-id]');
+				      if(!row) return;
 			      e.preventDefault();
 			      e.stopPropagation();
 			      const id = String(row.dataset.reportOrderId || '').trim();
@@ -7325,12 +7410,13 @@ function emptyStateHtml(){
 				      const exists = Array.isArray(ord.lines) && ord.lines.some(l => String(l && l.id ? l.id : '').trim() === id);
 				      if(exists) removeOrderLine(id);
 				      else upsertOrderLineFromItem(item, 1);
-				    }
-			    if(reportLowStockList) reportLowStockList.addEventListener('click', toggleOrderFromReportClick);
-			    if(reportInventoryList) reportInventoryList.addEventListener('click', toggleOrderFromReportClick);
-			    const btnReportEmailClose = $('btnReportEmailClose');
-			    if(btnReportEmailClose) btnReportEmailClose.addEventListener('click', closeReportEmailModal);
-			    const btnReportEmailCopy = $('btnReportEmailCopy');
+					    }
+				    if(reportLowStockList) reportLowStockList.addEventListener('click', toggleOrderFromReportClick);
+				    if(reportExemptList) reportExemptList.addEventListener('click', toggleOrderFromReportClick);
+				    if(reportInventoryList) reportInventoryList.addEventListener('click', toggleOrderFromReportClick);
+				    const btnReportEmailClose = $('btnReportEmailClose');
+				    if(btnReportEmailClose) btnReportEmailClose.addEventListener('click', closeReportEmailModal);
+				    const btnReportEmailCopy = $('btnReportEmailCopy');
 		    if(btnReportEmailCopy) btnReportEmailCopy.addEventListener('click', async ()=>{
 		      try{
 		        const html = String(_reportEmailHtml || '').trim();
@@ -7689,8 +7775,10 @@ function emptyStateHtml(){
 	        const id = String(det.dataset.orderId || '').trim();
 	        if(!id) return;
 
-	        if(e.target.closest('.history-tray')) return;
-	        if(e.target.closest('button, input, textarea, select, a')) return;
+		        // Allow re-swiping the open item even though the tray overlay covers it.
+		        // Only ignore direct taps on tray buttons so normal button clicks still work.
+		        if(e.target.closest('button.history-tray-btn')) return;
+		        if(e.target.closest('button, input, textarea, select, a')) return;
 
 	        const t = (e.touches && e.touches[0]) ? e.touches[0] : null;
 	        if(!t) return;
