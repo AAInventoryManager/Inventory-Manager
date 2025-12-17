@@ -341,6 +341,7 @@
 			        background:rgba(148,163,184,0.55); /* muted/off */
 			        border:1px solid rgba(0,0,0,0.65);
 			        box-shadow:0 0 0 1px rgba(255,255,255,0.08);
+			        transition: background 200ms ease, box-shadow 200ms ease, filter 200ms ease;
 			      }
 			      #invTable tbody tr[data-id] .card-led.card-led--on{ filter:saturate(1.15); }
 			      #invTable tbody tr[data-id] .card-led.card-led--order.card-led--on{
@@ -673,7 +674,7 @@
 		    .qty-stepper.qty-stepper--modal{ gap:8px; }
 		    .qty-stepper.qty-stepper--table{ gap:6px; }
 	    .qty-stepper--table .qty-step{ min-width:38px; }
-	    .qty-stepper--table .qty-value{ min-width:30px; font-size:15px; }
+	    .qty-stepper--table .qty-value{ min-width:36px; font-size:15px; }
 	    .qty-step{
 	      cursor:pointer;
 	      border:1px solid var(--border);
@@ -3485,7 +3486,7 @@ function adjustTitleSize(){
 	    btn.setAttribute('title', lowStockBtnLabel);
 	  }
 	}
-	function syncLowStockIndicatorForRow(id){
+	function syncLowStockIndicatorForRowNow(id){
 	  const tr = rowElById(id);
 	  if(!tr) return;
 	  const item = state.items.find(x => x && x.id === id);
@@ -3500,6 +3501,15 @@ function adjustTitleSize(){
 	    led.classList.toggle('card-led--outofstock', isOutOfStock);
 	    led.classList.toggle('card-led--on', isLowButInStock);
 	  }
+	}
+	// Debounced version - waits for user to stop clicking before updating LED
+	function syncLowStockIndicatorForRow(id){
+	  const existing = _qtyLedSync.get(id);
+	  if(existing) clearTimeout(existing);
+	  _qtyLedSync.set(id, setTimeout(()=> {
+	    _qtyLedSync.delete(id);
+	    syncLowStockIndicatorForRowNow(id);
+	  }, 300));
 	}
 		function qtyCellHTML(it){
 		  const q = toInt(it.qty,0);
@@ -3754,6 +3764,8 @@ function emptyStateHtml(){
     let _editItemCtx = null;
     let _lastEditHintPref = null;
     const _qtyCommit = new Map(); // id -> { timer, desiredQty, inFlight }
+    const _qtyReposition = new Map(); // id -> timer for debounced row repositioning
+    const _qtyLedSync = new Map(); // id -> timer for debounced low stock LED sync
 
     function isIOS(){
       try{
@@ -4069,7 +4081,7 @@ function emptyStateHtml(){
 			      const val = tr ? tr.querySelector('td[data-col="qty"] .qty-value') : null;
 			      if(val) val.textContent = nextVal;
 			    }
-    function repositionRowByQty(id){
+    function repositionRowByQtyNow(id){
       const srt = getSort();
       if(!srt || srt.col !== 'qty') return;
       const tb = tbodyEl(); if(!tb) return;
@@ -4093,6 +4105,15 @@ function emptyStateHtml(){
         }
       }
       if(anchor) tb.insertBefore(tr, anchor); else tb.appendChild(tr);
+    }
+    // Debounced version - waits for user to stop clicking before repositioning
+    function repositionRowByQty(id){
+      const existing = _qtyReposition.get(id);
+      if(existing) clearTimeout(existing);
+      _qtyReposition.set(id, setTimeout(()=> {
+        _qtyReposition.delete(id);
+        repositionRowByQtyNow(id);
+      }, 350));
     }
     function queueQtyCommit(id, desiredQty){
       if(!id) return;
