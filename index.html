@@ -475,14 +475,24 @@
 				        transform: scale(1.03) !important;
 				      }
 
-			      /* Mobile UX v2: ensure steppers meet 48×48 target */
-			      .qty-step{ min-width:48px; min-height:48px; }
-			      .qty-stepper--table .qty-step{ min-width:48px; }
-			      #invTable tbody tr[data-id].swiping .card-tray,
-			      #invTable tbody tr[data-id].swiping .card-tray-btn,
-			      #invTable tbody tr[data-id].swiping .card-tray-btn svg{ transition:none !important; }
-			      #invTable tbody tr[data-id].swiping{ transition:none !important; }
-		    }
+				      /* Mobile UX v2: ensure steppers meet 48×48 target */
+				      .qty-step{ min-width:48px; min-height:48px; }
+				      .qty-stepper--table .qty-step{ min-width:48px; }
+				      #invTable tbody tr[data-id] .qty-stepper.qty-stepper--table{ gap:8px; }
+				      #invTable tbody tr[data-id] .qty-stepper--table .qty-value{
+				        min-width:3.25rem;
+				        height:48px;
+				        display:inline-flex;
+				        align-items:center;
+				        justify-content:center;
+				        font-size:22px;
+				        font-weight:900;
+				      }
+				      #invTable tbody tr[data-id].swiping .card-tray,
+				      #invTable tbody tr[data-id].swiping .card-tray-btn,
+				      #invTable tbody tr[data-id].swiping .card-tray-btn svg{ transition:none !important; }
+				      #invTable tbody tr[data-id].swiping{ transition:none !important; }
+			    }
 		    @media (prefers-reduced-motion: reduce){
 		      #invTable tbody tr[data-id]{ transition:none !important; }
 		      #invTable tbody tr[data-id]::before{ transition:none !important; }
