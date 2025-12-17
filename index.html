@@ -6598,24 +6598,26 @@ function emptyStateHtml(){
       const priorText = btn ? btn.textContent : '';
       if(btn){ btn.disabled = true; btn.textContent = 'Submitting…'; }
 
-	      try{
-	        const sendRes = await sendOrderViaApi();
-	        let historySaved = false;
-	        try{
-	          const ord = orderState();
-	          await sbRecordOrderRecipient(ord.email, ord.contactName);
-	        }catch{}
-	        try{
-	          await sbInsertOrderHistory(sendRes && Object.prototype.hasOwnProperty.call(sendRes, 'result') ? sendRes.result : sendRes);
-	          historySaved = true;
-	        }catch{}
-	        toast(historySaved ? 'Order sent' : 'Order sent (history not saved)');
-	        show('orderModal', false);
-	      }catch(e){
-	        const msg = e && e.message ? e.message : 'Send failed';
-	        const fallback = await openConfirmModal('Send failed', `${msg}\n\nOpen your email app instead?`, { okText:'Open Email', cancelText:'Cancel' });
-	        if(fallback){ window.location.href = url; }
-	        else { toast(msg); }
+		      try{
+		        const sendRes = await sendOrderViaApi();
+		        let historySaved = false;
+		        try{
+		          const ord = orderState();
+		          await sbRecordOrderRecipient(ord.email, ord.contactName);
+		        }catch{}
+		        try{
+		          await sbInsertOrderHistory(sendRes && Object.prototype.hasOwnProperty.call(sendRes, 'result') ? sendRes.result : sendRes);
+		          historySaved = true;
+		        }catch{}
+		        toast(historySaved ? 'Order sent' : 'Order sent (history not saved)');
+		        show('orderModal', false);
+		        // Reset cart/highlights after a successful send.
+		        clearAllOrderLines();
+		      }catch(e){
+		        const msg = e && e.message ? e.message : 'Send failed';
+		        const fallback = await openConfirmModal('Send failed', `${msg}\n\nOpen your email app instead?`, { okText:'Open Email', cancelText:'Cancel' });
+		        if(fallback){ window.location.href = url; }
+		        else { toast(msg); }
 	      }finally{
 		        if(btn){ btn.textContent = priorText || 'Submit Order'; }
 		        renderOrderPreview();
