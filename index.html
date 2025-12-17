@@ -493,6 +493,141 @@
 				      #invTable tbody tr[data-id].swiping .card-tray-btn,
 				      #invTable tbody tr[data-id].swiping .card-tray-btn svg{ transition:none !important; }
 				      #invTable tbody tr[data-id].swiping{ transition:none !important; }
+
+				      /* Order History (mobile): swipe actions (Receive / Delete) */
+				      #orderHistoryList .history-actions{ display:none; }
+				      #orderHistoryList details.history-item{
+				        position:relative;
+				        isolation:isolate;
+				        --swipe-x: 0px;
+				        --tray-progress: 0;
+				        --tray-outer: 0;
+				        --tray-inner: 0;
+				        --commit-progress: 0;
+				        border:none;
+				        background:none;
+				        touch-action: pan-y;
+				        transition: transform 180ms ease;
+				        will-change: transform;
+				        transform: translateX(var(--swipe-x));
+				      }
+				      #orderHistoryList details.history-item.snap-elastic{
+				        transition: transform 380ms cubic-bezier(0.175, 0.885, 0.32, 1.175) !important;
+				      }
+				      #orderHistoryList details.history-item::after{
+				        content:'';
+				        position:absolute;
+				        inset:0;
+				        border:1px solid var(--border);
+				        border-radius:12px;
+				        background:#000;
+				        box-shadow:0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+				        z-index:2;
+				        pointer-events:none;
+				      }
+				      #orderHistoryList details.history-item .history-header,
+				      #orderHistoryList details.history-item .history-meta,
+				      #orderHistoryList details.history-item .history-body{
+				        position:relative;
+				        z-index:3;
+				      }
+				      #orderHistoryList details.history-item summary::after{
+				        position:relative;
+				        z-index:3;
+				      }
+				      #orderHistoryList details.history-item .history-tray{
+				        position:absolute;
+				        inset:0;
+				        transform:translateX(calc(0px - var(--swipe-x, 0px)));
+				        display:flex;
+				        flex-direction:row;
+				        align-items:center;
+				        justify-content:space-between;
+				        gap:8px;
+				        opacity:1;
+				        pointer-events:none;
+				        z-index:1;
+				      }
+				      #orderHistoryList details.history-item.tray-open .history-tray{
+				        pointer-events:auto;
+				      }
+				      #orderHistoryList details.history-item[data-tray-side="left"] .history-tray{
+				        background: linear-gradient(90deg, rgba(239,68,68,0.18) 0%, rgba(239,68,68,0) 72%);
+				      }
+				      #orderHistoryList details.history-item[data-tray-side="right"] .history-tray{
+				        background: linear-gradient(270deg, rgba(59,130,246,0.18) 0%, rgba(59,130,246,0) 72%);
+				      }
+				      #orderHistoryList details.history-item .history-tray-btn{
+				        width:86px;
+				        height:100%;
+				        border:0;
+				        border-radius:0;
+				        background:transparent;
+				        color:#e5e7eb;
+				        display:flex;
+				        align-items:center;
+				        justify-content:center;
+				        padding:4px;
+				        cursor:pointer;
+				        touch-action:manipulation;
+				        -webkit-appearance:none;
+				        appearance:none;
+				      }
+				      #orderHistoryList details.history-item .history-tray-btn--delete{ color:#ef4444; }
+				      #orderHistoryList details.history-item .history-tray-btn--receive{ color:#3b82f6; }
+				      #orderHistoryList details.history-item .history-tray-btn--delete{
+				        border-top-left-radius:12px;
+				        border-bottom-left-radius:12px;
+				      }
+				      #orderHistoryList details.history-item .history-tray-btn--receive{
+				        border-top-right-radius:12px;
+				        border-bottom-right-radius:12px;
+				      }
+				      #orderHistoryList details.history-item .history-tray-btn svg{
+				        width:55px;
+				        height:55px;
+				        display:block;
+				        opacity:0;
+				        transform:scale(0.4);
+				        transition: opacity 160ms ease, transform 160ms ease, filter 160ms ease;
+				      }
+				      #orderHistoryList details.history-item .history-tray-btn svg *{
+				        stroke-width:2.4px;
+				      }
+				      #orderHistoryList details.history-item .history-tray-btn--receive .recv-check{
+				        opacity:0;
+				        transition: opacity 160ms ease;
+				      }
+				      #orderHistoryList details.history-item.order-received .history-tray-btn--receive .recv-check{
+				        opacity:1;
+				      }
+
+				      /* Reveal: only the active-side icon animates in */
+				      #orderHistoryList details.history-item[data-tray-side="left"] .history-tray-btn--delete svg{
+				        opacity: var(--tray-outer, 0);
+				        transform: scale(calc(0.4 + (0.6 * var(--tray-outer, 0))));
+				        filter: drop-shadow(0 0 calc(14px * var(--commit-progress, 0)) rgba(239,68,68, var(--commit-progress, 0)));
+				      }
+				      #orderHistoryList details.history-item[data-tray-side="left"] .history-tray-btn--receive svg{
+				        opacity:0;
+				        transform:scale(0.4);
+				        filter:none;
+				      }
+				      #orderHistoryList details.history-item[data-tray-side="right"] .history-tray-btn--receive svg{
+				        opacity: var(--tray-outer, 0);
+				        transform: scale(calc(0.4 + (0.6 * var(--tray-outer, 0))));
+				        filter: drop-shadow(0 0 calc(14px * var(--commit-progress, 0)) rgba(59,130,246, var(--commit-progress, 0)));
+				      }
+				      #orderHistoryList details.history-item[data-tray-side="right"] .history-tray-btn--delete svg{
+				        opacity:0;
+				        transform:scale(0.4);
+				        filter:none;
+				      }
+
+				      #orderHistoryList details.history-item.swiping,
+				      #orderHistoryList details.history-item.swiping .history-tray,
+				      #orderHistoryList details.history-item.swiping .history-tray-btn,
+				      #orderHistoryList details.history-item.swiping .history-tray-btn svg{ transition:none !important; }
 			    }
 		    @media (prefers-reduced-motion: reduce){
 		      #invTable tbody tr[data-id]{ transition:none !important; }
@@ -1017,11 +1152,12 @@
       gap:6px;
       flex-shrink:0;
     }
+    .history-tray{ display:none; }
     .btn-icon-receive,
     .btn-icon-undo{
       background:transparent;
       border:none;
-      color:var(--muted);
+      color:#3b82f6;
       cursor:pointer;
       padding:4px;
       border-radius:4px;
@@ -1031,8 +1167,8 @@
       transition:color 0.15s, background 0.15s, opacity 0.15s;
     }
     .btn-icon-receive:hover{
-      color:#22c55e;
-      background:rgba(34,197,94,0.12);
+      color:#60a5fa;
+      background:rgba(59,130,246,0.12);
     }
     .btn-icon-undo:hover{
       color:#f59e0b;
@@ -1043,10 +1179,17 @@
       opacity:0.4;
       cursor:not-allowed;
     }
+    .btn-icon-receive .recv-check{
+      opacity:0;
+      transition: opacity 160ms ease;
+    }
+    .history-item.order-received .btn-icon-receive .recv-check{
+      opacity:1;
+    }
     .btn-icon-danger{
       background:transparent;
       border:none;
-      color:var(--muted);
+      color:#ef4444;
       cursor:pointer;
       padding:4px;
       border-radius:4px;
@@ -1056,8 +1199,8 @@
       transition:color 0.15s, background 0.15s;
     }
 	    .btn-icon-danger:hover{
-	      color:#ef4444;
-	      background:rgba(239,68,68,0.1);
+	      color:#ff6b6b;
+	      background:rgba(239,68,68,0.14);
 	    }
 	    /* iOS-style qty picker */
 	    .qty-picker-modal{
@@ -6142,6 +6285,31 @@ function emptyStateHtml(){
 	      if(error) throw error;
 	    }
 
+	    async function deleteOrderFromHistory(orderId, btnEl){
+	      const id = String(orderId || '').trim();
+	      if(!id) return false;
+	      if(!(await openConfirmModal('Delete order?', 'Delete this order from history?', { okText:'Delete', cancelText:'Cancel' }))) return false;
+	      if(btnEl) btnEl.disabled = true;
+	      try{
+	        await sbDeleteOrder(id);
+	        try{
+	          if(state._orderHistoryById && typeof state._orderHistoryById.delete === 'function'){
+	            state._orderHistoryById.delete(id);
+	          }
+	          if(Array.isArray(state._orderHistoryRows)){
+	            state._orderHistoryRows = state._orderHistoryRows.filter(r => String(r && r.id ? r.id : '') !== id);
+	          }
+	        }catch(e){}
+	        renderOrderHistoryFiltered();
+	        toast('Order deleted');
+	        return true;
+	      }catch(err){
+	        toast(err && err.message ? err.message : 'Delete failed');
+	        if(btnEl) btnEl.disabled = false;
+	        return false;
+	      }
+	    }
+
 	    async function sbUpdateOrder(orderId, fields){
 	      if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
 	      const id = String(orderId || '').trim();
@@ -6151,6 +6319,82 @@ function emptyStateHtml(){
 	        .update(fields || {})
 	        .eq('id', id);
 	      if(error) throw error;
+	    }
+
+	    // Order History (mobile): swipe tray state
+	    let _openHistoryTrayId = '';
+	    function orderHistoryItemElById(orderId){
+	      const id = String(orderId || '').trim();
+	      if(!id) return null;
+	      const list = $('orderHistoryList');
+	      if(!list) return null;
+	      try{
+	        if(window.CSS && CSS.escape){
+	          return list.querySelector(`details.history-item[data-order-id="${CSS.escape(id)}"]`) || null;
+	        }
+	      }catch(e){}
+	      const safe = id.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+	      return list.querySelector(`details.history-item[data-order-id="${safe}"]`) || null;
+	    }
+	    function setHistoryTrayA11y(det, open){
+	      const tray = det ? det.querySelector('.history-tray') : null;
+	      if(!tray) return;
+	      tray.setAttribute('aria-hidden', open ? 'false' : 'true');
+	      tray.querySelectorAll('button.history-tray-btn').forEach(btn=>{
+	        if(open) btn.removeAttribute('tabindex');
+	        else btn.setAttribute('tabindex', '-1');
+	      });
+	    }
+	    function closeHistoryTray(){
+	      if(!_openHistoryTrayId) return;
+	      const det = orderHistoryItemElById(_openHistoryTrayId);
+	      if(det){
+	        det.classList.remove('swiping');
+	        det.classList.remove('tray-peek');
+	        det.classList.remove('tray-open');
+	        setRowSwipeX(det, 0);
+	        try{ delete det.dataset.traySide; }catch(e){ det.dataset.traySide = ''; }
+	        setHistoryTrayA11y(det, false);
+	      }
+	      _openHistoryTrayId = '';
+	    }
+	    function closeHistoryTrayElastic(targetDet){
+	      const det = targetDet || (_openHistoryTrayId ? orderHistoryItemElById(_openHistoryTrayId) : null);
+	      if(det){
+	        det.classList.remove('swiping');
+	        det.classList.remove('tray-peek');
+	        det.classList.remove('tray-open');
+	        det.classList.add('snap-elastic');
+	        setRowSwipeX(det, 0);
+	        try{ delete det.dataset.traySide; }catch(e){ det.dataset.traySide = ''; }
+	        setHistoryTrayA11y(det, false);
+	        setTimeout(()=>{ try{ det.classList.remove('snap-elastic'); }catch(e){} }, 400);
+	      }
+	      _openHistoryTrayId = '';
+	    }
+	    function prepareHistoryTrayForItem(det, side){
+	      if(!det) return;
+	      const id = String(det.dataset && det.dataset.orderId ? det.dataset.orderId : '').trim();
+	      if(!id) return;
+	      if(_openHistoryTrayId && _openHistoryTrayId !== id) closeHistoryTray();
+	      _openHistoryTrayId = id;
+	      det.dataset.traySide = (side === 'left') ? 'left' : 'right';
+	      det.classList.remove('tray-open');
+	      det.classList.add('tray-peek');
+	      setHistoryTrayA11y(det, false);
+	    }
+	    function openHistoryTrayForItem(det, side){
+	      if(!det) return;
+	      const id = String(det.dataset && det.dataset.orderId ? det.dataset.orderId : '').trim();
+	      if(!id) return;
+	      if(_openHistoryTrayId && _openHistoryTrayId !== id) closeHistoryTray();
+	      _openHistoryTrayId = id;
+	      det.dataset.traySide = (side === 'left') ? 'left' : 'right';
+	      det.classList.remove('tray-peek');
+	      det.classList.add('tray-open');
+	      setHistoryTrayA11y(det, true);
+	      const targetX = traySideToSwipeX(det.dataset.traySide);
+	      try{ requestAnimationFrame(()=> setRowSwipeX(det, targetX)); }catch(e){ setRowSwipeX(det, targetX); }
 	    }
 
 	    function isOrderCurrentlyReceived(orderRow){
@@ -6588,16 +6832,39 @@ function emptyStateHtml(){
         const canReceipt = (SB.ordersHasReceipt !== false);
         const isReceived = isOrderCurrentlyReceived(o);
         const isReceiving = canReceipt && !!String(o.receiving_at || '').trim() && !String(o.received_at || '').trim();
+        det.classList.toggle('order-received', isReceived);
         const receiveBtnTitle = !canReceipt
           ? 'Enable order receiving (run Supabase SQL setup)'
           : (isReceived ? 'Undo receive' : (isReceiving ? 'Resume receiving' : 'Receive into inventory'));
-        const receiveBtnClass = isReceived ? 'btn-icon-undo' : 'btn-icon-receive';
-        const receiveBtnIcon = isReceived
-          ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>`
-          : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><path d="M3.27 6.96 12 12.01l8.73-5.05"></path><path d="M12 22.08V12"></path></svg>`;
+        const receiveBtnClass = 'btn-icon-receive';
+        const receiveBtnIcon =
+          `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+            `<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>`+
+            `<path d="M3.27 6.96 12 12.01l8.73-5.05"></path>`+
+            `<path d="M12 22.08V12"></path>`+
+            `<polyline class="recv-check" points="9 11 12 14 16 10"></polyline>`+
+          `</svg>`;
         const receiptBtn =
           `<button class="${receiveBtnClass}" data-receive-order-id="${escapeHtml(orderId)}" aria-disabled="${canReceipt ? 'false' : 'true'}" aria-label="${escapeHtml(receiveBtnTitle)}" title="${escapeHtml(receiveBtnTitle)}">`+
             receiveBtnIcon+
+          `</button>`;
+        const trayDeleteBtn =
+          `<button type="button" class="history-tray-btn history-tray-btn--delete" data-delete-order-id="${escapeHtml(orderId)}" tabindex="-1" aria-label="Delete order" title="Delete order">`+
+            `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+              `<polyline points="3 6 5 6 21 6"></polyline>`+
+              `<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>`+
+              `<line x1="10" y1="11" x2="10" y2="17"></line>`+
+              `<line x1="14" y1="11" x2="14" y2="17"></line>`+
+            `</svg>`+
+          `</button>`;
+        const trayReceiveBtn =
+          `<button type="button" class="history-tray-btn history-tray-btn--receive" data-receive-order-id="${escapeHtml(orderId)}" tabindex="-1" aria-disabled="${canReceipt ? 'false' : 'true'}" aria-label="${escapeHtml(receiveBtnTitle)}" title="${escapeHtml(receiveBtnTitle)}">`+
+            `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+              `<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>`+
+              `<path d="M3.27 6.96 12 12.01l8.73-5.05"></path>`+
+              `<path d="M12 22.08V12"></path>`+
+              `<polyline class="recv-check" points="9 11 12 14 16 10"></polyline>`+
+            `</svg>`+
           `</button>`;
 
         const itemsTable = items.length ? (
@@ -6633,6 +6900,10 @@ function emptyStateHtml(){
 
         det.innerHTML =
           `<summary>`+
+            `<div class="history-tray" aria-hidden="true">`+
+              trayDeleteBtn+
+              trayReceiveBtn+
+            `</div>`+
             `<div class="history-header">`+
               `<div class="history-title">${subject}</div>`+
               `<div class="history-actions">`+
@@ -6644,13 +6915,15 @@ function emptyStateHtml(){
             `</div>`+
             `<div class="history-meta">${created}${to ? ` • To: ${to}` : ''}${receiptMeta ? ` • ${escapeHtml(receiptMeta)}` : ''}</div>`+
           `</summary>`+
-          `<div class="history-kv">`+
-            (replyTo ? `<div><span class="muted">Reply-To:</span> ${escapeHtml(replyTo)}</div>` : '')+
-            (contact ? `<div><span class="muted">Contact:</span> ${escapeHtml(contact)}</div>` : '')+
-            (notes ? `<div><span class="muted">Notes:</span> ${escapeHtml(notes)}</div>` : '')+
-          `</div>`+
-          itemsTable +
-          forwardBlock;
+          `<div class="history-body">`+
+            `<div class="history-kv">`+
+              (replyTo ? `<div><span class="muted">Reply-To:</span> ${escapeHtml(replyTo)}</div>` : '')+
+              (contact ? `<div><span class="muted">Contact:</span> ${escapeHtml(contact)}</div>` : '')+
+              (notes ? `<div><span class="muted">Notes:</span> ${escapeHtml(notes)}</div>` : '')+
+            `</div>`+
+            itemsTable +
+            forwardBlock+
+          `</div>`;
 
 	        wrap.appendChild(det);
 	      }
@@ -6845,6 +7118,7 @@ function emptyStateHtml(){
 	      await refreshOrderHistory();
 	    }
     function closeOrderHistoryModal(){
+      try{ closeHistoryTray(); }catch(e){}
       show('orderHistoryModal', false);
       if(_orderHistoryReturnToOrder){
         _orderHistoryReturnToOrder = false;
@@ -7326,12 +7600,24 @@ function emptyStateHtml(){
       requestForwardEmailSuggestions(id, inp.value || '');
     });
     if(orderHistoryList) orderHistoryList.addEventListener('click', async (e)=>{
+      if(isMobileUx() && _openHistoryTrayId){
+        const openDet = orderHistoryItemElById(_openHistoryTrayId);
+        const trayBtn = e.target.closest('button.history-tray-btn');
+        if(openDet && !trayBtn){
+          e.preventDefault();
+          e.stopPropagation();
+          closeHistoryTrayElastic(openDet);
+          return;
+        }
+        if(!openDet) _openHistoryTrayId = '';
+      }
       const recvBtn = e.target.closest('button[data-receive-order-id]');
       if(recvBtn){
         e.preventDefault();
         e.stopPropagation();
         const id = String(recvBtn.dataset.receiveOrderId || '').trim();
         if(!id) return;
+        closeHistoryTray();
         void handleOrderReceiptButtonClick(id, recvBtn);
         return;
       }
@@ -7342,24 +7628,8 @@ function emptyStateHtml(){
 		        e.stopPropagation();
 		        const id = String(delBtn.dataset.deleteOrderId || '').trim();
 		        if(!id) return;
-		        if(!(await openConfirmModal('Delete order?', 'Delete this order from history?', { okText:'Delete', cancelText:'Cancel' }))) return;
-		        delBtn.disabled = true;
-		        try{
-		          await sbDeleteOrder(id);
-	          try{
-	            if(state._orderHistoryById && typeof state._orderHistoryById.delete === 'function'){
-	              state._orderHistoryById.delete(id);
-	            }
-	            if(Array.isArray(state._orderHistoryRows)){
-	              state._orderHistoryRows = state._orderHistoryRows.filter(r => String(r && r.id ? r.id : '') !== id);
-	            }
-	          }catch(e){}
-	          renderOrderHistoryFiltered();
-	          toast('Order deleted');
-	        }catch(err){
-	          toast(err && err.message ? err.message : 'Delete failed');
-	          delBtn.disabled = false;
-	        }
+		        closeHistoryTray();
+		        await deleteOrderFromHistory(id, delBtn);
 	        return;
 	      }
       const sugBtn = e.target.closest('button[data-forward-suggest-email]');
@@ -7383,6 +7653,208 @@ function emptyStateHtml(){
         void forwardOrderFromHistory(id);
       }
     });
+
+	    // Order History (mobile): swipe to reveal Receive/Delete
+	    if(orderHistoryList){
+	      let _histGesture = null;
+	      function resetHistGesture(){ _histGesture = null; }
+	      function isOrderHistoryModalOpen(){
+	        const m = $('orderHistoryModal');
+	        return !!(m && m.getAttribute('aria-hidden') === 'false');
+	      }
+	      function isBlockingModalOpenForHistory(){
+	        try{
+	          const open = Array.from(document.querySelectorAll('.modal[aria-hidden="false"]'));
+	          return open.some(el => el && el.id !== 'orderHistoryModal');
+	        }catch(e){ return false; }
+	      }
+	      function findTouchById(list, id){
+	        try{
+	          for(let i=0;i<list.length;i++){
+	            const t = list[i];
+	            if(t && t.identifier === id) return t;
+	          }
+	        }catch(e){}
+	        return null;
+	      }
+
+	      orderHistoryList.addEventListener('touchstart', (e)=>{
+	        if(!isMobileUx()) return;
+	        if(!isOrderHistoryModalOpen()) return;
+	        if(isBlockingModalOpenForHistory()) return;
+	        if(!e || !e.target) return;
+
+	        const det = e.target.closest('details.history-item[data-order-id]');
+	        if(!det) return;
+	        const id = String(det.dataset.orderId || '').trim();
+	        if(!id) return;
+
+	        if(e.target.closest('.history-tray')) return;
+	        if(e.target.closest('button, input, textarea, select, a')) return;
+
+	        const t = (e.touches && e.touches[0]) ? e.touches[0] : null;
+	        if(!t) return;
+
+	        const now = performance.now();
+	        const startSwipeX = getRowSwipeX(det);
+	        const startSide = (startSwipeX < 0) ? 'right' : ((startSwipeX > 0) ? 'left' : null);
+	        _histGesture = {
+	          id,
+	          det,
+	          kind: 'touch',
+	          touchId: t.identifier,
+	          startX: t.clientX,
+	          startY: t.clientY,
+	          startTime: now,
+	          prevMoveTime: now,
+	          lastMoveTime: now,
+	          prevMoveClientX: t.clientX,
+	          lastMoveClientX: t.clientX,
+	          startSwipeX,
+	          swipeX: startSwipeX,
+	          moved: false,
+	          intent: null, // 'h' | 'v'
+	          side: startSide, // 'left' | 'right'
+	          closingFromDetent: false,
+	        };
+	      }, { passive:true });
+
+	      orderHistoryList.addEventListener('touchmove', (e)=>{
+	        if(!isMobileUx()) return;
+	        if(!_histGesture || _histGesture.kind !== 'touch') return;
+	        if(!isOrderHistoryModalOpen()) return;
+	        if(isBlockingModalOpenForHistory()){ resetHistGesture(); return; }
+
+	        const t = findTouchById(e.touches || [], _histGesture.touchId);
+	        if(!t) return;
+
+	        const dx = t.clientX - _histGesture.startX;
+	        const dy = t.clientY - _histGesture.startY;
+	        const ax = Math.abs(dx);
+	        const ay = Math.abs(dy);
+
+	        if(ax >= 10 || ay >= 10) _histGesture.moved = true;
+
+	        if(!_histGesture.intent){
+	          if(ax < 10 && ay < 10) return;
+	          _histGesture.intent = (ax >= ay) ? 'h' : 'v';
+	          if(_histGesture.intent === 'v'){ resetHistGesture(); return; }
+	        }
+	        if(_histGesture.intent !== 'h') return;
+
+	        try{ e.preventDefault(); }catch(e){}
+
+	        const now = performance.now();
+	        _histGesture.prevMoveTime = _histGesture.lastMoveTime;
+	        _histGesture.prevMoveClientX = _histGesture.lastMoveClientX;
+	        _histGesture.lastMoveTime = now;
+	        _histGesture.lastMoveClientX = t.clientX;
+
+	        const det = _histGesture.det;
+	        if(!det || !det.isConnected){ resetHistGesture(); return; }
+
+	        const startAx = Math.abs(_histGesture.startSwipeX);
+	        const startSide = traySideFromSwipeX(_histGesture.startSwipeX);
+	        const startSnapPx = traySnapPxForSide(startSide);
+	        const isAtDetent = startAx >= startSnapPx - 10;
+	        const isSwipingBack = (_histGesture.startSwipeX < 0 && dx > 0) || (_histGesture.startSwipeX > 0 && dx < 0);
+
+	        let nextX;
+	        if(isAtDetent && isSwipingBack){
+	          const dampedDx = dx * 0.35;
+	          nextX = clampNum(_histGesture.startSwipeX + dampedDx, -MAX_PX, MAX_PX);
+	          _histGesture.closingFromDetent = true;
+	        }else{
+	          nextX = clampNum(_histGesture.startSwipeX + dx, -MAX_PX, MAX_PX);
+	          _histGesture.closingFromDetent = false;
+	        }
+	        _histGesture.swipeX = nextX;
+
+	        let side = _histGesture.side;
+	        if(Math.abs(nextX) > 6) side = (nextX < 0) ? 'right' : 'left';
+	        else if(!side) side = (dx < 0) ? 'right' : 'left';
+	        _histGesture.side = side || 'left';
+
+	        prepareHistoryTrayForItem(det, _histGesture.side);
+	        det.classList.add('swiping');
+	        setRowSwipeX(det, nextX);
+	      }, { passive:false });
+
+	      orderHistoryList.addEventListener('touchend', (e)=>{
+	        if(!isMobileUx()) return;
+	        if(!_histGesture || _histGesture.kind !== 'touch') return;
+	        if(!isOrderHistoryModalOpen()) return;
+	        if(isBlockingModalOpenForHistory()){ resetHistGesture(); return; }
+
+	        const ended = findTouchById(e.changedTouches || [], _histGesture.touchId);
+	        if(!ended) return;
+
+	        const { id, det, moved, intent, swipeX, startTime, startX, prevMoveTime, lastMoveTime, prevMoveClientX, lastMoveClientX, closingFromDetent } = _histGesture;
+	        resetHistGesture();
+	        if(!id || !det) return;
+
+	        if(!moved){
+	          // Let the native <summary> click toggle work.
+	          return;
+	        }
+
+	        if(intent === 'h'){
+	          try{ e.preventDefault(); }catch(e){}
+	          det.classList.remove('swiping');
+	          const finalX = Number.isFinite(swipeX) ? swipeX : getRowSwipeX(det);
+	          const ax = Math.abs(finalX);
+	          const side = (finalX < 0) ? 'right' : 'left'; // tray side
+
+	          if(closingFromDetent){
+	            closeHistoryTrayElastic(det);
+	            return;
+	          }
+
+	          let vx = 0;
+	          try{
+	            if(Number.isFinite(lastMoveTime) && Number.isFinite(prevMoveTime) && lastMoveTime > prevMoveTime){
+	              const dt = lastMoveTime - prevMoveTime;
+	              vx = dt > 0 ? (lastMoveClientX - prevMoveClientX) / dt : 0;
+	            }else{
+	              const tNow = performance.now();
+	              const dt = tNow - (Number(startTime) || tNow);
+	              vx = dt > 0 ? (ended.clientX - startX) / dt : 0;
+	            }
+	          }catch(e){ vx = 0; }
+
+	          const shouldCommitReceive = (side === 'right') && (ax >= COMMIT_PX);
+	          if(shouldCommitReceive){
+	            closeHistoryTray();
+	            void handleOrderReceiptButtonClick(id, null);
+	            return;
+	          }
+	          const shouldCommitDelete = (side === 'left') && (ax >= COMMIT_PX);
+	          if(shouldCommitDelete){
+	            closeHistoryTray();
+	            void deleteOrderFromHistory(id, null);
+	            return;
+	          }
+
+	          const fastOpen = (side === 'right') ? (vx <= -0.55) : (vx >= 0.55);
+	          const fastClose = (side === 'right') ? (vx >= 0.55) : (vx <= -0.55);
+	          const snapPx = traySnapPxForSide(side);
+	          if(fastClose && ax < COMMIT_PX){
+	            closeHistoryTray();
+	          }else if(ax >= snapPx || (ax >= REVEAL_PX && fastOpen)){
+	            openHistoryTrayForItem(det, side);
+	          }else{
+	            closeHistoryTray();
+	          }
+	        }
+	      }, { passive:false });
+
+	      orderHistoryList.addEventListener('touchcancel', ()=>{
+	        if(!_histGesture) return;
+	        try{ if(_histGesture.det) _histGesture.det.classList.remove('swiping'); }catch(e){}
+	        try{ closeHistoryTray(); }catch(e){}
+	        resetHistGesture();
+	      }, { passive:true });
+	    }
     const orderLinesBody = $('orderLinesBody');
     if(orderLinesBody) orderLinesBody.addEventListener('click', (e)=>{
       // Remove button
