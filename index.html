@@ -4331,10 +4331,46 @@ function emptyStateHtml(){
 	      if(e.key==='Escape'){ e.preventDefault(); closeEditItemModal(); }
 	      if(e.key==='Enter'){ e.preventDefault(); autoSaveEditItem().then(()=> closeEditItemModal()); }
 	    });
+	    if(editItemQty) editItemQty.addEventListener('click', async (e)=>{
+	      if(!isMobileUx()) return;
+	      if(!requireOnline()) return;
+	      e.preventDefault();
+	      e.stopPropagation();
+
+	      const id = _editItemCtx && _editItemCtx.id ? String(_editItemCtx.id) : '';
+	      const it = id ? state.items.find(x => x && x.id === id) : null;
+	      const itemName = it ? String(it.name || '').trim() : '';
+	      const oldQty = toInt(editItemQty.value, 0);
+	      const next = await openQtyEntryModal('Set Qty', itemName || 'Inventory Qty', oldQty, { min:0, okText:'Save', cancelText:'Cancel' });
+	      if(next === null || typeof next === 'undefined') return;
+	      const newQty = Math.max(0, toInt(next, oldQty));
+	      if(newQty === oldQty) return;
+	      editItemQty.value = String(newQty);
+	      scheduleEditItemAutoSave();
+	    });
 	    const editLowStockQty = $('editLowStockQty');
 	    if(editLowStockQty) editLowStockQty.addEventListener('keydown', e=>{
 	      if(e.key==='Escape'){ e.preventDefault(); closeEditItemModal(); }
 	      if(e.key==='Enter'){ e.preventDefault(); autoSaveEditItem().then(()=> closeEditItemModal()); }
+	    });
+	    if(editLowStockQty) editLowStockQty.addEventListener('click', async (e)=>{
+	      if(!isMobileUx()) return;
+	      if(!requireOnline()) return;
+	      e.preventDefault();
+	      e.stopPropagation();
+
+	      const id = _editItemCtx && _editItemCtx.id ? String(_editItemCtx.id) : '';
+	      const it = id ? state.items.find(x => x && x.id === id) : null;
+	      const itemName = it ? String(it.name || '').trim() : '';
+	      const globalQty = getGlobalLowStockQty();
+	      const curRaw = String(editLowStockQty.value ?? '').trim();
+	      const oldQty = (curRaw === '') ? globalQty : toInt(curRaw, 0);
+	      const next = await openQtyEntryModal('Low Stock Threshold', itemName || 'Low Stock Threshold', oldQty, { min:0, okText:'Save', cancelText:'Cancel' });
+	      if(next === null || typeof next === 'undefined') return;
+	      const newQty = Math.max(0, toInt(next, oldQty));
+	      if(newQty === oldQty) return;
+	      editLowStockQty.value = (newQty === globalQty) ? '' : String(newQty);
+	      scheduleEditItemAutoSave();
 	    });
 		    const editItemDesc = $('editItemDesc');
 		    if(editItemDesc) editItemDesc.addEventListener('keydown', e=>{
