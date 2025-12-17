@@ -832,11 +832,18 @@
     .qty-step:disabled{ opacity:.55; cursor:not-allowed; }
     .qty-value{
       min-width:44px;
+      min-height:44px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
       text-align:center;
       font-variant-numeric:tabular-nums;
       font-weight:800;
       font-size:16px;
       line-height:1;
+      cursor:pointer;
+      user-select:none;
+      touch-action:manipulation;
     }
 	    .qty-stepper.qty-stepper--modal input[type=number]{
 	      width:3.25rem;
@@ -1088,6 +1095,9 @@
 	      font-size:22px;
 	      font-variant-numeric:tabular-nums;
 	      color:#fff;
+	      cursor:pointer;
+	      user-select:none;
+	      touch-action:manipulation;
 	    }
     .order-preview{
       border:1px solid var(--border);
@@ -2202,6 +2212,19 @@
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
         <button class="btn" id="btnPreviewCancel">Cancel</button>
         <button class="btn primary" id="btnPreviewApply">Apply Import</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Qty entry modal -->
+  <div id="qtyEntryModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <h2 id="qtyEntryTitle" style="margin:0 0 10px;font-size:16px;">Set Qty</h2>
+      <div id="qtyEntrySubtitle" class="muted" style="margin-bottom:10px;display:none;"></div>
+      <input id="qtyEntryInput" type="number" min="0" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" style="text-align:center;font-weight:900;font-size:22px;" />
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <button class="btn" id="btnQtyEntryCancel" type="button">Cancel</button>
+        <button class="btn primary" id="btnQtyEntryOk" type="button">Save</button>
       </div>
     </div>
   </div>
@@ -4453,6 +4476,39 @@ function emptyStateHtml(){
 	        const oldQty = toInt(it.qty,0);
 	        const newQty = Math.max(0, oldQty + delta);
 	        if(newQty === oldQty) return;
+		        it.qty = newQty;
+		        updateQtyCellUIForRow(id, newQty);
+		        adjustDisplayedTotalQty(newQty - oldQty);
+		        adjustDisplayedInStock(oldQty, newQty);
+		        adjustDisplayedLowStock(it, oldQty, newQty);
+		        try{ syncLowStockIndicatorForRow(id); }catch(e){}
+		        repositionRowByQty(id);
+		        queueQtyCommit(id, newQty);
+		      });
+
+		      // Mobile: tap the qty value to enter a number directly (helps with large counts)
+		      invTable.addEventListener('click', async (e)=>{
+		        const val = e.target.closest('.qty-value');
+		        if(!val) return;
+		        if(!isMobileUx()) return;
+		        const stepper = val.closest('.qty-stepper--table');
+		        if(!stepper) return;
+		        const id = String(stepper.querySelector('button.qty-step-btn')?.dataset?.id || '').trim();
+		        if(!id) return;
+		        if(!requireOnline()) return;
+		        const it = state.items.find(x=> x && x.id===id);
+		        if(!it) return;
+
+		        e.preventDefault();
+		        e.stopPropagation();
+
+		        const oldQty = toInt(it.qty, 0);
+		        const itemName = String(it.name || '').trim();
+		        const next = await openQtyEntryModal('Set Qty', itemName || 'Inventory Qty', oldQty, { min:0, okText:'Save', cancelText:'Cancel' });
+		        if(next === null || typeof next === 'undefined') return;
+
+		        const newQty = Math.max(0, toInt(next, oldQty));
+		        if(newQty === oldQty) return;
 		        it.qty = newQty;
 		        updateQtyCellUIForRow(id, newQty);
 		        adjustDisplayedTotalQty(newQty - oldQty);
@@ -7608,13 +7664,41 @@ function emptyStateHtml(){
       renderOrderPreview();
     });
 
-    const orderResultsBody = $('orderResultsBody');
-    if(orderResultsBody) orderResultsBody.addEventListener('click', (e)=>{
-      const incBtn = e.target.closest('button[data-stepper-inc]');
-      const decBtn = e.target.closest('button[data-stepper-dec]');
-      if(incBtn){
-        const id = incBtn.getAttribute('data-stepper-inc');
-        const it = getInventoryById(id);
+	    const orderResultsBody = $('orderResultsBody');
+	    if(orderResultsBody) orderResultsBody.addEventListener('click', async (e)=>{
+	      const val = e.target.closest('.qty-stepper-val');
+	      if(val){
+	        const stepper = val.closest('.qty-stepper');
+	        if(!stepper) return;
+	        const id = String(
+	          stepper.querySelector('button[data-stepper-inc]')?.getAttribute('data-stepper-inc')
+	          || stepper.querySelector('button[data-stepper-dec]')?.getAttribute('data-stepper-dec')
+	          || ''
+	        ).trim();
+	        if(!id) return;
+	        const it = getInventoryById(id);
+	        if(!it) return;
+	        const currentQty = getOrderQtyForItem(id);
+	        const name = String(it.name || '').trim();
+	        const next = await openQtyEntryModal('Order Qty', name || 'Order Qty', currentQty, { min:0, okText:'Set', cancelText:'Cancel' });
+	        if(next === null || typeof next === 'undefined') return;
+	        const desiredQty = Math.max(0, toInt(next, currentQty));
+	        if(desiredQty === currentQty) return;
+	        if(desiredQty <= 0){
+	          if(currentQty > 0) removeOrderLine(id);
+	        }else{
+	          if(currentQty === 0) upsertOrderLineFromItem(it, desiredQty);
+	          else setOrderQty(id, desiredQty);
+	        }
+	        renderOrderResults();
+	        renderOrderLines();
+	        return;
+	      }
+	      const incBtn = e.target.closest('button[data-stepper-inc]');
+	      const decBtn = e.target.closest('button[data-stepper-dec]');
+	      if(incBtn){
+	        const id = incBtn.getAttribute('data-stepper-inc');
+	        const it = getInventoryById(id);
         if(!it) return;
         const currentQty = getOrderQtyForItem(id);
         if(currentQty === 0){
@@ -7943,21 +8027,47 @@ function emptyStateHtml(){
 	        resetHistGesture();
 	      }, { passive:true });
 	    }
-    const orderLinesBody = $('orderLinesBody');
-    if(orderLinesBody) orderLinesBody.addEventListener('click', (e)=>{
-      // Remove button
-      const removeBtn = e.target.closest('button[data-remove-order-id]');
-      if(removeBtn){
-        removeOrderLine(removeBtn.getAttribute('data-remove-order-id'));
-        renderOrderResults();
-        renderOrderLines();
-        return;
-      }
-      // Stepper increment
-      const incBtn = e.target.closest('button[data-line-inc]');
-      if(incBtn){
-        const id = incBtn.getAttribute('data-line-inc');
-        const currentQty = getOrderQtyForItem(id);
+	    const orderLinesBody = $('orderLinesBody');
+	    if(orderLinesBody) orderLinesBody.addEventListener('click', async (e)=>{
+	      // Remove button
+	      const removeBtn = e.target.closest('button[data-remove-order-id]');
+	      if(removeBtn){
+	        removeOrderLine(removeBtn.getAttribute('data-remove-order-id'));
+	        renderOrderResults();
+	        renderOrderLines();
+	        return;
+	      }
+
+	      const val = e.target.closest('.qty-stepper-val');
+	      if(val){
+	        const stepper = val.closest('.qty-stepper');
+	        if(!stepper) return;
+	        const id = String(
+	          stepper.dataset?.qtyPickerTrigger
+	          || stepper.querySelector('button[data-line-inc]')?.getAttribute('data-line-inc')
+	          || stepper.querySelector('button[data-line-dec]')?.getAttribute('data-line-dec')
+	          || ''
+	        ).trim();
+	        if(!id) return;
+	        const ord = orderState();
+	        const line = ord.lines.find(l => l && l.id === id) || null;
+	        const currentQty = getOrderQtyForItem(id);
+	        const name = String(line && line.name ? line.name : '').trim();
+	        const next = await openQtyEntryModal('Order Qty', name || 'Order Qty', currentQty, { min:0, okText:'Set', cancelText:'Cancel' });
+	        if(next === null || typeof next === 'undefined') return;
+	        const desiredQty = Math.max(0, toInt(next, currentQty));
+	        if(desiredQty === currentQty) return;
+	        if(desiredQty <= 0) removeOrderLine(id);
+	        else setOrderQty(id, desiredQty);
+	        renderOrderResults();
+	        renderOrderLines();
+	        return;
+	      }
+	      // Stepper increment
+	      const incBtn = e.target.closest('button[data-line-inc]');
+	      if(incBtn){
+	        const id = incBtn.getAttribute('data-line-inc');
+	        const currentQty = getOrderQtyForItem(id);
         setOrderQty(id, currentQty + 1);
         renderOrderResults();
         renderOrderLines();
@@ -8267,6 +8377,9 @@ function emptyStateHtml(){
   } else if (id === 'orderModal') {
     const inp = document.getElementById('orderSearch');
     if (inp) setTimeout(() => inp.focus(), 0);
+	  } else if (id === 'qtyEntryModal') {
+	    const inp = document.getElementById('qtyEntryInput');
+	    if (inp) setTimeout(() => inp.focus(), 0);
 	  } else if (id === 'authModal') {
 	    const inp = document.getElementById('authEmail');
 	    if (inp) setTimeout(() => inp.focus(), 0);
@@ -8339,14 +8452,97 @@ function emptyStateHtml(){
 	    if(btnConfirmCancel) btnConfirmCancel.addEventListener('click', ()=> closeConfirmModal(false));
 	    const btnConfirmOk = $('btnConfirmOk');
 	    if(btnConfirmOk) btnConfirmOk.addEventListener('click', ()=> closeConfirmModal(true));
-	    document.addEventListener('keydown', (e)=>{
-	      if(e.key !== 'Escape') return;
-	      const modal = $('confirmModal');
-	      if(!modal || modal.getAttribute('aria-hidden') !== 'false') return;
-	      e.preventDefault();
-	      closeConfirmModal(false);
-	    });
-	    function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._tmr); t._tmr=setTimeout(()=> t.style.display='none', 2000); }
+		    document.addEventListener('keydown', (e)=>{
+		      if(e.key !== 'Escape') return;
+		      const modal = $('confirmModal');
+		      if(!modal || modal.getAttribute('aria-hidden') !== 'false') return;
+		      e.preventDefault();
+		      closeConfirmModal(false);
+		    });
+
+		    // Qty entry modal (number prompt)
+		    let _qtyEntryResolve = null;
+		    let _qtyEntryOpts = {};
+		    function openQtyEntryModal(title, subtitle, initialValue, opts = {}){
+		      if(_qtyEntryResolve){
+		        try{ _qtyEntryResolve(null); }catch(e){}
+		        _qtyEntryResolve = null;
+		      }
+		      _qtyEntryOpts = opts || {};
+		      const t = $('qtyEntryTitle'); if(t) t.textContent = String(title || 'Set Qty');
+		      const sub = $('qtyEntrySubtitle');
+		      if(sub){
+		        const txt = String(subtitle || '').trim();
+		        sub.textContent = txt;
+		        sub.style.display = txt ? 'block' : 'none';
+		      }
+		      const input = $('qtyEntryInput');
+		      if(input){
+		        const min = Object.prototype.hasOwnProperty.call(_qtyEntryOpts,'min') ? toInt(_qtyEntryOpts.min, 0) : 0;
+		        input.min = String(min);
+		        const hasMax = Object.prototype.hasOwnProperty.call(_qtyEntryOpts,'max') && _qtyEntryOpts.max !== null && typeof _qtyEntryOpts.max !== 'undefined';
+		        if(hasMax){
+		          const max = Number(_qtyEntryOpts.max);
+		          if(Number.isFinite(max) && Math.trunc(max) >= min) input.max = String(Math.trunc(max));
+		          else input.removeAttribute('max');
+		        }else{
+		          input.removeAttribute('max');
+		        }
+		        input.value = String(toInt(initialValue, 0));
+		      }
+		      const okBtn = $('btnQtyEntryOk');
+		      if(okBtn) okBtn.textContent = (_qtyEntryOpts && _qtyEntryOpts.okText) ? String(_qtyEntryOpts.okText) : 'Save';
+		      const cancelBtn = $('btnQtyEntryCancel');
+		      if(cancelBtn) cancelBtn.textContent = (_qtyEntryOpts && _qtyEntryOpts.cancelText) ? String(_qtyEntryOpts.cancelText) : 'Cancel';
+		      show('qtyEntryModal', true);
+		      setTimeout(()=>{
+		        const inp = $('qtyEntryInput');
+		        if(!inp) return;
+		        try{ inp.focus(); inp.select(); }catch(e){}
+		      }, 0);
+		      return new Promise(resolve => { _qtyEntryResolve = resolve; });
+		    }
+		    function closeQtyEntryModal(result){
+		      show('qtyEntryModal', false);
+		      const resolve = _qtyEntryResolve;
+		      _qtyEntryResolve = null;
+		      if(resolve) resolve(result);
+		    }
+		    function handleQtyEntryOk(){
+		      const input = $('qtyEntryInput');
+		      const raw = input ? input.value : '';
+		      const min = (_qtyEntryOpts && Object.prototype.hasOwnProperty.call(_qtyEntryOpts,'min')) ? toInt(_qtyEntryOpts.min, 0) : 0;
+		      const max = (_qtyEntryOpts && Object.prototype.hasOwnProperty.call(_qtyEntryOpts,'max')) ? Number(_qtyEntryOpts.max) : NaN;
+		      const q = toInt(raw, -1);
+		      if(q < min){
+		        toast(`Qty must be ≥ ${min}`);
+		        try{ if(input){ input.focus(); input.select(); } }catch(e){}
+		        return;
+		      }
+		      if(Number.isFinite(max) && q > Math.trunc(max)){
+		        toast(`Qty must be ≤ ${Math.trunc(max)}`);
+		        try{ if(input){ input.focus(); input.select(); } }catch(e){}
+		        return;
+		      }
+		      closeQtyEntryModal(q);
+		    }
+		    const btnQtyEntryCancel = $('btnQtyEntryCancel');
+		    if(btnQtyEntryCancel) btnQtyEntryCancel.addEventListener('click', ()=> closeQtyEntryModal(null));
+		    const btnQtyEntryOk = $('btnQtyEntryOk');
+		    if(btnQtyEntryOk) btnQtyEntryOk.addEventListener('click', handleQtyEntryOk);
+		    const qtyEntryInput = $('qtyEntryInput');
+		    if(qtyEntryInput) qtyEntryInput.addEventListener('keydown', (e)=>{
+		      if(e.key==='Escape'){ e.preventDefault(); closeQtyEntryModal(null); }
+		      if(e.key==='Enter'){ e.preventDefault(); handleQtyEntryOk(); }
+		    });
+		    document.addEventListener('keydown', (e)=>{
+		      if(e.key !== 'Escape') return;
+		      const modal = $('qtyEntryModal');
+		      if(!modal || modal.getAttribute('aria-hidden') !== 'false') return;
+		      e.preventDefault();
+		      closeQtyEntryModal(null);
+		    });
+		    function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._tmr); t._tmr=setTimeout(()=> t.style.display='none', 2000); }
 
     // iOS keyboard-safe scroll height
     document.addEventListener('focusin', (e)=>{
