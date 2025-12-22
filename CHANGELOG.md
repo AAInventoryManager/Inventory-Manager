@@ -13,7 +13,7 @@
 - Offline edits blocked; status banner shows Connected/Offline
 - Server-first Add/Edit/Delete/Import with post-refresh from server
 - Service worker cache bumped to v12; manifest cache param v3
-- Manifest tweaks: start_url './', short_name "Don's Inv", version 1.0.1
+- Manifest tweaks: start_url './', short_name "Inventory", version 1.0.1
 
 ## v1.0.0 — Initial stable release
 - iOS-friendly, offline-capable inventory tracker

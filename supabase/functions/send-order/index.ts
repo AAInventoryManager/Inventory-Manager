@@ -30,7 +30,7 @@ async function sendViaMailtrap({
 }) {
   const token = Deno.env.get("MAILTRAP_API_TOKEN") || "";
   const fromEmail = Deno.env.get("MAILTRAP_FROM_EMAIL") || "";
-  const fromName = Deno.env.get("MAILTRAP_FROM_NAME") || "Oakley Services Inventory";
+  const fromName = Deno.env.get("MAILTRAP_FROM_NAME") || "Modulus Software, LLC";
   const baseUrl = Deno.env.get("MAILTRAP_API_BASE_URL") || "https://send.api.mailtrap.io/api/send";
 
   if (!token) throw new Error("MAILTRAP_API_TOKEN is not configured");

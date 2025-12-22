@@ -86,7 +86,7 @@ function getAllowedDomains() {
 async function sendViaMailtrapApi({ to, subject, text, html, replyTo }) {
   const token = String(process.env.MAILTRAP_API_TOKEN || process.env.MAILTRAP_TOKEN || '').trim();
   const fromEmail = String(process.env.MAILTRAP_FROM_EMAIL || process.env.MAIL_FROM_EMAIL || '').trim();
-  const fromName = String(process.env.MAILTRAP_FROM_NAME || process.env.MAIL_FROM_NAME || "Don's Inventory Tracker").trim();
+  const fromName = String(process.env.MAILTRAP_FROM_NAME || process.env.MAIL_FROM_NAME || "Modulus Software, LLC").trim();
   const baseUrl = String(process.env.MAILTRAP_API_BASE_URL || 'https://send.api.mailtrap.io/api/send').trim();
 
   if (!token) throw Object.assign(new Error('MAILTRAP_API_TOKEN is not configured'), { status: 501 });

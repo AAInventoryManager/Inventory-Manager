@@ -1,4 +1,4 @@
-# Inventory Manager — App Reference
+# Inventory Manager by Modulus Software, LLC — App Reference
 
 This repository is a single‑page web app (mostly in `index.html`) for managing an inventory, generating low‑stock reports, and building/sending material orders. This document describes the UI layout, features, modals, and the major event listeners/behaviors.
 

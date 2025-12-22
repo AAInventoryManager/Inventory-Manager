@@ -1,0 +1,1811 @@
+openapi: 3.1.0
+info:
+  title: Inventory Manager API
+  version: 1.0.0
+  description: |
+    # Inventory Manager REST API
+
+    A secure, multi-tenant REST API for inventory management operations.
+    Built on Supabase Edge Functions with Row Level Security (RLS) enforcement.
+
+    ## Overview
+
+    This API provides programmatic access to inventory data for:
+    - Internal application integrations
+    - Third-party system connections (ERP, WMS, POS)
+    - Mobile applications
+    - Automation workflows
+
+    ## Architecture
+
+    ```
+    ┌─────────────┐     ┌──────────────────┐     ┌─────────────────┐
+    │   Client    │────▶│  Edge Function   │────▶│   PostgreSQL    │
+    │  (JWT Auth) │     │  (Deno Runtime)  │     │   (with RLS)    │
+    └─────────────┘     └──────────────────┘     └─────────────────┘
+           │                     │                        │
+           │                     ▼                        │
+           │            ┌──────────────────┐              │
+           └───────────▶│    Supabase      │◀─────────────┘
+                        │   Auth Service   │
+                        └──────────────────┘
+    ```
+
+    ## Authentication
+
+    All endpoints (except `/health`) require a valid Supabase JWT passed via:
+
+    ```
+    Authorization: Bearer <your_jwt_token>
+    ```
+
+    Tokens are obtained through the Supabase Auth service. The API validates tokens
+    and enforces Row Level Security based on the authenticated user's `company_id`.
+
+    ## Multi-Tenancy & Data Isolation
+
+    Data isolation is enforced at the database level through PostgreSQL RLS policies.
+    Every authenticated request is scoped to the user's `company_id` extracted from
+    the JWT claims. This design:
+
+    - Prevents cross-tenant data access at the database layer
+    - Cannot be bypassed by application code
+    - Supports future SaaS multi-tenant expansion
+
+    ## Rate Limiting
+
+    | Tier        | Requests/Minute | Burst Limit |
+    |-------------|-----------------|-------------|
+    | Standard    | 100             | 150         |
+    | Premium     | 500             | 750         |
+    | Enterprise  | Custom          | Custom      |
+
+    Rate limit status is returned in response headers:
+    - `X-RateLimit-Limit`: Maximum requests per window
+    - `X-RateLimit-Remaining`: Requests remaining in current window
+    - `X-RateLimit-Reset`: Unix timestamp when the window resets
+
+    ## Idempotency
+
+    For `POST` and `PATCH` operations, include an idempotency key to prevent
+    duplicate operations on retry:
+
+    ```
+    Idempotency-Key: <unique_client_generated_uuid>
+    ```
+
+    Keys are valid for 24 hours. Repeated requests with the same key return
+    the original response without re-executing the operation.
+
+    ## Versioning
+
+    This API uses URL path versioning. The current version is `v1`.
+    Breaking changes will result in a new version (e.g., `v2`).
+    Deprecated versions will be supported for minimum 12 months after successor release.
+
+    ## Changelog
+
+    | Version | Date       | Changes                                    |
+    |---------|------------|--------------------------------------------|
+    | 1.0.0   | 2024-01-15 | Initial release                            |
+
+  contact:
+    name: Modulus Software Support
+    email: api-support@modulus-software.com
+    url: https://modulus-software.com
+  license:
+    name: Proprietary
+    url: https://modulus-software.com/terms
+  x-logo:
+    url: https://modulus-software.com/logo.png
+    altText: Modulus Software Logo
+
+servers:
+  - url: http://localhost:54321/functions/v1/api
+    description: Local Development (Supabase CLI)
+  - url: https://{project_ref}.supabase.co/functions/v1/api
+    description: Supabase Hosted (Production/Staging)
+    variables:
+      project_ref:
+        default: your-project-ref
+        description: Your Supabase project reference ID
+
+tags:
+  - name: Health
+    description: Service health and readiness checks
+  - name: Inventory
+    description: Core inventory management operations
+  - name: Reports
+    description: Inventory analytics and reporting endpoints
+
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Health Check
+      description: |
+        Returns the health status of the API service.
+
+        This endpoint does NOT require authentication and is intended for:
+        - Load balancer health checks
+        - Monitoring system probes
+        - Uptime verification
+
+        The response includes service version and database connectivity status.
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: healthy
+                version: 1.0.0
+                timestamp: '2024-01-15T10:30:00.000Z'
+                checks:
+                  database: connected
+                  auth: operational
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: unhealthy
+                version: 1.0.0
+                timestamp: '2024-01-15T10:30:00.000Z'
+                checks:
+                  database: disconnected
+                  auth: operational
+
+  /v1/inventory:
+    get:
+      operationId: listInventory
+      summary: List Inventory Items
+      description: |
+        Retrieves a paginated list of inventory items for the authenticated user's company.
+
+        ## Data Scoping
+
+        Results are automatically filtered to the user's `company_id` via Row Level Security.
+        Users cannot access inventory from other companies regardless of query parameters.
+
+        ## Filtering
+
+        Multiple filters can be combined. All filters use AND logic.
+
+        ## Sorting
+
+        Use the `sort` parameter with format `field:direction` (e.g., `name:asc`, `quantity:desc`).
+        Multiple sort fields can be comma-separated: `category:asc,name:asc`.
+
+        ## Performance Notes
+
+        - For large datasets, use pagination with reasonable `limit` values (max 100)
+        - Text search uses PostgreSQL full-text search for performance
+        - Consider using specific filters rather than broad `search` queries
+      tags:
+        - Inventory
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/CategoryFilter'
+        - $ref: '#/components/parameters/LocationFilter'
+        - $ref: '#/components/parameters/MinQuantityFilter'
+        - $ref: '#/components/parameters/MaxQuantityFilter'
+        - $ref: '#/components/parameters/CreatedAfterFilter'
+        - $ref: '#/components/parameters/CreatedBeforeFilter'
+        - $ref: '#/components/parameters/UpdatedAfterFilter'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+        - $ref: '#/components/parameters/IncludeArchived'
+      responses:
+        '200':
+          description: Successful retrieval of inventory items
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryListResponse'
+              example:
+                data:
+                  - id: 550e8400-e29b-41d4-a716-446655440000
+                    name: Widget A
+                    sku: WGT-001
+                    description: High-quality widget for general use
+                    quantity: 150
+                    unit: each
+                    category: Widgets
+                    location: Warehouse A - Shelf 1
+                    reorder_point: 25
+                    reorder_quantity: 100
+                    unit_cost: 12.50
+                    supplier: Acme Supplies
+                    barcode: '012345678901'
+                    is_archived: false
+                    created_at: '2024-01-10T08:00:00.000Z'
+                    updated_at: '2024-01-14T15:30:00.000Z'
+                meta:
+                  total: 847
+                  limit: 50
+                  offset: 0
+                  has_more: true
+                  filtered_total: 234
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      operationId: createInventoryItem
+      summary: Create Inventory Item
+      description: |
+        Creates a new inventory item for the authenticated user's company.
+
+        ## Company Assignment
+
+        The `company_id` is automatically set from the authenticated user's JWT claims.
+        You cannot create inventory for other companies.
+
+        ## SKU Uniqueness
+
+        The `sku` field must be unique within your company. Attempting to create
+        an item with a duplicate SKU will return a `409 Conflict` error.
+
+        ## Idempotency
+
+        Include an `Idempotency-Key` header to safely retry failed requests.
+        If the same key is used within 24 hours, the original response is returned
+        without creating a duplicate item.
+
+        ## Validation Rules
+
+        - `name`: Required, 1-255 characters
+        - `sku`: Required, 1-50 characters, alphanumeric with dashes/underscores
+        - `quantity`: Required, non-negative integer
+        - `reorder_point`: Optional, non-negative integer
+        - `unit_cost`: Optional, non-negative decimal with max 2 decimal places
+      tags:
+        - Inventory
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItemCreate'
+            example:
+              name: Widget A
+              sku: WGT-001
+              description: High-quality widget for general use
+              quantity: 150
+              unit: each
+              category: Widgets
+              location: Warehouse A - Shelf 1
+              reorder_point: 25
+              reorder_quantity: 100
+              unit_cost: 12.50
+              supplier: Acme Supplies
+              barcode: '012345678901'
+      responses:
+        '201':
+          description: Inventory item created successfully
+          headers:
+            Location:
+              description: URL of the created resource
+              schema:
+                type: string
+                format: uri
+                example: /v1/inventory/550e8400-e29b-41d4-a716-446655440000
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/inventory/{id}:
+    get:
+      operationId: getInventoryItem
+      summary: Get Inventory Item
+      description: |
+        Retrieves a single inventory item by ID.
+
+        ## Access Control
+
+        Row Level Security ensures you can only retrieve items belonging to your company.
+        Attempting to access another company's item returns `404 Not Found` (not `403`)
+        to prevent information disclosure about item existence.
+      tags:
+        - Inventory
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/InventoryId'
+      responses:
+        '200':
+          description: Inventory item retrieved successfully
+          headers:
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    patch:
+      operationId: updateInventoryItem
+      summary: Update Inventory Item
+      description: |
+        Partially updates an existing inventory item.
+
+        ## Partial Updates
+
+        Only include fields you want to change. Omitted fields retain their current values.
+        To explicitly set a field to null (where allowed), include it with a null value.
+
+        ## Concurrency
+
+        Consider using optimistic locking by checking `updated_at` before and after
+        updates in high-concurrency scenarios. Future versions may support ETags.
+
+        ## Idempotency
+
+        Include an `Idempotency-Key` header for safe retries. The key should be unique
+        per intended operation, not per HTTP request.
+
+        ## Audit Trail
+
+        Updates automatically record `updated_at` timestamp. Full audit logging
+        is available for Enterprise tier customers.
+      tags:
+        - Inventory
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/InventoryId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItemUpdate'
+            example:
+              quantity: 175
+              location: Warehouse B - Shelf 3
+      responses:
+        '200':
+          description: Inventory item updated successfully
+          headers:
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      operationId: deleteInventoryItem
+      summary: Delete Inventory Item
+      description: |
+        Deletes an inventory item.
+
+        ## Soft Delete vs Hard Delete
+
+        By default, items are soft-deleted (archived) and can be recovered.
+        Use `?permanent=true` for irreversible hard deletion.
+
+        ## Dependencies
+
+        Deletion may fail if the item has dependent records (e.g., active orders).
+        The error response will indicate blocking dependencies.
+
+        ## Idempotency
+
+        Delete operations are naturally idempotent. Deleting an already-deleted
+        item returns `204 No Content` (not an error).
+      tags:
+        - Inventory
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/InventoryId'
+        - name: permanent
+          in: query
+          description: If true, permanently deletes the item (cannot be recovered)
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '204':
+          description: Inventory item deleted successfully
+          headers:
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Item has dependencies preventing deletion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: DEPENDENCY_CONFLICT
+                  message: Cannot delete item with active orders
+                  details:
+                    blocking_resources:
+                      - type: order
+                        id: ord_123
+                        description: Pending order #1234
+                request_id: req_abc123
+                timestamp: '2024-01-15T10:30:00.000Z'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/inventory/low-stock:
+    get:
+      operationId: getLowStockItems
+      summary: Get Low Stock Items
+      description: |
+        Retrieves inventory items where current quantity is at or below the reorder point.
+
+        ## Use Cases
+
+        - Automated reorder notifications
+        - Dashboard alerts
+        - Purchasing workflow triggers
+        - Supplier communication
+
+        ## Calculation
+
+        An item is considered "low stock" when:
+        ```
+        quantity <= reorder_point
+        ```
+
+        Items without a defined `reorder_point` are excluded from results.
+
+        ## Sorting
+
+        Results are sorted by urgency by default:
+        1. Items at zero quantity first
+        2. Then by how far below reorder point (most urgent first)
+        3. Then by name alphabetically
+      tags:
+        - Reports
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/CategoryFilter'
+        - $ref: '#/components/parameters/LocationFilter'
+        - name: include_zero
+          in: query
+          description: Include items with zero quantity
+          schema:
+            type: boolean
+            default: true
+        - name: urgency
+          in: query
+          description: Filter by urgency level
+          schema:
+            type: string
+            enum:
+              - critical
+              - warning
+              - all
+            default: all
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+      responses:
+        '200':
+          description: Low stock items retrieved successfully
+          headers:
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LowStockResponse'
+              example:
+                data:
+                  - id: 550e8400-e29b-41d4-a716-446655440000
+                    name: Widget A
+                    sku: WGT-001
+                    quantity: 5
+                    reorder_point: 25
+                    reorder_quantity: 100
+                    deficit: 20
+                    urgency: critical
+                    category: Widgets
+                    location: Warehouse A - Shelf 1
+                    supplier: Acme Supplies
+                    last_reorder_date: '2024-01-01T00:00:00.000Z'
+                meta:
+                  total: 12
+                  limit: 50
+                  offset: 0
+                  has_more: false
+                  summary:
+                    critical_count: 3
+                    warning_count: 9
+                    total_deficit_value: 2450.00
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/inventory/bulk:
+    post:
+      operationId: bulkCreateInventory
+      summary: Bulk Create Inventory Items
+      description: |
+        Creates multiple inventory items in a single request.
+
+        ## Limits
+
+        - Maximum 100 items per request
+        - All items must pass validation for any to be created (atomic operation)
+
+        ## Atomicity
+
+        This operation is atomic. Either all items are created successfully,
+        or none are created. Partial success is not possible.
+
+        ## Performance
+
+        For very large imports (>100 items), consider:
+        - Splitting into multiple requests
+        - Using the async import endpoint (coming soon)
+        - Contacting support for bulk data migration assistance
+      tags:
+        - Inventory
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - items
+              properties:
+                items:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  items:
+                    $ref: '#/components/schemas/InventoryItemCreate'
+            example:
+              items:
+                - name: Widget A
+                  sku: WGT-001
+                  quantity: 100
+                  category: Widgets
+                - name: Gadget B
+                  sku: GDG-002
+                  quantity: 50
+                  category: Gadgets
+      responses:
+        '201':
+          description: All items created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InventoryItem'
+                  meta:
+                    type: object
+                    properties:
+                      created_count:
+                        type: integer
+                        example: 2
+        '400':
+          description: Validation failed for one or more items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/inventory/{id}/adjust:
+    post:
+      operationId: adjustInventoryQuantity
+      summary: Adjust Inventory Quantity
+      description: |
+        Adjusts inventory quantity with a recorded reason.
+
+        ## Why Use This Instead of PATCH?
+
+        This endpoint:
+        - Records the adjustment reason for audit trail
+        - Supports relative adjustments (add/subtract) instead of absolute values
+        - Prevents race conditions in high-concurrency environments
+        - Creates an adjustment history record
+
+        ## Adjustment Types
+
+        - `add`: Increase quantity (e.g., received shipment)
+        - `subtract`: Decrease quantity (e.g., damaged goods, shrinkage)
+        - `set`: Set absolute quantity (e.g., after physical count)
+
+        ## Concurrency Safety
+
+        Uses database-level atomic operations to prevent lost updates
+        when multiple adjustments occur simultaneously.
+      tags:
+        - Inventory
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/InventoryId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryAdjustment'
+            example:
+              type: subtract
+              amount: 5
+              reason: damaged_goods
+              notes: Water damage from warehouse leak
+              reference: DMG-2024-0042
+      responses:
+        '200':
+          description: Quantity adjusted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InventoryItem'
+                  adjustment:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      previous_quantity:
+                        type: integer
+                      new_quantity:
+                        type: integer
+                      change:
+                        type: integer
+                      reason:
+                        type: string
+                      recorded_at:
+                        type: string
+                        format: date-time
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Adjustment would result in negative quantity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Supabase JWT token obtained through authentication.
+
+        The token contains claims including:
+        - `sub`: User ID
+        - `email`: User email
+        - `app_metadata.company_id`: Company identifier for RLS
+        - `exp`: Token expiration timestamp
+
+        Obtain tokens via Supabase Auth:
+        ```javascript
+        const { data } = await supabase.auth.signInWithPassword({
+          email: 'user@example.com',
+          password: 'password'
+        });
+        const token = data.session.access_token;
+        ```
+
+  headers:
+    X-RateLimit-Limit:
+      description: Maximum number of requests allowed in the current window
+      schema:
+        type: integer
+        example: 100
+    X-RateLimit-Remaining:
+      description: Number of requests remaining in the current window
+      schema:
+        type: integer
+        example: 95
+    X-RateLimit-Reset:
+      description: Unix timestamp when the rate limit window resets
+      schema:
+        type: integer
+        example: 1705312200
+    X-Request-Id:
+      description: Unique identifier for this request (for support/debugging)
+      schema:
+        type: string
+        format: uuid
+        example: req_550e8400-e29b-41d4-a716-446655440000
+
+  parameters:
+    InventoryId:
+      name: id
+      in: path
+      required: true
+      description: Unique identifier of the inventory item
+      schema:
+        type: string
+        format: uuid
+      example: 550e8400-e29b-41d4-a716-446655440000
+
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: |
+        Client-generated unique key to ensure idempotent operations.
+        Use a UUID v4 or similar unique identifier.
+        Keys are valid for 24 hours.
+      schema:
+        type: string
+        format: uuid
+      example: 550e8400-e29b-41d4-a716-446655440001
+
+    SearchParam:
+      name: search
+      in: query
+      description: |
+        Full-text search across name, SKU, description, and barcode fields.
+        Uses PostgreSQL full-text search with prefix matching.
+      schema:
+        type: string
+        maxLength: 100
+      example: widget
+
+    CategoryFilter:
+      name: category
+      in: query
+      description: Filter by exact category match (case-insensitive)
+      schema:
+        type: string
+        maxLength: 100
+      example: Widgets
+
+    LocationFilter:
+      name: location
+      in: query
+      description: Filter by location (partial match supported)
+      schema:
+        type: string
+        maxLength: 200
+      example: Warehouse A
+
+    MinQuantityFilter:
+      name: min_quantity
+      in: query
+      description: Filter items with quantity greater than or equal to this value
+      schema:
+        type: integer
+        minimum: 0
+      example: 10
+
+    MaxQuantityFilter:
+      name: max_quantity
+      in: query
+      description: Filter items with quantity less than or equal to this value
+      schema:
+        type: integer
+        minimum: 0
+      example: 100
+
+    CreatedAfterFilter:
+      name: created_after
+      in: query
+      description: Filter items created after this timestamp (ISO 8601)
+      schema:
+        type: string
+        format: date-time
+      example: '2024-01-01T00:00:00.000Z'
+
+    CreatedBeforeFilter:
+      name: created_before
+      in: query
+      description: Filter items created before this timestamp (ISO 8601)
+      schema:
+        type: string
+        format: date-time
+      example: '2024-12-31T23:59:59.999Z'
+
+    UpdatedAfterFilter:
+      name: updated_after
+      in: query
+      description: Filter items updated after this timestamp (useful for sync)
+      schema:
+        type: string
+        format: date-time
+      example: '2024-01-15T00:00:00.000Z'
+
+    SortParam:
+      name: sort
+      in: query
+      description: |
+        Sort field and direction. Format: `field:direction`
+        Multiple sorts can be comma-separated.
+        
+        Sortable fields: `name`, `sku`, `quantity`, `category`, `location`, 
+        `created_at`, `updated_at`, `unit_cost`
+      schema:
+        type: string
+        pattern: '^[a-z_]+(:(asc|desc))?(,[a-z_]+(:(asc|desc))?)*$'
+        default: 'name:asc'
+      example: quantity:desc,name:asc
+
+    LimitParam:
+      name: limit
+      in: query
+      description: Maximum number of items to return
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+      example: 50
+
+    OffsetParam:
+      name: offset
+      in: query
+      description: Number of items to skip (for pagination)
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      example: 0
+
+    IncludeArchived:
+      name: include_archived
+      in: query
+      description: Include soft-deleted (archived) items in results
+      schema:
+        type: boolean
+        default: false
+
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - version
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - unhealthy
+            - degraded
+          description: Overall service health status
+        version:
+          type: string
+          description: API version
+          example: 1.0.0
+        timestamp:
+          type: string
+          format: date-time
+          description: Current server timestamp
+        checks:
+          type: object
+          description: Individual component health checks
+          properties:
+            database:
+              type: string
+              enum:
+                - connected
+                - disconnected
+                - slow
+            auth:
+              type: string
+              enum:
+                - operational
+                - degraded
+                - down
+
+    InventoryItem:
+      type: object
+      required:
+        - id
+        - name
+        - sku
+        - quantity
+        - company_id
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier
+          readOnly: true
+        company_id:
+          type: string
+          format: uuid
+          description: Owning company identifier (set automatically from JWT)
+          readOnly: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Display name of the item
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: '^[A-Za-z0-9_-]+$'
+          description: Stock Keeping Unit - unique identifier within company
+        description:
+          type: string
+          maxLength: 2000
+          description: Detailed description of the item
+          nullable: true
+        quantity:
+          type: integer
+          minimum: 0
+          description: Current quantity in stock
+        unit:
+          type: string
+          maxLength: 50
+          description: Unit of measure (e.g., each, box, kg, liter)
+          nullable: true
+          default: each
+        category:
+          type: string
+          maxLength: 100
+          description: Category or classification
+          nullable: true
+        location:
+          type: string
+          maxLength: 200
+          description: Physical storage location
+          nullable: true
+        reorder_point:
+          type: integer
+          minimum: 0
+          description: Quantity threshold that triggers reorder alert
+          nullable: true
+        reorder_quantity:
+          type: integer
+          minimum: 1
+          description: Suggested quantity to reorder
+          nullable: true
+        unit_cost:
+          type: number
+          format: decimal
+          minimum: 0
+          multipleOf: 0.01
+          description: Cost per unit in default currency
+          nullable: true
+        supplier:
+          type: string
+          maxLength: 200
+          description: Primary supplier name
+          nullable: true
+        barcode:
+          type: string
+          maxLength: 50
+          description: Barcode or UPC code
+          nullable: true
+        notes:
+          type: string
+          maxLength: 5000
+          description: Internal notes
+          nullable: true
+        custom_fields:
+          type: object
+          additionalProperties: true
+          description: Flexible key-value storage for custom attributes
+          nullable: true
+        is_archived:
+          type: boolean
+          description: Whether the item is soft-deleted
+          default: false
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          description: Last modification timestamp
+          readOnly: true
+
+    InventoryItemCreate:
+      type: object
+      required:
+        - name
+        - sku
+        - quantity
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Display name of the item
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: '^[A-Za-z0-9_-]+$'
+          description: Stock Keeping Unit - must be unique within your company
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+        quantity:
+          type: integer
+          minimum: 0
+          description: Initial quantity in stock
+        unit:
+          type: string
+          maxLength: 50
+          default: each
+        category:
+          type: string
+          maxLength: 100
+          nullable: true
+        location:
+          type: string
+          maxLength: 200
+          nullable: true
+        reorder_point:
+          type: integer
+          minimum: 0
+          nullable: true
+        reorder_quantity:
+          type: integer
+          minimum: 1
+          nullable: true
+        unit_cost:
+          type: number
+          format: decimal
+          minimum: 0
+          multipleOf: 0.01
+          nullable: true
+        supplier:
+          type: string
+          maxLength: 200
+          nullable: true
+        barcode:
+          type: string
+          maxLength: 50
+          nullable: true
+        notes:
+          type: string
+          maxLength: 5000
+          nullable: true
+        custom_fields:
+          type: object
+          additionalProperties: true
+          nullable: true
+
+    InventoryItemUpdate:
+      type: object
+      minProperties: 1
+      description: |
+        All fields are optional. Only include fields you want to update.
+        Omitted fields retain their current values.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: '^[A-Za-z0-9_-]+$'
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+        quantity:
+          type: integer
+          minimum: 0
+        unit:
+          type: string
+          maxLength: 50
+        category:
+          type: string
+          maxLength: 100
+          nullable: true
+        location:
+          type: string
+          maxLength: 200
+          nullable: true
+        reorder_point:
+          type: integer
+          minimum: 0
+          nullable: true
+        reorder_quantity:
+          type: integer
+          minimum: 1
+          nullable: true
+        unit_cost:
+          type: number
+          format: decimal
+          minimum: 0
+          multipleOf: 0.01
+          nullable: true
+        supplier:
+          type: string
+          maxLength: 200
+          nullable: true
+        barcode:
+          type: string
+          maxLength: 50
+          nullable: true
+        notes:
+          type: string
+          maxLength: 5000
+          nullable: true
+        custom_fields:
+          type: object
+          additionalProperties: true
+          nullable: true
+        is_archived:
+          type: boolean
+
+    InventoryItemResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/InventoryItem'
+
+    InventoryListResponse:
+      type: object
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InventoryItem'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    LowStockItem:
+      allOf:
+        - $ref: '#/components/schemas/InventoryItem'
+        - type: object
+          properties:
+            deficit:
+              type: integer
+              description: How many units below reorder point
+            urgency:
+              type: string
+              enum:
+                - critical
+                - warning
+              description: |
+                - critical: quantity is 0 or less than 25% of reorder_point
+                - warning: quantity is between 25% and 100% of reorder_point
+            last_reorder_date:
+              type: string
+              format: date-time
+              description: When this item was last reordered (if tracked)
+              nullable: true
+
+    LowStockResponse:
+      type: object
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/LowStockItem'
+        meta:
+          allOf:
+            - $ref: '#/components/schemas/PaginationMeta'
+            - type: object
+              properties:
+                summary:
+                  type: object
+                  properties:
+                    critical_count:
+                      type: integer
+                      description: Number of items at critical level
+                    warning_count:
+                      type: integer
+                      description: Number of items at warning level
+                    total_deficit_value:
+                      type: number
+                      format: decimal
+                      description: Total value of deficit (deficit * unit_cost)
+
+    InventoryAdjustment:
+      type: object
+      required:
+        - type
+        - amount
+        - reason
+      properties:
+        type:
+          type: string
+          enum:
+            - add
+            - subtract
+            - set
+          description: |
+            - add: Increase current quantity by amount
+            - subtract: Decrease current quantity by amount
+            - set: Set quantity to exact amount
+        amount:
+          type: integer
+          minimum: 0
+          description: Quantity to adjust (must be positive)
+        reason:
+          type: string
+          enum:
+            - received_shipment
+            - returned_item
+            - damaged_goods
+            - theft_loss
+            - expired
+            - physical_count
+            - transfer_in
+            - transfer_out
+            - production_use
+            - other
+          description: Predefined reason for audit trail
+        notes:
+          type: string
+          maxLength: 1000
+          description: Additional details about the adjustment
+          nullable: true
+        reference:
+          type: string
+          maxLength: 100
+          description: External reference number (PO, damage report, etc.)
+          nullable: true
+
+    PaginationMeta:
+      type: object
+      required:
+        - total
+        - limit
+        - offset
+        - has_more
+      properties:
+        total:
+          type: integer
+          minimum: 0
+          description: Total number of items matching the query (without pagination)
+        limit:
+          type: integer
+          description: Maximum items per page (as requested)
+        offset:
+          type: integer
+          description: Number of items skipped
+        has_more:
+          type: boolean
+          description: Whether more items exist beyond current page
+        filtered_total:
+          type: integer
+          description: Total matching current filters (may differ from total)
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - request_id
+        - timestamp
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              description: Machine-readable error code
+              enum:
+                - VALIDATION_ERROR
+                - AUTHENTICATION_ERROR
+                - AUTHORIZATION_ERROR
+                - NOT_FOUND
+                - CONFLICT
+                - RATE_LIMITED
+                - DEPENDENCY_CONFLICT
+                - INTERNAL_ERROR
+                - SERVICE_UNAVAILABLE
+            message:
+              type: string
+              description: Human-readable error description
+            field:
+              type: string
+              description: Field that caused the error (for validation errors)
+              nullable: true
+            details:
+              type: object
+              description: Additional error context
+              additionalProperties: true
+              nullable: true
+        request_id:
+          type: string
+          description: Unique request identifier for support
+        timestamp:
+          type: string
+          format: date-time
+          description: When the error occurred
+
+    ValidationErrorResponse:
+      type: object
+      required:
+        - error
+        - request_id
+        - timestamp
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              const: VALIDATION_ERROR
+            message:
+              type: string
+              example: Request validation failed
+            errors:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    description: Field path (e.g., "quantity", "items[0].sku")
+                  message:
+                    type: string
+                    description: What's wrong with this field
+                  code:
+                    type: string
+                    description: Validation rule that failed
+                    enum:
+                      - required
+                      - type_error
+                      - min_length
+                      - max_length
+                      - min_value
+                      - max_value
+                      - pattern
+                      - invalid_format
+                      - unique_violation
+        request_id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    BulkValidationError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              const: VALIDATION_ERROR
+            message:
+              type: string
+              example: Validation failed for 2 items
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  index:
+                    type: integer
+                    description: Zero-based index of the item in the request array
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        field:
+                          type: string
+                        message:
+                          type: string
+                        code:
+                          type: string
+        request_id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: VALIDATION_ERROR
+              message: Invalid query parameter 'limit'. Must be between 1 and 100.
+              field: limit
+            request_id: req_abc123
+            timestamp: '2024-01-15T10:30:00.000Z'
+
+    ValidationError:
+      description: Request body validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+          example:
+            error:
+              code: VALIDATION_ERROR
+              message: Request validation failed
+              errors:
+                - field: quantity
+                  message: Must be a non-negative integer
+                  code: min_value
+                - field: sku
+                  message: Must contain only alphanumeric characters, dashes, and underscores
+                  code: pattern
+            request_id: req_abc123
+            timestamp: '2024-01-15T10:30:00.000Z'
+
+    Unauthorized:
+      description: Missing or invalid authentication token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: AUTHENTICATION_ERROR
+              message: Invalid or expired JWT token
+              details:
+                hint: Ensure Authorization header contains a valid Bearer token
+            request_id: req_abc123
+            timestamp: '2024-01-15T10:30:00.000Z'
+
+    Forbidden:
+      description: Authenticated but not authorized for this action
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: AUTHORIZATION_ERROR
+              message: You do not have permission to perform this action
+            request_id: req_abc123
+            timestamp: '2024-01-15T10:30:00.000Z'
+
+    NotFound:
+      description: Resource not found or not accessible
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: NOT_FOUND
+              message: Inventory item not found
+            request_id: req_abc123
+            timestamp: '2024-01-15T10:30:00.000Z'
+
+    Conflict:
+      description: Resource conflict (e.g., duplicate SKU)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: CONFLICT
+              message: An item with SKU 'WGT-001' already exists
+              field: sku
+            request_id: req_abc123
+            timestamp: '2024-01-15T10:30:00.000Z'
+
+    UnprocessableEntity:
+      description: Request understood but cannot be processed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: VALIDATION_ERROR
+              message: Cannot set reorder_quantity without reorder_point
+            request_id: req_abc123
+            timestamp: '2024-01-15T10:30:00.000Z'
+
+    TooManyRequests:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          $ref: '#/components/headers/X-RateLimit-Limit'
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+            example: 0
+        X-RateLimit-Reset:
+          $ref: '#/components/headers/X-RateLimit-Reset'
+        Retry-After:
+          description: Seconds until rate limit resets
+          schema:
+            type: integer
+            example: 30
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: RATE_LIMITED
+              message: Rate limit exceeded. Retry after 30 seconds.
+              details:
+                limit: 100
+                window_seconds: 60
+                retry_after: 30
+            request_id: req_abc123
+            timestamp: '2024-01-15T10:30:00.000Z'
+
+    InternalError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: INTERNAL_ERROR
+              message: An unexpected error occurred. Please try again or contact support.
+              details:
+                support_reference: Contact support with request_id
+            request_id: req_abc123
+            timestamp: '2024-01-15T10:30:00.000Z'
+
+x-webhooks:
+  inventory.created:
+    post:
+      summary: Inventory Item Created
+      description: |
+        Triggered when a new inventory item is created.
+
+        **Note:** Webhooks are a future feature and not yet available.
+      tags:
+        - Webhooks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  const: inventory.created
+                timestamp:
+                  type: string
+                  format: date-time
+                data:
+                  $ref: '#/components/schemas/InventoryItem'
+      responses:
+        '200':
+          description: Webhook processed successfully
+
+  inventory.updated:
+    post:
+      summary: Inventory Item Updated
+      description: |
+        Triggered when an inventory item is modified.
+
+        **Note:** Webhooks are a future feature and not yet available.
+      tags:
+        - Webhooks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  const: inventory.updated
+                timestamp:
+                  type: string
+                  format: date-time
+                data:
+                  type: object
+                  properties:
+                    item:
+                      $ref: '#/components/schemas/InventoryItem'
+                    changes:
+                      type: object
+                      description: Fields that changed with old and new values
+                      additionalProperties:
+                        type: object
+                        properties:
+                          old:
+                            description: Previous value
+                          new:
+                            description: New value
+      responses:
+        '200':
+          description: Webhook processed successfully
+
+  inventory.low_stock:
+    post:
+      summary: Low Stock Alert
+      description: |
+        Triggered when an item's quantity falls to or below its reorder point.
+
+        **Note:** Webhooks are a future feature and not yet available.
+      tags:
+        - Webhooks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  const: inventory.low_stock
+                timestamp:
+                  type: string
+                  format: date-time
+                data:
+                  type: object
+                  properties:
+                    item:
+                      $ref: '#/components/schemas/InventoryItem'
+                    urgency:
+                      type: string
+                      enum:
+                        - critical
+                        - warning
+                    deficit:
+                      type: integer
+      responses:
+        '200':
+          description: Webhook processed successfully
+
+  inventory.deleted:
+    post:
+      summary: Inventory Item Deleted
+      description: |
+        Triggered when an inventory item is permanently deleted.
+
+        **Note:** Webhooks are a future feature and not yet available.
+      tags:
+        - Webhooks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  const: inventory.deleted
+                timestamp:
+                  type: string
+                  format: date-time
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    sku:
+                      type: string
+                    deleted_by:
+                      type: string
+                      format: uuid
+      responses:
+        '200':
+          description: Webhook processed successfully

@@ -1,6 +1,6 @@
 {
-  "name": "Oakley Services Inventory",
-  "short_name": "Oakley Inv",
+  "name": "Inventory Manager by Modulus Software, LLC",
+  "short_name": "Inventory Manager",
   "version": "1.0.4",
   "start_url": "./",
   "display": "standalone",
@@ -8,17 +8,17 @@
   "theme_color": "#0b0f14",
   "icons": [
     {
-      "src": "assets/oakley/favicon/icon-192.png",
+      "src": "assets/modulus/favicon/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "assets/oakley/favicon/icon-512.png",
+      "src": "assets/modulus/favicon/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "assets/oakley/favicon/icon-maskable.png",
+      "src": "assets/modulus/favicon/icon-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

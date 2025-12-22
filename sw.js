@@ -1,15 +1,17 @@
 'use strict';
 // Versioned cache name (bump this when you change cached assets)
-const CACHE = 'inv-cache-v26';
+const CACHE = 'inv-cache-v35';
 // Core assets to pre-cache (add more files here if you split CSS/JS)
 const ASSETS = [
   './',
-  './assets/oakley/favicon/icon-192.png',
-  './assets/oakley/favicon/icon-512.png',
-  './assets/oakley/favicon/icon-maskable.png',
-  './assets/oakley/logo/oakley-logo-horizontal-h128.png',
+  './assets/modulus/favicon/favicon.ico',
+  './assets/modulus/favicon/icon-192.png',
+  './assets/modulus/favicon/icon-512.png',
+  './assets/modulus/favicon/icon-maskable.png',
+  './assets/modulus/logo/inventory-manager-logo.svg',
+  './assets/modulus/logo/modulus-logo-horizontal.svg',
   './index.html',
-  './manifest.webmanifest?v=7'
+  './manifest.webmanifest?v=9'
 ];
 
 // Take control immediately on install / activate

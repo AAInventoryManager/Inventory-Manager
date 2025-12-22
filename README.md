@@ -1,4 +1,4 @@
-# Don's Inventory Tracker
+# Inventory Manager by Modulus Software, LLC
 
 ## What's New
 - v1.0.2: UI polish, column sorting with arrows, dynamic Description sizing, status text with version, PWA icons/cache bump.

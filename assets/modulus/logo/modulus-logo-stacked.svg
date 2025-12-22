@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800">
+  <defs>
+    <style>
+      .cls-1 {
+        font-family: WeddingGothicATF, 'Wedding Gothic ATF';
+        font-size: 48.18px;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        font-family: EthnocentricRg-Bold, Ethnocentric;
+        font-size: 120.46px;
+        font-weight: 700;
+      }
+
+      .cls-4 {
+        letter-spacing: .2em;
+      }
+
+      .cls-5 {
+        letter-spacing: .21em;
+      }
+
+      .cls-6 {
+        letter-spacing: .16em;
+      }
+
+      .cls-7 {
+        letter-spacing: .16em;
+      }
+
+      .cls-8 {
+        letter-spacing: .1em;
+      }
+
+      .cls-9 {
+        letter-spacing: .06em;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1" data-name="Layer 1">
+    <g>
+      <g>
+        <polygon class="cls-3" points="103.57 382.69 103.76 312.57 161.49 343.09 265.73 288.14 298.02 272.49 298.42 341.25 197.12 395.72 161.56 414.15 103.57 382.69"/>
+        <polygon class="cls-3" points="87.48 516.09 23.36 481.08 23.4 271.54 87.22 304.49 87.48 516.09"/>
+        <path class="cls-3" d="M229.31,517.53l-.3-113.92c22.55-12.88,44.55-24.16,68.94-35.85l.13,113.06-68.77,36.71Z"/>
+      </g>
+      <text class="cls-2" transform="translate(348.71 377.46)"><tspan class="cls-9" x="0" y="0">M</tspan><tspan class="cls-8" x="160.93" y="0">ODULUS</tspan></text>
+      <text class="cls-1" transform="translate(490.31 472.72)"><tspan class="cls-4" x="0" y="0">SOF</tspan><tspan class="cls-5" x="167.68" y="0">T</tspan><tspan class="cls-7" x="217.98" y="0">W</tspan><tspan class="cls-4" x="284.42" y="0">ARE, L</tspan><tspan class="cls-6" x="549.33" y="0">L</tspan><tspan class="cls-4" x="594.96" y="0">C</tspan></text>
+    </g>
+  </g>
+</svg>
