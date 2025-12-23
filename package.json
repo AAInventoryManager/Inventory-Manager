@@ -1,0 +1,33 @@
+{
+  "name": "inventory-manager",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:server": "node dev-server.mjs --host 127.0.0.1 --port 5173",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:unit": "VITEST_SKIP_DB=1 vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:setup": "tsx tests/setup/global-setup.ts",
+    "test:teardown": "tsx tests/setup/global-teardown.ts",
+    "test:all": "npm run test:run && npm run test:e2e",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:reset": "supabase db reset"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@supabase/supabase-js": "^2.45.4",
+    "@types/node": "^22.5.4",
+    "@vitest/coverage-v8": "^1.6.0",
+    "dotenv": "^16.4.5",
+    "jsdom": "^24.1.1",
+    "tsx": "^4.18.0",
+    "typescript": "^5.6.3",
+    "vitest": "^1.6.0"
+  }
+}

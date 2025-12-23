@@ -1,6 +1,6 @@
 'use strict';
 // Versioned cache name (bump this when you change cached assets)
-const CACHE = 'inv-cache-v40';
+const CACHE = 'inv-cache-v41';
 // Core assets to pre-cache (add more files here if you split CSS/JS)
 const ASSETS = [
   './',
@@ -14,6 +14,7 @@ const ASSETS = [
   './assets/modulus/logo/inventory-manager-logo.svg',
   './assets/modulus/logo/modulus-logo-horizontal.svg',
   './index.html',
+  './src/utils.js',
   './manifest.webmanifest?v=11'
 ];
 

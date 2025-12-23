@@ -20,8 +20,8 @@
   <!-- Optional: set your Supabase URL and anon key here -->
   <script>
     // Supabase project credentials (safe to expose anon public key in client)
-    window.SB_URL  = "https://entmbaxeylglposptsuy.supabase.co";
-    window.SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudG1iYXhleWxnbHBvc3B0c3V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MTQ2NjEsImV4cCI6MjA3MjQ5MDY2MX0.vDTzhL0Q-iDZShWu2hcaYOavPLltY31OThXj-ohBjAc";
+    window.SB_URL  = window.SB_URL || "https://entmbaxeylglposptsuy.supabase.co";
+    window.SB_ANON = window.SB_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudG1iYXhleWxnbHBvc3B0c3V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MTQ2NjEsImV4cCI6MjA3MjQ5MDY2MX0.vDTzhL0Q-iDZShWu2hcaYOavPLltY31OThXj-ohBjAc";
   </script>
 
   <script>
@@ -2630,6 +2630,8 @@
 
 	  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script type="module" src="./src/utils.js"></script>
+
 		  <script>
 		    // UUID helper (works on older mobile browsers and non-HTTPS dev hosts)
 		    let _nativeRandomUUID = null;
@@ -2683,8 +2685,17 @@
     const APP_VERSION = '2.0.0';
 
     const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
-    const toKey=s=>(s||'').trim().toUpperCase();
-    function toInt(v,f=0){const n=Number(v); if(!Number.isFinite(n))return f; const i=Math.floor(n); return i<0?f:i;}
+    const IMUtils = window.IMUtils || {};
+    const toKey = IMUtils.toKey || ((s) => (s || '').trim().toUpperCase());
+    const toInt = IMUtils.toInt || ((v, f = 0) => {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return f;
+      const i = Math.floor(n);
+      return i < 0 ? f : i;
+    });
+    if (!IMUtils.toKey) IMUtils.toKey = toKey;
+    if (!IMUtils.toInt) IMUtils.toInt = toInt;
+    window.IMUtils = IMUtils;
     function setUpdated(){ state.updatedAt=new Date().toISOString(); }
     // Persist only UI prefs; never persist items
     function save(){ const prefs={updatedAt:state.updatedAt,_filter:state._filter,_sort:state._sort}; localStorage.setItem(DB_KEY, JSON.stringify(prefs)); render(); }
@@ -8798,7 +8809,7 @@ function emptyStateHtml(){
     // ========================
     // Parsing helpers
     // ========================
-    function parseDelimitedSmart(text){
+    const parseDelimitedSmart = IMUtils.parseDelimitedSmart || function parseDelimitedSmart(text){
       const firstLine=(text.split(/\r?\n/)[0]||'');
       let delim='\t';
       const tabScore=(firstLine.split('\t').length-1);
@@ -8822,8 +8833,8 @@ function emptyStateHtml(){
       }
       if(field.length||row.length){ row.push(field); rows.push(row); }
       return rows.filter(r=> r.some(c=> String(c).trim().length));
-    }
-    function rowsToItems(rows){
+    };
+    const rowsToItems = IMUtils.rowsToItems || function rowsToItems(rows){
       if(!rows||!rows.length) return [];
       const canon=s=> toKey(String(s).replace(/[^A-Za-z0-9]+/g,'').trim());
       const hdrsRaw=rows[0]||[]; const hdrs=hdrsRaw.map(canon);
@@ -8842,7 +8853,9 @@ function emptyStateHtml(){
         out.push({name, desc, qty});
       }
       return out;
-    }
+    };
+    if(!IMUtils.parseDelimitedSmart) IMUtils.parseDelimitedSmart = parseDelimitedSmart;
+    if(!IMUtils.rowsToItems) IMUtils.rowsToItems = rowsToItems;
     async function ensureXlsx(){
       if(window.XLSX) return;
       await new Promise((res,rej)=>{

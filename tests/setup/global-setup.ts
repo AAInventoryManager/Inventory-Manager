@@ -1,0 +1,91 @@
+import { adminClient, TEST_USERS, TEST_COMPANIES, TEST_PASSWORD, getAuthUserIdByEmail } from './test-utils';
+import { TEST_INVENTORY_ITEMS } from '../fixtures/inventory';
+
+interface TestUserDef {
+  email: string;
+  role: 'admin' | 'member' | 'viewer';
+  companyKey: keyof typeof TEST_COMPANIES;
+  isSuperUser?: boolean;
+}
+
+const testUsers: TestUserDef[] = [
+  { email: TEST_USERS.SUPER, role: 'admin', companyKey: 'MAIN', isSuperUser: true },
+  { email: TEST_USERS.ADMIN, role: 'admin', companyKey: 'MAIN' },
+  { email: TEST_USERS.MEMBER, role: 'member', companyKey: 'MAIN' },
+  { email: TEST_USERS.VIEWER, role: 'viewer', companyKey: 'MAIN' },
+  { email: TEST_USERS.OTHER_ADMIN, role: 'admin', companyKey: 'OTHER' }
+];
+
+export default async function globalSetup() {
+  const companyIds: Record<string, string> = {};
+  const userIds: Record<string, string> = {};
+
+  for (const [key, company] of Object.entries(TEST_COMPANIES)) {
+    const { data, error } = await adminClient
+      .from('companies')
+      .upsert({ name: company.name, slug: company.slug, settings: { test: true } }, { onConflict: 'slug' })
+      .select()
+      .single();
+    if (error || !data) throw error || new Error(`Failed to upsert company ${company.slug}`);
+    companyIds[key] = data.id;
+  }
+
+  for (const user of testUsers) {
+    const { data: created, error } = await adminClient.auth.admin.createUser({
+      email: user.email,
+      password: TEST_PASSWORD,
+      email_confirm: true
+    });
+
+    let userId = created?.user?.id;
+    if (!userId) {
+      if (error && !error.message.toLowerCase().includes('already')) {
+        throw error;
+      }
+      userId = await getAuthUserIdByEmail(user.email);
+    }
+    userIds[user.email] = userId;
+
+    await adminClient
+      .from('profiles')
+      .upsert(
+        { user_id: userId, email: user.email, first_name: '', last_name: '' },
+        { onConflict: 'user_id' }
+      );
+
+    const companyId = companyIds[user.companyKey];
+    const assignedAdminId = user.role === 'admin' ? userId : userIds[TEST_USERS.ADMIN] || userId;
+
+    await adminClient
+      .from('company_members')
+      .upsert(
+        {
+          company_id: companyId,
+          user_id: userId,
+          role: user.role,
+          is_super_user: !!user.isSuperUser,
+          assigned_admin_id: assignedAdminId
+        },
+        { onConflict: 'user_id' }
+      );
+  }
+
+  for (const item of TEST_INVENTORY_ITEMS) {
+    const companyId = companyIds[item.company];
+    const createdBy = item.company === 'OTHER' ? userIds[TEST_USERS.OTHER_ADMIN] : userIds[TEST_USERS.ADMIN];
+
+    await adminClient
+      .from('inventory_items')
+      .upsert(
+        {
+          company_id: companyId,
+          name: item.name,
+          quantity: item.quantity,
+          low_stock_qty: item.low_stock_qty || null,
+          sku: item.sku,
+          created_by: createdBy
+        },
+        { onConflict: 'company_id,sku' }
+      );
+  }
+}
