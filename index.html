@@ -177,9 +177,16 @@
     }
 	    #invTable tbody td[data-col="name"] .cell-val{ font-weight:900; }
 	    #invTable tbody td[data-col="desc"] .cell-val{ color:var(--muted); }
-    th.sortable{ cursor:pointer; user-select:none }
-    th.sortable .sort-ind{ margin-left:6px; opacity:.85; display:inline }
-    
+    th.sortable{ cursor:default; user-select:none }
+    th.sortable .sort-ind{
+      margin-left:6px;
+      display:inline-block;
+      cursor:pointer;
+      padding:4px 6px;
+      border-radius:4px;
+      transition:background 0.15s, opacity 0.15s;
+    }
+    th.sortable .sort-ind:hover{ background:rgba(148,163,184,0.2) }
     th.sorted-asc .sort-ind::before{ content:'\25B2'; opacity:1 }
     th.sorted-desc .sort-ind::before{ content:'\25BC'; opacity:1 }
     tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
@@ -2681,7 +2688,26 @@
     function setUpdated(){ state.updatedAt=new Date().toISOString(); }
     // Persist only UI prefs; never persist items
     function save(){ const prefs={updatedAt:state.updatedAt,_filter:state._filter,_sort:state._sort}; localStorage.setItem(DB_KEY, JSON.stringify(prefs)); render(); }
-    function load(){ const raw=localStorage.getItem(DB_KEY); if(raw){ try{ const p=JSON.parse(raw); if(p){ if(typeof p._filter==='string') state._filter=p._filter; if(p._sort && typeof p._sort.col==='string'){ state._sort={ col:p._sort.col, dir:(p._sort.dir==='desc'?'desc':'asc') }; } if(p.updatedAt) state.updatedAt=p.updatedAt; } } catch(e){} } }
+    function load(){
+      const raw=localStorage.getItem(DB_KEY);
+      if(raw){
+        try{
+          const p=JSON.parse(raw);
+          if(p){
+            if(typeof p._filter==='string') state._filter=p._filter;
+            if(p._sort){
+              // Handle array format (convert to single)
+              if(Array.isArray(p._sort) && p._sort[0] && typeof p._sort[0].col === 'string'){
+                state._sort = { col: p._sort[0].col, dir: p._sort[0].dir === 'desc' ? 'desc' : 'asc' };
+              } else if(typeof p._sort.col === 'string'){
+                state._sort = { col: p._sort.col, dir: p._sort.dir === 'desc' ? 'desc' : 'asc' };
+              }
+            }
+            if(p.updatedAt) state.updatedAt=p.updatedAt;
+          }
+        } catch(e){}
+      }
+    }
 
 
 
@@ -3571,7 +3597,12 @@ function adjustTitleSize(){
   }catch(e){}
 }
 
-	function getSort(){ return state._sort || {col:'name',dir:'asc'}; }
+	function getSort(){
+	  if(!state._sort) return {col:'name',dir:'asc'};
+	  // Handle if array was saved (convert back to single)
+	  if(Array.isArray(state._sort)) return state._sort[0] || {col:'name',dir:'asc'};
+	  return {col:state._sort.col||'name', dir:state._sort.dir||'asc'};
+	}
 	function syncMobileSortSelect(){
 	  const sel = $('mobileSort');
 	  if(!sel) return;
@@ -3581,14 +3612,14 @@ function adjustTitleSize(){
 	  if(has) sel.value = key;
 	}
 	function applySortIndicators(){
-	  const srt=getSort();
+	  const srt = getSort();
 	  document.querySelectorAll('#invTable thead th.sortable').forEach(th=>{
-	    const col=th.getAttribute('data-col');
+	    const col = th.getAttribute('data-col');
 	    th.removeAttribute('aria-sort');
-    th.classList.remove('sorted-asc','sorted-desc');
-    if(col===srt.col){
-      const desc = (srt.dir==='desc');
-      th.setAttribute('aria-sort', desc ? 'descending' : 'ascending');
+	    th.classList.remove('sorted-asc','sorted-desc');
+	    if(col === srt.col){
+	      const desc = (srt.dir === 'desc');
+	      th.setAttribute('aria-sort', desc ? 'descending' : 'ascending');
 	      th.classList.add(desc ? 'sorted-desc' : 'sorted-asc');
 	    }
 	  });
@@ -3600,12 +3631,15 @@ function adjustTitleSize(){
 	  return Number.isFinite(t) ? t : 0;
 	}
 	function sortItems(arr){
-	  const srt=getSort(); const dir = srt.dir==='desc' ? -1 : 1; const col=srt.col||'name';
+	  const srt = getSort();
+	  const dir = srt.dir === 'desc' ? -1 : 1;
+	  const col = srt.col || 'name';
 	  return arr.sort((a,b)=>{
-	    if(col==='qty') return (toInt(a.qty,0)-toInt(b.qty,0))*dir;
-	    if(col==='updatedAt') return (toTime(a.updatedAt)-toTime(b.updatedAt))*dir;
-	    const av=toKey(String((a && a[col])||'')); const bv=toKey(String((b && b[col])||''));
-	    return av.localeCompare(bv)*dir;
+	    if(col === 'qty') return (toInt(a.qty,0) - toInt(b.qty,0)) * dir;
+	    if(col === 'updatedAt') return (toTime(a.updatedAt) - toTime(b.updatedAt)) * dir;
+	    const av = toKey(String((a && a[col])||''));
+	    const bv = toKey(String((b && b[col])||''));
+	    return av.localeCompare(bv) * dir;
 	  });
 	}
 
@@ -3829,6 +3863,7 @@ function adjustTitleSize(){
 	  const delta = e.clientX - st.startX;
 	  const width = Math.round(Math.min(st.maxWidth, Math.max(st.minWidth, st.startWidth + delta)));
 	  st.lastWidth = width;
+	  st.col.style.width = `${width}px`;
 	  const left = (e.clientX - st.wrapRect.left) + st.tableWrap.scrollLeft;
 	  st.guide.style.left = `${Math.max(0, left)}px`;
 	}
@@ -9363,13 +9398,18 @@ function emptyStateHtml(){
 	        });
 	      }
 
-	      document.querySelectorAll('#invTable thead th.sortable').forEach(th=>{
-	        th.addEventListener('click', (e)=>{
-	          if(getHeaderResizeTarget(e)) return;
-	          const col=th.getAttribute('data-col'); if(!col) return;
-	          const srt=getSort();
-	          if(srt.col===col){ state._sort={col, dir:(srt.dir==='asc'?'desc':'asc')}; }
-	          else { state._sort={col, dir:'asc'}; }
+	      document.querySelectorAll('#invTable thead th.sortable .sort-ind').forEach(ind=>{
+	        ind.addEventListener('click', (e)=>{
+	          e.stopPropagation();
+	          const th = ind.closest('th');
+	          if(!th) return;
+	          const col = th.getAttribute('data-col'); if(!col) return;
+	          const srt = getSort();
+	          if(srt.col === col){
+	            state._sort = { col, dir: srt.dir === 'asc' ? 'desc' : 'asc' };
+	          } else {
+	            state._sort = { col, dir: 'asc' };
+	          }
 	          renderTable();
 	          save();
 	        });

@@ -1,5 +1,4 @@
 .DS_Store
-markdowns/
 .env
 *.log
 supabase/.temp/
