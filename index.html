@@ -138,14 +138,28 @@
 	      text-transform:uppercase;font-size:12px;letter-spacing:0.5px;
 	      white-space:nowrap;
 	    }
+	    #invTable thead th::after{
+	      content:'';
+	      position:absolute;
+	      right:0;
+	      top:8px;
+	      bottom:8px;
+	      width:1px;
+	      background:rgba(148,163,184,0.25);
+	    }
+	    #invTable thead th:last-child::after{ display:none; }
 	    /* Table header alignment + contrast */
     #invTable thead th[data-col="name"],
     #invTable thead th[data-col="desc"]{
       text-align:left;
     }
-    #invTable thead th.col-resize-hot{
-      cursor:col-resize;
-    }
+	    #invTable thead th.col-resize-hot{
+	      cursor:col-resize;
+	    }
+	    #invTable thead th.col-resize-hot::after{
+	      width:2px;
+	      background:rgba(226,232,240,0.75);
+	    }
     #tableWrap .col-resize-guide{
       position:absolute;
       top:0;
