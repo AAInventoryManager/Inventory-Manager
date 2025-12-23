@@ -651,8 +651,8 @@ DROP POLICY IF EXISTS "Users can view profiles in their companies" ON public.pro
 CREATE POLICY "Users can view profiles in their companies"
     ON public.profiles FOR SELECT
     USING (
-        id = auth.uid() 
-        OR id IN (
+        user_id = auth.uid() 
+        OR user_id IN (
             SELECT user_id FROM public.company_members 
             WHERE company_id IN (SELECT public.get_user_company_ids())
         )
@@ -661,12 +661,12 @@ CREATE POLICY "Users can view profiles in their companies"
 DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile"
     ON public.profiles FOR UPDATE
-    USING (id = auth.uid());
+    USING (user_id = auth.uid());
 
 DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
 CREATE POLICY "Users can insert own profile"
     ON public.profiles FOR INSERT
-    WITH CHECK (id = auth.uid());
+    WITH CHECK (user_id = auth.uid());
 
 -- 6.6 Inventory items RLS (FIXED: deleted_at IS NULL by default)
 ALTER TABLE public.inventory_items ENABLE ROW LEVEL SECURITY;
@@ -925,13 +925,14 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-    INSERT INTO public.profiles (id, email, full_name)
+    INSERT INTO public.profiles (user_id, email, first_name, last_name)
     VALUES (
         NEW.id,
         NEW.email,
-        COALESCE(NEW.raw_user_meta_data->>'full_name', '')
+        COALESCE(NULLIF(NEW.raw_user_meta_data->>'first_name', ''), NULLIF(NEW.raw_user_meta_data->>'full_name', ''), ''),
+        COALESCE(NULLIF(NEW.raw_user_meta_data->>'last_name', ''), '')
     )
-    ON CONFLICT (id) DO NOTHING;
+    ON CONFLICT (user_id) DO NOTHING;
     RETURN NEW;
 END;
 $$;
@@ -1593,11 +1594,11 @@ BEGIN
     RETURN QUERY
     SELECT 
         u.id, u.email,
-        COALESCE(p.full_name, ''),
+        COALESCE(NULLIF(trim(concat_ws(' ', p.first_name, p.last_name)), ''), u.email),
         cm.company_id, c.name,
         cm.role, cm.is_super_user, cm.created_at
     FROM auth.users u
-    LEFT JOIN public.profiles p ON p.id = u.id
+    LEFT JOIN public.profiles p ON p.user_id = u.id
     LEFT JOIN public.company_members cm ON cm.user_id = u.id
     LEFT JOIN public.companies c ON c.id = cm.company_id
     ORDER BY u.email;
