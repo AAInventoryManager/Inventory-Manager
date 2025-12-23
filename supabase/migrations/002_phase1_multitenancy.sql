@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS public.invitations (
     company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
     email TEXT NOT NULL,
     role TEXT NOT NULL DEFAULT 'member' CHECK (role IN ('admin', 'member', 'viewer')),
-    token TEXT UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(32), 'hex'),
+    token TEXT UNIQUE NOT NULL DEFAULT replace(gen_random_uuid()::text, '-', ''),
     invited_by UUID REFERENCES auth.users(id),
     created_at TIMESTAMPTZ DEFAULT now(),
     expires_at TIMESTAMPTZ DEFAULT (now() + interval '7 days'),
@@ -1403,7 +1403,7 @@ BEGIN
     ON CONFLICT (company_id, email) 
     DO UPDATE SET 
         role = EXCLUDED.role,
-        token = encode(gen_random_bytes(32), 'hex'),
+        token = replace(gen_random_uuid()::text, '-', ''),
         invited_by = EXCLUDED.invited_by,
         expires_at = now() + interval '7 days',
         accepted_at = NULL
