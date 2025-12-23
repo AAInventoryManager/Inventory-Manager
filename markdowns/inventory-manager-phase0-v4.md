@@ -1,7 +1,7 @@
 # Inventory Manager: Phase 0 — Testing Infrastructure
 ## Automated Testing Setup for Multi-Tenant SaaS
 
-**Version:** 2.0  
+**Version:** 4.0  
 **Date:** December 2024  
 **Prerequisite:** Run BEFORE Phase 1 implementation  
 **Stack:** Supabase + Vanilla JS + Vitest + Playwright  
@@ -177,8 +177,8 @@ npm install -D jsdom @testing-library/dom
 # E2E testing
 npm install -D @playwright/test
 
-# TypeScript support (optional but recommended for tests)
-npm install -D typescript @types/node
+# TypeScript support
+npm install -D typescript @types/node tsx
 
 # Utilities
 npm install -D dotenv
@@ -205,6 +205,7 @@ TEST_USER_PASSWORD=TestPassword123!
 ```json
 {
   "scripts": {
+    "dev": "vite",
     "test": "vitest",
     "test:run": "vitest run",
     "test:unit": "vitest run tests/unit",
@@ -213,8 +214,8 @@ TEST_USER_PASSWORD=TestPassword123!
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "test:setup": "npx ts-node tests/setup/global-setup.ts",
-    "test:teardown": "npx ts-node tests/setup/global-teardown.ts",
+    "test:setup": "npx tsx tests/setup/global-setup.ts",
+    "test:teardown": "npx tsx tests/setup/global-teardown.ts",
     "test:all": "npm run test:run && npm run test:e2e",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
@@ -329,7 +330,7 @@ export default defineConfig({
   
   // Shared settings
   use: {
-    baseURL: process.env.TEST_APP_URL || 'http://localhost:3000',
+    baseURL: process.env.TEST_APP_URL || 'http://localhost:5173',
     
     // Capture on failure
     trace: 'on-first-retry',
@@ -352,10 +353,10 @@ export default defineConfig({
     // { name: 'mobile', use: { ...devices['iPhone 13'] } },
   ],
   
-  // Start dev server before tests
+  // Start Vite dev server before tests
   webServer: {
-    command: 'npx serve src -l 3000',  // Or your dev server command
-    url: 'http://localhost:3000',
+    command: 'npm run dev',  // Vite dev server
+    url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 120000
   },
@@ -586,6 +587,23 @@ export default async function globalSetup() {
     
     console.log(`  ✓ Created ${testItems.length} test items`)
     
+    // 4. Create test orders
+    console.log('Creating test orders...')
+    
+    const testOrders = [
+      { company_id: mainCompany?.id, notes: 'Test Order 1' },
+      { company_id: mainCompany?.id, notes: 'Test Order 2' },
+      { company_id: otherCompany?.id, notes: 'Other Company Order' }
+    ]
+    
+    for (const order of testOrders) {
+      await adminClient
+        .from('orders')
+        .insert(order)
+    }
+    
+    console.log(`  ✓ Created ${testOrders.length} test orders`)
+    
     console.log('\n✅ Test environment ready!\n')
     
   } catch (error) {
@@ -623,43 +641,93 @@ export default async function globalTeardown() {
     
     if (companyIds.length > 0) {
       // Delete in order (respecting foreign keys)
+      // Order matters: child tables before parent tables
       
-      // 1. Delete inventory items
+      // 1. Delete action_metrics
+      await adminClient
+        .from('action_metrics')
+        .delete()
+        .in('company_id', companyIds)
+      console.log('  ✓ Deleted test action metrics')
+      
+      // 2. Delete inventory transactions
+      await adminClient
+        .from('inventory_transactions')
+        .delete()
+        .in('company_id', companyIds)
+      console.log('  ✓ Deleted test inventory transactions')
+      
+      // 3. Delete inventory items
       await adminClient
         .from('inventory_items')
         .delete()
         .in('company_id', companyIds)
       console.log('  ✓ Deleted test inventory items')
       
-      // 2. Delete inventory snapshots
+      // 4. Delete inventory categories
+      await adminClient
+        .from('inventory_categories')
+        .delete()
+        .in('company_id', companyIds)
+      console.log('  ✓ Deleted test inventory categories')
+      
+      // 5. Delete inventory locations
+      await adminClient
+        .from('inventory_locations')
+        .delete()
+        .in('company_id', companyIds)
+      console.log('  ✓ Deleted test inventory locations')
+      
+      // 6. Delete inventory snapshots
       await adminClient
         .from('inventory_snapshots')
         .delete()
         .in('company_id', companyIds)
       console.log('  ✓ Deleted test snapshots')
       
-      // 3. Delete audit logs
+      // 7. Delete order recipients
+      await adminClient
+        .from('order_recipients')
+        .delete()
+        .in('company_id', companyIds)
+      console.log('  ✓ Deleted test order recipients')
+      
+      // 8. Delete orders
+      await adminClient
+        .from('orders')
+        .delete()
+        .in('company_id', companyIds)
+      console.log('  ✓ Deleted test orders')
+      
+      // 9. Delete role change requests
+      await adminClient
+        .from('role_change_requests')
+        .delete()
+        .in('company_id', companyIds)
+      console.log('  ✓ Deleted test role change requests')
+      
+      // 10. Delete audit logs
       await adminClient
         .from('audit_log')
         .delete()
         .in('company_id', companyIds)
       console.log('  ✓ Deleted test audit logs')
       
-      // 4. Delete invitations
+      // 11. Delete invitations
       await adminClient
         .from('invitations')
         .delete()
         .in('company_id', companyIds)
       console.log('  ✓ Deleted test invitations')
       
-      // 5. Delete company members
+      // 12. Delete company members
       await adminClient
         .from('company_members')
         .delete()
         .in('company_id', companyIds)
       console.log('  ✓ Deleted test company members')
       
-      // 6. Delete companies
+      // 13. Delete companies (last - parent of all)
       await adminClient
         .from('companies')
         .delete()
@@ -667,7 +735,7 @@ export default async function globalTeardown() {
       console.log('  ✓ Deleted test companies')
     }
     
-    // 7. Delete test auth users
+    // 14. Delete test auth users
     const testEmails = [
       'super@test.local',
       'admin@test.local',
@@ -1223,17 +1291,36 @@ describe('Privilege Escalation Prevention', () => {
 
   describe('is_super_user Protection', () => {
     it('admin cannot set is_super_user=true via INSERT', async () => {
-      const { error } = await adminClientAuth
-        .from('company_members')
-        .insert({
-          company_id: mainCompanyId,
-          user_id: '00000000-0000-0000-0000-000000000000',  // Fake user
-          role: 'admin',
-          is_super_user: true  // Trying to create super user
-        })
+      // Create a temporary auth user just for this test
+      const tempEmail = `temp-${Date.now()}@test.local`
+      const { data: authData } = await adminClient.auth.admin.createUser({
+        email: tempEmail,
+        password: 'TempPass123!',
+        email_confirm: true
+      })
+      const tempUserId = authData.user!.id
       
-      expect(error).not.toBeNull()
-      // RLS WITH CHECK blocks is_super_user=true
+      try {
+        // Admin tries to add user to company with is_super_user=true
+        const { error } = await adminClientAuth
+          .from('company_members')
+          .insert({
+            company_id: mainCompanyId,
+            user_id: tempUserId,
+            role: 'admin',
+            is_super_user: true  // RLS should block this
+          })
+        
+        expect(error).not.toBeNull()
+        // RLS WITH CHECK blocks is_super_user=true
+      } finally {
+        // Always cleanup: delete membership if created, then delete auth user
+        await adminClient
+          .from('company_members')
+          .delete()
+          .eq('user_id', tempUserId)
+        await adminClient.auth.admin.deleteUser(tempUserId)
+      }
     })
 
     it('admin cannot set is_super_user=true via UPDATE', async () => {
@@ -1861,8 +1948,10 @@ describe('Cross-Tenant FK Validation (Trigger Protection)', () => {
       const { error } = await adminClient.from('inventory_transactions').insert({
         company_id: mainCompanyId,
         item_id: otherItemId,  // From OTHER company!
-        type: 'adjustment',
-        quantity: 1
+        transaction_type: 'adjusted',
+        quantity_change: 1,
+        quantity_before: 10,
+        quantity_after: 11
       })
       
       expect(error).not.toBeNull()
@@ -1877,8 +1966,10 @@ describe('Cross-Tenant FK Validation (Trigger Protection)', () => {
       const { error } = await adminClient.from('inventory_transactions').insert({
         company_id: mainCompanyId,
         item_id: mainItem!.id,
-        type: 'transfer',
-        quantity: 1,
+        transaction_type: 'transferred',
+        quantity_change: -1,
+        quantity_before: 10,
+        quantity_after: 9,
         from_location_id: otherLocationId  // From OTHER company!
       })
       
@@ -2785,7 +2876,7 @@ env:
   SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_TEST_ANON_KEY }}
   SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_TEST_SERVICE_KEY }}
   TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-  TEST_APP_URL: http://localhost:3000
+  TEST_APP_URL: http://localhost:5173
 
 jobs:
   # ===========================================================================
@@ -2990,7 +3081,7 @@ npx playwright test --debug
 npx playwright test --headed
 
 # E2E: Generate test (record actions)
-npx playwright codegen http://localhost:3000
+npx playwright codegen http://localhost:5173
 ```
 
 ---
