@@ -2322,7 +2322,7 @@ BEGIN
         COALESCE(i.qty, 0),
         i.low_stock_qty,
         COALESCE(i.reorder_enabled, false),  -- Preserve existing, default only if NULL
-        COALESCE(i.created_at, now()), 
+        COALESCE(i.updated_at, now()), 
         COALESCE(i.updated_at, now())
     FROM public.items i
     ON CONFLICT (id) DO NOTHING;
