@@ -1,19 +1,20 @@
 'use strict';
 // Versioned cache name (bump this when you change cached assets)
-const CACHE = 'inv-cache-v39';
+const CACHE = 'inv-cache-v40';
 // Core assets to pre-cache (add more files here if you split CSS/JS)
 const ASSETS = [
   './',
   './assets/modulus/favicon/favicon.ico',
   './assets/modulus/favicon/favicon-light.svg',
   './assets/modulus/favicon/favicon-dark.svg',
+  './assets/modulus/favicon/icon.svg',
   './assets/modulus/favicon/icon-192.png',
   './assets/modulus/favicon/icon-512.png',
   './assets/modulus/favicon/icon-maskable.png',
   './assets/modulus/logo/inventory-manager-logo.svg',
   './assets/modulus/logo/modulus-logo-horizontal.svg',
   './index.html',
-  './manifest.webmanifest?v=10'
+  './manifest.webmanifest?v=11'
 ];
 
 // Take control immediately on install / activate
