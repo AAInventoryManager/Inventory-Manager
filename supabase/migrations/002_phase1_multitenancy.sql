@@ -1224,7 +1224,7 @@ BEGIN
             v_company_id, auth.uid(), CURRENT_DATE, LOWER(v_action), TG_TABLE_NAME,
             1, 1,
             CASE WHEN v_action = 'DELETE' AND TG_TABLE_NAME = 'inventory_items' 
-                 THEN COALESCE((OLD.quantity)::integer, 0) ELSE 0 END,
+                 THEN COALESCE((to_jsonb(OLD)->>'quantity')::integer, 0) ELSE 0 END,
             0
         )
         ON CONFLICT (company_id, user_id, metric_date, action_type, table_name)
