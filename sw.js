@@ -1,10 +1,12 @@
 'use strict';
 // Versioned cache name (bump this when you change cached assets)
-const CACHE = 'inv-cache-v37';
+const CACHE = 'inv-cache-v38';
 // Core assets to pre-cache (add more files here if you split CSS/JS)
 const ASSETS = [
   './',
   './assets/modulus/favicon/favicon.ico',
+  './assets/modulus/favicon/favicon-light.svg',
+  './assets/modulus/favicon/favicon-dark.svg',
   './assets/modulus/favicon/icon-192.png',
   './assets/modulus/favicon/icon-512.png',
   './assets/modulus/favicon/icon-maskable.png',
