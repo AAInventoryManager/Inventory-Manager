@@ -973,7 +973,7 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
     -- company_id can NEVER be changed
-    IF OLD.company_id IS DISTINCT FROM NEW.company_id THEN
+    IF OLD.company_id IS NOT NULL AND OLD.company_id IS DISTINCT FROM NEW.company_id THEN
         RAISE EXCEPTION 'Cannot change company_id';
     END IF;
     
