@@ -131,7 +131,7 @@
     .scroll{overflow:auto;max-height:70vh;border-radius:10px;position:relative;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
     #tableWrap{ overflow-x:auto; }
     table{width:100%;border-collapse:collapse;font-size:15px}
-    #invTable{ min-width:980px; }
+    #invTable{ min-width:760px; }
 	    thead th{
 	      text-align:center;color:#e2e8f0;font-weight:700;border-bottom:2px solid var(--border);
 	      padding:14px 12px;position:sticky;top:0;background:#0d1117;z-index:7;
@@ -143,6 +143,9 @@
 	    #invTable thead th[data-col="desc"]{
 	      text-align:left;
 	    }
+	    #invTable thead th.col-resize-hot{
+	      cursor:col-resize;
+	    }
 	    #invTable tbody td[data-col="name"] .cell-val{ font-weight:900; }
 	    #invTable tbody td[data-col="desc"] .cell-val{ color:var(--muted); }
     th.sortable{ cursor:pointer; user-select:none }
@@ -151,7 +154,7 @@
     th.sorted-asc .sort-ind::before{ content:'\25B2'; opacity:1 }
     th.sorted-desc .sort-ind::before{ content:'\25BC'; opacity:1 }
     tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
-    td.actions{padding:8px;text-align:right}
+    td.actions{padding:8px 6px;text-align:right}
     .actions-wrap{display:inline-flex;gap:8px;align-items:center;justify-content:flex-end}
     .row-order-btn{
       background:none;
@@ -217,6 +220,15 @@
 				        filter:
 				          drop-shadow(0 0 16px rgba(135,245,255,0.24))
 				          drop-shadow(0 0 46px rgba(135,245,255,0.08));
+				      }
+				      #invTable tbody tr.order-selected{
+				        background:
+				          radial-gradient(220px 120px at 40% 35%, rgba(34,197,94,0.20), rgba(34,197,94,0) 70%),
+				          linear-gradient(145deg, rgba(34,197,94,0.12) 0%, #12161c 100%);
+				      }
+				      #invTable tbody tr.order-selected td{
+				        background:transparent;
+				        border-bottom-color: rgba(34,197,94,0.28);
 				      }
 				    }
 				    /* Mobile table layout: stack fields vertically per record */
@@ -1042,6 +1054,19 @@
       align-items:center;
       gap:8px;
     }
+    .order-batch-toggle{
+      display:flex;
+      align-items:center;
+    }
+    .order-line-select{
+      width:16px;
+      height:16px;
+      accent-color:#22c55e;
+      cursor:pointer;
+    }
+    @media (pointer: coarse){
+      .order-batch-toggle{ display:none; }
+    }
     .order-inline-kpi{
       margin-left:auto;
       display:flex;
@@ -1076,19 +1101,12 @@
 	    .order-controls.order-controls--compact{
 	      margin-top:10px;
 	      padding-top:10px;
-	      display:grid;
-	      grid-template-columns: 1fr auto 1fr;
+	      display:flex;
 	      align-items:center;
-	      justify-items:center;
 	      gap:10px;
 	    }
-	    .order-controls.order-controls--compact .qty-stepper{
-	      grid-column:2;
-	      justify-self:center;
-	    }
 	    .order-controls.order-controls--compact .order-remove-btn{
-	      grid-column:3;
-	      justify-self:end;
+	      margin-left:auto;
 	    }
     .order-control{ flex-shrink:0; display:flex; flex-direction:column; }
     .order-control.qty{ width:64px; margin-left:auto; text-align:center; }
@@ -2091,8 +2109,8 @@
 		            <col style="width:42px">
 		            <col id="col-name">
 		            <col id="col-desc">
-		            <col style="width:150px">
-		            <col style="width:140px">
+		            <col id="col-qty" style="width:130px">
+		            <col id="col-actions" style="width:96px">
 		          </colgroup>
           <thead>
             <tr>
@@ -3565,6 +3583,7 @@ function adjustTitleSize(){
 	      });
 	      return;
 	    }
+    if(colDesc.dataset.userWidth === '1') return;
     const tb = table.querySelector('tbody');
     const cells = tb? Array.from(tb.querySelectorAll('td[data-col="desc"]')) : [];
     if(cells.length===0){ colDesc.style.width=''; return; }
@@ -3583,7 +3602,7 @@ function adjustTitleSize(){
     document.body.removeChild(meas);
 	    const tableW = table.getBoundingClientRect().width;
 	    const minW = 220; // ensure readable
-	    const guard = 42 + 150 + 120; // sel + qty + min name
+	    const guard = 42 + 130 + 96 + 120; // sel + qty + actions + min name
 	    const maxClamp = Math.max(160, tableW - guard);
 	    const width = Math.min(Math.max(minW, Math.ceil(max+24)), Math.floor(tableW*0.7), maxClamp);
     colDesc.style.width = width + 'px';
@@ -3591,6 +3610,72 @@ function adjustTitleSize(){
       el.style.whiteSpace='nowrap'; el.style.wordBreak='normal'; el.style.hyphens='manual';
     });
 	  }catch(e){ /* no-op */ }
+	}
+
+	function autoFitColumnByIndex(index){
+	  const table = document.getElementById('invTable');
+	  if(!table) return;
+	  const colgroup = table.querySelector('colgroup');
+	  if(!colgroup) return;
+	  const cols = Array.from(colgroup.children);
+	  const col = cols[index];
+	  if(!col) return;
+	  const ths = Array.from(table.querySelectorAll('thead th'));
+	  const th = ths[index];
+	  let max = th ? th.scrollWidth : 0;
+	  const cells = Array.from(table.querySelectorAll(`tbody tr td:nth-child(${index + 1})`));
+	  for(const cell of cells){
+	    max = Math.max(max, cell.scrollWidth);
+	  }
+	  const padding = 18;
+	  const width = Math.max(64, Math.ceil(max + padding));
+	  col.style.width = `${width}px`;
+	  col.dataset.userWidth = '1';
+	}
+
+	function handleHeaderAutoFit(e){
+	  if(isMobileUx()) return;
+	  const th = e.target.closest('th');
+	  if(!th) return;
+	  const thead = th.closest('thead');
+	  if(!thead) return;
+	  const ths = Array.from(thead.querySelectorAll('th'));
+	  const idx = ths.indexOf(th);
+	  if(idx < 0) return;
+	  const rect = th.getBoundingClientRect();
+	  const edge = 6;
+	  const leftHit = e.clientX - rect.left;
+	  const rightHit = rect.right - e.clientX;
+	  let targetIdx = null;
+	  if(rightHit >= 0 && rightHit <= edge) targetIdx = idx;
+	  else if(leftHit >= 0 && leftHit <= edge) targetIdx = idx - 1;
+	  if(targetIdx === null || targetIdx < 0) return;
+	  const targetTh = ths[targetIdx];
+	  if(!targetTh || !targetTh.dataset.col) return;
+	  autoFitColumnByIndex(targetIdx);
+	}
+
+	function updateHeaderResizeCursor(e){
+	  if(isMobileUx()) return;
+	  const th = e.target.closest('th');
+	  if(!th) return;
+	  const thead = th.closest('thead');
+	  if(!thead) return;
+	  const ths = Array.from(thead.querySelectorAll('th'));
+	  ths.forEach(t => t.classList.remove('col-resize-hot'));
+	  const idx = ths.indexOf(th);
+	  if(idx < 0) return;
+	  const rect = th.getBoundingClientRect();
+	  const edge = 6;
+	  const leftHit = e.clientX - rect.left;
+	  const rightHit = rect.right - e.clientX;
+	  let targetIdx = null;
+	  if(rightHit >= 0 && rightHit <= edge) targetIdx = idx;
+	  else if(leftHit >= 0 && leftHit <= edge) targetIdx = idx - 1;
+	  if(targetIdx === null || targetIdx < 0) return;
+	  const targetTh = ths[targetIdx];
+	  if(!targetTh || !targetTh.dataset.col) return;
+	  targetTh.classList.add('col-resize-hot');
 	}
 
 		function isMobileUx(){
@@ -4588,6 +4673,14 @@ function emptyStateHtml(){
 		      }, { passive:true });
 		    }
 		    if(invTable){
+		      const thead = invTable.querySelector('thead');
+		      if(thead){
+		        thead.addEventListener('dblclick', handleHeaderAutoFit);
+		        thead.addEventListener('mousemove', updateHeaderResizeCursor);
+		        thead.addEventListener('mouseleave', ()=> {
+		          thead.querySelectorAll('th.col-resize-hot').forEach(th => th.classList.remove('col-resize-hot'));
+		        });
+		      }
 		      invTable.addEventListener('click', (e)=>{
 		        const btn = e.target.closest('button.qty-step-btn');
 		        if(!btn) return;
@@ -6130,6 +6223,22 @@ function emptyStateHtml(){
       }
       return state._order;
     }
+    const orderLineSelection = new Set();
+    function pruneOrderLineSelection(lines){
+      const ids = new Set((lines || []).map(l => String(l && l.id ? l.id : '').trim()).filter(Boolean));
+      for(const id of Array.from(orderLineSelection)){
+        if(!ids.has(id)) orderLineSelection.delete(id);
+      }
+    }
+    function orderLineSelectedIds(){
+      return Array.from(orderLineSelection);
+    }
+    function setOrderLineSelected(id, selected){
+      const key = String(id || '').trim();
+      if(!key) return;
+      if(selected) orderLineSelection.add(key);
+      else orderLineSelection.delete(key);
+    }
     function updateOrderCounterBadge(){
       const ord = orderState();
       const count = ord.lines.length;
@@ -6161,6 +6270,7 @@ function emptyStateHtml(){
       const ord = orderState();
       const ids = ord.lines.map(l => l.id);
       ord.lines = [];
+      try{ orderLineSelection.clear(); }catch(e){}
       ids.forEach(id => { try{ syncOrderIndicatorForRow(String(id)); }catch(e){} });
       updateOrderCounterBadge();
     }
@@ -6185,6 +6295,7 @@ function emptyStateHtml(){
 	    function removeOrderLine(id){
 	      const ord = orderState();
 	      ord.lines = ord.lines.filter(l => l.id !== id);
+	      try{ orderLineSelection.delete(String(id || '').trim()); }catch(e){}
 	      try{ syncOrderIndicatorForRow(String(id)); }catch(e){}
 	      try{ updateOrderCounterBadge(); }catch(e){}
 	    }
@@ -7612,6 +7723,7 @@ function emptyStateHtml(){
       list.innerHTML = '';
 
       const lines = ord.lines.slice().sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
+      pruneOrderLineSelection(lines);
       if(info){
         info.textContent = lines.length ? (lines.length === 1 ? '1 item' : `${lines.length} items`) : '';
       }
@@ -7631,6 +7743,8 @@ function emptyStateHtml(){
         const card = document.createElement('div');
         card.className = 'order-card order-card--selected';
         card.dataset.orderLineId = l.id;
+        const isSelected = orderLineSelection.has(String(l.id || '').trim());
+        const selectLabel = `Select ${String(l.name || '').trim() || 'item'} for batch qty edit`;
         const desc = String(l.desc||'').trim();
         card.innerHTML =
           `<div class="order-card-header">`+
@@ -7639,6 +7753,9 @@ function emptyStateHtml(){
           `</div>`+
           (desc ? `<div class="order-sub">${escapeHtml(desc)}</div>` : ``)+
           `<div class="order-controls order-controls--compact">`+
+            `<label class="order-batch-toggle" title="Select for batch qty edit">`+
+              `<input type="checkbox" class="order-line-select" data-order-select-id="${escapeHtmlAttr(l.id)}" aria-label="${escapeHtmlAttr(selectLabel)}"${isSelected ? ' checked' : ''}>`+
+            `</label>`+
             `<div class="qty-stepper" data-qty-picker-trigger="${l.id}">`+
               `<button class="qty-stepper-btn" data-line-dec="${l.id}">−</button>`+
               `<span class="qty-stepper-val">${toInt(l.qty,0)}</span>`+
@@ -8334,10 +8451,25 @@ function emptyStateHtml(){
 	        const line = ord.lines.find(l => l && l.id === id) || null;
 	        const currentQty = getOrderQtyForItem(id);
 	        const name = String(line && line.name ? line.name : '').trim();
+	        const selectedIds = orderLineSelectedIds().filter(selId =>
+	          ord.lines.some(l => l && String(l.id || '').trim() === String(selId || '').trim())
+	        );
+	        const isBatch = selectedIds.length > 1 && selectedIds.includes(id);
 	        const next = await openQtyEntryModal('Order Qty', name || 'Order Qty', currentQty, { min:0, okText:'Set', cancelText:'Cancel' });
 	        if(next === null || typeof next === 'undefined') return;
 	        const desiredQty = Math.max(0, toInt(next, currentQty));
 	        if(desiredQty === currentQty) return;
+	        if(isBatch){
+	          const ok = await openConfirmModal('Batch edit?', `Set Order Qty to ${desiredQty} for ${selectedIds.length} selected items?`, { okText:'Apply', cancelText:'Cancel' });
+	          if(!ok) return;
+	          for(const selId of selectedIds){
+	            if(desiredQty <= 0) removeOrderLine(selId);
+	            else setOrderQty(selId, desiredQty);
+	          }
+	          renderOrderResults();
+	          renderOrderLines();
+	          return;
+	        }
 	        if(desiredQty <= 0) removeOrderLine(id);
 	        else setOrderQty(id, desiredQty);
 	        renderOrderResults();
@@ -8368,6 +8500,13 @@ function emptyStateHtml(){
         renderOrderLines();
         return;
       }
+    });
+    if(orderLinesBody) orderLinesBody.addEventListener('change', (e)=>{
+      const cb = e.target.closest('.order-line-select');
+      if(!cb) return;
+      const id = String(cb.dataset.orderSelectId || '').trim();
+      if(!id) return;
+      setOrderLineSelected(id, cb.checked);
     });
 
     // Add-one modal
