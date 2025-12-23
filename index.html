@@ -665,14 +665,13 @@
 	      color:var(--muted);
 	      font-size:12px;
 	    }
-	    .footer-logo{
-	      height:26px;
-	      width:auto;
-	      display:block;
-	      margin:0 auto 8px;
-	      filter:invert(1);
-	      opacity:.9;
-	    }
+    .footer-logo{
+      height:26px;
+      width:auto;
+      display:block;
+      margin:0 auto 8px;
+      opacity:.9;
+    }
 	    @media (max-width: 768px){
 	      .footer-logo{ height:22px; }
 	    }
@@ -5667,7 +5666,7 @@ function emptyStateHtml(){
 		        );
 
 		      const brandLogo = buildModulusLogoHtml({ width: 220, color: '#111', marginTop: 18 });
-		      const brandLine = `<div style="margin-top:8px;font-size:12px;color:#6a737d;text-align:center;">Inventory Manager by Modulus Software, LLC | v${escapeHtml(APP_VERSION)}</div>`;
+		      const brandLine = `<div style="margin-top:8px;font-size:12px;color:#6a737d;text-align:center;">contact@modulus-software.com</div>`;
 
 		      return (
 		        `<!doctype html>`+
@@ -6097,7 +6096,7 @@ function emptyStateHtml(){
       }
 
       out.push('');
-      out.push(`Inventory Manager by Modulus Software, LLC | v${APP_VERSION}`);
+      out.push('contact@modulus-software.com');
       return out.join('\n');
     }
     function buildOrderHtmlFromData({ subjectLine, notes, lineItems }){
@@ -6175,7 +6174,7 @@ function emptyStateHtml(){
         : `<div style="padding:12px;border:1px dashed #d0d7de;color:#444;">(No items)</div>`;
 
       const brandLogo = buildModulusLogoHtml({ width: 200, color: '#111', marginTop: 18 });
-      const brandLine = `<div style="margin-top:8px;font-size:12px;color:#6a737d;text-align:center;">Inventory Manager by Modulus Software, LLC | v${escapeHtml(APP_VERSION)}</div>`;
+      const brandLine = `<div style="margin-top:8px;font-size:12px;color:#6a737d;text-align:center;">contact@modulus-software.com</div>`;
 
       return (
         `<!doctype html>`+
