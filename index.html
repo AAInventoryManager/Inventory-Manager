@@ -129,8 +129,9 @@
     .muted{color:var(--muted);font-size:12px}
     .time{font-size:12px;color:var(--muted)}
     .scroll{overflow:auto;max-height:70vh;border-radius:10px;position:relative;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-    #tableWrap{ overflow-x:hidden; }
+    #tableWrap{ overflow-x:auto; }
     table{width:100%;border-collapse:collapse;font-size:15px}
+    #invTable{ min-width:980px; }
 	    thead th{
 	      text-align:center;color:#e2e8f0;font-weight:700;border-bottom:2px solid var(--border);
 	      padding:14px 12px;position:sticky;top:0;background:#0d1117;z-index:7;
@@ -149,9 +150,35 @@
     
     th.sorted-asc .sort-ind::before{ content:'\25B2'; opacity:1 }
     th.sorted-desc .sort-ind::before{ content:'\25BC'; opacity:1 }
-	tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+    tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
     td.actions{padding:8px;text-align:right}
     .actions-wrap{display:inline-flex;gap:8px;align-items:center;justify-content:flex-end}
+    .row-order-btn{
+      background:none;
+      border:none;
+      cursor:pointer;
+      padding:6px;
+      color:var(--muted);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:6px;
+      position:relative;
+      transition:background 0.15s,color 0.15s;
+      touch-action:manipulation;
+      -webkit-appearance:none;
+      appearance:none;
+    }
+    .row-order-btn svg{
+      width:18px;
+      height:18px;
+      display:block;
+    }
+    .row-order-btn:hover{background:rgba(34,197,94,0.15);color:#34d399}
+    .row-order-btn.row-order-btn--active{
+      background:rgba(34,197,94,0.22);
+      color:#34d399;
+    }
 					    .row-delete-btn{
 					      background:none;
 					      border:none;
@@ -193,13 +220,14 @@
 				      }
 				    }
 				    /* Mobile table layout: stack fields vertically per record */
-					    @media (max-width: 768px), (pointer: coarse){
+					    @media (pointer: coarse){
 					      /* Ensure last card can scroll above mobile browser UI controls */
 					      #tableWrap{
 					        box-sizing:border-box;
 					        padding-bottom:env(safe-area-inset-bottom);
 					        scroll-padding-bottom:env(safe-area-inset-bottom);
 					      }
+					      #invTable{ min-width:0; }
 					      #invTable thead{ display:none; }
 					      #invTable tbody tr[data-id]{
 				        position:relative;
@@ -2064,7 +2092,7 @@
 		            <col id="col-name">
 		            <col id="col-desc">
 		            <col style="width:150px">
-		            <col style="width:112px">
+		            <col style="width:140px">
 		          </colgroup>
           <thead>
             <tr>
@@ -3529,7 +3557,7 @@ function adjustTitleSize(){
 	    const table = document.getElementById('invTable');
 	    const colDesc = document.getElementById('col-desc');
 	    if(!table || !colDesc) return;
-	    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+	    const isMobile = isMobileUx();
 	    if(isMobile){
 	      colDesc.style.width = '';
 	      table.querySelectorAll('td[data-col="desc"], th[data-col="desc"]').forEach(el=>{
@@ -3568,7 +3596,7 @@ function adjustTitleSize(){
 		function isMobileUx(){
 		  try{
 		    if(!window.matchMedia) return false;
-		    return window.matchMedia('(max-width: 768px)').matches || window.matchMedia('(pointer: coarse)').matches;
+		    return window.matchMedia('(pointer: coarse)').matches;
 		  }catch(e){ return false; }
 		}
 		function isMobileStacked(){ return isMobileUx(); }
@@ -3584,6 +3612,33 @@ function adjustTitleSize(){
 	function tbodyEl(){ return document.querySelector('#invTable tbody'); }
 	function rowElById(id){ return tbodyEl()?.querySelector(`tr[data-id="${id}"]`) || null; }
 		function cellEl(tr, col){ return tr?.querySelector(`td[data-col="${col}"]`) || null; }
+		function getSelectedRowIds(){
+		  return Array.from(document.querySelectorAll('.rowChk:checked'))
+		    .map(cb => String(cb.dataset.id || '').trim())
+		    .filter(Boolean);
+		}
+		function applySelectedRowIds(ids){
+		  const set = new Set((ids || []).map(id => String(id || '').trim()).filter(Boolean));
+		  document.querySelectorAll('.rowChk').forEach(cb => {
+		    const id = String(cb.dataset.id || '').trim();
+		    cb.checked = set.has(id);
+		  });
+		  const all = document.querySelectorAll('.rowChk');
+		  const checked = document.querySelectorAll('.rowChk:checked');
+		  const m = $('chkAll');
+		  if(m){
+		    m.checked = (checked.length === all.length && all.length > 0);
+		    m.indeterminate = (checked.length > 0 && checked.length < all.length);
+		  }
+		}
+		function normalizeDescValue(value){
+		  return String(value || '').replace(/[\r\n]+/g,' ').trim();
+		}
+		function truncateForConfirm(value, max = 60){
+		  const txt = String(value || '');
+		  if(!txt) return '(blank)';
+		  return txt.length > max ? `${txt.slice(0, max - 1)}…` : txt;
+		}
 			let _openTrayId = '';
 			let _expandedCardId = '';
 			const REVEAL_PX = 48; // icons begin appearing
@@ -3781,6 +3836,14 @@ function adjustTitleSize(){
 		    const ord = orderState();
 		    inOrder = !!(ord && Array.isArray(ord.lines) && ord.lines.some(l => l && l.id === id));
 		  }catch(e){}
+		  const orderBtn = tr.querySelector('.row-order-btn');
+		  if(orderBtn){
+		    orderBtn.classList.toggle('row-order-btn--active', inOrder);
+		    orderBtn.setAttribute('aria-pressed', inOrder ? 'true' : 'false');
+		    const label = inOrder ? 'Remove from order' : 'Add to order';
+		    orderBtn.setAttribute('aria-label', label);
+		    orderBtn.setAttribute('title', label);
+		  }
 		  tr.classList.toggle('order-selected', inOrder);
 		  updateOrderTrayButtonLabel(tr);
 		}
@@ -3852,11 +3915,19 @@ function adjustTitleSize(){
 				  const rawId = String(it && it.id ? it.id : '');
 				  const id = escapeHtmlAttr(rawId);
 				  const isLowStock = isLowStockItem(it);
+			  const inOrder = (()=> {
+			    try{
+			      const ord = orderState();
+			      return !!(ord && Array.isArray(ord.lines) && rawId && ord.lines.some(l => l && l.id === rawId));
+			    }catch(e){ return false; }
+			  })();
 			  const showLowStockLed = isLowStock && !lowStockAlertsSilenced();
 			  const qty = toInt(it.qty, 0);
 			  const isOutOfStock = showLowStockLed && qty === 0;
 			  const isLowButInStock = showLowStockLed && qty > 0;
 			  const lowstockLedClass = isOutOfStock ? 'card-led card-led--lowstock card-led--outofstock' : (isLowButInStock ? 'card-led card-led--lowstock card-led--on' : 'card-led card-led--lowstock');
+			  const orderBtnClass = inOrder ? 'row-order-btn row-order-btn--active' : 'row-order-btn';
+			  const orderBtnLabel = inOrder ? 'Remove from order' : 'Add to order';
 			  return (
 			    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+id+'"></td>'+
 				    '<td data-col="name">'+
@@ -3876,6 +3947,13 @@ function adjustTitleSize(){
 				    '<td data-col="desc"><span class="cell-val">'+escapeHtml(it.desc||'')+'</span></td>'+
 					    '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'+
 					    '<td class="actions"><div class="actions-wrap">'+
+				      '<button class="'+orderBtnClass+'" data-id="'+id+'" aria-label="'+orderBtnLabel+'" title="'+orderBtnLabel+'" aria-pressed="'+(inOrder ? 'true' : 'false')+'">'+
+				        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+				          '<circle cx="9" cy="20" r="1"></circle>'+
+				          '<circle cx="18" cy="20" r="1"></circle>'+
+				          '<path d="M3 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L21 8H7"></path>'+
+				        '</svg>'+
+				      '</button>'+
 				      '<button class="row-delete-btn" data-id="'+id+'" aria-label="Delete item" title="Delete item">'+
 			        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
 			          '<polyline points="3 6 5 6 21 6"></polyline>'+
@@ -4996,6 +5074,18 @@ function emptyStateHtml(){
 	      const col=td.getAttribute('data-col'); if(!col) return;
 	      const tr=td.closest('tr'); const id=tr?.dataset?.id; if(!id) return;
 	      const it=state.items.find(x=> x.id===id); if(!it) return;
+	      const selectedIds = getSelectedRowIds();
+	      const batchIds = (selectedIds.length > 1 && selectedIds.includes(id)) ? selectedIds : [];
+	      const isBatch = batchIds.length > 1;
+	      const prevBatch = isBatch ? new Map(
+	        batchIds
+	          .map(batchId => {
+	            const item = getInventoryById(batchId);
+	            if(!item) return null;
+	            return [batchId, { name: String(item.name||''), desc: String(item.desc||''), qty: toInt(item.qty,0) }];
+	          })
+	          .filter(Boolean)
+	      ) : null;
 
       if(prefersModalEditing()){
         if(!requireOnline()) return;
@@ -5038,6 +5128,108 @@ function emptyStateHtml(){
 	        if(_done) return;
 	        const raw = inp.value;
 	        try{
+	          if(isBatch){
+	            if(!requireOnline()) return;
+	            const count = batchIds.length;
+	            if(col === 'name'){
+	              const nv = String(raw||'').trim();
+	              if(!nv){ cancel(); toast('Name required'); return; }
+	              const normNv = toKey(nv);
+	              const dup = state.items.some(x => x && x.id && !batchIds.includes(x.id) && toKey(String(x.name||'')) === normNv);
+	              if(dup){ cancel(); toast('Duplicate name'); return; }
+	              const allSame = batchIds.every(batchId => {
+	                const item = getInventoryById(batchId);
+	                return item && toKey(String(item.name||'')) === normNv;
+	              });
+	              if(allSame){ cancel(); return; }
+	              const ok = await openConfirmModal('Batch edit?', `Set Item to "${truncateForConfirm(nv)}" for ${count} selected items?`, { okText:'Apply', cancelText:'Cancel' });
+	              if(!ok){ cancel(); return; }
+	              batchIds.forEach(batchId => {
+	                const item = getInventoryById(batchId);
+	                if(item) item.name = nv;
+	              });
+	              restore();
+	              renderTable();
+	              applySelectedRowIds(batchIds);
+	              try{
+	                await Promise.all(batchIds.map(batchId => sbUpdateFields(batchId, { name: nv })));
+	              }catch(e){
+	                if(prevBatch){
+	                  prevBatch.forEach((prev, batchId) => {
+	                    const item = getInventoryById(batchId);
+	                    if(item){
+	                      item.name = prev.name;
+	                      item.desc = prev.desc;
+	                      item.qty = prev.qty;
+	                    }
+	                  });
+	                  renderTable();
+	                  applySelectedRowIds(batchIds);
+	                }
+	                toast((e && e.message) ? e.message : 'Batch update failed');
+	                try{ await sbLoadSnapshot(); }catch{}
+	              }
+	              return;
+	            }
+	            if(col === 'desc'){
+	              const nv = normalizeDescValue(raw);
+	              const allSame = batchIds.every(batchId => {
+	                const item = getInventoryById(batchId);
+	                return item && normalizeDescValue(item.desc) === nv;
+	              });
+	              if(allSame){ cancel(); return; }
+	              const ok = await openConfirmModal('Batch edit?', `Set Description to "${truncateForConfirm(nv)}" for ${count} selected items?`, { okText:'Apply', cancelText:'Cancel' });
+	              if(!ok){ cancel(); return; }
+	              batchIds.forEach(batchId => {
+	                const item = getInventoryById(batchId);
+	                if(item) item.desc = nv;
+	              });
+	              restore();
+	              renderTable();
+	              applySelectedRowIds(batchIds);
+	              try{
+	                await Promise.all(batchIds.map(batchId => sbUpdateFields(batchId, { desc: nv })));
+	              }catch(e){
+	                if(prevBatch){
+	                  prevBatch.forEach((prev, batchId) => {
+	                    const item = getInventoryById(batchId);
+	                    if(item){
+	                      item.name = prev.name;
+	                      item.desc = prev.desc;
+	                      item.qty = prev.qty;
+	                    }
+	                  });
+	                  renderTable();
+	                  applySelectedRowIds(batchIds);
+	                }
+	                toast((e && e.message) ? e.message : 'Batch update failed');
+	                try{ await sbLoadSnapshot(); }catch{}
+	              }
+	              return;
+	            }
+	            if(col === 'qty'){
+	              const q = toInt(raw, -1);
+	              if(q < 0){ cancel(); toast('Qty must be integer ≥ 0'); return; }
+	              const allSame = batchIds.every(batchId => {
+	                const item = getInventoryById(batchId);
+	                return item && toInt(item.qty, 0) === q;
+	              });
+	              if(allSame){ cancel(); return; }
+	              const ok = await openConfirmModal('Batch edit?', `Set Qty to ${q} for ${count} selected items?`, { okText:'Apply', cancelText:'Cancel' });
+	              if(!ok){ cancel(); return; }
+	              batchIds.forEach(batchId => {
+	                const item = getInventoryById(batchId);
+	                if(item) item.qty = q;
+	              });
+	              restore();
+	              renderTable();
+	              applySelectedRowIds(batchIds);
+	              batchIds.forEach(batchId => queueQtyCommit(batchId, q));
+	              return;
+	            }
+	            cancel();
+	            return;
+	          }
 	          if(col==='name'){
 	            const nv = String(raw||'').trim();
 	            if(!nv){ cancel(); toast('Name required'); return; }
@@ -5051,8 +5243,8 @@ function emptyStateHtml(){
 	            return;
 	          }
 	          if(col==='desc'){
-	            const nv = String(raw||'').replace(/[\r\n]+/g,' ').trim();
-	            const pv = String(prevDesc||'').replace(/[\r\n]+/g,' ').trim();
+	            const nv = normalizeDescValue(raw);
+	            const pv = normalizeDescValue(prevDesc);
 	            if(nv === pv){ cancel(); return; }
 	            it.desc = nv;
 	            restore();
@@ -8220,6 +8412,16 @@ function emptyStateHtml(){
       } catch (e) {
         toast(e.message || 'Delete failed', 'error');
       }
+    });
+
+    // Row order button handler (delegated)
+    document.addEventListener('click', (e)=>{
+      const btn = e.target.closest('.row-order-btn');
+      if(!btn) return;
+      const id = String(btn.dataset.id || '').trim();
+      if(!id) return;
+      try{ e.preventDefault(); e.stopPropagation(); }catch(_){}
+      toggleOrderLineForItemId(id);
     });
 
     // Master checkbox + indeterminate state
