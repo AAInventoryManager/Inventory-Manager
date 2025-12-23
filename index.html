@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0b0f14" />
   <link rel="manifest" href="./manifest.webmanifest?v=9" />
-  <link rel="icon" type="image/svg+xml" href="./assets/modulus/favicon/favicon-light.svg" media="(prefers-color-scheme: light)" />
-  <link rel="icon" type="image/svg+xml" href="./assets/modulus/favicon/favicon-dark.svg" media="(prefers-color-scheme: dark)" />
-  <link rel="icon" href="./assets/modulus/favicon/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" href="./assets/modulus/favicon/favicon-light.svg?v=2" media="(prefers-color-scheme: light)" />
+  <link rel="icon" type="image/svg+xml" href="./assets/modulus/favicon/favicon-dark.svg?v=2" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="./assets/modulus/favicon/favicon.ico?v=2" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
@@ -346,10 +346,6 @@
 			        transition: background 200ms ease, box-shadow 200ms ease, filter 200ms ease;
 			      }
 			      #invTable tbody tr[data-id] .card-led.card-led--on{ filter:saturate(1.15); }
-			      #invTable tbody tr[data-id] .card-led.card-led--order.card-led--on{
-			        background:#22c55e;
-			        box-shadow: 0 0 10px rgba(34,197,94,0.35), 0 0 0 1px rgba(255,255,255,0.10);
-			      }
 			      #invTable tbody tr[data-id] .card-led.card-led--lowstock.card-led--on{
 			        background:#f59e0b;
 			        box-shadow: 0 0 10px rgba(245,158,11,0.45), 0 0 0 1px rgba(255,255,255,0.10);
@@ -1012,16 +1008,6 @@
         radial-gradient(220px 120px at 40% 35%, rgba(34,197,94,0.20), rgba(34,197,94,0) 70%),
         linear-gradient(145deg, rgba(34,197,94,0.10) 0%, #12161c 100%);
       box-shadow:0 0 0 1px rgba(34,197,94,0.12), 0 0 16px rgba(34,197,94,0.10), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-    .order-card-led{
-      width:8px; height:8px; border-radius:50%; flex-shrink:0;
-      background:rgba(148,163,184,0.55);
-      box-shadow:0 0 0 1px rgba(255,255,255,0.10);
-      transition: background 180ms ease, box-shadow 180ms ease;
-    }
-    .order-card-led--on{
-      background:#22c55e;
-      box-shadow:0 0 6px rgba(34,197,94,0.5), 0 0 12px rgba(34,197,94,0.3);
     }
     .order-card-header{
       display:flex;
@@ -3790,13 +3776,11 @@ function adjustTitleSize(){
 		function syncOrderIndicatorForRow(id){
 		  const tr = rowElById(id);
 		  if(!tr) return;
-		  const led = tr.querySelector('.card-led--order');
 		  let inOrder = false;
 		  try{
 		    const ord = orderState();
 		    inOrder = !!(ord && Array.isArray(ord.lines) && ord.lines.some(l => l && l.id === id));
 		  }catch(e){}
-		  if(led) led.classList.toggle('card-led--on', inOrder);
 		  tr.classList.toggle('order-selected', inOrder);
 		  updateOrderTrayButtonLabel(tr);
 		}
@@ -3868,13 +3852,6 @@ function adjustTitleSize(){
 				  const rawId = String(it && it.id ? it.id : '');
 				  const id = escapeHtmlAttr(rawId);
 				  const isLowStock = isLowStockItem(it);
-				  const inOrder = (()=> {
-				    try{
-				      const ord = orderState();
-				      return !!(ord && Array.isArray(ord.lines) && rawId && ord.lines.some(l => l && l.id === rawId));
-			    }catch(e){ return false; }
-			  })();
-			  const orderLedClass = inOrder ? 'card-led card-led--order card-led--on' : 'card-led card-led--order';
 			  const showLowStockLed = isLowStock && !lowStockAlertsSilenced();
 			  const qty = toInt(it.qty, 0);
 			  const isOutOfStock = showLowStockLed && qty === 0;
@@ -3884,7 +3861,6 @@ function adjustTitleSize(){
 			    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+id+'"></td>'+
 				    '<td data-col="name">'+
 				      '<div class="card-leds" aria-hidden="true">'+
-				        '<span class="'+orderLedClass+'"></span>'+
 				        '<span class="'+lowstockLedClass+'"></span>'+
 					      '</div>'+
 					      '<div class="card-tray" aria-hidden="true" data-kind="actions">'+
@@ -7466,7 +7442,6 @@ function emptyStateHtml(){
         const desc = String(l.desc||'').trim();
         card.innerHTML =
           `<div class="order-card-header">`+
-            `<span class="order-card-led order-card-led--on"></span>`+
             `<div class="order-title">${escapeHtml(l.name||'')}</div>`+
             `<div class="order-inline-kpi"><span class="muted">On Hand</span><span class="order-inline-kpi-val">${onHand===null ? '—' : onHand}</span></div>`+
           `</div>`+
