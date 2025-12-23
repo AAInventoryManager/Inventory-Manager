@@ -259,6 +259,13 @@
 				        background:transparent;
 				        border-bottom-color: rgba(34,197,94,0.28);
 				      }
+				      #invTable tbody td[data-col="name"] .cell-val,
+				      #invTable tbody td[data-col="desc"] .cell-val{
+				        display:block;
+				        white-space:nowrap;
+				        overflow:hidden;
+				        text-overflow:clip;
+				      }
 				    }
 				    /* Mobile table layout: stack fields vertically per record */
 					    @media (pointer: coarse){
@@ -3535,7 +3542,11 @@
     function escapeHtmlAttr(s){
       return String(s).replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
-    function render(){ renderTable(); renderKpis(); }
+    function render(){
+      renderTable();
+      applySavedColumnWidths();
+      renderKpis();
+    }
 
 function adjustTitleSize(){
   try{
@@ -3598,6 +3609,58 @@ function adjustTitleSize(){
 	  });
 	}
 
+	const COL_WIDTH_MIN = 48;
+	const COL_WIDTH_STORAGE_PREFIX = 'inv.colwidths.v1';
+
+	function getColumnWidthStorageKey(){
+	  const uid = (SB && SB.user && SB.user.id) ? String(SB.user.id) : 'anon';
+	  return `${COL_WIDTH_STORAGE_PREFIX}.${uid}`;
+	}
+	function readSavedColumnWidths(){
+	  try{
+	    const raw = localStorage.getItem(getColumnWidthStorageKey());
+	    if(!raw) return null;
+	    const data = JSON.parse(raw);
+	    if(!data || typeof data !== 'object') return null;
+	    return data.widths ? data.widths : data;
+	  }catch(e){ return null; }
+	}
+	function applySavedColumnWidths(){
+	  try{
+	    const table = document.getElementById('invTable');
+	    if(!table) return;
+	    const colgroup = table.querySelector('colgroup');
+	    if(!colgroup) return;
+	    const widths = readSavedColumnWidths();
+	    if(!widths) return;
+	    colgroup.querySelectorAll('col[id]').forEach(col=>{
+	      const width = Math.round(parseFloat(widths[col.id]));
+	      if(!Number.isFinite(width) || width < COL_WIDTH_MIN) return;
+	      col.style.width = `${width}px`;
+	      col.dataset.userWidth = '1';
+	    });
+	  }catch(e){}
+	}
+	function saveColumnWidths(){
+	  try{
+	    const table = document.getElementById('invTable');
+	    if(!table) return;
+	    const colgroup = table.querySelector('colgroup');
+	    if(!colgroup) return;
+	    const widths = {};
+	    colgroup.querySelectorAll('col[id]').forEach(col=>{
+	      if(col.dataset.userWidth !== '1') return;
+	      const width = parseFloat(col.style.width);
+	      if(Number.isFinite(width) && width > 0) widths[col.id] = Math.round(width);
+	    });
+	    if(!Object.keys(widths).length) return;
+	    localStorage.setItem(getColumnWidthStorageKey(), JSON.stringify({
+	      widths,
+	      updatedAt: new Date().toISOString()
+	    }));
+	  }catch(e){}
+	}
+
 
 	function adjustDescColumnWidth(){
 	  try{
@@ -3657,9 +3720,10 @@ function adjustTitleSize(){
 	    max = Math.max(max, cell.scrollWidth);
 	  }
 	  const padding = 18;
-	  const width = Math.max(64, Math.ceil(max + padding));
+	  const width = Math.max(COL_WIDTH_MIN, Math.ceil(max + padding));
 	  col.style.width = `${width}px`;
 	  col.dataset.userWidth = '1';
+	  saveColumnWidths();
 	}
 
 	function getHeaderResizeTarget(e){
@@ -3735,7 +3799,7 @@ function adjustTitleSize(){
 	  const wrapRect = tableWrap.getBoundingClientRect();
 	  const startX = targetRect.right;
 	  const startWidth = target.targetTh.getBoundingClientRect().width;
-	  const minWidth = 48;
+	  const minWidth = COL_WIDTH_MIN;
 	  const maxWidth = Math.max(minWidth, tableWrap.clientWidth * 2);
 
 	  _headerResize = {
@@ -3779,6 +3843,7 @@ function adjustTitleSize(){
 	  window.removeEventListener('mousemove', onHeaderResizeMove);
 	  window.removeEventListener('mouseup', onHeaderResizeUp);
 	  _headerResize = null;
+	  saveColumnWidths();
 	}
 
 		function isMobileUx(){
@@ -8665,7 +8730,7 @@ function emptyStateHtml(){
       if(!id) return;
       try{ e.preventDefault(); e.stopPropagation(); }catch(_){}
       const selectedIds = getSelectedRowIds();
-      if(selectedIds.length > 1){
+      if(selectedIds.length > 1 && selectedIds.includes(id)){
         let added = 0;
         for(const selId of selectedIds){
           const item = getInventoryById(selId);
