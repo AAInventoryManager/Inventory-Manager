@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS public.role_change_requests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    current_role TEXT NOT NULL,
+    current_role_name TEXT NOT NULL,
     requested_role TEXT NOT NULL CHECK (requested_role IN ('admin', 'member', 'viewer')),
     reason TEXT,
     status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'denied')),
@@ -1453,7 +1453,7 @@ BEGIN
         RETURN json_build_object('success', false, 'error', 'Pending request already exists');
     END IF;
     
-    INSERT INTO public.role_change_requests (company_id, user_id, current_role, requested_role, reason)
+    INSERT INTO public.role_change_requests (company_id, user_id, current_role_name, requested_role, reason)
     VALUES (v_company_id, auth.uid(), v_current_role, p_requested_role, p_reason)
     RETURNING id INTO v_request_id;
     
