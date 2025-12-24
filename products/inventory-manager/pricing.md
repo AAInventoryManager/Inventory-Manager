@@ -35,5 +35,7 @@ Pricing amounts are defined externally.
 ## Enterprise
 
 - Security and governance features
+- Audit log viewer
+- Undo actions (admin rollback)
 - Advanced configuration
 - Rapid support access

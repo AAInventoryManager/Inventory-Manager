@@ -8,6 +8,8 @@
 - [inventory.snapshots.ui] Implemented snapshots modal with preview and tier gating.
 - [inventory.metrics.dashboard] Implemented metrics dashboard modal and metrics RPCs.
 - [inventory.auth.roles] Implemented role manager modal with permission RPCs and tier gating.
+- [inventory.audit.log] Added audit log documentation and enterprise-tier enforcement.
+- [inventory.audit.undo] Added internal undo-action documentation and permission enforcement.
 
 ## v1.0.2 — UI polish, sorting, PWA
 - Header alignment: title/status left, logo right; constrained to table width
