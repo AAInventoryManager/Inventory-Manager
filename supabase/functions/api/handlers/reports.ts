@@ -55,15 +55,7 @@ export async function handleLowStock(
     return sum;
   }, 0);
   
-  // Get total count for pagination
-  const { count } = await auth.supabase
-    .from('inventory')
-    .select('id', { count: 'exact', head: true })
-    .not('reorder_point', 'is', null)
-    .eq('is_archived', false)
-    .lte('quantity', auth.supabase.rpc('get_reorder_point_column'));
-  
-  // Alternative: Just use items.length for now since RPC doesn't return count
+  // Use items length for pagination since RPC does not return counts
   const total = items.length < query.limit ? 
     query.offset + items.length : 
     query.offset + query.limit + 1; // Indicate there might be more

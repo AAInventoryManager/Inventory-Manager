@@ -17,7 +17,7 @@ features:
       - business
       - enterprise
     support_impact: medium
-    status: in_progress
+    status: released
   - feature_id: inventory.security.checklist
     name: Security Testing Checklist
     description: Internal security validation checklist for development and releases.
@@ -287,24 +287,23 @@ features:
     status: legacy
   - feature_id: inventory.reports.inventory
     name: Inventory Report
-    description: Legacy feature pending governance classification (report view, CSV/email).
+    description: Inventory report view with CSV and email export.
     tier_availability:
-      - starter: false
-      - professional: false
-      - business: false
-      - enterprise: false
+      - starter
+      - professional
+      - business
+      - enterprise
     support_impact: low
-    status: legacy
+    status: released
   - feature_id: inventory.reports.low_stock_api
     name: Low Stock Report API
-    description: Legacy feature pending governance classification (low stock reporting API).
+    description: API endpoint for low stock inventory reporting.
     tier_availability:
-      - starter: false
-      - professional: false
-      - business: false
-      - enterprise: false
-    support_impact: low
-    status: legacy
+      - professional
+      - business
+      - enterprise
+    support_impact: medium
+    status: released
   - feature_id: inventory.audit.log
     name: Audit Log
     description: Audit log viewer and immutable change history for inventory activity.
@@ -331,24 +330,22 @@ features:
     status: legacy
   - feature_id: inventory.metrics.action_metrics
     name: Action Metrics
-    description: Legacy feature pending governance classification (action metrics table + RPC).
+    description: Action metrics aggregation for inventory activity reporting.
     tier_availability:
-      - starter: false
-      - professional: false
-      - business: false
-      - enterprise: false
+      - professional
+      - business
+      - enterprise
     support_impact: low
-    status: legacy
+    status: released
   - feature_id: inventory.metrics.platform_summary
     name: Platform Metrics
-    description: Legacy feature pending governance classification (platform metrics RPC).
+    description: Super-user platform metrics summary for governance reporting.
     tier_availability:
-      - starter: false
-      - professional: false
-      - business: false
-      - enterprise: false
-    support_impact: low
-    status: legacy
+      - professional
+      - business
+      - enterprise
+    support_impact: medium
+    status: released
   - feature_id: inventory.pwa.offline
     name: PWA Support
     description: Legacy feature pending governance classification (manifest + offline cache).

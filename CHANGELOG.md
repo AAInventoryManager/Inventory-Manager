@@ -13,6 +13,10 @@
 - [inventory.auth.user_management] Enforced Business tier and permission checks for member management.
 - [inventory.auth.invite_users] Enforced Business tier and permission checks for invitations.
 - [inventory.auth.role_requests] Enforced Business tier and permission checks for role requests.
+- [inventory.metrics.dashboard] Enforced Professional tier and permission checks for metrics RPCs.
+- [inventory.metrics.platform_summary] Enforced Professional tier access for platform metrics.
+- [inventory.reports.inventory] Added inventory report documentation.
+- [inventory.reports.low_stock_api] Added low stock API documentation and RPC enforcement.
 
 ## v1.0.2 — UI polish, sorting, PWA
 - Header alignment: title/status left, logo right; constrained to table width
