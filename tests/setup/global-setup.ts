@@ -45,6 +45,11 @@ export default async function globalSetup() {
       userId = await getAuthUserIdByEmail(user.email);
     }
     userIds[user.email] = userId;
+    const { error: updateError } = await adminClient.auth.admin.updateUserById(userId, {
+      password: TEST_PASSWORD,
+      email_confirm: true
+    });
+    if (updateError) throw updateError;
 
     await adminClient
       .from('profiles')
