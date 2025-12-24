@@ -218,6 +218,14 @@
       background:rgba(34,197,94,0.22);
       color:#34d399;
     }
+    .row-order-btn:disabled{
+      opacity:0.35;
+      cursor:not-allowed;
+    }
+    .row-order-btn:disabled:hover{
+      background:transparent;
+      color:var(--muted);
+    }
 					    .row-delete-btn{
 					      background:none;
 					      border:none;
@@ -233,7 +241,15 @@
 				      touch-action:manipulation;
 				      -webkit-appearance:none;
 				      appearance:none;
-					    }
+				    }
+				    .row-delete-btn:disabled{
+				      opacity:0.35;
+				      cursor:not-allowed;
+				    }
+				    .row-delete-btn:disabled:hover{
+				      background:transparent;
+				      color:var(--muted);
+				    }
 				    .row-delete-btn svg{
 				      width:18px;
 				      height:18px;
@@ -815,6 +831,7 @@
 	    #reportEmailModal{ z-index:220; }
 	    #msgModal{ z-index:240; }
 	    #confirmModal{ z-index:250; }
+	    #qtyPickerModal{ z-index:210; }
 	    .modal .box{
 	      max-width:580px;
 	      width:100%;
@@ -1198,6 +1215,28 @@
 	      cursor:pointer;
 	      user-select:none;
 	      touch-action:manipulation;
+	    }
+	    .qty-stepper-input{
+	      width:3.25rem;
+	      height:48px;
+	      border:none;
+	      background:transparent;
+	      text-align:center;
+	      font-weight:900;
+	      font-size:22px;
+	      font-variant-numeric:tabular-nums;
+	      color:#fff;
+	      outline:none;
+	      padding:0;
+	      -moz-appearance:textfield;
+	    }
+	    .qty-stepper-input::-webkit-outer-spin-button,
+	    .qty-stepper-input::-webkit-inner-spin-button{
+	      -webkit-appearance:none;
+	      margin:0;
+	    }
+	    .qty-stepper-input:focus{
+	      background:rgba(255,255,255,0.1);
 	    }
     .order-preview{
       border:1px solid var(--border);
@@ -1889,6 +1928,13 @@
     .menu-dropdown .menu-item:hover{
       background:#1a2636;
     }
+    .menu-dropdown .menu-item:disabled{
+      opacity:0.45;
+      cursor:not-allowed;
+    }
+    .menu-dropdown .menu-item:disabled:hover{
+      background:transparent;
+    }
     .menu-dropdown .menu-item .menu-icon-svg{
       flex-shrink:0;
       opacity:0.8;
@@ -2019,6 +2065,8 @@
       text-align:left;cursor:pointer;transition:background 0.15s;
     }
     .profile-dropdown .menu-item:hover{background:rgba(255,255,255,0.06)}
+    .profile-dropdown .menu-item:disabled{opacity:0.45;cursor:not-allowed}
+    .profile-dropdown .menu-item:disabled:hover{background:transparent}
     .profile-meta{padding:10px 16px;border-top:1px solid var(--border);margin-top:8px}
     .profile-meta .time{font-size:11px;color:var(--muted)}
     .menu-icon-svg{flex-shrink:0}
@@ -2575,6 +2623,7 @@
 		  <div id="authModal" class="modal" aria-hidden="true">
 		    <div class="box">
 	      <h2 style="margin:0 0 10px;font-size:16px;">Sign In</h2>
+	      <div class="muted" style="margin-bottom:10px;">Invite-only access. Contact your admin for an account.</div>
       <div style="display:grid; grid-template-columns:1fr; gap:8px;">
         <label class="muted">Email</label>
         <input id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" inputmode="email" />
@@ -2582,8 +2631,6 @@
         <input id="authPassword" type="password" placeholder="Password" autocomplete="current-password" />
       </div>
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
-        <button class="btn" id="btnAuthMagic">Send Magic Link</button>
-        <button class="btn" id="btnAuthToggleMode">Create Account</button>
         <button class="btn primary" id="btnAuthSubmit">Sign In</button>
       </div>
       <div id="authMsg" class="muted" style="margin-top:10px;"></div>
@@ -2740,7 +2787,51 @@
 	    // ========================
 	    // Supabase (cloud sync) — optional
 	    // ========================
-	    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null, itemsHasLowStockQty:null, itemsHasReorderEnabled:null, ordersHasReceipt:null, warnedLowStockSchema:false, warnedReorderSchema:false, warnedOrdersReceiptSchema:false };
+	    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null, companyId:null, company:null, companies:[], permissions:null, itemsHasLowStockQty:null, itemsHasReorderEnabled:null, ordersHasReceipt:null, warnedLowStockSchema:false, warnedReorderSchema:false, warnedOrdersReceiptSchema:false };
+    const COMPANY_STORAGE_PREFIX = 'inv.company.v1';
+    function getCompanyStorageKey(){
+      const uid = (SB && SB.user && SB.user.id) ? String(SB.user.id) : 'anon';
+      return `${COMPANY_STORAGE_PREFIX}.${uid}`;
+    }
+    function readSavedCompanyId(){
+      try{
+        const raw = localStorage.getItem(getCompanyStorageKey());
+        const id = String(raw || '').trim();
+        return id || null;
+      }catch(e){ return null; }
+    }
+    function saveCompanyId(companyId){
+      try{
+        const id = String(companyId || '').trim();
+        if(!id) return;
+        localStorage.setItem(getCompanyStorageKey(), id);
+      }catch(e){}
+    }
+    async function sbLoadCompanies(){
+      SB.companies = [];
+      SB.companyId = null;
+      SB.company = null;
+      if(!SB.ready || !SB.user) return null;
+      const { data, error } = await SB.client.rpc('get_my_companies');
+      if(error) throw error;
+      const rows = Array.isArray(data) ? data : [];
+      SB.companies = rows;
+      let selected = readSavedCompanyId();
+      if(selected && !rows.some(r => String(r.company_id) === String(selected))) selected = null;
+      if(!selected && rows.length) selected = rows[0].company_id;
+      SB.companyId = selected ? String(selected) : null;
+      SB.company = SB.companyId ? rows.find(r => String(r.company_id) === String(SB.companyId)) || null : null;
+      if(SB.companyId) saveCompanyId(SB.companyId);
+      return SB.companyId;
+    }
+    async function sbLoadPermissions(){
+      SB.permissions = null;
+      if(!SB.ready || !SB.user || !SB.companyId) return null;
+      const { data, error } = await SB.client.rpc('get_my_permissions', { p_company_id: SB.companyId });
+      if(error) throw error;
+      SB.permissions = (data && typeof data === 'object') ? data : null;
+      return SB.permissions;
+    }
     function sbInit(){
       const url = window.SB_URL, key = window.SB_ANON;
       if(!url || !key || SB.client){ return; }
@@ -2799,16 +2890,18 @@
       if(emailEl) emailEl.textContent = userEmail;
 
       if(!SB.authorized){
-        if(connEl) connEl.textContent = 'Not authorized';
+        const reason = (!SB.companyId) ? 'No company access' : ((!SB.permissions || !SB.permissions.can_read) ? 'Permission denied' : 'Not authorized');
+        if(connEl) connEl.textContent = reason;
         if(statusEl) statusEl.classList.add('warning');
         setSignInUI('Sign Out', signOutIcon);
         return;
       }
+      const companyName = (SB.company && SB.company.company_name) ? ` · ${SB.company.company_name}` : '';
       if(SB.connected){
-        if(connEl) connEl.textContent = 'Connected';
+        if(connEl) connEl.textContent = `Connected${companyName}`;
         if(statusEl) statusEl.classList.add('online');
       }else{
-        if(connEl) connEl.textContent = 'Offline';
+        if(connEl) connEl.textContent = `Offline${companyName}`;
         if(statusEl) statusEl.classList.add('offline');
       }
       setSignInUI('Sign Out', signOutIcon);
@@ -2816,16 +2909,20 @@
     function explainGate(){
       if(!SB.ready) return 'Supabase not configured';
       if(!SB.session) return 'Sign in required';
+      if(!SB.companyId) return 'No company access';
+      if(!SB.permissions || !SB.permissions.can_read) return 'Permission denied';
       if(!SB.authorized) return 'Not authorized';
       if(!SB.connected) return 'Offline – edits disabled';
       return '';
     }
     async function checkServerHealth(){
-      if(!SB.ready || !SB.session || !SB.authorized){ SB.connected=false; updateStatusBar(); return false; }
+      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId){ SB.connected=false; updateStatusBar(); return false; }
       try{
         const { error } = await SB.client
-          .from('items')
+          .from('inventory_items')
           .select('id', { head:true, count:'exact' })
+          .eq('company_id', SB.companyId)
+          .is('deleted_at', null)
           .limit(1);
         if(error) throw error;
         SB.connected = true;
@@ -2841,17 +2938,48 @@
       if(!SB.session) show('authModal', true);
       return false;
     }
+    function hasPermission(key){
+      return !!(SB.permissions && SB.permissions[key]);
+    }
+    function requirePermission(key, message){
+      if(hasPermission(key)) return true;
+      toast(message || 'Permission denied');
+      return false;
+    }
+    function canCreate(){ return hasPermission('can_create'); }
+    function canUpdate(){ return hasPermission('can_update'); }
+    function canDelete(){ return hasPermission('can_delete'); }
+    function canInvite(){ return hasPermission('can_invite'); }
+    function applyPermissionUI(){
+      const canRead = hasPermission('can_read');
+      const allowSelect = canCreate() || canUpdate() || canDelete();
+      const canBulk = canCreate() && canUpdate();
+      const setDisabled = (id, disabled) => {
+        const el = $(id);
+        if(!el) return;
+        el.disabled = !!disabled;
+        el.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+      };
+      setDisabled('menuImport', !canBulk);
+      setDisabled('menuPaste', !canBulk);
+      setDisabled('menuAddOne', !canCreate());
+      setDisabled('menuOrder', !canCreate());
+      setDisabled('menuHistory', !canRead);
+      setDisabled('btnOrderSubmit', !canCreate());
+      setDisabled('btnEditItemDelete', !canDelete());
+      setDisabled('btnReportBatchOrder', !canCreate());
+      const chkAll = $('chkAll');
+      if(chkAll) chkAll.disabled = !allowSelect;
+      setEditHint();
+    }
 
     // ---------- Auth + profile ----------
-    let AUTH_MODE = 'signin'; // or 'signup'
     function renderAuthUi(){
       const submit = $('btnAuthSubmit');
-      const toggle = $('btnAuthToggleMode');
       const pw = $('authPassword');
       const pwLabel = $('authPasswordLabel');
-      if(submit) submit.textContent = (AUTH_MODE === 'signup') ? 'Create Account' : 'Sign In';
-      if(toggle) toggle.textContent = (AUTH_MODE === 'signup') ? 'Have Account? Sign In' : 'Create Account';
-      if(pw) pw.autocomplete = (AUTH_MODE === 'signup') ? 'new-password' : 'current-password';
+      if(submit) submit.textContent = 'Sign In';
+      if(pw) pw.autocomplete = 'current-password';
       if(pwLabel) pwLabel.textContent = 'Password';
     }
     function setAuthMessage(msg){
@@ -2883,9 +3011,14 @@
 	      const elAddress = $('profileDeliveryAddress'); if(elAddress) elAddress.value = (SB.profile && SB.profile.delivery_address) ? String(SB.profile.delivery_address) : '';
 	      const elLowGlobal = $('profileLowStockQtyGlobal'); if(elLowGlobal) elLowGlobal.value = String(getGlobalLowStockQty());
 	      const elSilence = $('profileSilenceLowStockAlerts'); if(elSilence) elSilence.checked = lowStockAlertsSilenced();
-	      const note = SB.session && !SB.authorized
-	        ? 'This account is not authorized for this inventory yet. Ask an admin to add you in Supabase.'
-	        : '';
+	      let note = '';
+	      if(SB.session && !SB.authorized){
+	        if(!SB.companyId) note = 'No company access yet. Ask an admin for an invite.';
+	        else if(!SB.permissions || !SB.permissions.can_read) note = 'Your role does not allow inventory access.';
+	      }
+	      if(note && SB.permissions && SB.permissions.assigned_admin_email){
+	        note += ` Contact: ${SB.permissions.assigned_admin_email}`;
+	      }
 	      setProfileMessage(note);
 	    }
 	    async function sbEnsureProfile(){
@@ -3025,20 +3158,32 @@
       if(lastError) throw lastError;
       throw Error('Save failed');
     }
-    async function sbCheckAuthorization(){
-      if(!SB.ready || !SB.user){ SB.authorized=false; updateStatusBar(); return false; }
+    async function sbRefreshAccess(){
+      SB.authorized = false;
+      SB.permissions = null;
+      SB.companies = [];
+      SB.companyId = null;
+      SB.company = null;
+      if(!SB.ready || !SB.user){ updateStatusBar(); return false; }
       try{
-        const { data, error } = await SB.client
-          .from('authorized_users')
-          .select('user_id')
-          .eq('user_id', SB.user.id)
-          .maybeSingle();
-        if(error) throw error;
-        SB.authorized = !!data;
+        await sbLoadCompanies();
       }catch(e){
-        console.warn('Authorization check failed:', e);
-        SB.authorized = false;
+        console.warn('Company load failed:', e);
+        updateStatusBar();
+        return false;
       }
+      if(!SB.companyId){
+        updateStatusBar();
+        return false;
+      }
+      try{
+        await sbLoadPermissions();
+      }catch(e){
+        console.warn('Permissions load failed:', e);
+        updateStatusBar();
+        return false;
+      }
+      SB.authorized = !!(SB.permissions && SB.permissions.can_read);
       updateStatusBar();
       return SB.authorized;
     }
@@ -3048,13 +3193,19 @@
       SB.connected = false;
       SB.authorized = false;
       SB.profile = null;
+      SB.permissions = null;
+      SB.companies = [];
+      SB.companyId = null;
+      SB.company = null;
       updateStatusBar();
+      applyPermissionUI();
 
       if(!SB.session){
         state.items = [];
         if(_sbChannel && SB.client){ try{ SB.client.removeChannel(_sbChannel); }catch{} _sbChannel=null; }
         render();
         show('authModal', true);
+        applyPermissionUI();
         return;
       }
 
@@ -3062,8 +3213,9 @@
       setAuthMessage('');
 
       await sbEnsureProfile();
-      await sbCheckAuthorization();
+      await sbRefreshAccess();
       renderProfileUi();
+      applyPermissionUI();
 
       if(!SB.authorized){
         state.items = [];
@@ -3148,53 +3300,12 @@
       const { error } = await SB.client.auth.signInWithPassword({ email: e, password: p });
       if(error) throw error;
     }
-    async function sbSignUp(email, password){
-      if(!SB.ready) throw Error('Supabase not configured');
-      const e = String(email||'').trim();
-      const p = String(password||'');
-      if(!e) throw Error('Email required');
-      if(!p || p.length < 6) throw Error('Password must be at least 6 characters');
-      const { data, error } = await SB.client.auth.signUp({ email: e, password: p });
-      if(error) throw error;
-      if(data && !data.session){
-        setAuthMessage('Check your email to confirm your account, then sign in.');
-      }
-    }
-    async function sbSendMagicLink(email){
-      if(!SB.ready) throw Error('Supabase not configured');
-      const e = String(email||'').trim();
-      if(!e) throw Error('Email required');
-      const { error } = await SB.client.auth.signInWithOtp({ email: e, options: { emailRedirectTo: location.href } });
-      if(error) throw error;
-    }
     async function sbSignOut(){
       if(!SB.ready || !SB.client) return;
       await SB.client.auth.signOut();
     }
 
     // ---------- Auth/Profile modal events ----------
-    const btnAuthToggleMode = $('btnAuthToggleMode');
-    if(btnAuthToggleMode) btnAuthToggleMode.addEventListener('click', ()=>{
-      AUTH_MODE = (AUTH_MODE === 'signup') ? 'signin' : 'signup';
-      setAuthMessage('');
-      renderAuthUi();
-    });
-
-    const btnAuthMagic = $('btnAuthMagic');
-    if(btnAuthMagic) btnAuthMagic.addEventListener('click', async ()=>{
-      const email = $('authEmail')?.value || '';
-      setAuthMessage('');
-      btnAuthMagic.disabled = true;
-      try{
-        await sbSendMagicLink(email);
-        setAuthMessage('Magic link sent. Check your email.');
-      }catch(e){
-        setAuthMessage(e && e.message ? e.message : 'Failed to send magic link');
-      }finally{
-        btnAuthMagic.disabled = false;
-      }
-    });
-
     const btnAuthSubmit = $('btnAuthSubmit');
     if(btnAuthSubmit) btnAuthSubmit.addEventListener('click', async ()=>{
       const email = $('authEmail')?.value || '';
@@ -3202,8 +3313,7 @@
       setAuthMessage('');
       btnAuthSubmit.disabled = true;
       try{
-        if(AUTH_MODE === 'signup') await sbSignUp(email, password);
-        else await sbSignIn(email, password);
+        await sbSignIn(email, password);
       }catch(e){
         setAuthMessage(e && e.message ? e.message : 'Authentication failed');
       }finally{
@@ -3295,9 +3405,9 @@
       }
     });
 		    async function sbLoadSnapshot(){
-		      if(!SB.ready || !SB.session || !SB.authorized) return;
+		      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return;
 		      let data = null;
-		      const baseSel = 'id,name,description,qty,updated_at';
+		      const baseSel = 'id,name,description,quantity,updated_at,deleted_at';
 		
 		      function buildSel(){
 		        let sel = baseSel;
@@ -3309,8 +3419,10 @@
 		      for(let attempt=0; attempt<3; attempt++){
 		        const sel = buildSel();
 		        const res = await SB.client
-		          .from('items')
+		          .from('inventory_items')
 		          .select(sel)
+		          .eq('company_id', SB.companyId)
+		          .is('deleted_at', null)
 		          .order('name', { ascending:true });
 		        if(!res.error){
 		          data = res.data;
@@ -3328,7 +3440,7 @@
 		          if(isSchemaCacheMissingColumnError(e, 'low_stock_qty') && !SB.warnedLowStockSchema){
 		            SB.warnedLowStockSchema = true;
 		            toast("Supabase needs schema reload for low stock (run: NOTIFY pgrst, 'reload schema';)");
-		            console.warn("Supabase schema cache missing items.low_stock_qty. Run: NOTIFY pgrst, 'reload schema';");
+		            console.warn("Supabase schema cache missing inventory_items.low_stock_qty. Run: NOTIFY pgrst, 'reload schema';");
 		          }
 		        }
 		        if(msg.includes('reorder_enabled')){
@@ -3337,7 +3449,7 @@
 		          if(isSchemaCacheMissingColumnError(e, 'reorder_enabled') && !SB.warnedReorderSchema){
 		            SB.warnedReorderSchema = true;
 		            toast("Supabase needs schema reload for reorder settings (run: NOTIFY pgrst, 'reload schema';)");
-		            console.warn("Supabase schema cache missing items.reorder_enabled. Run: NOTIFY pgrst, 'reload schema';");
+		            console.warn("Supabase schema cache missing inventory_items.reorder_enabled. Run: NOTIFY pgrst, 'reload schema';");
 		          }
 		        }
 		
@@ -3352,7 +3464,7 @@
 		        id:r.id,
 		        name:r.name||'',
 		        desc:r.description||'',
-		        qty:toInt(r.qty,0),
+		        qty:toInt(r.quantity,0),
 		        lowStockQty: (r && Object.prototype.hasOwnProperty.call(r,'low_stock_qty') && r.low_stock_qty !== null) ? toInt(r.low_stock_qty,0) : null,
 		        reorderEnabled: (r && Object.prototype.hasOwnProperty.call(r,'reorder_enabled')) ? !!r.reorder_enabled : true,
 		        updatedAt:r.updated_at||null
@@ -3361,29 +3473,35 @@
 		    }
     let _sbChannel=null;
     function sbStartRealtime(){
-      if(!SB.ready || !SB.session || !SB.authorized) return;
+      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return;
       if(_sbChannel){ SB.client.removeChannel(_sbChannel); _sbChannel=null; }
-      _sbChannel = SB.client.channel('items_all')
-        .on('postgres_changes', {event:'*', schema:'public', table:'items'}, payload=>{
+      _sbChannel = SB.client.channel('inventory_items_all')
+        .on('postgres_changes', {event:'*', schema:'public', table:'inventory_items', filter:`company_id=eq.${SB.companyId}`}, payload=>{
           const row = payload.new || payload.old;
           console.log('[realtime]', payload.eventType, row && row.id, row);
 		          if(payload.eventType==='INSERT'){
+		            if(row && row.deleted_at) return;
 		            const i = state.items.findIndex(x=> x.id===row.id);
 		            if(i===-1) state.items.push({
 		              id:row.id,
 		              name:row.name,
 		              desc:row.description||'',
-		              qty:toInt(row.qty,0),
+		              qty:toInt(row.quantity,0),
 		              lowStockQty: (row && Object.prototype.hasOwnProperty.call(row,'low_stock_qty') && row.low_stock_qty !== null) ? toInt(row.low_stock_qty,0) : null,
 		              reorderEnabled: (row && Object.prototype.hasOwnProperty.call(row,'reorder_enabled')) ? !!row.reorder_enabled : true,
 		              updatedAt:row.updated_at
 		            });
 		          }else if(payload.eventType==='UPDATE'){
+		            if(row && row.deleted_at){
+		              state.items = state.items.filter(x=> x.id!==row.id);
+		              setUpdated(); render();
+		              return;
+		            }
 		            const it = state.items.find(x=> x.id===row.id);
 		            if(it){
 		              it.name=row.name;
 		              it.desc=row.description||'';
-		              it.qty=toInt(row.qty,0);
+		              it.qty=toInt(row.quantity,0);
 		              if(Object.prototype.hasOwnProperty.call(row,'low_stock_qty')){
 		                it.lowStockQty = (row.low_stock_qty === null) ? null : toInt(row.low_stock_qty,0);
 		              }
@@ -3400,15 +3518,27 @@
         .subscribe();
     }
     async function sbAddItem(name, desc, qty){
+      if(!canCreate()) throw Error('Permission denied');
+      if(!SB.companyId) throw Error('Company not selected');
       const id = randomUUID();
-      const { error } = await SB.client.from('items').insert([{ id, name, description:desc||'', qty:toInt(qty,0) }]);
+      const { error } = await SB.client.from('inventory_items').insert([{
+        id,
+        company_id: SB.companyId,
+        name,
+        description:desc||'',
+        quantity: toInt(qty,0),
+        reorder_enabled: true,
+        created_by: SB.user ? SB.user.id : null,
+      }]);
       if(error) throw error; return id;
     }
 	    async function sbUpdateFields(id, fields){
+	      if(!canUpdate()) throw Error('Permission denied');
+	      if(!SB.companyId) throw Error('Company not selected');
 	      const clean = {};
 	      if('name' in fields) clean.name = String(fields.name||'');
 	      if('desc' in fields) clean.description = String(fields.desc||'');
-	      if('qty'  in fields) clean.qty  = toInt(fields.qty,0);
+	      if('qty'  in fields) clean.quantity  = toInt(fields.qty,0);
 	      if('reorderEnabled' in fields) clean.reorder_enabled = !!fields.reorderEnabled;
 	      if('lowStockQty' in fields){
 		        const raw = fields.lowStockQty;
@@ -3420,12 +3550,17 @@
 	          clean.low_stock_qty = v;
 	        }
 	      }
-	      const { error } = await SB.client.from('items').update(clean).eq('id', id);
+	      const { error } = await SB.client
+	        .from('inventory_items')
+	        .update(clean)
+	        .eq('id', id)
+	        .eq('company_id', SB.companyId)
+	        .is('deleted_at', null);
 	      if(error) throw error;
 	    }
 
 	    async function sbFetchItemQtyMap(ids){
-	      if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
+	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) throw new Error('Not authorized');
 	      const requested = Array.isArray(ids) ? ids.map(x=> String(x||'').trim()).filter(Boolean) : [];
 	      const out = new Map();
 	      if(!requested.length) return out;
@@ -3433,26 +3568,31 @@
 	      for(let i=0;i<requested.length;i+=size){
 	        const chunk = requested.slice(i, i+size);
 	        const { data, error } = await SB.client
-	          .from('items')
-	          .select('id,qty')
+	          .from('inventory_items')
+	          .select('id,quantity')
+	          .eq('company_id', SB.companyId)
+	          .is('deleted_at', null)
 	          .in('id', chunk);
 	        if(error) throw error;
 	        (Array.isArray(data) ? data : []).forEach(r=>{
-	          if(r && r.id) out.set(String(r.id), toInt(r.qty, 0));
+	          if(r && r.id) out.set(String(r.id), toInt(r.quantity, 0));
 	        });
 	      }
 	      return out;
 	    }
 
 	    async function sbUpdateItemQtyIfMatch(itemId, expectedQty, nextQty){
-	      if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
+	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) throw new Error('Not authorized');
+	      if(!canUpdate()) throw new Error('Permission denied');
 	      const id = String(itemId || '').trim();
 	      if(!id) throw new Error('Invalid item ID');
 	      const { data, error } = await SB.client
-	        .from('items')
-	        .update({ qty: toInt(nextQty, 0) })
+	        .from('inventory_items')
+	        .update({ quantity: toInt(nextQty, 0) })
 	        .eq('id', id)
-	        .eq('qty', toInt(expectedQty, 0))
+	        .eq('company_id', SB.companyId)
+	        .eq('quantity', toInt(expectedQty, 0))
+	        .is('deleted_at', null)
 	        .select('id');
 	      if(error) throw error;
 	      return Array.isArray(data) && data.length > 0;
@@ -3518,23 +3658,27 @@
 	      );
 	    }
 	    async function sbDeleteMany(ids){
+	      if(!canDelete()) throw Error('Permission denied');
+	      if(!SB.companyId) throw Error('Company not selected');
 	      const requested = Array.isArray(ids) ? ids.filter(Boolean) : [];
 	      if(requested.length===0) return { deleted:0, requested:0 };
-	      // Note: Some RLS policies may prevent returning representations of deleted rows,
-	      // so we do not depend on the returned data length. If no error is thrown, treat
-      // it as success for all requested IDs and immediately refresh from server.
-      const { error } = await SB.client
-        .from('items')
-        .delete()
-        .in('id', requested);
-      if (error) throw error;
+	      const { data, error } = await SB.client
+	        .rpc('soft_delete_items', { p_item_ids: requested });
+	      if (error) throw error;
+	      if(data && data.success === false){
+	        throw new Error(data.error || 'Delete failed');
+	      }
       return { deleted: requested.length, requested: requested.length };
     }
     async function sbUpsertMany(rows){
+      if(!canCreate() || !canUpdate()) throw Error('Permission denied');
+      if(!SB.companyId) throw Error('Company not selected');
       // Load existing rows to build a case-insensitive index by name
       const { data: existing, error: selErr } = await SB.client
-        .from('items')
-        .select('id,name,description,qty');
+        .from('inventory_items')
+        .select('id,name,description,quantity')
+        .eq('company_id', SB.companyId)
+        .is('deleted_at', null);
       if (selErr) throw selErr;
 
       const idx = new Map((existing||[]).map(it => [toKey(it.name), it]));
@@ -3549,14 +3693,27 @@
         const qty = toInt(r.qty,0);
 
         if (!ex){
-          toInsert.push({ name, description, qty });
+          toInsert.push({
+            company_id: SB.companyId,
+            name,
+            description,
+            quantity: qty,
+            reorder_enabled: true,
+            created_by: SB.user ? SB.user.id : null,
+          });
         } else {
-          toUpdate.push({ id: ex.id, name, description: (description || ex.description || ''), qty });
+          toUpdate.push({
+            id: ex.id,
+            company_id: SB.companyId,
+            name,
+            description: (description || ex.description || ''),
+            quantity: qty,
+          });
         }
       }
 
       if (toInsert.length){
-        const { error: insErr } = await SB.client.from('items').insert(toInsert);
+        const { error: insErr } = await SB.client.from('inventory_items').insert(toInsert);
         if (insErr) throw insErr;
       }
       // Upsert updates by primary key id (safe and efficient)
@@ -3566,7 +3723,7 @@
         const size = 500;
         for (let i=0;i<toUpdate.length;i+=size) chunks.push(toUpdate.slice(i, i+size));
         for (const part of chunks){
-          const { error: upErr } = await SB.client.from('items').upsert(part, { onConflict: 'id' });
+          const { error: upErr } = await SB.client.from('inventory_items').upsert(part, { onConflict: 'id' });
           if (upErr) throw upErr;
         }
       }
@@ -4061,6 +4218,7 @@ function adjustTitleSize(){
 		  _openTrayId = '';
 		}
 			function trayActionsHTML(){
+			  if(!canUpdate()) return '';
 			  return ''+
 			    '<button type="button" class="card-tray-btn" data-tray-action="edit" tabindex="-1" aria-label="Edit item" title="Edit item">'+
 			      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
@@ -4070,6 +4228,7 @@ function adjustTitleSize(){
 			    '</button>';
 			}
 		function trayOrderHTML(){
+		  if(!canCreate()) return '';
 		  return ''+
 		    '<button type="button" class="card-tray-btn" data-tray-action="order" tabindex="-1" aria-label="Add to order" title="Add to order">'+
 		      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
@@ -4149,6 +4308,7 @@ function adjustTitleSize(){
 		function toggleOrderLineForItemId(id){
 		  const itemId = String(id || '').trim();
 		  if(!itemId) return;
+		  if(!canCreate()) return;
 		  const item = state.items.find(x => x && x.id === itemId);
 		  if(!item) return;
 		  let exists = false;
@@ -4202,6 +4362,13 @@ function adjustTitleSize(){
 		function qtyCellHTML(it){
 		  const q = toInt(it.qty,0);
 		  const id = escapeHtmlAttr(it.id || '');
+		  if(!canUpdate()){
+		    return (
+		      '<div class="qty-stepper qty-stepper--table qty-stepper--readonly" aria-label="Qty">'+
+		        '<span class="qty-value" aria-label="Qty">'+q+'</span>'+
+		      '</div>'
+		    );
+		  }
 		  return (
 		    '<div class="qty-stepper qty-stepper--table" aria-label="Qty controls">'+
 		      '<button type="button" class="qty-step qty-step-btn" data-id="'+id+'" data-delta="-1" aria-label="Decrease qty">−</button>'+
@@ -4213,6 +4380,10 @@ function adjustTitleSize(){
 				function buildRowHTML(it){
 				  const rawId = String(it && it.id ? it.id : '');
 				  const id = escapeHtmlAttr(rawId);
+				  const allowSelect = canCreate() || canUpdate() || canDelete();
+				  const canEdit = canUpdate();
+				  const canRemove = canDelete();
+				  const canOrder = canCreate();
 				  const isLowStock = isLowStockItem(it);
 			  const inOrder = (()=> {
 			    try{
@@ -4227,33 +4398,37 @@ function adjustTitleSize(){
 			  const lowstockLedClass = isOutOfStock ? 'card-led card-led--lowstock card-led--outofstock' : (isLowButInStock ? 'card-led card-led--lowstock card-led--on' : 'card-led card-led--lowstock');
 			  const orderBtnClass = inOrder ? 'row-order-btn row-order-btn--active' : 'row-order-btn';
 			  const orderBtnLabel = inOrder ? 'Remove from order' : 'Add to order';
+			  const orderBtnDisabled = canOrder ? '' : ' disabled aria-disabled="true"';
+			  const deleteBtnDisabled = canRemove ? '' : ' disabled aria-disabled="true"';
 			  return (
-			    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+id+'"></td>'+
+			    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+id+'"'+(allowSelect ? '' : ' disabled')+'></td>'+
 				    '<td data-col="name">'+
 				      '<div class="card-leds" aria-hidden="true">'+
 				        '<span class="'+lowstockLedClass+'"></span>'+
 					      '</div>'+
 					      '<div class="card-tray" aria-hidden="true" data-kind="actions">'+
-				        '<button type="button" class="card-tray-btn" data-tray-action="edit" tabindex="-1" aria-label="Edit item" title="Edit item">'+
-				          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
-				            '<path d="M12 20h9"></path>'+
-				            '<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>'+
-			          '</svg>'+
-			        '</button>'+
+				        (canEdit ? (
+				          '<button type="button" class="card-tray-btn" data-tray-action="edit" tabindex="-1" aria-label="Edit item" title="Edit item">'+
+				            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+				              '<path d="M12 20h9"></path>'+
+				              '<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>'+
+				            '</svg>'+
+				          '</button>'
+				        ) : '')+
 			      '</div>'+
 			      '<span class="cell-val">'+escapeHtml(it.name||'')+'</span>'+
 			    '</td>'+
 				    '<td data-col="desc"><span class="cell-val">'+escapeHtml(it.desc||'')+'</span></td>'+
 					    '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'+
 					    '<td class="actions"><div class="actions-wrap">'+
-				      '<button class="'+orderBtnClass+'" data-id="'+id+'" aria-label="'+orderBtnLabel+'" title="'+orderBtnLabel+'" aria-pressed="'+(inOrder ? 'true' : 'false')+'">'+
+				      '<button class="'+orderBtnClass+'" data-id="'+id+'" aria-label="'+orderBtnLabel+'" title="'+orderBtnLabel+'" aria-pressed="'+(inOrder ? 'true' : 'false')+'"'+orderBtnDisabled+'>'+
 				        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
 				          '<circle cx="9" cy="20" r="1"></circle>'+
 				          '<circle cx="18" cy="20" r="1"></circle>'+
 				          '<path d="M3 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L21 8H7"></path>'+
 				        '</svg>'+
 				      '</button>'+
-				      '<button class="row-delete-btn" data-id="'+id+'" aria-label="Delete item" title="Delete item">'+
+				      '<button class="row-delete-btn" data-id="'+id+'" aria-label="Delete item" title="Delete item"'+deleteBtnDisabled+'>'+
 			        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
 			          '<polyline points="3 6 5 6 21 6"></polyline>'+
 			          '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>'+
@@ -4346,6 +4521,12 @@ function emptyStateHtml(){
   }
   if(gate === 'Sign in required'){
     return 'Sign in to view your inventory. Tap the status bar above.';
+  }
+  if(gate === 'No company access'){
+    return 'No company access yet. Tap the status bar above for account details.';
+  }
+  if(gate === 'Permission denied'){
+    return 'Your role does not allow inventory access. Tap the status bar above for account details.';
   }
   if(gate === 'Not authorized'){
     return 'Not authorized for this inventory. Tap the status bar above for account details.';
@@ -4447,6 +4628,7 @@ function emptyStateHtml(){
 
     function enableInlineEditing(){
       if(isMobileUx()) return;
+      if(!canUpdate()) return;
       const tbody=$('#invTable').querySelector('tbody');
       tbody.querySelectorAll('td').forEach(td=>{
         if(td.classList.contains('sel')) return; // skip checkbox column
@@ -4484,6 +4666,11 @@ function emptyStateHtml(){
 	    function setEditHint(){
 	      const el = $('editHint');
 	      if(!el) return;
+	      if(SB.session && SB.authorized && !canUpdate()){
+	        el.textContent = 'Read-only access.';
+	        _lastEditHintPref = 'readonly';
+	        return;
+	      }
 	      const mobileUx = isMobileUx();
 	      const pref = prefersModalEditing();
 	      const mode = mobileUx ? 'mobile' : (pref ? 'modal' : 'inline');
@@ -4510,6 +4697,7 @@ function emptyStateHtml(){
       show('editItemModal', false);
     }
 	    function openEditItemModal(id){
+	      if(!requirePermission('can_update', 'Read-only access')) return;
 	      const it = state.items.find(x=> x.id===id); if(!it) return;
 	      _editItemCtx = { id };
 
@@ -4642,6 +4830,7 @@ function emptyStateHtml(){
 	    async function deleteEditItemModal(){
 	      if(!_editItemCtx) return;
 	      if(!requireOnline()) return;
+	      if(!requirePermission('can_delete', 'Delete not allowed')) return;
 
 	      const id = _editItemCtx.id;
 	      const item = state.items.find(x=> x && x.id === id);
@@ -4903,6 +5092,7 @@ function emptyStateHtml(){
 	        const delta = toSignedInt(btn.dataset.delta, 0);
         if(!id || !delta) return;
         if(!requireOnline()) return;
+        if(!requirePermission('can_update', 'Read-only access')) return;
         const it = state.items.find(x=> x.id===id); if(!it) return;
 	        const oldQty = toInt(it.qty,0);
 	        const newQty = Math.max(0, oldQty + delta);
@@ -4927,6 +5117,7 @@ function emptyStateHtml(){
 		        const id = String(stepper.querySelector('button.qty-step-btn')?.dataset?.id || '').trim();
 		        if(!id) return;
 		        if(!requireOnline()) return;
+		        if(!requirePermission('can_update', 'Read-only access')) return;
 		        const it = state.items.find(x=> x && x.id===id);
 		        if(!it) return;
 
@@ -4958,12 +5149,20 @@ function emptyStateHtml(){
 	        const id = tr && tr.dataset ? String(tr.dataset.id || '').trim() : '';
 	        const action = trayBtn.dataset ? String(trayBtn.dataset.trayAction || '').trim() : '';
 	        if(!id || !action) return;
-		        e.preventDefault();
-		        e.stopPropagation();
-		        closeMobileTray();
-		        if(action === 'order'){ toggleOrderLineForItemId(id); return; }
-		        if(!requireOnline()) return;
-		        if(action === 'edit'){ openEditItemModal(id); return; }
+	        e.preventDefault();
+	        e.stopPropagation();
+	        closeMobileTray();
+	        if(action === 'order'){
+	          if(!canCreate()){ toast('Order creation not allowed'); return; }
+	          toggleOrderLineForItemId(id);
+	          return;
+	        }
+	        if(!requireOnline()) return;
+	        if(action === 'edit'){
+	          if(!requirePermission('can_update', 'Read-only access')) return;
+	          openEditItemModal(id);
+	          return;
+	        }
 		      });
 
 	      // Mobile UX v2: tap to expand qty + swipe trays (edit/order)
@@ -5144,12 +5343,14 @@ function emptyStateHtml(){
 		          if(shouldCommitEdit){
 		            closeMobileTray();
 		            if(!requireOnline()) return;
+		            if(!requirePermission('can_update', 'Read-only access')) return;
 		            openEditItemModal(id);
 		            return;
 		          }
 		          const shouldCommitOrder = (side === 'left') && (ax >= COMMIT_PX);
 		          if(shouldCommitOrder){
 		            closeMobileTray();
+		            if(!canCreate()){ toast('Order creation not allowed'); return; }
 		            toggleOrderLineForItemId(id);
 		            return;
 		          }
@@ -5343,12 +5544,14 @@ function emptyStateHtml(){
 		          if(shouldCommitEdit){
 		            closeMobileTray();
 		            if(!requireOnline()) return;
+		            if(!requirePermission('can_update', 'Read-only access')) return;
 		            openEditItemModal(id);
 		            return;
 		          }
 		          const shouldCommitOrder = (side === 'left') && (ax >= COMMIT_PX);
 		          if(shouldCommitOrder){
 		            closeMobileTray();
+		            if(!canCreate()){ toast('Order creation not allowed'); return; }
 		            toggleOrderLineForItemId(id);
 		            return;
 		          }
@@ -5397,11 +5600,13 @@ function emptyStateHtml(){
 
       if(prefersModalEditing()){
         if(!requireOnline()) return;
+        if(!requirePermission('can_update', 'Read-only access')) return;
         openEditItemModal(id);
         return;
       }
 
       if(!requireOnline()) return;
+      if(!requirePermission('can_update', 'Read-only access')) return;
       const fb = $('filterBox'); if (fb) fb.value = '';
 	      state._filter = '';
 	      try{ updateFilterClearBtn(); }catch(e){}
@@ -5621,16 +5826,28 @@ function emptyStateHtml(){
     // ========================
     // Import / Paste / Export
     // ========================
-    $('menuImport').addEventListener('click', ()=> { toggleMenu(false); if(!requireOnline()) return; $('#fileImport').click(); });
+    $('menuImport').addEventListener('click', ()=> {
+      toggleMenu(false);
+      if(!requireOnline()) return;
+      if(!(canCreate() && canUpdate())){ toast('Bulk import requires create + update permissions'); return; }
+      $('#fileImport').click();
+    });
     $('#fileImport').addEventListener('change', async ev=>{
       if(!requireOnline()){ ev.target.value=''; return; }
       const f=ev.target.files[0]; if(!f) return; await handleFile(f); ev.target.value='';
     });
 
-    $('menuPaste').addEventListener('click', ()=>{ toggleMenu(false); if(!requireOnline()) return; $('#pasteArea').value=''; show('pasteModal', true); });
+    $('menuPaste').addEventListener('click', ()=>{
+      toggleMenu(false);
+      if(!requireOnline()) return;
+      if(!(canCreate() && canUpdate())){ toast('Bulk paste requires create + update permissions'); return; }
+      $('#pasteArea').value='';
+      show('pasteModal', true);
+    });
     $('btnPasteCancel').addEventListener('click', ()=> show('pasteModal', false));
     $('btnPasteApply').addEventListener('click', ()=>{
       if(!requireOnline()) return;
+      if(!(canCreate() && canUpdate())){ toast('Bulk paste requires create + update permissions'); return; }
       const text=$('#pasteArea').value||''; if(!text.trim()){ toast('Nothing to import'); return; }
       const rows=parseDelimitedSmart(text); const items=rowsToItems(rows);
       if(!items.length){ toast('Could not detect headers or rows'); return; }
@@ -5642,13 +5859,17 @@ function emptyStateHtml(){
     drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.style.background='#0e1621'; });
     drop.addEventListener('dragleave', ()=>{ drop.style.background=''; });
     drop.addEventListener('drop', async e=>{
-      e.preventDefault(); drop.style.background=''; if(!requireOnline()) return; const f=e.dataTransfer.files[0]; if(f) await handleFile(f);
+      e.preventDefault(); drop.style.background='';
+      if(!requireOnline()) return;
+      if(!(canCreate() && canUpdate())){ toast('Bulk import requires create + update permissions'); return; }
+      const f=e.dataTransfer.files[0]; if(f) await handleFile(f);
     });
 
     $('#fileImportModal').addEventListener('change', async ev=>{ if(!requireOnline()){ ev.target.value=''; return; } const f=ev.target.files[0]; if(f) await handleFile(f); ev.target.value=''; });
 
     async function handleFile(f){
       if(!requireOnline()) return;
+      if(!(canCreate() && canUpdate())){ toast('Bulk import requires create + update permissions'); return; }
       try{
         const items=await parseAnyFile(f);
         if(!items.length){ toast('No rows found in file'); return; }
@@ -5965,6 +6186,7 @@ function emptyStateHtml(){
 		      updateReportOrderBadge();
 		    }
 		    function batchAddLowStockToCart(){
+		      if(!canCreate()){ toast('Order creation not allowed'); return; }
 		      const d = reportDataSnapshot();
 		      const rows = Array.isArray(d.lowStock) ? d.lowStock : [];
 		      if(!rows.length){ toast('No low stock items'); return; }
@@ -6793,11 +7015,12 @@ function emptyStateHtml(){
     }
 
     async function sbFetchOrderRecipientSuggestions(prefix){
-      if(!SB.ready || !SB.session || !SB.authorized) return [];
+      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
       const q = String(prefix||'').trim();
       let req = SB.client
         .from('order_recipients')
         .select('email,name,last_used_at')
+        .eq('company_id', SB.companyId)
         .order('last_used_at', { ascending:false })
         .limit(20);
       if(q) req = req.ilike('email', q + '%');
@@ -6806,10 +7029,16 @@ function emptyStateHtml(){
       return Array.isArray(data) ? data : [];
     }
     async function sbRecordOrderRecipient(email, name){
-      if(!SB.ready || !SB.session || !SB.authorized) return;
+      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return;
+      if(!canCreate()) throw new Error('Permission denied');
       const e = String(email||'').trim().toLowerCase();
       if(!e) return;
-      const row = { email: e, last_used_at: new Date().toISOString(), created_by: SB.user ? SB.user.id : null };
+      const row = {
+        company_id: SB.companyId,
+        email: e,
+        last_used_at: new Date().toISOString(),
+        created_by: SB.user ? SB.user.id : null,
+      };
       const nm = String(name||'').trim();
       if(nm) row.name = nm;
       const { error } = await SB.client
@@ -6835,9 +7064,11 @@ function emptyStateHtml(){
         .filter((x) => x.part);
     }
     async function sbInsertOrderHistoryFromData({ toEmail, subjectLine, contactName, notes, lineItems, providerResult }){
-      if(!SB.ready || !SB.session || !SB.authorized || !SB.user) return;
+      if(!SB.ready || !SB.session || !SB.authorized || !SB.user || !SB.companyId) return;
+      if(!canCreate()) throw new Error('Permission denied');
       const cleaned = normalizeEmailLineItems(lineItems).map(x => ({ item_id: x.item_id ? String(x.item_id).trim() : null, part: x.part, desc: x.desc, qty: x.qty }));
       const row = {
+        company_id: SB.companyId,
         created_by: SB.user.id,
         to_email: String(toEmail||'').trim(),
         reply_to_email: String(getSignedInEmail()||'').trim(),
@@ -6863,7 +7094,7 @@ function emptyStateHtml(){
       });
     }
 	    async function sbFetchOrders(limit = 50){
-	      if(!SB.ready || !SB.session || !SB.authorized) return [];
+	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
 	      const lim = Math.max(1, Math.min(200, toInt(limit, 50)));
 	      let sel = 'id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items';
 	      if(SB.ordersHasReceipt !== false){
@@ -6872,6 +7103,8 @@ function emptyStateHtml(){
 	      const { data, error } = await SB.client
 	        .from('orders')
 	        .select(sel)
+	        .eq('company_id', SB.companyId)
+	        .is('deleted_at', null)
 	        .order('created_at', { ascending:false })
 	        .limit(lim);
 	      if(error){
@@ -6880,6 +7113,8 @@ function emptyStateHtml(){
 	          const { data: data2, error: err2 } = await SB.client
 	            .from('orders')
 	            .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items')
+	            .eq('company_id', SB.companyId)
+	            .is('deleted_at', null)
 	            .order('created_at', { ascending:false })
 	            .limit(lim);
 	          if(err2) throw err2;
@@ -6891,7 +7126,7 @@ function emptyStateHtml(){
 	      return Array.isArray(data) ? data : [];
 	    }
 	    async function sbFetchAllOrders(pageSize = 200){
-	      if(!SB.ready || !SB.session || !SB.authorized) return [];
+	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
 	      const size = Math.max(1, Math.min(200, toInt(pageSize, 200)));
 	      let offset = 0;
 	      const out = [];
@@ -6903,6 +7138,8 @@ function emptyStateHtml(){
 	        const { data, error } = await SB.client
 	          .from('orders')
 	          .select(sel)
+	          .eq('company_id', SB.companyId)
+	          .is('deleted_at', null)
 	          .order('created_at', { ascending:false })
 	          .range(offset, offset + size - 1);
 	        if(error){
@@ -6911,6 +7148,8 @@ function emptyStateHtml(){
 	            const { data: data2, error: err2 } = await SB.client
 	              .from('orders')
 	              .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items')
+	              .eq('company_id', SB.companyId)
+	              .is('deleted_at', null)
 	              .order('created_at', { ascending:false })
 	              .range(offset, offset + size - 1);
 	            if(err2) throw err2;
@@ -7018,19 +7257,22 @@ function emptyStateHtml(){
 	      }
 	    }
 	    async function sbDeleteOrder(orderId){
-	      if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
+	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) throw new Error('Not authorized');
+	      if(!canDelete()) throw new Error('Permission denied');
 	      const id = String(orderId || '').trim();
 	      if(!id) throw new Error('Invalid order ID');
-	      const { error } = await SB.client
-	        .from('orders')
-	        .delete()
-	        .eq('id', id);
+	      const { data, error } = await SB.client
+	        .rpc('soft_delete_order', { p_order_id: id });
 	      if(error) throw error;
+	      if(data && data.success === false){
+	        throw new Error(data.error || 'Delete failed');
+	      }
 	    }
 
 	    async function deleteOrderFromHistory(orderId, btnEl){
 	      const id = String(orderId || '').trim();
 	      if(!id) return false;
+	      if(!canDelete()){ toast('Delete not allowed'); return false; }
 	      if(!(await openConfirmModal('Delete order?', 'Delete this order from history?', { okText:'Delete', cancelText:'Cancel' }))) return false;
 	      if(btnEl) btnEl.disabled = true;
 	      try{
@@ -7054,13 +7296,16 @@ function emptyStateHtml(){
 	    }
 
 	    async function sbUpdateOrder(orderId, fields){
-	      if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
+	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) throw new Error('Not authorized');
+	      if(!canUpdate()) throw new Error('Permission denied');
 	      const id = String(orderId || '').trim();
 	      if(!id) throw new Error('Invalid order ID');
 	      const { error } = await SB.client
 	        .from('orders')
 	        .update(fields || {})
-	        .eq('id', id);
+	        .eq('id', id)
+	        .eq('company_id', SB.companyId)
+	        .is('deleted_at', null);
 	      if(error) throw error;
 	    }
 
@@ -7477,6 +7722,7 @@ function emptyStateHtml(){
 	      if(!SB.ready){ toast('Supabase not configured'); return; }
 	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
 	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
+	      if(!canUpdate()){ toast('Receive not allowed'); return; }
 	      if(SB.ordersHasReceipt === false){
 	        showOrderReceivingSetupHelp();
 	        return;
@@ -7572,7 +7818,8 @@ function emptyStateHtml(){
 
         const orderId = String(o.id || '');
         const receiptMeta = orderNonEmpty(orderReceiptMetaText(o));
-        const canReceipt = (SB.ordersHasReceipt !== false);
+        const canReceipt = (SB.ordersHasReceipt !== false) && canUpdate();
+        const canRemove = canDelete();
         const isReceived = isOrderCurrentlyReceived(o);
         const isReceiving = canReceipt && !!String(o.receiving_at || '').trim() && !String(o.received_at || '').trim();
         det.classList.toggle('order-received', isReceived);
@@ -7588,11 +7835,11 @@ function emptyStateHtml(){
             `<polyline class="recv-check" points="9 11 12 14 16 10"></polyline>`+
           `</svg>`;
         const receiptBtn =
-          `<button class="${receiveBtnClass}" data-receive-order-id="${escapeHtml(orderId)}" aria-disabled="${canReceipt ? 'false' : 'true'}" aria-label="${escapeHtml(receiveBtnTitle)}" title="${escapeHtml(receiveBtnTitle)}">`+
+          `<button class="${receiveBtnClass}" data-receive-order-id="${escapeHtml(orderId)}" aria-disabled="${canReceipt ? 'false' : 'true'}" aria-label="${escapeHtml(receiveBtnTitle)}" title="${escapeHtml(receiveBtnTitle)}"${canReceipt ? '' : ' disabled'}>`+
             receiveBtnIcon+
           `</button>`;
         const trayDeleteBtn =
-          `<button type="button" class="history-tray-btn history-tray-btn--delete" data-delete-order-id="${escapeHtml(orderId)}" tabindex="-1" aria-label="Delete order" title="Delete order">`+
+          `<button type="button" class="history-tray-btn history-tray-btn--delete" data-delete-order-id="${escapeHtml(orderId)}" tabindex="-1" aria-label="Delete order" title="Delete order"${canRemove ? '' : ' disabled aria-disabled="true"'}>`+
             `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
               `<polyline points="3 6 5 6 21 6"></polyline>`+
               `<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>`+
@@ -7601,7 +7848,7 @@ function emptyStateHtml(){
             `</svg>`+
           `</button>`;
         const trayReceiveBtn =
-          `<button type="button" class="history-tray-btn history-tray-btn--receive" data-receive-order-id="${escapeHtml(orderId)}" tabindex="-1" aria-disabled="${canReceipt ? 'false' : 'true'}" aria-label="${escapeHtml(receiveBtnTitle)}" title="${escapeHtml(receiveBtnTitle)}">`+
+          `<button type="button" class="history-tray-btn history-tray-btn--receive" data-receive-order-id="${escapeHtml(orderId)}" tabindex="-1" aria-disabled="${canReceipt ? 'false' : 'true'}" aria-label="${escapeHtml(receiveBtnTitle)}" title="${escapeHtml(receiveBtnTitle)}"${canReceipt ? '' : ' disabled'}>`+
             `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
               `<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>`+
               `<path d="M3.27 6.96 12 12.01l8.73-5.05"></path>`+
@@ -7651,7 +7898,7 @@ function emptyStateHtml(){
               `<div class="history-title">${subject}</div>`+
               `<div class="history-actions">`+
                 receiptBtn+
-                `<button class="btn-icon-danger" data-delete-order-id="${orderId}" aria-label="Delete order" title="Delete order">`+
+                `<button class="btn-icon-danger" data-delete-order-id="${orderId}" aria-label="Delete order" title="Delete order"${canRemove ? '' : ' disabled aria-disabled="true"'}>`+
                   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`+
                 `</button>`+
               `</div>`+
@@ -7973,7 +8220,7 @@ function emptyStateHtml(){
             `</label>`+
             `<div class="qty-stepper" data-qty-picker-trigger="${l.id}">`+
               `<button class="qty-stepper-btn" data-line-dec="${l.id}">−</button>`+
-              `<span class="qty-stepper-val">${toInt(l.qty,0)}</span>`+
+              `<input type="text" inputmode="numeric" pattern="[0-9]*" class="qty-stepper-input" data-line-qty-input="${l.id}" value="${toInt(l.qty,0)}" aria-label="Order quantity">`+
               `<button class="qty-stepper-btn" data-line-inc="${l.id}">+</button>`+
             `</div>`+
             `<button class="order-remove-btn" data-remove-order-id="${l.id}" title="Remove">`+
@@ -8009,6 +8256,7 @@ function emptyStateHtml(){
       }
     }
 	    function openOrderModal(opts = {}){
+		      if(!canCreate()){ toast('Order creation not allowed'); return; }
 		      const ord = orderState();
 		      const addSelected = !isMobileUx() && !(opts && Object.prototype.hasOwnProperty.call(opts, 'addSelected') && opts.addSelected === false);
 		      if(addSelected){
@@ -8047,7 +8295,11 @@ function emptyStateHtml(){
     }
 
 	    const menuOrder = $('menuOrder');
-	    if(menuOrder) menuOrder.addEventListener('click', ()=>{ toggleMenu(false); openOrderModal(); });
+	    if(menuOrder) menuOrder.addEventListener('click', ()=>{
+	      toggleMenu(false);
+	      if(!requirePermission('can_create', 'Order creation not allowed')) return;
+	      openOrderModal();
+	    });
 	    const menuHistory = $('menuHistory');
 	    if(menuHistory) menuHistory.addEventListener('click', ()=>{ toggleMenu(false); openOrderHistoryModal({ returnToOrder: false }); });
 		    const menuReport = $('menuReport');
@@ -8181,6 +8433,7 @@ function emptyStateHtml(){
     if(btnOrderSubmit) btnOrderSubmit.addEventListener('click', async ()=>{
       const url = buildMailtoUrl();
       if(!url){ toast('Add at least 1 item and an email'); return; }
+      if(!requirePermission('can_create', 'Order creation not allowed')) return;
 
       const btn = $('btnOrderSubmit');
       const priorText = btn ? btn.textContent : '';
@@ -8651,52 +8904,24 @@ function emptyStateHtml(){
 	        return;
 	      }
 
-	      const val = e.target.closest('.qty-stepper-val');
-	      if(val){
-	        const stepper = val.closest('.qty-stepper');
-	        if(!stepper) return;
-	        const id = String(
-	          stepper.dataset?.qtyPickerTrigger
-	          || stepper.querySelector('button[data-line-inc]')?.getAttribute('data-line-inc')
-	          || stepper.querySelector('button[data-line-dec]')?.getAttribute('data-line-dec')
-	          || ''
-	        ).trim();
-	        if(!id) return;
-	        const ord = orderState();
-	        const line = ord.lines.find(l => l && l.id === id) || null;
-	        const currentQty = getOrderQtyForItem(id);
-	        const name = String(line && line.name ? line.name : '').trim();
-	        const selectedIds = orderLineSelectedIds().filter(selId =>
-	          ord.lines.some(l => l && String(l.id || '').trim() === String(selId || '').trim())
-	        );
-	        const isBatch = selectedIds.length > 1 && selectedIds.includes(id);
-	        const next = await openQtyEntryModal('Order Qty', name || 'Order Qty', currentQty, { min:0, okText:'Set', cancelText:'Cancel' });
-	        if(next === null || typeof next === 'undefined') return;
-	        const desiredQty = Math.max(0, toInt(next, currentQty));
-	        if(desiredQty === currentQty) return;
-	        if(isBatch){
-	          const ok = await openConfirmModal('Batch edit?', `Set Order Qty to ${desiredQty} for ${selectedIds.length} selected items?`, { okText:'Apply', cancelText:'Cancel' });
-	          if(!ok) return;
-	          for(const selId of selectedIds){
-	            if(desiredQty <= 0) removeOrderLine(selId);
-	            else setOrderQty(selId, desiredQty);
-	          }
-	          renderOrderResults();
-	          renderOrderLines();
-	          return;
-	        }
-	        if(desiredQty <= 0) removeOrderLine(id);
-	        else setOrderQty(id, desiredQty);
-	        renderOrderResults();
-	        renderOrderLines();
-	        return;
-	      }
 	      // Stepper increment
 	      const incBtn = e.target.closest('button[data-line-inc]');
 	      if(incBtn){
 	        const id = incBtn.getAttribute('data-line-inc');
-	        const currentQty = getOrderQtyForItem(id);
-        setOrderQty(id, currentQty + 1);
+	        const ord = orderState();
+	        const selectedIds = orderLineSelectedIds().filter(selId =>
+	          ord.lines.some(l => l && String(l.id || '').trim() === String(selId || '').trim())
+	        );
+	        const isBatch = selectedIds.length > 0 && selectedIds.includes(id);
+	        if(isBatch){
+	          for(const selId of selectedIds){
+	            const currentQty = getOrderQtyForItem(selId);
+	            setOrderQty(selId, currentQty + 1);
+	          }
+	        } else {
+	          const currentQty = getOrderQtyForItem(id);
+	          setOrderQty(id, currentQty + 1);
+	        }
         renderOrderResults();
         renderOrderLines();
         return;
@@ -8705,11 +8930,27 @@ function emptyStateHtml(){
       const decBtn = e.target.closest('button[data-line-dec]');
       if(decBtn){
         const id = decBtn.getAttribute('data-line-dec');
-        const currentQty = getOrderQtyForItem(id);
-        if(currentQty <= 1){
-          removeOrderLine(id);
+        const ord = orderState();
+        const selectedIds = orderLineSelectedIds().filter(selId =>
+          ord.lines.some(l => l && String(l.id || '').trim() === String(selId || '').trim())
+        );
+        const isBatch = selectedIds.length > 0 && selectedIds.includes(id);
+        if(isBatch){
+          for(const selId of selectedIds){
+            const currentQty = getOrderQtyForItem(selId);
+            if(currentQty <= 1){
+              removeOrderLine(selId);
+            } else {
+              setOrderQty(selId, currentQty - 1);
+            }
+          }
         } else {
-          setOrderQty(id, currentQty - 1);
+          const currentQty = getOrderQtyForItem(id);
+          if(currentQty <= 1){
+            removeOrderLine(id);
+          } else {
+            setOrderQty(id, currentQty - 1);
+          }
         }
         renderOrderResults();
         renderOrderLines();
@@ -8718,19 +8959,102 @@ function emptyStateHtml(){
     });
     if(orderLinesBody) orderLinesBody.addEventListener('change', (e)=>{
       const cb = e.target.closest('.order-line-select');
-      if(!cb) return;
-      const id = String(cb.dataset.orderSelectId || '').trim();
-      if(!id) return;
-      setOrderLineSelected(id, cb.checked);
+      if(cb){
+        const id = String(cb.dataset.orderSelectId || '').trim();
+        if(!id) return;
+        setOrderLineSelected(id, cb.checked);
+        return;
+      }
+      // Handle inline qty input change
+      const qtyInput = e.target.closest('.qty-stepper-input');
+      if(qtyInput){
+        const id = String(qtyInput.dataset.lineQtyInput || '').trim();
+        if(!id) return;
+        const currentQty = getOrderQtyForItem(id);
+        const newQty = Math.max(0, toInt(qtyInput.value, currentQty));
+        if(newQty === currentQty) return;
+        const ord = orderState();
+        const selectedIds = orderLineSelectedIds().filter(selId =>
+          ord.lines.some(l => l && String(l.id || '').trim() === String(selId || '').trim())
+        );
+        const isBatch = selectedIds.length > 0 && selectedIds.includes(id);
+        if(isBatch){
+          for(const selId of selectedIds){
+            if(newQty <= 0) removeOrderLine(selId);
+            else setOrderQty(selId, newQty);
+          }
+        } else {
+          if(newQty <= 0){
+            removeOrderLine(id);
+          } else {
+            setOrderQty(id, newQty);
+          }
+        }
+        renderOrderResults();
+        renderOrderLines();
+        return;
+      }
     });
+    // Handle Enter key on qty input
+    if(orderLinesBody) orderLinesBody.addEventListener('keydown', (e)=>{
+      const qtyInput = e.target.closest('.qty-stepper-input');
+      if(qtyInput && e.key === 'Enter'){
+        e.preventDefault();
+        qtyInput.blur();
+      }
+    });
+    // Select all text on focus for easier editing
+    if(orderLinesBody) orderLinesBody.addEventListener('focus', (e)=>{
+      const qtyInput = e.target.closest('.qty-stepper-input');
+      if(qtyInput){
+        setTimeout(()=> qtyInput.select(), 0);
+      }
+    }, true);
+    // Handle blur explicitly for mobile browsers
+    if(orderLinesBody) orderLinesBody.addEventListener('blur', (e)=>{
+      const qtyInput = e.target.closest('.qty-stepper-input');
+      if(qtyInput){
+        const id = String(qtyInput.dataset.lineQtyInput || '').trim();
+        if(!id) return;
+        const currentQty = getOrderQtyForItem(id);
+        const newQty = Math.max(0, toInt(qtyInput.value, currentQty));
+        if(newQty === currentQty) return;
+        const ord = orderState();
+        const selectedIds = orderLineSelectedIds().filter(selId =>
+          ord.lines.some(l => l && String(l.id || '').trim() === String(selId || '').trim())
+        );
+        const isBatch = selectedIds.length > 0 && selectedIds.includes(id);
+        if(isBatch){
+          for(const selId of selectedIds){
+            if(newQty <= 0) removeOrderLine(selId);
+            else setOrderQty(selId, newQty);
+          }
+        } else {
+          if(newQty <= 0){
+            removeOrderLine(id);
+          } else {
+            setOrderQty(id, newQty);
+          }
+        }
+        renderOrderResults();
+        renderOrderLines();
+      }
+    }, true);
 
     // Add-one modal
-    $('menuAddOne').addEventListener('click', ()=>{ toggleMenu(false); if(!requireOnline()) return; show('addOneModal', true); $('addName').focus(); });
+    $('menuAddOne').addEventListener('click', ()=>{
+      toggleMenu(false);
+      if(!requireOnline()) return;
+      if(!requirePermission('can_create', 'Create permission required')) return;
+      show('addOneModal', true);
+      $('addName').focus();
+    });
     $('btnAddCancel').addEventListener('click', ()=> show('addOneModal', false));
     $('btnAddSave').addEventListener('click', saveAddOne);
     $('addQty').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); saveAddOne(); }});
     async function saveAddOne(){
       if(!requireOnline()) return;
+      if(!requirePermission('can_create', 'Create permission required')) return;
       const name = String(($('addName').value||'').trim());
       const desc = String(($('addDesc').value||'').trim());
       const qty  = toInt($('addQty').value,-1);
@@ -8754,6 +9078,7 @@ function emptyStateHtml(){
 		      const btn = e.target.closest('.row-delete-btn');
 		      if(!btn) return;
 		      if(!requireOnline()) return;
+		      if(!requirePermission('can_delete', 'Delete not allowed')) return;
 		      const id = btn.dataset.id;
       if(!id) return;
       const item = state.items.find(it => it.id === id);
@@ -8774,6 +9099,7 @@ function emptyStateHtml(){
       if(!btn) return;
       const id = String(btn.dataset.id || '').trim();
       if(!id) return;
+      if(!canCreate()){ toast('Order creation not allowed'); return; }
       try{ e.preventDefault(); e.stopPropagation(); }catch(_){}
       const selectedIds = getSelectedRowIds();
       if(selectedIds.length > 1 && selectedIds.includes(id)){
