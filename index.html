@@ -2107,6 +2107,21 @@
     .invite-actions{display:flex;justify-content:flex-end}
     .invite-link-row{display:none;gap:8px;align-items:center}
     .invite-link-row input{font-size:12px}
+    .trash-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .trash-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+    .trash-item{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:var(--card);
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      justify-content:space-between;
+    }
+    .trash-title{font-weight:700}
+    .trash-meta{font-size:12px;color:var(--muted);margin-top:6px}
+    .trash-empty{padding:14px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);text-align:center}
     .menu-icon-svg{flex-shrink:0}
 </style>
 </head>
@@ -2188,6 +2203,10 @@
             <button class="menu-item" id="menuHistory" role="menuitem">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
               Order History
+            </button>
+            <button class="menu-item" id="menuTrash" role="menuitem">
+              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              Trash
             </button>
           </nav>
         </div>
@@ -2549,6 +2568,22 @@
 		    </div>
 		  </div>
 
+		  <!-- Trash -->
+		  <div id="trashModal" class="modal" aria-hidden="true">
+		    <div class="box">
+		      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+		        <h2 style="margin:0;font-size:16px;">Trash</h2>
+		        <button class="btn" id="btnTrashClose" type="button">Close</button>
+		      </div>
+		      <div class="trash-controls">
+		        <input id="trashFilter" type="text" placeholder="Filter deleted items…" autocomplete="off" />
+		        <button class="btn" id="btnTrashReload" type="button">Refresh</button>
+		      </div>
+		      <div id="trashList" class="trash-list" aria-live="polite"></div>
+		      <div id="trashMsg" class="muted" style="margin-top:8px;"></div>
+		    </div>
+		  </div>
+
 		  <!-- Inventory report -->
 		  <div id="reportModal" class="modal" aria-hidden="true">
 		    <div class="box">
@@ -2813,7 +2848,15 @@
 	    // State & persistence
 	    // ========================
     const DB_KEY='inv.single.inline.mobile.v1';
-	    const state={items:[], updatedAt:null, _filter:'', _sort:{col:'name', dir:'asc'}, _order:{lines:[], email:'', subject:'', notes:'', contactName:'', search:''}};
+	    const state={
+	      items:[],
+	      updatedAt:null,
+	      _filter:'',
+	      _sort:{col:'name', dir:'asc'},
+	      _order:{lines:[], email:'', subject:'', notes:'', contactName:'', search:''},
+	      _trashItems:[],
+	      _trashFilter:''
+	    };
     const APP_VERSION = '2.0.0';
 
     const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
@@ -3051,6 +3094,7 @@
       setDisabled('menuAddOne', !canCreate());
       setDisabled('menuOrder', !canCreate());
       setDisabled('menuHistory', !canRead);
+      setDisabled('menuTrash', !canDelete());
       setDisabled('btnOrderSubmit', !canCreate());
       setDisabled('btnEditItemDelete', !canDelete());
       setDisabled('btnReportBatchOrder', !canCreate());
@@ -3269,6 +3313,10 @@
 	      state._orderHistoryFilter = '';
 	      const orderHistoryFilter = $('orderHistoryFilter');
 	      if(orderHistoryFilter) orderHistoryFilter.value = '';
+	      state._trashItems = [];
+	      state._trashFilter = '';
+	      const trashFilter = $('trashFilter');
+	      if(trashFilter) trashFilter.value = '';
 	      updateOrderCounterBadge();
 	    }
 	    async function sbSwitchCompany(nextCompanyId){
@@ -8524,6 +8572,90 @@ function emptyStateHtml(){
         renderOrderPreview();
       }
     }
+    function setTrashMessage(msg){
+      const el = $('trashMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function trashSearchText(row){
+      const r = row || {};
+      const name = String(r.name || '').toLowerCase();
+      const desc = String(r.description || '').toLowerCase();
+      const qty = String(toInt(r.quantity, 0));
+      const deletedBy = String(r.deleted_by_email || '').toLowerCase();
+      const deletedAt = String(r.deleted_at || '').toLowerCase();
+      return `${name} ${desc} ${qty} ${deletedBy} ${deletedAt}`.trim();
+    }
+    function renderTrashList(){
+      const list = $('trashList');
+      if(!list) return;
+      const rows = Array.isArray(state._trashItems) ? state._trashItems : [];
+      const filter = String(state._trashFilter || '').trim().toLowerCase();
+      const filtered = filter ? rows.filter(r => trashSearchText(r).includes(filter)) : rows;
+      if(!rows.length){
+        list.innerHTML = `<div class="trash-empty">Trash is empty.</div>`;
+        return;
+      }
+      if(!filtered.length){
+        list.innerHTML = `<div class="trash-empty">No matches.</div>`;
+        return;
+      }
+      list.innerHTML = filtered.map(row => {
+        const id = String(row.id || '').trim();
+        const name = String(row.name || '').trim() || '(Unnamed item)';
+        const desc = String(row.description || '').trim();
+        const qty = toInt(row.quantity, 0);
+        const deletedAt = row.deleted_at ? formatEasternDateTime(row.deleted_at) : '';
+        const deletedBy = String(row.deleted_by_email || '').trim();
+        const metaParts = [];
+        if(deletedAt) metaParts.push(`Deleted ${escapeHtml(deletedAt)}`);
+        if(deletedBy) metaParts.push(`By ${escapeHtml(deletedBy)}`);
+        metaParts.push(`Qty ${qty}`);
+        const meta = metaParts.join(' • ');
+        return (
+          `<div class="trash-item">`+
+            `<div>`+
+              `<div class="trash-title">${escapeHtml(name)}</div>`+
+              (desc ? `<div class="muted">${escapeHtml(desc)}</div>` : '')+
+              `<div class="trash-meta">${meta}</div>`+
+            `</div>`+
+            `<div>`+
+              `<button class="btn" data-restore-id="${escapeHtmlAttr(id)}">Restore</button>`+
+            `</div>`+
+          `</div>`
+        );
+      }).join('');
+    }
+    async function refreshTrash(){
+      const list = $('trashList');
+      if(list) list.innerHTML = `<div class="muted">Loading…</div>`;
+      setTrashMessage('');
+      try{
+        if(!SB.ready) throw new Error('Supabase not configured');
+        if(!SB.session) throw new Error('Sign in required');
+        if(!SB.companyId) throw new Error('No company selected');
+        if(!canDelete()) throw new Error('Trash access requires admin');
+        const { data, error } = await SB.client.rpc('get_deleted_items', { p_company_id: SB.companyId });
+        if(error) throw error;
+        state._trashItems = Array.isArray(data) ? data : [];
+        renderTrashList();
+      }catch(e){
+        state._trashItems = [];
+        const msg = e && e.message ? e.message : 'Failed to load trash';
+        if(list) list.innerHTML = `<div class="trash-empty">${escapeHtml(msg)}</div>`;
+      }
+    }
+    async function openTrashModal(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
+      if(!canDelete()){ toast('Trash access requires admin'); return; }
+      show('trashModal', true);
+      const f = $('trashFilter'); if(f) f.value = state._trashFilter || '';
+      await refreshTrash();
+    }
+    function closeTrashModal(){
+      show('trashModal', false);
+    }
     function renderOrderResults(){
       const ord = orderState();
       const list = $('orderResultsBody');
@@ -8708,8 +8840,47 @@ function emptyStateHtml(){
 	      if(!requirePermission('can_create', 'Order creation not allowed')) return;
 	      openOrderModal();
 	    });
-	    const menuHistory = $('menuHistory');
-	    if(menuHistory) menuHistory.addEventListener('click', ()=>{ toggleMenu(false); openOrderHistoryModal({ returnToOrder: false }); });
+    const menuHistory = $('menuHistory');
+    if(menuHistory) menuHistory.addEventListener('click', ()=>{ toggleMenu(false); openOrderHistoryModal({ returnToOrder: false }); });
+    const menuTrash = $('menuTrash');
+    if(menuTrash) menuTrash.addEventListener('click', ()=>{ toggleMenu(false); openTrashModal(); });
+    const btnTrashClose = $('btnTrashClose');
+    if(btnTrashClose) btnTrashClose.addEventListener('click', closeTrashModal);
+    const btnTrashReload = $('btnTrashReload');
+    if(btnTrashReload) btnTrashReload.addEventListener('click', refreshTrash);
+    const trashFilter = $('trashFilter');
+    if(trashFilter) trashFilter.addEventListener('input', ()=>{
+      state._trashFilter = trashFilter.value || '';
+      renderTrashList();
+    });
+    const trashList = $('trashList');
+    if(trashList) trashList.addEventListener('click', async (e)=>{
+      const btn = e.target.closest('[data-restore-id]');
+      if(!btn) return;
+      const id = String(btn.getAttribute('data-restore-id') || '').trim();
+      if(!id) return;
+      const row = Array.isArray(state._trashItems) ? state._trashItems.find(r => String(r && r.id ? r.id : '') === id) : null;
+      const name = row && row.name ? String(row.name) : 'item';
+      if(!(await openConfirmModal('Restore item?', `Restore "${name}" from trash?`, { okText:'Restore', cancelText:'Cancel' }))) return;
+      btn.disabled = true;
+      btn.setAttribute('aria-disabled', 'true');
+      try{
+        const { data, error } = await SB.client.rpc('restore_item', { p_item_id: id });
+        if(error) throw error;
+        if(data && data.success === false){
+          throw new Error(data.error || 'Restore failed');
+        }
+        state._trashItems = (state._trashItems || []).filter(r => String(r && r.id ? r.id : '') !== id);
+        renderTrashList();
+        try{ await sbLoadSnapshot(); }catch(e){}
+        toast('Item restored');
+      }catch(err){
+        toast(err && err.message ? err.message : 'Restore failed');
+      }finally{
+        btn.disabled = false;
+        btn.setAttribute('aria-disabled', 'false');
+      }
+    });
 		    const menuReport = $('menuReport');
 		    if(menuReport) menuReport.addEventListener('click', ()=>{ toggleMenu(false); openReportModal(); });
 		    const btnReportClose = $('btnReportClose');
