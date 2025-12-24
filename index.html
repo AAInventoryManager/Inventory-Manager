@@ -2069,6 +2069,28 @@
     .profile-dropdown .menu-item:disabled:hover{background:transparent}
     .profile-meta{padding:10px 16px;border-top:1px solid var(--border);margin-top:8px}
     .profile-meta .time{font-size:11px;color:var(--muted)}
+    .profile-company{
+      padding:10px 16px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .profile-company-label{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      color:var(--muted);
+    }
+    .profile-company select{
+      padding:8px 10px;
+      font-size:13px;
+      border-radius:8px;
+      background:#0f141b;
+      color:var(--fg);
+      border:1px solid var(--border);
+    }
+    .profile-company select:disabled{opacity:0.6;cursor:not-allowed}
+    .profile-company-hint{font-size:11px;color:var(--muted)}
     .menu-icon-svg{flex-shrink:0}
 </style>
 </head>
@@ -2092,7 +2114,12 @@
               <div class="profile-email" id="profileEmail">Not signed in</div>
               <div class="profile-connection" id="profileConnection">Offline</div>
             </div>
-            <div class="menu-divider"></div>
+            <div class="profile-company" id="profileCompanySection">
+              <label class="profile-company-label" for="profileCompanySelect">Company</label>
+              <select id="profileCompanySelect" aria-label="Switch company"></select>
+              <div class="profile-company-hint" id="profileCompanyHint"></div>
+            </div>
+            <div class="menu-divider" id="profileCompanyDivider"></div>
             <button class="menu-item" id="openProfileSettings">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
               <span>Profile Settings</span>
@@ -3020,6 +3047,131 @@
 	        note += ` Contact: ${SB.permissions.assigned_admin_email}`;
 	      }
 	      setProfileMessage(note);
+	      renderCompanySwitcher();
+	    }
+	    function renderCompanySwitcher(){
+	      const section = $('profileCompanySection');
+	      const select = $('profileCompanySelect');
+	      const hint = $('profileCompanyHint');
+	      const divider = $('profileCompanyDivider');
+	      if(!section || !select) return;
+	      if(!SB.session){
+	        section.style.display = 'none';
+	        if(divider) divider.style.display = 'none';
+	        return;
+	      }
+	      const rows = Array.isArray(SB.companies) ? SB.companies : [];
+	      section.style.display = '';
+	      if(divider) divider.style.display = '';
+	      select.innerHTML = '';
+	      if(!rows.length){
+	        const opt = document.createElement('option');
+	        opt.value = '';
+	        opt.textContent = 'No companies available';
+	        select.appendChild(opt);
+	        select.disabled = true;
+	        if(hint) hint.textContent = 'No company access yet.';
+	        return;
+	      }
+	      rows.forEach(row => {
+	        const id = String(row && row.company_id ? row.company_id : '').trim();
+	        if(!id) return;
+	        const name = String(row.company_name || row.company_slug || row.company_id || '').trim() || id;
+	        const roleRaw = String(row.my_role || (row.is_super_user ? 'super_user' : '')).trim();
+	        const roleLabel = roleRaw ? (roleRaw === 'super_user' ? 'super' : roleRaw) : '';
+	        const opt = document.createElement('option');
+	        opt.value = id;
+	        opt.textContent = roleLabel ? `${name} (${roleLabel})` : name;
+	        select.appendChild(opt);
+	      });
+	      const current = SB.companyId ? String(SB.companyId) : '';
+	      if(current && Array.from(select.options).some(opt => opt.value === current)){
+	        select.value = current;
+	      }else{
+	        select.selectedIndex = 0;
+	      }
+	      select.disabled = rows.length <= 1;
+	      if(hint){
+	        const selectedId = String(select.value || '').trim();
+	        const currentRow = rows.find(r => String(r.company_id) === selectedId) || null;
+	        const role = currentRow ? String(currentRow.my_role || (currentRow.is_super_user ? 'super_user' : '')).trim() : '';
+	        if(role){
+	          hint.textContent = role === 'super_user' ? 'Super user access' : `Role: ${role}`;
+	        }else if(rows.length <= 1){
+	          hint.textContent = 'Only one company assigned.';
+	        }else{
+	          hint.textContent = 'Switch company for inventory.';
+	        }
+	      }
+	    }
+	    function resetCompanyScopedState(){
+	      state.items = [];
+	      try{ applySelectedRowIds([]); }catch(e){}
+	      try{ clearAllOrderLines(); }catch(e){}
+	      state._orderHistoryRows = [];
+	      state._orderHistoryById = new Map();
+	      state._orderHistoryFilter = '';
+	      const orderHistoryFilter = $('orderHistoryFilter');
+	      if(orderHistoryFilter) orderHistoryFilter.value = '';
+	      updateOrderCounterBadge();
+	    }
+	    async function sbSwitchCompany(nextCompanyId){
+	      if(!SB.ready || !SB.session) return false;
+	      const nextId = String(nextCompanyId || '').trim();
+	      if(!nextId || nextId === SB.companyId) return false;
+	      const rows = Array.isArray(SB.companies) ? SB.companies : [];
+	      const target = rows.find(r => String(r.company_id) === nextId) || null;
+	      if(!target){
+	        toast('Company not found');
+	        renderCompanySwitcher();
+	        return false;
+	      }
+	      const prev = {
+	        companyId: SB.companyId,
+	        company: SB.company,
+	        permissions: SB.permissions,
+	        authorized: SB.authorized,
+	        connected: SB.connected,
+	      };
+	      SB.companyId = nextId;
+	      SB.company = target;
+	      saveCompanyId(nextId);
+	      SB.permissions = null;
+	      SB.authorized = false;
+	      SB.connected = false;
+	      updateStatusBar();
+	      renderCompanySwitcher();
+	      applyPermissionUI();
+	      resetCompanyScopedState();
+	      render();
+	      if(_sbChannel && SB.client){ try{ SB.client.removeChannel(_sbChannel); }catch(e){} _sbChannel = null; }
+	      try{
+	        await sbLoadPermissions();
+	      }catch(e){
+	        console.warn('Permissions load failed:', e);
+	        SB.companyId = prev.companyId;
+	        SB.company = prev.company;
+	        SB.permissions = prev.permissions;
+	        SB.authorized = prev.authorized;
+	        SB.connected = prev.connected;
+	        updateStatusBar();
+	        renderCompanySwitcher();
+	        applyPermissionUI();
+	        render();
+	        toast('Company switch failed');
+	        return false;
+	      }
+	      SB.authorized = !!(SB.permissions && SB.permissions.can_read);
+	      updateStatusBar();
+	      renderProfileUi();
+	      applyPermissionUI();
+	      if(!SB.authorized) return true;
+	      await checkServerHealth();
+	      if(isOnline()){
+	        await sbLoadSnapshot();
+	        sbStartRealtime();
+	      }
+	      return true;
 	    }
 	    async function sbEnsureProfile(){
 	      if(!SB.ready || !SB.user) return null;
@@ -3170,10 +3322,12 @@
       }catch(e){
         console.warn('Company load failed:', e);
         updateStatusBar();
+        renderCompanySwitcher();
         return false;
       }
       if(!SB.companyId){
         updateStatusBar();
+        renderCompanySwitcher();
         return false;
       }
       try{
@@ -3181,10 +3335,12 @@
       }catch(e){
         console.warn('Permissions load failed:', e);
         updateStatusBar();
+        renderCompanySwitcher();
         return false;
       }
       SB.authorized = !!(SB.permissions && SB.permissions.can_read);
       updateStatusBar();
+      renderCompanySwitcher();
       return SB.authorized;
     }
     async function sbHandleSession(session){
@@ -3206,6 +3362,7 @@
         render();
         show('authModal', true);
         applyPermissionUI();
+        renderCompanySwitcher();
         return;
       }
 
@@ -3239,6 +3396,7 @@
       const profileBtn = $('profileBtn');
       const profileDropdown = $('profileDropdown');
       const profileSignIn = $('profileSignIn');
+      const profileCompanySelect = $('profileCompanySelect');
 
       function toggleProfileDropdown(open){
         if(profileDropdown){
@@ -3266,6 +3424,19 @@
           } else {
             // Sign out
             sbSignOut();
+          }
+        });
+      }
+
+      if(profileCompanySelect && !profileCompanySelect._wired){
+        profileCompanySelect._wired = true;
+        profileCompanySelect.addEventListener('change', async (e)=>{
+          const nextId = e && e.target ? e.target.value : '';
+          if(!nextId || nextId === SB.companyId) return;
+          const ok = await sbSwitchCompany(nextId);
+          if(ok){
+            const name = SB.company && SB.company.company_name ? SB.company.company_name : 'company';
+            toast(`Switched to ${name}`);
           }
         });
       }
