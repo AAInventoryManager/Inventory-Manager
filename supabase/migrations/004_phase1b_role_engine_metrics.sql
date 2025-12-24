@@ -32,6 +32,7 @@ $$;
 GRANT EXECUTE ON FUNCTION public.get_company_tier(UUID) TO authenticated;
 
 -- Update get_my_companies to include company_tier
+DROP FUNCTION IF EXISTS public.get_my_companies();
 CREATE OR REPLACE FUNCTION public.get_my_companies()
 RETURNS TABLE (
     company_id UUID,

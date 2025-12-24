@@ -1,0 +1,39 @@
+# Inventory Manager – Pricing & Tier Behavior
+
+This document defines how tiers behave in Inventory Manager.
+Pricing amounts are defined externally.
+
+---
+
+## Starter
+
+- Core inventory table
+- Inline editing
+- Self-serve usage only
+- No human support guaranteed
+
+---
+
+## Professional
+
+- Advanced imports (CSV, XLSX, DOCX)
+- Metrics Dashboard
+- Email support (best effort)
+- No workflow automation
+
+---
+
+## Business
+
+- Snapshots UI (read-only)
+- Role-based access control
+- Workflow-related features
+- Priority support
+
+---
+
+## Enterprise
+
+- Security and governance features
+- Advanced configuration
+- Rapid support access
