@@ -2,12 +2,96 @@
 // Sends order emails via Mailtrap API
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+type AuthResult =
+  | { ok: true; companyId: string }
+  | { ok: false; status: number; error: string };
+
+function getSupabaseClient(token: string) {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Missing Supabase configuration");
+  }
+
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: { Authorization: `Bearer ${token}` },
+    },
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
+
+async function authorizeRequest(req: Request, body: Record<string, unknown>): Promise<AuthResult> {
+  const authHeader = req.headers.get("Authorization") || "";
+  if (!authHeader) {
+    return { ok: false, status: 401, error: "Missing Authorization header" };
+  }
+  if (!authHeader.startsWith("Bearer ")) {
+    return { ok: false, status: 401, error: "Authorization header must use Bearer scheme" };
+  }
+  const token = authHeader.slice(7).trim();
+  if (!token) {
+    return { ok: false, status: 401, error: "Missing JWT token" };
+  }
+
+  const supabase = getSupabaseClient(token);
+  const { data: userData, error: userError } = await supabase.auth.getUser(token);
+  if (userError || !userData?.user) {
+    return { ok: false, status: 401, error: "Invalid or expired JWT token" };
+  }
+
+  let companyId = String(body?.company_id || body?.companyId || "").trim();
+  if (!companyId) {
+    const metaCompanyId = userData.user.app_metadata?.company_id;
+    if (metaCompanyId) {
+      companyId = String(metaCompanyId).trim();
+    }
+  }
+  if (!companyId) {
+    const { data, error } = await supabase.rpc("get_user_company_id");
+    if (error) {
+      return { ok: false, status: 400, error: "Missing company_id" };
+    }
+    companyId = String(data || "").trim();
+  }
+  if (!companyId) {
+    return { ok: false, status: 400, error: "Missing company_id" };
+  }
+
+  const { data: tier, error: tierError } = await supabase.rpc("get_company_tier", {
+    p_company_id: companyId,
+  });
+  if (tierError) {
+    return { ok: false, status: 500, error: "Failed to check tier" };
+  }
+  if (!["business", "enterprise"].includes(String(tier))) {
+    return { ok: false, status: 403, error: "Feature not available for current plan" };
+  }
+
+  const { data: allowed, error: permError } = await supabase.rpc("check_permission", {
+    p_company_id: companyId,
+    p_permission_key: "orders:create",
+  });
+  if (permError) {
+    return { ok: false, status: 500, error: "Failed to check permissions" };
+  }
+  if (!allowed) {
+    return { ok: false, status: 403, error: "Permission denied" };
+  }
+
+  return { ok: true, companyId };
+}
 
 function looksLikeEmail(email: string): boolean {
   const s = String(email || "").trim();
@@ -92,7 +176,15 @@ serve(async (req) => {
   }
 
   try {
-    const body = await req.json();
+    const body = (await req.json()) as Record<string, unknown>;
+
+    const auth = await authorizeRequest(req, body);
+    if (!auth.ok) {
+      return new Response(
+        JSON.stringify({ ok: false, error: auth.error }),
+        { status: auth.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const to = String(body?.to || body?.toEmail || body?.email || "").trim();
     const subject = String(body?.subject || "Material Order").trim();

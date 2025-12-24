@@ -3557,10 +3557,10 @@
     function canItemsRestore(){ return hasPermission(PERMISSIONS.ITEMS_RESTORE); }
     function canItemsExport(){ return hasPermission(PERMISSIONS.ITEMS_EXPORT); }
     function canItemsImport(){ return hasPermission(PERMISSIONS.ITEMS_IMPORT); }
-    function canOrdersView(){ return hasPermission(PERMISSIONS.ORDERS_VIEW); }
-    function canOrdersCreate(){ return hasPermission(PERMISSIONS.ORDERS_CREATE); }
-    function canOrdersEdit(){ return hasPermission(PERMISSIONS.ORDERS_EDIT); }
-    function canOrdersDelete(){ return hasPermission(PERMISSIONS.ORDERS_DELETE); }
+    function canOrdersView(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_VIEW); }
+    function canOrdersCreate(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_CREATE); }
+    function canOrdersEdit(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_EDIT); }
+    function canOrdersDelete(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_DELETE); }
     function canMembersView(){ return hasPermission(PERMISSIONS.MEMBERS_VIEW); }
     function canMembersInvite(){ return hasPermission(PERMISSIONS.MEMBERS_INVITE); }
     function canMembersRemove(){ return hasPermission(PERMISSIONS.MEMBERS_REMOVE); }
@@ -9179,10 +9179,21 @@ function emptyStateHtml(){
         }
       }
 
+      const payload = {
+        to: toEmail,
+        subject,
+        text,
+        html,
+        replyTo,
+      };
+      if(SB.companyId){
+        payload.company_id = SB.companyId;
+      }
+
       const res = await fetch(apiUrl, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ to: toEmail, subject, text, html, replyTo }),
+        body: JSON.stringify(payload),
       });
       let data = null;
       try { data = await res.json(); } catch {}
@@ -9225,6 +9236,7 @@ function emptyStateHtml(){
 
     async function sbFetchOrderRecipientSuggestions(prefix){
       if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
+      if(!canOrdersView()) return [];
       const q = String(prefix||'').trim();
       let req = SB.client
         .from('order_recipients')
@@ -9304,6 +9316,7 @@ function emptyStateHtml(){
     }
 	    async function sbFetchOrders(limit = 50){
 	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
+	      if(!canOrdersView()) return [];
 	      const lim = Math.max(1, Math.min(200, toInt(limit, 50)));
 	      let sel = 'id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items';
 	      if(SB.ordersHasReceipt !== false){
@@ -10242,6 +10255,7 @@ function emptyStateHtml(){
     async function forwardOrderFromHistory(orderId){
       const id = String(orderId || '').trim();
       if(!id) return;
+      if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
 
       const row = state._orderHistoryById && typeof state._orderHistoryById.get === 'function'
         ? (state._orderHistoryById.get(id) || null)

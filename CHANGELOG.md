@@ -17,6 +17,11 @@
 - [inventory.metrics.platform_summary] Enforced Professional tier access for platform metrics.
 - [inventory.reports.inventory] Added inventory report documentation.
 - [inventory.reports.low_stock_api] Added low stock API documentation and RPC enforcement.
+- [inventory.orders.cart] Enforced Business tier and permission checks for order builder workflows.
+- [inventory.orders.email_send] Added Business tier and permission checks for order email sending.
+- [inventory.orders.history] Added order history documentation and Business-tier enforcement.
+- [inventory.orders.recipients] Added order recipient documentation and Business-tier enforcement.
+- [inventory.orders.trash] Enforced Business tier and permission checks for order delete/restore.
 
 ## v1.0.2 — UI polish, sorting, PWA
 - Header alignment: title/status left, logo right; constrained to table width

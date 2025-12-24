@@ -237,54 +237,44 @@ features:
     status: legacy
   - feature_id: inventory.orders.cart
     name: Order Builder
-    description: Legacy feature pending governance classification (cart, create order).
+    description: Build purchase orders from selected inventory items.
     tier_availability:
-      - starter: false
-      - professional: false
-      - business: false
-      - enterprise: false
-    support_impact: low
-    status: legacy
+      - business
+      - enterprise
+    support_impact: medium
+    status: released
   - feature_id: inventory.orders.email_send
     name: Order Email Sending
-    description: Legacy feature pending governance classification (send orders via email).
+    description: Send order emails from the order builder workflow.
     tier_availability:
-      - starter: false
-      - professional: false
-      - business: false
-      - enterprise: false
-    support_impact: low
-    status: legacy
+      - business
+      - enterprise
+    support_impact: medium
+    status: released
   - feature_id: inventory.orders.history
     name: Order History
-    description: Legacy feature pending governance classification (history, receive, details).
+    description: View order history with receiving and status details.
     tier_availability:
-      - starter: false
-      - professional: false
-      - business: false
-      - enterprise: false
-    support_impact: low
-    status: legacy
+      - business
+      - enterprise
+    support_impact: medium
+    status: released
   - feature_id: inventory.orders.recipients
     name: Order Recipients
-    description: Legacy feature pending governance classification (recipient suggestions).
+    description: Recipient suggestions for order emails.
     tier_availability:
-      - starter: false
-      - professional: false
-      - business: false
-      - enterprise: false
+      - business
+      - enterprise
     support_impact: low
-    status: legacy
+    status: released
   - feature_id: inventory.orders.trash
     name: Order Trash
-    description: Legacy feature pending governance classification (soft delete and restore orders).
+    description: Soft delete and restore orders from history.
     tier_availability:
-      - starter: false
-      - professional: false
-      - business: false
-      - enterprise: false
-    support_impact: low
-    status: legacy
+      - business
+      - enterprise
+    support_impact: medium
+    status: released
   - feature_id: inventory.reports.inventory
     name: Inventory Report
     description: Inventory report view with CSV and email export.

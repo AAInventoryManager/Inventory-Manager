@@ -31,6 +31,8 @@ Pricing amounts are defined externally.
 - Role-based access control
 - User management and invitations
 - Role change requests
+- Order builder, history, and receiving workflows
+- Order email sending and recipient suggestions
 - Workflow-related features
 - Priority support
 
