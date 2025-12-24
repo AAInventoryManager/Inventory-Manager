@@ -2091,6 +2091,13 @@
     }
     .profile-company select:disabled{opacity:0.6;cursor:not-allowed}
     .profile-company-hint{font-size:11px;color:var(--muted)}
+    .invite-section{margin-top:14px}
+    .invite-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+    .invite-grid{display:grid;grid-template-columns:1fr;gap:8px}
+    .invite-actions{display:flex;justify-content:flex-end;margin-top:8px}
+    .invite-link-row{display:none;gap:8px;align-items:center;margin-top:8px}
+    .invite-link-row input{font-size:12px}
+    .section-divider{height:1px;background:var(--border);margin:12px 0}
     .menu-icon-svg{flex-shrink:0}
 </style>
 </head>
@@ -2281,7 +2288,11 @@
         <label class="muted">Description (optional)</label>
         <input id="addDesc" type="text" placeholder="Description" />
         <label class="muted">Qty (integer > 0)</label>
-        <input id="addQty" type="number" min="1" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
+        <div class="qty-stepper" id="addQtyStepper">
+          <button type="button" class="qty-stepper-btn" id="addQtyDec">−</button>
+          <input type="text" inputmode="numeric" pattern="[0-9]*" class="qty-stepper-input" id="addQty" value="1" aria-label="Quantity">
+          <button type="button" class="qty-stepper-btn" id="addQtyInc">+</button>
+        </div>
       </div>
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
         <button class="btn" id="btnAddCancel">Cancel</button>
@@ -2694,6 +2705,32 @@
 	          <label for="profileSilenceLowStockAlerts" class="muted" style="font-size:13px;cursor:pointer;">Hide low stock LED indicators</label>
 	        </div>
 	      </div>
+	      <div class="section-divider"></div>
+	      <div class="invite-section" id="inviteSection">
+	        <div class="invite-title">Invite User</div>
+	        <div class="invite-grid">
+	          <div>
+	            <label class="muted">Email</label>
+	            <input id="inviteEmail" type="email" placeholder="newuser@example.com" autocomplete="email" inputmode="email" />
+	          </div>
+	          <div>
+	            <label class="muted">Role</label>
+	            <select id="inviteRole">
+	              <option value="member">Member</option>
+	              <option value="admin">Admin</option>
+	              <option value="viewer">Viewer</option>
+	            </select>
+	          </div>
+	        </div>
+	        <div class="invite-actions">
+	          <button class="btn" id="btnInviteSend" type="button">Send Invite</button>
+	        </div>
+	        <div class="invite-link-row" id="inviteLinkRow">
+	          <input id="inviteLink" type="text" readonly />
+	          <button class="btn" id="btnInviteCopy" type="button">Copy</button>
+	        </div>
+	        <div id="inviteMsg" class="muted" style="margin-top:8px;"></div>
+	      </div>
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
         <button class="btn" id="btnSignOut">Sign Out</button>
         <button class="btn" id="btnProfileClose">Close</button>
@@ -2816,6 +2853,7 @@
 	    // ========================
 	    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null, companyId:null, company:null, companies:[], permissions:null, itemsHasLowStockQty:null, itemsHasReorderEnabled:null, ordersHasReceipt:null, warnedLowStockSchema:false, warnedReorderSchema:false, warnedOrdersReceiptSchema:false };
     const COMPANY_STORAGE_PREFIX = 'inv.company.v1';
+    let _inviteCompanyId = '';
     function getCompanyStorageKey(){
       const uid = (SB && SB.user && SB.user.id) ? String(SB.user.id) : 'anon';
       return `${COMPANY_STORAGE_PREFIX}.${uid}`;
@@ -3048,6 +3086,7 @@
 	      }
 	      setProfileMessage(note);
 	      renderCompanySwitcher();
+	      renderInviteUi();
 	    }
 	    function renderCompanySwitcher(){
 	      const section = $('profileCompanySection');
@@ -3103,6 +3142,102 @@
 	          hint.textContent = 'Switch company for inventory.';
 	        }
 	      }
+	    }
+	    function setInviteMessage(msg){
+	      const el = $('inviteMsg'); if(!el) return;
+	      el.textContent = String(msg || '');
+	    }
+	    function showInviteLink(url){
+	      const row = $('inviteLinkRow');
+	      const input = $('inviteLink');
+	      if(!row || !input) return;
+	      const value = String(url || '').trim();
+	      input.value = value;
+	      row.style.display = value ? 'flex' : 'none';
+	    }
+	    function renderInviteUi(){
+	      const section = $('inviteSection');
+	      const email = $('inviteEmail');
+	      const role = $('inviteRole');
+	      const btn = $('btnInviteSend');
+	      if(!section) return;
+	      if(!SB.session){
+	        section.style.display = 'none';
+	        return;
+	      }
+	      section.style.display = '';
+	      const currentCompanyId = SB.companyId ? String(SB.companyId) : '';
+	      if(currentCompanyId !== _inviteCompanyId){
+	        _inviteCompanyId = currentCompanyId;
+	        showInviteLink('');
+	        setInviteMessage('');
+	      }
+	      const allow = !!(SB.companyId && canInvite());
+	      const disabled = !allow;
+	      if(email) email.disabled = disabled;
+	      if(role) role.disabled = disabled;
+	      if(btn){
+	        btn.disabled = disabled;
+	        btn.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+	      }
+	      if(disabled){
+	        showInviteLink('');
+	        if(!SB.companyId){
+	          setInviteMessage('Select a company to invite users.');
+	        }else if(!canInvite()){
+	          setInviteMessage('Invite permissions required.');
+	        }else{
+	          setInviteMessage('');
+	        }
+	      }
+	    }
+	    function storeInviteTokenFromUrl(){
+	      try{
+	        const params = new URLSearchParams(window.location.search);
+	        const token = params.get('invite');
+	        if(!token) return;
+	        localStorage.setItem('inv.pendingInvite', token);
+	        window.history.replaceState({}, '', window.location.pathname);
+	      }catch(e){}
+	    }
+	    async function sbCheckPendingInvite(){
+	      storeInviteTokenFromUrl();
+	      if(!SB.ready || !SB.session || !SB.client) return false;
+	      const token = localStorage.getItem('inv.pendingInvite');
+	      if(!token) return false;
+	      try{
+	        const { data, error } = await SB.client.rpc('accept_invitation', { invitation_token: token });
+	        if(error) throw error;
+	        if(data && data.success){
+	          localStorage.removeItem('inv.pendingInvite');
+	          const role = data.role ? String(data.role) : 'member';
+	          toast(`Welcome! Joined as ${role}.`);
+	          return true;
+	        }
+	        const msg = data && data.error ? String(data.error) : 'Failed to accept invitation';
+	        if(!/different email/i.test(msg)){
+	          localStorage.removeItem('inv.pendingInvite');
+	        }
+	        toast(msg);
+	      }catch(e){
+	        toast('Invitation error');
+	      }
+	      return false;
+	    }
+	    async function sbInviteUser(email, role){
+	      if(!SB.ready || !SB.session || !SB.client) throw Error('Not authorized');
+	      if(!SB.companyId) throw Error('Company not selected');
+	      if(!canInvite()) throw Error('Permission denied');
+	      const cleanEmail = String(email || '').trim();
+	      if(!cleanEmail) throw Error('Email required');
+	      const cleanRole = String(role || 'member').trim() || 'member';
+	      const { data, error } = await SB.client.rpc('invite_user', {
+	        p_company_id: SB.companyId,
+	        p_email: cleanEmail,
+	        p_role: cleanRole,
+	      });
+	      if(error) throw error;
+	      return data || null;
 	    }
 	    function resetCompanyScopedState(){
 	      state.items = [];
@@ -3323,11 +3458,13 @@
         console.warn('Company load failed:', e);
         updateStatusBar();
         renderCompanySwitcher();
+        renderInviteUi();
         return false;
       }
       if(!SB.companyId){
         updateStatusBar();
         renderCompanySwitcher();
+        renderInviteUi();
         return false;
       }
       try{
@@ -3336,11 +3473,13 @@
         console.warn('Permissions load failed:', e);
         updateStatusBar();
         renderCompanySwitcher();
+        renderInviteUi();
         return false;
       }
       SB.authorized = !!(SB.permissions && SB.permissions.can_read);
       updateStatusBar();
       renderCompanySwitcher();
+      renderInviteUi();
       return SB.authorized;
     }
     async function sbHandleSession(session){
@@ -3363,6 +3502,7 @@
         show('authModal', true);
         applyPermissionUI();
         renderCompanySwitcher();
+        renderInviteUi();
         return;
       }
 
@@ -3370,6 +3510,7 @@
       setAuthMessage('');
 
       await sbEnsureProfile();
+      await sbCheckPendingInvite();
       await sbRefreshAccess();
       renderProfileUi();
       applyPermissionUI();
@@ -3501,6 +3642,59 @@
     if(btnProfileClose) btnProfileClose.addEventListener('click', ()=> {
       if(_profileAutoSaveTimer){ clearTimeout(_profileAutoSaveTimer); _profileAutoSaveTimer = null; }
       show('profileModal', false);
+    });
+
+    const btnInviteSend = $('btnInviteSend');
+    if(btnInviteSend) btnInviteSend.addEventListener('click', async ()=>{
+      if(!btnInviteSend) return;
+      const email = $('inviteEmail')?.value || '';
+      const role = $('inviteRole')?.value || 'member';
+      setInviteMessage('');
+      showInviteLink('');
+      btnInviteSend.disabled = true;
+      btnInviteSend.setAttribute('aria-disabled', 'true');
+      try{
+        const data = await sbInviteUser(email, role);
+        if(data && data.success){
+          const url = data.invite_url ? String(data.invite_url) : '';
+          if(url){
+            showInviteLink(url);
+            try{ await copyText(url); }catch(e){}
+            setInviteMessage('Invite created. Link copied.');
+          }else{
+            setInviteMessage('Invite created.');
+          }
+        }else{
+          const msg = data && data.error ? String(data.error) : 'Invite failed';
+          setInviteMessage(msg);
+        }
+      }catch(e){
+        setInviteMessage(e && e.message ? e.message : 'Invite failed');
+      }finally{
+        btnInviteSend.disabled = false;
+        btnInviteSend.setAttribute('aria-disabled', 'false');
+        renderInviteUi();
+      }
+    });
+
+    const btnInviteCopy = $('btnInviteCopy');
+    if(btnInviteCopy) btnInviteCopy.addEventListener('click', async ()=>{
+      const url = $('inviteLink')?.value || '';
+      if(!url){ toast('No invite link'); return; }
+      try{
+        await copyText(String(url));
+        toast('Invite link copied');
+      }catch(e){
+        toast('Copy failed');
+      }
+    });
+
+    const inviteEmail = $('inviteEmail');
+    if(inviteEmail) inviteEmail.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        $('btnInviteSend')?.click();
+      }
     });
 
     const openProfileSettings = $('openProfileSettings');
@@ -9223,6 +9417,15 @@ function emptyStateHtml(){
     $('btnAddCancel').addEventListener('click', ()=> show('addOneModal', false));
     $('btnAddSave').addEventListener('click', saveAddOne);
     $('addQty').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); saveAddOne(); }});
+    $('addQty').addEventListener('focus', e=>{ setTimeout(()=> e.target.select(), 0); });
+    $('addQtyInc').addEventListener('click', ()=>{
+      const inp = $('addQty');
+      inp.value = Math.max(1, toInt(inp.value, 1) + 1);
+    });
+    $('addQtyDec').addEventListener('click', ()=>{
+      const inp = $('addQty');
+      inp.value = Math.max(1, toInt(inp.value, 1) - 1);
+    });
     async function saveAddOne(){
       if(!requireOnline()) return;
       if(!requirePermission('can_create', 'Create permission required')) return;
@@ -9236,7 +9439,7 @@ function emptyStateHtml(){
       try{
         await sbAddItem(name, desc, qty);
         await sbLoadSnapshot();
-        $('addName').value=''; $('addDesc').value=''; $('addQty').value='';
+        $('addName').value=''; $('addDesc').value=''; $('addQty').value='1';
         show('addOneModal', false);
         toast('Item added');
       }catch(e){
