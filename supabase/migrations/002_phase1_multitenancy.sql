@@ -1702,7 +1702,7 @@ DECLARE
     v_total_quantity INTEGER;
 BEGIN
     -- SECURITY: Verify ALL items belong to exactly ONE company
-    SELECT COUNT(DISTINCT company_id), MIN(company_id), COALESCE(SUM(quantity), 0)
+    SELECT COUNT(DISTINCT company_id), MIN(company_id::text)::uuid, COALESCE(SUM(quantity), 0)
     INTO v_company_count, v_company_id, v_total_quantity
     FROM public.inventory_items
     WHERE id = ANY(p_item_ids) AND deleted_at IS NULL;
