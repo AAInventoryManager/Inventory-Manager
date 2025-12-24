@@ -2128,6 +2128,29 @@
       color:var(--accent);font-size:13px;cursor:pointer;
     }
     .auth-link:hover{text-decoration:underline}
+    .section-divider{height:1px;background:var(--border);margin:12px 0}
+    .role-request-section{display:flex;flex-direction:column;gap:8px}
+    .role-request-title{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:var(--muted);
+      margin-bottom:2px;
+    }
+    .role-request-meta{font-size:12px;color:var(--muted)}
+    .role-request-actions{display:flex;justify-content:flex-end}
+    .role-requests-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+    .role-request-card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:var(--card);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .role-request-card h3{margin:0;font-size:14px}
+    .role-request-actions-row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
     .menu-icon-svg{flex-shrink:0}
 </style>
 </head>
@@ -2164,6 +2187,10 @@
             <button class="menu-item" id="openInviteModal">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="17" y1="11" x2="23" y2="11"></line></svg>
               <span>Invite User</span>
+            </button>
+            <button class="menu-item" id="openRoleRequests">
+              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v4H4z"></path><path d="M4 10h16v10H4z"></path><path d="M9 14h6"></path><path d="M9 17h6"></path></svg>
+              <span>Role Requests</span>
             </button>
             <button class="menu-item" id="profileSignIn">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
@@ -2786,6 +2813,21 @@
     </div>
   </div>
 
+  <!-- Role requests modal -->
+  <div id="roleRequestsModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;">Role Requests</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn" id="btnRoleRequestsRefresh" type="button">Refresh</button>
+          <button class="btn" id="btnRoleRequestsClose" type="button">Close</button>
+        </div>
+      </div>
+      <div id="roleRequestsList" class="role-requests-list" aria-live="polite"></div>
+      <div id="roleRequestsMsg" class="muted" style="margin-top:8px;"></div>
+    </div>
+  </div>
+
   <!-- Profile modal -->
   <div id="profileModal" class="modal" aria-hidden="true">
     <div class="box">
@@ -2815,6 +2857,19 @@
 	          </label>
 	          <label for="profileSilenceLowStockAlerts" class="muted" style="font-size:13px;cursor:pointer;">Hide low stock LED indicators</label>
 	        </div>
+	      </div>
+	      <div class="section-divider"></div>
+	      <div class="role-request-section" id="roleRequestSection">
+	        <div class="role-request-title">Request Role Change</div>
+	        <div class="role-request-meta" id="roleRequestCurrent"></div>
+	        <label class="muted">New Role</label>
+	        <select id="roleRequestRole"></select>
+	        <label class="muted">Reason (optional)</label>
+	        <textarea id="roleRequestReason" rows="2" placeholder="Why do you need this role?"></textarea>
+	        <div class="role-request-actions">
+	          <button class="btn" id="btnRoleRequest" type="button">Submit Request</button>
+	        </div>
+	        <div id="roleRequestMsg" class="muted" style="margin-top:4px;"></div>
 	      </div>
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
         <button class="btn" id="btnSignOut">Sign Out</button>
@@ -2884,7 +2939,9 @@
 	      _sort:{col:'name', dir:'asc'},
 	      _order:{lines:[], email:'', subject:'', notes:'', contactName:'', search:''},
 	      _trashItems:[],
-	      _trashFilter:''
+	      _trashFilter:'',
+	      _roleRequestPending:null,
+	      _roleRequests:[]
 	    };
     const APP_VERSION = '2.0.0';
 
@@ -3149,6 +3206,158 @@
       const el = $('resetMsg'); if(!el) return;
       el.textContent = String(msg || '');
     }
+    function setRoleRequestMessage(msg){
+      const el = $('roleRequestMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function setRoleRequestsMessage(msg){
+      const el = $('roleRequestsMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    async function sbLoadMyRoleRequest(){
+      if(!SB.ready || !SB.session || !SB.client) return null;
+      const { data, error } = await SB.client
+        .from('role_change_requests')
+        .select('id, requested_role, current_role_name, reason, status, created_at')
+        .eq('user_id', SB.user.id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending:false })
+        .limit(1);
+      if(error) throw error;
+      state._roleRequestPending = Array.isArray(data) && data.length ? data[0] : null;
+      return state._roleRequestPending;
+    }
+    function renderRoleRequestUi(){
+      const section = $('roleRequestSection');
+      const current = $('roleRequestCurrent');
+      const roleSelect = $('roleRequestRole');
+      const reason = $('roleRequestReason');
+      const btn = $('btnRoleRequest');
+      if(!section || !roleSelect) return;
+      if(!SB.session || !SB.permissions){
+        section.style.display = 'none';
+        return;
+      }
+      const role = String(SB.permissions.role || '').trim();
+      if(role === 'super_user'){
+        section.style.display = 'none';
+        return;
+      }
+      section.style.display = '';
+      if(current) current.textContent = role ? `Current role: ${role}` : 'Current role: (unknown)';
+      const pending = state._roleRequestPending;
+      if(pending){
+        roleSelect.innerHTML = `<option value="${escapeHtmlAttr(pending.requested_role || '')}" selected>${escapeHtml(pending.requested_role || 'pending')}</option>`;
+        roleSelect.disabled = true;
+        if(reason){ reason.value = pending.reason || ''; reason.disabled = true; }
+        if(btn){ btn.disabled = true; btn.setAttribute('aria-disabled', 'true'); }
+        setRoleRequestMessage('Pending request submitted.');
+        return;
+      }
+      const roles = ['admin','member','viewer'];
+      const available = role ? roles.filter(r => r !== role) : roles;
+      roleSelect.innerHTML = available.map(r => `<option value="${escapeHtmlAttr(r)}">${escapeHtml(r)}</option>`).join('');
+      roleSelect.disabled = !available.length;
+      if(reason){ reason.disabled = false; if(!reason.value) reason.value = ''; }
+      if(btn){
+        const disabled = !available.length;
+        btn.disabled = disabled;
+        btn.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+      }
+      setRoleRequestMessage('');
+    }
+    function renderRoleRequestsAdminButton(){
+      const btn = $('openRoleRequests');
+      if(!btn) return;
+      const allow = !!(SB.session && SB.companyId && canInvite());
+      btn.disabled = !allow;
+      btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
+    }
+    function renderRoleRequestsList(){
+      const list = $('roleRequestsList');
+      if(!list) return;
+      const rows = Array.isArray(state._roleRequests) ? state._roleRequests : [];
+      if(!rows.length){
+        list.innerHTML = `<div class="trash-empty">No pending role requests.</div>`;
+        return;
+      }
+      list.innerHTML = rows.map(row => {
+        const id = String(row.id || '').trim();
+        const profile = row.profile || {};
+        const name = [profile.first_name, profile.last_name].filter(Boolean).join(' ').trim();
+        const email = profile.email || '';
+        const who = name ? `${escapeHtml(name)}${email ? ` · ${escapeHtml(email)}` : ''}` : escapeHtml(email || 'User');
+        const createdAt = row.created_at ? formatEasternDateTime(row.created_at) : '';
+        const reason = String(row.reason || '').trim();
+        return (
+          `<div class="role-request-card">`+
+            `<div>`+
+              `<h3>${who}</h3>`+
+              `<div class="role-request-meta">`+
+                `Requested: ${escapeHtml(row.requested_role || '')} · Current: ${escapeHtml(row.current_role_name || '')}`+
+                `${createdAt ? ` · ${escapeHtml(createdAt)}` : ''}`+
+              `</div>`+
+              `${reason ? `<div class="muted">${escapeHtml(reason)}</div>` : ''}`+
+            `</div>`+
+            `<div>`+
+              `<label class="muted">Admin Notes</label>`+
+              `<textarea rows="2" data-role-notes-id="${escapeHtmlAttr(id)}" placeholder="Optional notes"></textarea>`+
+            `</div>`+
+            `<div class="role-request-actions-row">`+
+              `<button class="btn" data-role-approve-id="${escapeHtmlAttr(id)}">Approve</button>`+
+              `<button class="btn" data-role-deny-id="${escapeHtmlAttr(id)}">Deny</button>`+
+            `</div>`+
+          `</div>`
+        );
+      }).join('');
+    }
+    async function refreshRoleRequests(){
+      const list = $('roleRequestsList');
+      if(list) list.innerHTML = `<div class="muted">Loading…</div>`;
+      setRoleRequestsMessage('');
+      try{
+        if(!SB.ready || !SB.session || !SB.client) throw new Error('Not authorized');
+        if(!SB.companyId) throw new Error('No company selected');
+        if(!canInvite()) throw new Error('Admin access required');
+        const { data, error } = await SB.client
+          .from('role_change_requests')
+          .select('id,user_id,current_role_name,requested_role,reason,status,created_at')
+          .eq('company_id', SB.companyId)
+          .eq('status', 'pending')
+          .order('created_at', { ascending:false });
+        if(error) throw error;
+        const rows = Array.isArray(data) ? data : [];
+        const userIds = rows.map(r => r.user_id).filter(Boolean);
+        let profileMap = new Map();
+        if(userIds.length){
+          const { data: profiles, error: profErr } = await SB.client
+            .from('profiles')
+            .select('user_id,email,first_name,last_name')
+            .in('user_id', userIds);
+          if(profErr) throw profErr;
+          profileMap = new Map((profiles||[]).map(p => [String(p.user_id), p]));
+        }
+        state._roleRequests = rows.map(r => ({
+          ...r,
+          profile: profileMap.get(String(r.user_id)) || null,
+        }));
+        renderRoleRequestsList();
+      }catch(e){
+        state._roleRequests = [];
+        const msg = e && e.message ? e.message : 'Failed to load requests';
+        if(list) list.innerHTML = `<div class="trash-empty">${escapeHtml(msg)}</div>`;
+      }
+    }
+    async function openRoleRequestsModal(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!canInvite()){ toast('Admin access required'); return; }
+      show('roleRequestsModal', true);
+      await refreshRoleRequests();
+    }
+    function closeRoleRequestsModal(){
+      show('roleRequestsModal', false);
+    }
     async function sbSendPasswordReset(email){
       if(!SB.ready || !SB.client) throw Error('Supabase not configured');
       const e = String(email||'').trim();
@@ -3200,6 +3409,8 @@
 	      setProfileMessage(note);
 	      renderCompanySwitcher();
 	      renderInviteUi();
+	      renderRoleRequestUi();
+	      renderRoleRequestsAdminButton();
 	    }
 	    function renderCompanySwitcher(){
 	      const section = $('profileCompanySection');
@@ -3365,6 +3576,8 @@
 	      state._trashFilter = '';
 	      const trashFilter = $('trashFilter');
 	      if(trashFilter) trashFilter.value = '';
+	      state._roleRequestPending = null;
+	      state._roleRequests = [];
 	      updateOrderCounterBadge();
 	    }
 	    async function sbSwitchCompany(nextCompanyId){
@@ -3576,12 +3789,16 @@
         updateStatusBar();
         renderCompanySwitcher();
         renderInviteUi();
+        renderRoleRequestUi();
+        renderRoleRequestsAdminButton();
         return false;
       }
       if(!SB.companyId){
         updateStatusBar();
         renderCompanySwitcher();
         renderInviteUi();
+        renderRoleRequestUi();
+        renderRoleRequestsAdminButton();
         return false;
       }
       try{
@@ -3591,12 +3808,16 @@
         updateStatusBar();
         renderCompanySwitcher();
         renderInviteUi();
+        renderRoleRequestUi();
+        renderRoleRequestsAdminButton();
         return false;
       }
       SB.authorized = !!(SB.permissions && SB.permissions.can_read);
       updateStatusBar();
       renderCompanySwitcher();
       renderInviteUi();
+      renderRoleRequestUi();
+      renderRoleRequestsAdminButton();
       return SB.authorized;
     }
     async function sbHandleSession(session){
@@ -3629,6 +3850,7 @@
       await sbEnsureProfile();
       await sbCheckPendingInvite();
       await sbRefreshAccess();
+      try{ await sbLoadMyRoleRequest(); }catch(e){}
       renderProfileUi();
       applyPermissionUI();
 
@@ -3801,6 +4023,34 @@
     const btnResetClose = $('btnResetClose');
     if(btnResetClose) btnResetClose.addEventListener('click', ()=> show('resetModal', false));
 
+    const btnRoleRequest = $('btnRoleRequest');
+    if(btnRoleRequest) btnRoleRequest.addEventListener('click', async ()=>{
+      const role = $('roleRequestRole')?.value || '';
+      const reason = $('roleRequestReason')?.value || '';
+      setRoleRequestMessage('');
+      if(!role){ setRoleRequestMessage('Select a role'); return; }
+      btnRoleRequest.disabled = true;
+      btnRoleRequest.setAttribute('aria-disabled', 'true');
+      try{
+        const { data, error } = await SB.client.rpc('request_role_change', {
+          p_requested_role: role,
+          p_reason: String(reason || '').trim() || null,
+        });
+        if(error) throw error;
+        if(data && data.success === false){
+          throw new Error(data.error || 'Request failed');
+        }
+        await sbLoadMyRoleRequest();
+        renderRoleRequestUi();
+        setRoleRequestMessage('Request submitted.');
+      }catch(e){
+        setRoleRequestMessage(e && e.message ? e.message : 'Request failed');
+      }finally{
+        btnRoleRequest.disabled = false;
+        btnRoleRequest.setAttribute('aria-disabled', 'false');
+      }
+    });
+
     const btnProfileClose = $('btnProfileClose');
     if(btnProfileClose) btnProfileClose.addEventListener('click', ()=> {
       if(_profileAutoSaveTimer){ clearTimeout(_profileAutoSaveTimer); _profileAutoSaveTimer = null; }
@@ -3860,17 +4110,22 @@
       }
     });
 
-      const openProfileSettings = $('openProfileSettings');
-      if(openProfileSettings) openProfileSettings.addEventListener('click', ()=>{
-        const profileDropdown = $('profileDropdown');
-        if(profileDropdown){
-          profileDropdown.classList.remove('open');
+    const openProfileSettings = $('openProfileSettings');
+    if(openProfileSettings) openProfileSettings.addEventListener('click', ()=>{
+      const profileDropdown = $('profileDropdown');
+      if(profileDropdown){
+        profileDropdown.classList.remove('open');
         profileDropdown.style.display = '';
         profileDropdown.setAttribute('aria-hidden', 'true');
       }
       $('profileBtn')?.setAttribute('aria-expanded', 'false');
       renderProfileUi();
       show('profileModal', true);
+      if(SB.session){
+        sbLoadMyRoleRequest()
+          .then(() => renderRoleRequestUi())
+          .catch(()=>{});
+      }
     });
 
     const openInviteModal = $('openInviteModal');
@@ -3893,6 +4148,63 @@
     const btnInviteClose = $('btnInviteClose');
     if(btnInviteClose) btnInviteClose.addEventListener('click', ()=>{
       show('inviteModal', false);
+    });
+
+    const openRoleRequests = $('openRoleRequests');
+    if(openRoleRequests) openRoleRequests.addEventListener('click', ()=>{
+      const profileDropdown = $('profileDropdown');
+      if(profileDropdown){
+        profileDropdown.classList.remove('open');
+        profileDropdown.style.display = '';
+        profileDropdown.setAttribute('aria-hidden', 'true');
+      }
+      $('profileBtn')?.setAttribute('aria-expanded', 'false');
+      openRoleRequestsModal();
+    });
+
+    const btnRoleRequestsClose = $('btnRoleRequestsClose');
+    if(btnRoleRequestsClose) btnRoleRequestsClose.addEventListener('click', closeRoleRequestsModal);
+    const btnRoleRequestsRefresh = $('btnRoleRequestsRefresh');
+    if(btnRoleRequestsRefresh) btnRoleRequestsRefresh.addEventListener('click', refreshRoleRequests);
+    const roleRequestsList = $('roleRequestsList');
+    if(roleRequestsList) roleRequestsList.addEventListener('click', async (e)=>{
+      const approveBtn = e.target.closest('[data-role-approve-id]');
+      const denyBtn = e.target.closest('[data-role-deny-id]');
+      if(!approveBtn && !denyBtn) return;
+      const id = String((approveBtn || denyBtn).getAttribute(approveBtn ? 'data-role-approve-id' : 'data-role-deny-id') || '').trim();
+      if(!id) return;
+      const approved = !!approveBtn;
+      let notesEl = null;
+      if(window.CSS && CSS.escape){
+        notesEl = roleRequestsList.querySelector(`[data-role-notes-id="${CSS.escape(id)}"]`);
+      }else{
+        const safeId = String(id).replace(/"/g, '\\"');
+        notesEl = roleRequestsList.querySelector(`[data-role-notes-id="${safeId}"]`);
+      }
+      const notes = notesEl ? String(notesEl.value || '').trim() : '';
+      const label = approved ? 'Approve request?' : 'Deny request?';
+      const okText = approved ? 'Approve' : 'Deny';
+      if(!(await openConfirmModal(label, 'This will update the user role.', { okText, cancelText:'Cancel' }))) return;
+      try{
+        const { data, error } = await SB.client.rpc('process_role_request', {
+          p_request_id: id,
+          p_approved: approved,
+          p_admin_notes: notes || null,
+        });
+        if(error) throw error;
+        if(data && data.success === false){
+          throw new Error(data.error || 'Request failed');
+        }
+        const row = state._roleRequests.find(r => String(r.id) === id);
+        state._roleRequests = (state._roleRequests || []).filter(r => String(r.id) !== id);
+        renderRoleRequestsList();
+        if(row && SB.user && String(row.user_id) === String(SB.user.id) && approved){
+          await sbRefreshAccess();
+        }
+        toast(approved ? 'Role updated' : 'Request denied');
+      }catch(err){
+        toast(err && err.message ? err.message : 'Update failed');
+      }
     });
 
     const profilePhoneInput = $('profilePhone');
