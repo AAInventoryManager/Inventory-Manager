@@ -3332,7 +3332,7 @@
       [PERMISSIONS.PLATFORM_VIEW_METRICS]: { any:['is_super_user'] },
     };
     const TIER_ORDER = ['starter','professional','business','enterprise'];
-    const TIER_FALLBACK = 'business';
+    const TIER_FALLBACK = 'starter';
     function getCompanyStorageKey(){
       const uid = (SB && SB.user && SB.user.id) ? String(SB.user.id) : 'anon';
       return `${COMPANY_STORAGE_PREFIX}.${uid}`;
@@ -3568,7 +3568,7 @@
     }
     function canAccessMetrics(){
       const allowCompany = canMetricsView() && hasTier('professional');
-      const allowPlatform = canPlatformMetricsView() && isSuperUser() && hasTier('enterprise');
+      const allowPlatform = canPlatformMetricsView() && isSuperUser() && hasTier('professional');
       return allowCompany || allowPlatform;
     }
     function canAccessRoleManager(){
@@ -3871,7 +3871,7 @@
     function renderMetricsControls(){
       const viewSelect = $('metricsView');
       if(!viewSelect) return;
-      const allowPlatform = canPlatformMetricsView() && isSuperUser() && hasTier('enterprise');
+      const allowPlatform = canPlatformMetricsView() && isSuperUser() && hasTier('professional');
       viewSelect.style.display = allowPlatform ? '' : 'none';
       if(!allowPlatform) viewSelect.value = 'company';
     }
@@ -4030,7 +4030,7 @@
         const viewEl = $('metricsView');
         const days = toInt(rangeEl ? rangeEl.value : 30, 30);
         const view = viewEl && viewEl.style.display !== 'none' ? String(viewEl.value || 'company') : 'company';
-        if(view === 'platform' && canPlatformMetricsView() && isSuperUser() && hasTier('enterprise')){
+        if(view === 'platform' && canPlatformMetricsView() && isSuperUser() && hasTier('professional')){
           const { data, error } = await SB.client.rpc('get_platform_dashboard_metrics', { p_days: days });
           if(error) throw error;
           const title = $('metricsTitle'); if(title) title.textContent = 'Platform Metrics';

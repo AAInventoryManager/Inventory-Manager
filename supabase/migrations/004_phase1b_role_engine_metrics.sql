@@ -1,7 +1,7 @@
 -- Phase 1B: role engine, metrics, and tier gating
 -- Feature IDs: inventory.auth.roles, inventory.metrics.dashboard, inventory.snapshots.ui
 
--- Company tier helper (defaults to business when missing)
+-- Company tier helper (defaults to starter when missing)
 CREATE OR REPLACE FUNCTION public.get_company_tier(p_company_id UUID)
 RETURNS TEXT
 LANGUAGE plpgsql
@@ -18,11 +18,11 @@ BEGIN
     WHERE id = p_company_id;
 
     IF v_tier IS NULL OR v_tier = '' THEN
-        RETURN 'business';
+        RETURN 'starter';
     END IF;
 
     IF v_tier NOT IN ('starter','professional','business','enterprise') THEN
-        RETURN 'business';
+        RETURN 'starter';
     END IF;
 
     RETURN v_tier;
