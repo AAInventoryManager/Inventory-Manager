@@ -2183,6 +2183,75 @@
     .user-mgmt-meta{font-size:12px;color:var(--muted);margin-top:4px}
     .user-mgmt-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .user-mgmt-role{min-width:120px}
+    .snapshots-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+    .snapshot-card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:var(--card);
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .snapshot-title{font-weight:700}
+    .snapshot-meta{font-size:12px;color:var(--muted);margin-top:6px}
+    .snapshot-preview{margin-top:12px}
+    .snapshot-preview-header{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .snapshot-preview-title{font-weight:700}
+    .snapshot-preview-meta{font-size:12px;color:var(--muted);margin-top:6px}
+    .snapshot-preview-table{margin-top:10px}
+    .metrics-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .metrics-content{margin-top:12px}
+    .metrics-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      gap:10px;
+      margin-top:8px;
+    }
+    .metric-card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:var(--card);
+    }
+    .metric-value{font-size:20px;font-weight:700}
+    .metric-label{font-size:12px;color:var(--muted);margin-top:4px}
+    .metrics-section{margin-top:14px}
+    .metrics-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      margin-top:8px;
+    }
+    .metrics-table th,.metrics-table td{
+      text-align:left;
+      padding:8px 10px;
+      border-bottom:1px solid var(--border);
+    }
+    .metrics-table th{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+    .metrics-note{font-size:12px;color:var(--muted);margin-top:6px}
+    .role-manager-table-wrap{max-height:420px;overflow:auto;margin-top:10px}
+    .role-manager-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+    .role-manager-table th,.role-manager-table td{
+      text-align:left;
+      padding:8px 10px;
+      border-bottom:1px solid var(--border);
+    }
+    .role-manager-table th{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+    .role-manager-category td{
+      background:#0f141b;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+      font-size:11px;
+      color:var(--muted);
+    }
     .menu-icon-svg{flex-shrink:0}
 </style>
 </head>
@@ -2223,6 +2292,10 @@
             <button class="menu-item" id="openUserMgmt">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
               <span>Manage Users</span>
+            </button>
+            <button class="menu-item" id="openRoleManager">
+              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <span>Role Manager</span>
             </button>
             <button class="menu-item" id="openRoleRequests">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v4H4z"></path><path d="M4 10h16v10H4z"></path><path d="M9 14h6"></path><path d="M9 17h6"></path></svg>
@@ -2280,6 +2353,14 @@
             <button class="menu-item" id="menuAudit" role="menuitem">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
               Audit Log
+            </button>
+            <button class="menu-item" id="menuSnapshots" role="menuitem">
+              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+              Snapshots
+            </button>
+            <button class="menu-item" id="menuMetrics" role="menuitem">
+              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Metrics
             </button>
           </nav>
         </div>
@@ -2878,6 +2959,34 @@
     </div>
   </div>
 
+  <!-- Role manager modal -->
+  <div id="roleManagerModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;">Role Manager</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn" id="btnRoleManagerClose" type="button">Close</button>
+          <button class="btn primary" id="btnRoleManagerSave" type="button">Save</button>
+        </div>
+      </div>
+      <div class="muted" style="margin-top:6px;">Configure role permissions. Super user permissions are fixed.</div>
+      <div class="role-manager-table-wrap">
+        <table class="role-manager-table">
+          <thead>
+            <tr>
+              <th>Permission</th>
+              <th>Admin</th>
+              <th>Member</th>
+              <th>Viewer</th>
+            </tr>
+          </thead>
+          <tbody id="roleManagerBody"></tbody>
+        </table>
+      </div>
+      <div id="roleManagerMsg" class="muted" style="margin-top:8px;"></div>
+    </div>
+  </div>
+
   <!-- Role requests modal -->
   <div id="roleRequestsModal" class="modal" aria-hidden="true">
     <div class="box">
@@ -2923,6 +3032,66 @@
       </div>
       <div id="auditList" class="audit-list" aria-live="polite"></div>
       <div id="auditMsg" class="muted" style="margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <!-- Snapshots modal -->
+  <div id="snapshotsModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;">Inventory Snapshots</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn" id="btnSnapshotsClose" type="button">Close</button>
+        </div>
+      </div>
+      <div id="snapshotsList" class="snapshots-list" aria-live="polite"></div>
+      <div id="snapshotPreview" class="snapshot-preview" style="display:none;">
+        <div class="snapshot-preview-header">
+          <button class="btn small" id="btnSnapshotBack" type="button">Back</button>
+          <div class="snapshot-preview-title" id="snapshotPreviewTitle"></div>
+        </div>
+        <div class="snapshot-preview-meta" id="snapshotPreviewMeta"></div>
+        <div class="snapshot-preview-table scroll">
+          <table class="metrics-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>SKU</th>
+                <th>Qty</th>
+                <th>Category ID</th>
+                <th>Location ID</th>
+              </tr>
+            </thead>
+            <tbody id="snapshotPreviewBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="snapshotsMsg" class="muted" style="margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <!-- Metrics modal -->
+  <div id="metricsModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;" id="metricsTitle">Metrics Dashboard</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn" id="btnMetricsClose" type="button">Close</button>
+        </div>
+      </div>
+      <div class="metrics-toolbar">
+        <select id="metricsRange" aria-label="Metrics date range">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+        <select id="metricsView" aria-label="Metrics view" style="display:none;">
+          <option value="company">Company View</option>
+          <option value="platform">Platform View</option>
+        </select>
+      </div>
+      <div id="metricsContent" class="metrics-content" aria-live="polite"></div>
+      <div id="metricsMsg" class="muted" style="margin-top:8px;"></div>
     </div>
   </div>
 
@@ -3043,7 +3212,12 @@
       _auditRows:[],
       _auditTableFilter:'',
       _auditActionFilter:'',
-      _userMgmtRows:[]
+      _userMgmtRows:[],
+      _snapshots:[],
+      _snapshotPreview:null,
+      _metrics:null,
+      _roleConfigs:{},
+      _roleChanges:{}
     };
     const APP_VERSION = '2.0.0';
 
@@ -3103,10 +3277,62 @@
 	    // ========================
 	    // Supabase (cloud sync) — optional
 	    // ========================
-    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null, companyId:null, company:null, companies:[], permissions:null, itemsHasLowStockQty:null, itemsHasReorderEnabled:null, ordersHasReceipt:null, warnedLowStockSchema:false, warnedReorderSchema:false, warnedOrdersReceiptSchema:false };
+    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null, companyId:null, company:null, companyTier:null, companies:[], permissions:null, itemsHasLowStockQty:null, itemsHasReorderEnabled:null, ordersHasReceipt:null, warnedLowStockSchema:false, warnedReorderSchema:false, warnedOrdersReceiptSchema:false, warnedTierMissing:false };
     const COMPANY_STORAGE_PREFIX = 'inv.company.v1';
     let _inviteCompanyId = '';
     let _userMgmtCompanyId = '';
+    const PERMISSIONS = {
+      ITEMS_VIEW: 'items:view',
+      ITEMS_CREATE: 'items:create',
+      ITEMS_EDIT: 'items:edit',
+      ITEMS_DELETE: 'items:delete',
+      ITEMS_RESTORE: 'items:restore',
+      ITEMS_EXPORT: 'items:export',
+      ITEMS_IMPORT: 'items:import',
+      ORDERS_VIEW: 'orders:view',
+      ORDERS_CREATE: 'orders:create',
+      ORDERS_EDIT: 'orders:edit',
+      ORDERS_DELETE: 'orders:delete',
+      ORDERS_RESTORE: 'orders:restore',
+      MEMBERS_VIEW: 'members:view',
+      MEMBERS_INVITE: 'members:invite',
+      MEMBERS_REMOVE: 'members:remove',
+      MEMBERS_CHANGE_ROLE: 'members:change_role',
+      COMPANY_VIEW_SETTINGS: 'company:view_settings',
+      COMPANY_EDIT_SETTINGS: 'company:edit_settings',
+      AUDIT_LOG_VIEW: 'audit_log:view',
+      METRICS_VIEW: 'metrics:view',
+      SNAPSHOTS_VIEW: 'snapshots:view',
+      PLATFORM_VIEW_ALL: 'platform:view_all_companies',
+      PLATFORM_MANAGE_ROLES: 'platform:manage_roles',
+      PLATFORM_VIEW_METRICS: 'platform:view_metrics',
+    };
+    const LEGACY_PERMISSION_MAP = {
+      [PERMISSIONS.ITEMS_VIEW]: { any:['can_read'] },
+      [PERMISSIONS.ITEMS_CREATE]: { any:['can_create'] },
+      [PERMISSIONS.ITEMS_EDIT]: { any:['can_update'] },
+      [PERMISSIONS.ITEMS_DELETE]: { any:['can_delete'] },
+      [PERMISSIONS.ITEMS_RESTORE]: { any:['can_delete'] },
+      [PERMISSIONS.ITEMS_EXPORT]: { any:['can_read'] },
+      [PERMISSIONS.ITEMS_IMPORT]: { all:['can_create','can_update'] },
+      [PERMISSIONS.ORDERS_VIEW]: { any:['can_read'] },
+      [PERMISSIONS.ORDERS_CREATE]: { any:['can_create'] },
+      [PERMISSIONS.ORDERS_EDIT]: { any:['can_update'] },
+      [PERMISSIONS.ORDERS_DELETE]: { any:['can_delete'] },
+      [PERMISSIONS.ORDERS_RESTORE]: { any:['can_delete'] },
+      [PERMISSIONS.MEMBERS_VIEW]: { any:['can_manage_users','can_invite'] },
+      [PERMISSIONS.MEMBERS_INVITE]: { any:['can_invite'] },
+      [PERMISSIONS.MEMBERS_REMOVE]: { any:['can_manage_users'] },
+      [PERMISSIONS.MEMBERS_CHANGE_ROLE]: { any:['can_manage_users'] },
+      [PERMISSIONS.AUDIT_LOG_VIEW]: { any:['can_invite'] },
+      [PERMISSIONS.METRICS_VIEW]: { any:['can_invite'] },
+      [PERMISSIONS.SNAPSHOTS_VIEW]: { any:['can_delete'] },
+      [PERMISSIONS.PLATFORM_VIEW_ALL]: { any:['is_super_user'] },
+      [PERMISSIONS.PLATFORM_MANAGE_ROLES]: { any:['is_super_user'] },
+      [PERMISSIONS.PLATFORM_VIEW_METRICS]: { any:['is_super_user'] },
+    };
+    const TIER_ORDER = ['starter','professional','business','enterprise'];
+    const TIER_FALLBACK = 'business';
     function getCompanyStorageKey(){
       const uid = (SB && SB.user && SB.user.id) ? String(SB.user.id) : 'anon';
       return `${COMPANY_STORAGE_PREFIX}.${uid}`;
@@ -3139,16 +3365,31 @@
       if(!selected && rows.length) selected = rows[0].company_id;
       SB.companyId = selected ? String(selected) : null;
       SB.company = SB.companyId ? rows.find(r => String(r.company_id) === String(SB.companyId)) || null : null;
+      SB.companyTier = SB.company ? getCompanyTier() : null;
       if(SB.companyId) saveCompanyId(SB.companyId);
       return SB.companyId;
     }
     async function sbLoadPermissions(){
       SB.permissions = null;
       if(!SB.ready || !SB.user || !SB.companyId) return null;
-      const { data, error } = await SB.client.rpc('get_my_permissions', { p_company_id: SB.companyId });
-      if(error) throw error;
-      SB.permissions = (data && typeof data === 'object') ? data : null;
-      return SB.permissions;
+      try{
+        const { data, error } = await SB.client.rpc('get_user_permissions', { p_company_id: SB.companyId });
+        if(error) throw error;
+        let merged = (data && typeof data === 'object') ? data : null;
+        try{
+          const { data: meta } = await SB.client.rpc('get_my_permissions', { p_company_id: SB.companyId });
+          if(meta && typeof meta === 'object'){
+            merged = merged ? { ...meta, ...merged } : meta;
+          }
+        }catch(metaErr){}
+        SB.permissions = merged;
+        return SB.permissions;
+      }catch(e){
+        const { data, error } = await SB.client.rpc('get_my_permissions', { p_company_id: SB.companyId });
+        if(error) throw error;
+        SB.permissions = (data && typeof data === 'object') ? data : null;
+        return SB.permissions;
+      }
     }
     function sbInit(){
       const url = window.SB_URL, key = window.SB_ANON;
@@ -3208,7 +3449,7 @@
       if(emailEl) emailEl.textContent = userEmail;
 
       if(!SB.authorized){
-        const reason = (!SB.companyId) ? 'No company access' : ((!SB.permissions || !SB.permissions.can_read) ? 'Permission denied' : 'Not authorized');
+        const reason = (!SB.companyId) ? 'No company access' : ((!SB.permissions || !hasPermission(PERMISSIONS.ITEMS_VIEW)) ? 'Permission denied' : 'Not authorized');
         if(connEl) connEl.textContent = reason;
         if(statusEl) statusEl.classList.add('warning');
         setSignInUI('Sign Out', signOutIcon);
@@ -3228,7 +3469,7 @@
       if(!SB.ready) return 'Supabase not configured';
       if(!SB.session) return 'Sign in required';
       if(!SB.companyId) return 'No company access';
-      if(!SB.permissions || !SB.permissions.can_read) return 'Permission denied';
+      if(!SB.permissions || !hasPermission(PERMISSIONS.ITEMS_VIEW)) return 'Permission denied';
       if(!SB.authorized) return 'Not authorized';
       if(!SB.connected) return 'Offline – edits disabled';
       return '';
@@ -3256,8 +3497,39 @@
       if(!SB.session) show('authModal', true);
       return false;
     }
+    function normalizeTier(value){
+      const tier = String(value || '').trim().toLowerCase();
+      return TIER_ORDER.includes(tier) ? tier : '';
+    }
+    function getCompanyTier(){
+      const fromCompany = SB.company ? (SB.company.company_tier || SB.company.tier || '') : '';
+      const tier = normalizeTier(fromCompany);
+      if(tier) return tier;
+      if(SB.companyId && !SB.warnedTierMissing){
+        SB.warnedTierMissing = true;
+        console.warn('Company tier missing; defaulting to', TIER_FALLBACK);
+      }
+      return TIER_FALLBACK;
+    }
+    function hasTier(minTier){
+      const current = normalizeTier(getCompanyTier()) || TIER_FALLBACK;
+      const target = normalizeTier(minTier);
+      if(!target) return true;
+      return TIER_ORDER.indexOf(current) >= TIER_ORDER.indexOf(target);
+    }
     function hasPermission(key){
-      return !!(SB.permissions && SB.permissions[key]);
+      if(!SB.permissions || !key) return false;
+      if(Object.prototype.hasOwnProperty.call(SB.permissions, key)){
+        return SB.permissions[key] === true;
+      }
+      const legacy = LEGACY_PERMISSION_MAP[key];
+      if(legacy && Array.isArray(legacy.any)){
+        return legacy.any.some(k => SB.permissions[k] === true);
+      }
+      if(legacy && Array.isArray(legacy.all)){
+        return legacy.all.every(k => SB.permissions[k] === true);
+      }
+      return false;
     }
     function requirePermission(key, message){
       if(hasPermission(key)) return true;
@@ -3265,17 +3537,52 @@
       return false;
     }
     function isSuperUser(){
-      return !!(SB.permissions && String(SB.permissions.role || '').trim() === 'super_user');
+      if(SB.company && SB.company.is_super_user) return true;
+      if(SB.permissions && SB.permissions.is_super_user === true) return true;
+      const role = String((SB.company && SB.company.my_role) || (SB.permissions && SB.permissions.role) || '').trim();
+      return role === 'super_user';
     }
-    function canCreate(){ return hasPermission('can_create'); }
-    function canUpdate(){ return hasPermission('can_update'); }
-    function canDelete(){ return hasPermission('can_delete'); }
-    function canInvite(){ return hasPermission('can_invite'); }
-    function canManageUsers(){ return hasPermission('can_manage_users'); }
+    function canItemsView(){ return hasPermission(PERMISSIONS.ITEMS_VIEW); }
+    function canItemsCreate(){ return hasPermission(PERMISSIONS.ITEMS_CREATE); }
+    function canItemsEdit(){ return hasPermission(PERMISSIONS.ITEMS_EDIT); }
+    function canItemsDelete(){ return hasPermission(PERMISSIONS.ITEMS_DELETE); }
+    function canItemsRestore(){ return hasPermission(PERMISSIONS.ITEMS_RESTORE); }
+    function canItemsExport(){ return hasPermission(PERMISSIONS.ITEMS_EXPORT); }
+    function canItemsImport(){ return hasPermission(PERMISSIONS.ITEMS_IMPORT); }
+    function canOrdersView(){ return hasPermission(PERMISSIONS.ORDERS_VIEW); }
+    function canOrdersCreate(){ return hasPermission(PERMISSIONS.ORDERS_CREATE); }
+    function canOrdersEdit(){ return hasPermission(PERMISSIONS.ORDERS_EDIT); }
+    function canOrdersDelete(){ return hasPermission(PERMISSIONS.ORDERS_DELETE); }
+    function canMembersView(){ return hasPermission(PERMISSIONS.MEMBERS_VIEW); }
+    function canMembersInvite(){ return hasPermission(PERMISSIONS.MEMBERS_INVITE); }
+    function canMembersRemove(){ return hasPermission(PERMISSIONS.MEMBERS_REMOVE); }
+    function canMembersChangeRole(){ return hasPermission(PERMISSIONS.MEMBERS_CHANGE_ROLE); }
+    function canAuditView(){ return hasPermission(PERMISSIONS.AUDIT_LOG_VIEW); }
+    function canMetricsView(){ return hasPermission(PERMISSIONS.METRICS_VIEW); }
+    function canSnapshotsView(){ return hasPermission(PERMISSIONS.SNAPSHOTS_VIEW); }
+    function canPlatformMetricsView(){ return hasPermission(PERMISSIONS.PLATFORM_VIEW_METRICS); }
+    function canManageRoles(){ return hasPermission(PERMISSIONS.PLATFORM_MANAGE_ROLES) || isSuperUser(); }
+    function canAccessTrash(){ return canItemsDelete() || canItemsRestore(); }
+    function canAccessSnapshots(){
+      return canSnapshotsView() && hasTier('business');
+    }
+    function canAccessMetrics(){
+      const allowCompany = canMetricsView() && hasTier('professional');
+      const allowPlatform = canPlatformMetricsView() && isSuperUser() && hasTier('enterprise');
+      return allowCompany || allowPlatform;
+    }
+    function canAccessRoleManager(){
+      return isSuperUser() && canManageRoles() && hasTier('business');
+    }
+    function canCreate(){ return canItemsCreate(); }
+    function canUpdate(){ return canItemsEdit(); }
+    function canDelete(){ return canItemsDelete(); }
+    function canInvite(){ return canMembersInvite(); }
+    function canManageUsers(){ return canMembersChangeRole() || canMembersRemove(); }
     function applyPermissionUI(){
-      const canRead = hasPermission('can_read');
-      const allowSelect = canCreate() || canUpdate() || canDelete();
-      const canBulk = canCreate() && canUpdate();
+      const canRead = canItemsView();
+      const allowSelect = canItemsCreate() || canItemsEdit() || canItemsDelete();
+      const canBulk = canItemsImport();
       const setDisabled = (id, disabled) => {
         const el = $(id);
         if(!el) return;
@@ -3284,14 +3591,18 @@
       };
       setDisabled('menuImport', !canBulk);
       setDisabled('menuPaste', !canBulk);
-      setDisabled('menuAddOne', !canCreate());
-      setDisabled('menuOrder', !canCreate());
-      setDisabled('menuHistory', !canRead);
-      setDisabled('menuTrash', !canDelete());
-      setDisabled('menuAudit', !canInvite());
-      setDisabled('btnOrderSubmit', !canCreate());
-      setDisabled('btnEditItemDelete', !canDelete());
-      setDisabled('btnReportBatchOrder', !canCreate());
+      setDisabled('menuAddOne', !canItemsCreate());
+      setDisabled('menuOrder', !canOrdersCreate());
+      setDisabled('menuHistory', !canOrdersView());
+      setDisabled('menuTrash', !canAccessTrash());
+      setDisabled('menuAudit', !canAuditView());
+      setDisabled('menuSnapshots', !canAccessSnapshots());
+      setDisabled('menuMetrics', !canAccessMetrics());
+      setDisabled('menuExport', !canItemsExport());
+      setDisabled('menuReport', !canItemsView());
+      setDisabled('btnOrderSubmit', !canOrdersCreate());
+      setDisabled('btnEditItemDelete', !canItemsDelete());
+      setDisabled('btnReportBatchOrder', !canOrdersCreate());
       const chkAll = $('chkAll');
       if(chkAll) chkAll.disabled = !allowSelect;
       setEditHint();
@@ -3369,7 +3680,7 @@
       try{
         if(!SB.ready || !SB.session || !SB.client) throw new Error('Not authorized');
         if(!SB.companyId) throw new Error('No company selected');
-        if(!canInvite()) throw new Error('Admin access required');
+        if(!canAuditView()) throw new Error('Permission denied');
         const tableFilter = String(state._auditTableFilter || '').trim() || null;
         const actionFilter = String(state._auditActionFilter || '').trim() || null;
         const { data, error } = await SB.client.rpc('get_audit_log', {
@@ -3391,12 +3702,349 @@
     async function openAuditModal(){
       if(!SB.ready){ toast('Supabase not configured'); return; }
       if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!canInvite()){ toast('Admin access required'); return; }
+      if(!canAuditView()){ toast('Permission denied'); return; }
       show('auditModal', true);
       await refreshAuditLog();
     }
     function closeAuditModal(){
       show('auditModal', false);
+    }
+
+    // Feature: inventory.snapshots.ui
+    const SNAPSHOT_PREVIEW_LIMIT = 200;
+    function setSnapshotsMessage(msg){
+      const el = $('snapshotsMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function showSnapshotList(){
+      const list = $('snapshotsList');
+      const preview = $('snapshotPreview');
+      if(list) list.style.display = '';
+      if(preview) preview.style.display = 'none';
+      const body = $('snapshotPreviewBody'); if(body) body.innerHTML = '';
+      setSnapshotsMessage('');
+    }
+    function renderSnapshotsList(){
+      const list = $('snapshotsList');
+      if(!list) return;
+      const rows = Array.isArray(state._snapshots) ? state._snapshots : [];
+      if(!rows.length){
+        list.innerHTML = `<div class="trash-empty">No snapshots available.</div>`;
+        return;
+      }
+      list.innerHTML = rows.map(row => {
+        const id = String(row && row.id ? row.id : '').trim();
+        const name = String(row && row.name ? row.name : 'Snapshot').trim();
+        const desc = String(row && row.description ? row.description : '').trim();
+        const createdAt = row && row.created_at ? formatEasternDateTime(row.created_at) : '';
+        const createdBy = String(row && row.created_by_email ? row.created_by_email : '').trim();
+        const itemsCount = toInt(row && row.items_count ? row.items_count : 0, 0);
+        const totalQty = toInt(row && row.total_quantity ? row.total_quantity : 0, 0);
+        const type = String(row && row.snapshot_type ? row.snapshot_type : '').trim();
+        const restoredAt = row && row.was_restored && row.restored_at ? formatEasternDateTime(row.restored_at) : '';
+        const metaParts = [];
+        if(createdAt) metaParts.push(`Created: ${createdAt}`);
+        if(createdBy) metaParts.push(`By: ${createdBy}`);
+        metaParts.push(`Items: ${itemsCount}`);
+        metaParts.push(`Qty: ${totalQty}`);
+        if(type) metaParts.push(`Type: ${type}`);
+        if(restoredAt) metaParts.push(`Restored: ${restoredAt}`);
+        const meta = metaParts.join(' | ');
+        return (
+          `<div class="snapshot-card">`+
+            `<div>`+
+              `<div class="snapshot-title">${escapeHtml(name)}</div>`+
+              `${desc ? `<div class="muted">${escapeHtml(desc)}</div>` : ''}`+
+              `<div class="snapshot-meta">${escapeHtml(meta)}</div>`+
+            `</div>`+
+            `<div>`+
+              `<button class="btn small" data-snapshot-preview-id="${escapeHtmlAttr(id)}">Preview</button>`+
+            `</div>`+
+          `</div>`
+        );
+      }).join('');
+    }
+    async function loadSnapshots(){
+      const list = $('snapshotsList');
+      if(list) list.innerHTML = `<div class="muted">Loading…</div>`;
+      setSnapshotsMessage('');
+      try{
+        if(!SB.ready || !SB.session || !SB.client) throw new Error('Not authorized');
+        if(!SB.companyId) throw new Error('No company selected');
+        if(!canAccessSnapshots()) throw new Error('Permission denied');
+        const { data, error } = await SB.client.rpc('get_snapshots', { p_company_id: SB.companyId });
+        if(error) throw error;
+        state._snapshots = Array.isArray(data) ? data : [];
+        renderSnapshotsList();
+      }catch(e){
+        state._snapshots = [];
+        const msg = e && e.message ? e.message : 'Failed to load snapshots';
+        if(list) list.innerHTML = `<div class="trash-empty">${escapeHtml(msg)}</div>`;
+      }
+    }
+    async function openSnapshotsModal(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.companyId){ toast('No company selected'); return; }
+      if(!hasTier('business')){ toast('Snapshots require Business or Enterprise tier'); return; }
+      if(!canSnapshotsView()){ toast('Permission denied'); return; }
+      show('snapshotsModal', true);
+      showSnapshotList();
+      await loadSnapshots();
+    }
+    function closeSnapshotsModal(){
+      show('snapshotsModal', false);
+      showSnapshotList();
+    }
+    async function openSnapshotPreview(snapshotId){
+      const list = $('snapshotsList');
+      const preview = $('snapshotPreview');
+      const body = $('snapshotPreviewBody');
+      if(!snapshotId || !preview || !body) return;
+      if(list) list.style.display = 'none';
+      preview.style.display = '';
+      body.innerHTML = `<tr><td colspan="5" class="muted">Loading…</td></tr>`;
+      setSnapshotsMessage('');
+      try{
+        const { data, error } = await SB.client
+          .from('inventory_snapshots')
+          .select('id,name,description,snapshot_type,items_count,total_quantity,created_at,restored_at,items_data')
+          .eq('id', snapshotId)
+          .eq('company_id', SB.companyId)
+          .maybeSingle();
+        if(error) throw error;
+        const items = Array.isArray(data && data.items_data) ? data.items_data : [];
+        const limited = items.slice(0, SNAPSHOT_PREVIEW_LIMIT);
+        const metaParts = [];
+        const name = String(data && data.name ? data.name : 'Snapshot').trim();
+        const desc = String(data && data.description ? data.description : '').trim();
+        const createdAt = data && data.created_at ? formatEasternDateTime(data.created_at) : '';
+        const restoredAt = data && data.restored_at ? formatEasternDateTime(data.restored_at) : '';
+        const count = toInt(data && data.items_count ? data.items_count : items.length, 0);
+        const totalQty = toInt(data && data.total_quantity ? data.total_quantity : 0, 0);
+        if(createdAt) metaParts.push(`Created: ${createdAt}`);
+        metaParts.push(`Items: ${count}`);
+        metaParts.push(`Qty: ${totalQty}`);
+        if(data && data.snapshot_type) metaParts.push(`Type: ${String(data.snapshot_type)}`);
+        if(restoredAt) metaParts.push(`Restored: ${restoredAt}`);
+        if(items.length > SNAPSHOT_PREVIEW_LIMIT){
+          metaParts.push(`Showing: ${SNAPSHOT_PREVIEW_LIMIT} of ${items.length}`);
+        }
+        const titleEl = $('snapshotPreviewTitle');
+        if(titleEl) titleEl.textContent = name || 'Snapshot';
+        const metaEl = $('snapshotPreviewMeta');
+        if(metaEl) metaEl.textContent = metaParts.join(' | ');
+        if(desc){
+          setSnapshotsMessage(desc);
+        }
+        if(!limited.length){
+          body.innerHTML = `<tr><td colspan="5" class="muted">No items in snapshot.</td></tr>`;
+          return;
+        }
+        body.innerHTML = limited.map(item => {
+          const label = String(item && item.name ? item.name : '').trim();
+          const sku = String(item && item.sku ? item.sku : '').trim();
+          const qty = toInt(item && item.quantity !== undefined ? item.quantity : item && item.qty, 0);
+          const categoryId = String(item && item.category_id ? item.category_id : '').trim();
+          const locationId = String(item && item.location_id ? item.location_id : '').trim();
+          return (
+            `<tr>`+
+              `<td>${escapeHtml(label)}</td>`+
+              `<td>${escapeHtml(sku)}</td>`+
+              `<td>${escapeHtml(String(qty))}</td>`+
+              `<td>${escapeHtml(categoryId)}</td>`+
+              `<td>${escapeHtml(locationId)}</td>`+
+            `</tr>`
+          );
+        }).join('');
+      }catch(e){
+        const msg = e && e.message ? e.message : 'Snapshot preview failed';
+        body.innerHTML = `<tr><td colspan="5" class="muted">${escapeHtml(msg)}</td></tr>`;
+      }
+    }
+
+    // Feature: inventory.metrics.dashboard
+    function setMetricsMessage(msg){
+      const el = $('metricsMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function renderMetricsControls(){
+      const viewSelect = $('metricsView');
+      if(!viewSelect) return;
+      const allowPlatform = canPlatformMetricsView() && isSuperUser() && hasTier('enterprise');
+      viewSelect.style.display = allowPlatform ? '' : 'none';
+      if(!allowPlatform) viewSelect.value = 'company';
+    }
+    function openMetricsModal(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.companyId){ toast('No company selected'); return; }
+      if(!canAccessMetrics()){
+        if(!hasTier('professional')){
+          toast('Metrics require Professional tier or higher');
+          return;
+        }
+        toast('Permission denied');
+        return;
+      }
+      show('metricsModal', true);
+      renderMetricsControls();
+      loadMetrics();
+    }
+    function closeMetricsModal(){
+      show('metricsModal', false);
+      setMetricsMessage('');
+    }
+    function formatMetricValue(value){
+      const num = Number(value);
+      if(!Number.isFinite(num)) return '0';
+      return Math.round(num).toLocaleString();
+    }
+    function buildDailySummary(rows){
+      const map = new Map();
+      (rows || []).forEach(row => {
+        const date = String(row && (row.date || row.metric_date) ? row.date || row.metric_date : '').slice(0, 10);
+        if(!date) return;
+        const entry = map.get(date) || { date, updates:0, deletes:0, restores:0, rollbacks:0, records:0 };
+        const action = String(row && row.action_type ? row.action_type : '').toLowerCase();
+        const count = toInt(row && row.action_count ? row.action_count : 0, 0);
+        if(action === 'update') entry.updates += count;
+        else if(action === 'delete' || action === 'bulk_delete') entry.deletes += count;
+        else if(action === 'restore') entry.restores += count;
+        else if(action === 'rollback') entry.rollbacks += count;
+        entry.records += toInt(row && row.records_affected ? row.records_affected : 0, 0);
+        map.set(date, entry);
+      });
+      return Array.from(map.values()).sort((a,b)=> (a.date < b.date ? 1 : -1));
+    }
+    function renderCompanyMetrics(data, days){
+      const container = $('metricsContent');
+      if(!container) return;
+      const current = data && data.current ? data.current : {};
+      const activity = data && data.activity ? data.activity : {};
+      const daily = buildDailySummary(data && data.daily ? data.daily : []);
+      const topUsers = Array.isArray(data && data.top_users ? data.top_users : []) ? data.top_users : [];
+      const dailyRows = daily.map(row => (
+        `<tr>`+
+          `<td>${escapeHtml(String(row.date || ''))}</td>`+
+          `<td>${escapeHtml(String(row.updates))}</td>`+
+          `<td>${escapeHtml(String(row.deletes))}</td>`+
+          `<td>${escapeHtml(String(row.restores))}</td>`+
+          `<td>${escapeHtml(String(row.rollbacks))}</td>`+
+          `<td>${escapeHtml(String(row.records))}</td>`+
+        `</tr>`
+      )).join('');
+      const topUserRows = topUsers.map(user => (
+        `<tr>`+
+          `<td>${escapeHtml(String(user && (user.email || user.user_id) ? (user.email || user.user_id) : 'User'))}</td>`+
+          `<td>${escapeHtml(formatMetricValue(user && user.total_actions ? user.total_actions : 0))}</td>`+
+        `</tr>`
+      )).join('');
+      container.innerHTML =
+        `<div class="metrics-section">`+
+          `<h3>Current State</h3>`+
+          `<div class="metrics-grid">`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(current.total_items)}</div><div class="metric-label">Total Items</div></div>`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(current.total_quantity)}</div><div class="metric-label">Total Qty</div></div>`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(current.low_stock_count)}</div><div class="metric-label">Low Stock</div></div>`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(current.active_members)}</div><div class="metric-label">Team Members</div></div>`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(current.snapshot_count)}</div><div class="metric-label">Snapshots</div></div>`+
+          `</div>`+
+        `</div>`+
+        `<div class="metrics-section">`+
+          `<h3>Activity (Last ${escapeHtml(String(days))} Days)</h3>`+
+          `<div class="metrics-grid">`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(activity.total_updates)}</div><div class="metric-label">Updates</div></div>`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(activity.total_deletes)}</div><div class="metric-label">Deletes</div></div>`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(activity.total_restores)}</div><div class="metric-label">Restores</div></div>`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(activity.total_rollbacks)}</div><div class="metric-label">Rollbacks</div></div>`+
+          `</div>`+
+          `<div class="metrics-note">${formatMetricValue(activity.records_affected)} records affected | -${formatMetricValue(activity.quantity_removed)} qty | +${formatMetricValue(activity.quantity_added)} qty</div>`+
+        `</div>`+
+        `<div class="metrics-section">`+
+          `<h3>Daily Summary</h3>`+
+          `${dailyRows ? `<table class="metrics-table"><thead><tr><th>Date</th><th>Updates</th><th>Deletes</th><th>Restores</th><th>Rollbacks</th><th>Records</th></tr></thead><tbody>${dailyRows}</tbody></table>` : '<div class="trash-empty">No activity recorded.</div>'}`+
+        `</div>`+
+        `<div class="metrics-section">`+
+          `<h3>Top Contributors</h3>`+
+          `${topUserRows ? `<table class="metrics-table"><thead><tr><th>User</th><th>Actions</th></tr></thead><tbody>${topUserRows}</tbody></table>` : '<div class="trash-empty">No activity in this period.</div>'}`+
+        `</div>`;
+    }
+    function renderPlatformMetrics(data, days){
+      const container = $('metricsContent');
+      if(!container) return;
+      const platform = data && data.platform ? data.platform : {};
+      const activity = data && data.activity ? data.activity : {};
+      const companies = Array.isArray(data && data.companies ? data.companies : []) ? data.companies : [];
+      const daily = Array.isArray(data && data.daily ? data.daily : []) ? data.daily : [];
+      const companyRows = companies.map(row => (
+        `<tr>`+
+          `<td>${escapeHtml(String(row && row.name ? row.name : row && row.id ? row.id : 'Company'))}</td>`+
+          `<td>${escapeHtml(formatMetricValue(row && row.member_count ? row.member_count : 0))}</td>`+
+          `<td>${escapeHtml(formatMetricValue(row && row.item_count ? row.item_count : 0))}</td>`+
+          `<td>${escapeHtml(formatMetricValue(row && row.recent_actions ? row.recent_actions : 0))}</td>`+
+        `</tr>`
+      )).join('');
+      const dailyRows = daily.map(row => (
+        `<tr>`+
+          `<td>${escapeHtml(String(row && row.date ? row.date : ''))}</td>`+
+          `<td>${escapeHtml(formatMetricValue(row && row.total_actions ? row.total_actions : 0))}</td>`+
+          `<td>${escapeHtml(formatMetricValue(row && row.active_companies ? row.active_companies : 0))}</td>`+
+        `</tr>`
+      )).join('');
+      container.innerHTML =
+        `<div class="metrics-section">`+
+          `<h3>Platform Totals</h3>`+
+          `<div class="metrics-grid">`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(platform.total_companies)}</div><div class="metric-label">Companies</div></div>`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(platform.total_users)}</div><div class="metric-label">Users</div></div>`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(platform.total_items)}</div><div class="metric-label">Items</div></div>`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(platform.total_orders)}</div><div class="metric-label">Orders</div></div>`+
+          `</div>`+
+        `</div>`+
+        `<div class="metrics-section">`+
+          `<h3>Activity (Last ${escapeHtml(String(days))} Days)</h3>`+
+          `<div class="metrics-grid">`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(activity.total_actions)}</div><div class="metric-label">Total Actions</div></div>`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(activity.active_companies)}</div><div class="metric-label">Active Companies</div></div>`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(activity.active_users)}</div><div class="metric-label">Active Users</div></div>`+
+          `</div>`+
+        `</div>`+
+        `<div class="metrics-section">`+
+          `<h3>Company Activity</h3>`+
+          `${companyRows ? `<table class="metrics-table"><thead><tr><th>Company</th><th>Members</th><th>Items</th><th>Recent Actions</th></tr></thead><tbody>${companyRows}</tbody></table>` : '<div class="trash-empty">No company activity found.</div>'}`+
+        `</div>`+
+        `<div class="metrics-section">`+
+          `<h3>Daily Activity</h3>`+
+          `${dailyRows ? `<table class="metrics-table"><thead><tr><th>Date</th><th>Total Actions</th><th>Active Companies</th></tr></thead><tbody>${dailyRows}</tbody></table>` : '<div class="trash-empty">No activity recorded.</div>'}`+
+        `</div>`;
+    }
+    async function loadMetrics(){
+      const container = $('metricsContent');
+      if(container) container.innerHTML = `<div class="muted">Loading…</div>`;
+      setMetricsMessage('');
+      try{
+        if(!SB.ready || !SB.session || !SB.client) throw new Error('Not authorized');
+        if(!SB.companyId) throw new Error('No company selected');
+        const rangeEl = $('metricsRange');
+        const viewEl = $('metricsView');
+        const days = toInt(rangeEl ? rangeEl.value : 30, 30);
+        const view = viewEl && viewEl.style.display !== 'none' ? String(viewEl.value || 'company') : 'company';
+        if(view === 'platform' && canPlatformMetricsView() && isSuperUser() && hasTier('enterprise')){
+          const { data, error } = await SB.client.rpc('get_platform_dashboard_metrics', { p_days: days });
+          if(error) throw error;
+          const title = $('metricsTitle'); if(title) title.textContent = 'Platform Metrics';
+          renderPlatformMetrics(data || {}, days);
+          return;
+        }
+        const { data, error } = await SB.client.rpc('get_company_dashboard_metrics', { p_company_id: SB.companyId, p_days: days });
+        if(error) throw error;
+        const title = $('metricsTitle'); if(title) title.textContent = 'Metrics Dashboard';
+        renderCompanyMetrics(data || {}, days);
+      }catch(e){
+        const msg = e && e.message ? e.message : 'Failed to load metrics';
+        if(container) container.innerHTML = `<div class="trash-empty">${escapeHtml(msg)}</div>`;
+      }
     }
     async function sbLoadMyRoleRequest(){
       if(!SB.ready || !SB.session || !SB.client) return null;
@@ -3422,7 +4070,7 @@
         section.style.display = 'none';
         return;
       }
-      const role = String(SB.permissions.role || '').trim();
+      const role = String((SB.company && SB.company.my_role) || (SB.permissions && SB.permissions.role) || '').trim();
       if(role === 'super_user'){
         section.style.display = 'none';
         return;
@@ -3453,14 +4101,21 @@
     function renderRoleRequestsAdminButton(){
       const btn = $('openRoleRequests');
       if(!btn) return;
-      const allow = !!(SB.session && SB.companyId && canInvite());
+      const allow = !!(SB.session && SB.companyId && canMembersChangeRole());
+      btn.disabled = !allow;
+      btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
+    }
+    function renderRoleManagerButton(){
+      const btn = $('openRoleManager');
+      if(!btn) return;
+      const allow = !!(SB.session && canAccessRoleManager());
       btn.disabled = !allow;
       btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
     }
     function renderUserMgmtButton(){
       const btn = $('openUserMgmt');
       if(!btn) return;
-      const allow = !!(SB.session && canManageUsers());
+      const allow = !!(SB.session && canMembersView());
       btn.disabled = !allow;
       btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
     }
@@ -3525,8 +4180,8 @@
         const isSelf = currentUserId && userId === currentUserId;
         const isSuper = !!row.is_super_user;
         const currentRole = roleOptions.includes(String(row.role || '').trim()) ? String(row.role || '').trim() : 'member';
-        const canEditRole = !!(canManageUsers() && !isSuper && !isSelf);
-        const canRemove = !!(canManageUsers() && !isSuper && !isSelf);
+        const canEditRole = !!(canMembersChangeRole() && !isSuper && !isSelf);
+        const canRemove = !!(canMembersRemove() && !isSuper && !isSelf);
         const joined = row.created_at ? formatEasternDateTime(row.created_at) : '';
         const metaParts = [];
         if(name && email) metaParts.push(email);
@@ -3558,7 +4213,7 @@
       setUserMgmtMessage('');
       try{
         if(!SB.ready || !SB.session || !SB.client) throw new Error('Not authorized');
-        if(!canManageUsers()) throw new Error('Admin access required');
+        if(!canMembersView()) throw new Error('Permission denied');
         const companyId = getUserMgmtCompanyId();
         if(!companyId) throw new Error('No company selected');
         const { data, error } = await SB.client
@@ -3592,7 +4247,7 @@
     async function openUserMgmtModal(){
       if(!SB.ready){ toast('Supabase not configured'); return; }
       if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!canManageUsers()){ toast('Admin access required'); return; }
+      if(!canMembersView()){ toast('Permission denied'); return; }
       renderUserMgmtControls();
       show('userMgmtModal', true);
       await refreshUserMgmt();
@@ -3600,9 +4255,147 @@
     function closeUserMgmtModal(){
       show('userMgmtModal', false);
     }
+    // Feature: inventory.auth.roles
+    const ROLE_PERMISSION_CATEGORIES = {
+      'Inventory': [
+        { key: PERMISSIONS.ITEMS_VIEW, label: 'View Items' },
+        { key: PERMISSIONS.ITEMS_CREATE, label: 'Create Items' },
+        { key: PERMISSIONS.ITEMS_EDIT, label: 'Edit Items' },
+        { key: PERMISSIONS.ITEMS_DELETE, label: 'Delete Items' },
+        { key: PERMISSIONS.ITEMS_RESTORE, label: 'Restore Items' },
+        { key: PERMISSIONS.ITEMS_EXPORT, label: 'Export Items' },
+        { key: PERMISSIONS.ITEMS_IMPORT, label: 'Import Items' },
+      ],
+      'Orders': [
+        { key: PERMISSIONS.ORDERS_VIEW, label: 'View Orders' },
+        { key: PERMISSIONS.ORDERS_CREATE, label: 'Create Orders' },
+        { key: PERMISSIONS.ORDERS_EDIT, label: 'Edit Orders' },
+        { key: PERMISSIONS.ORDERS_DELETE, label: 'Delete Orders' },
+        { key: PERMISSIONS.ORDERS_RESTORE, label: 'Restore Orders' },
+      ],
+      'Members': [
+        { key: PERMISSIONS.MEMBERS_VIEW, label: 'View Members' },
+        { key: PERMISSIONS.MEMBERS_INVITE, label: 'Invite Members' },
+        { key: PERMISSIONS.MEMBERS_REMOVE, label: 'Remove Members' },
+        { key: PERMISSIONS.MEMBERS_CHANGE_ROLE, label: 'Change Roles' },
+      ],
+      'Company': [
+        { key: PERMISSIONS.COMPANY_VIEW_SETTINGS, label: 'View Settings' },
+        { key: PERMISSIONS.COMPANY_EDIT_SETTINGS, label: 'Edit Settings' },
+      ],
+      'Audit and Metrics': [
+        { key: PERMISSIONS.AUDIT_LOG_VIEW, label: 'View Audit Log' },
+        { key: PERMISSIONS.METRICS_VIEW, label: 'View Metrics' },
+        { key: PERMISSIONS.SNAPSHOTS_VIEW, label: 'View Snapshots' },
+      ],
+    };
+    function setRoleManagerMessage(msg){
+      const el = $('roleManagerMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    async function openRoleManagerModal(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!canAccessRoleManager()){
+        toast(hasTier('business') ? 'Super user access required' : 'Role Manager requires Business tier');
+        return;
+      }
+      show('roleManagerModal', true);
+      await loadRoleConfigurations();
+    }
+    function closeRoleManagerModal(){
+      show('roleManagerModal', false);
+      state._roleChanges = {};
+      setRoleManagerMessage('');
+    }
+    async function loadRoleConfigurations(){
+      setRoleManagerMessage('');
+      try{
+        const { data, error } = await SB.client
+          .from('role_configurations')
+          .select('role_name,permissions');
+        if(error) throw error;
+        state._roleConfigs = {};
+        (data || []).forEach(row => {
+          const role = String(row && row.role_name ? row.role_name : '').trim();
+          if(!role) return;
+          state._roleConfigs[role] = row.permissions || {};
+        });
+        state._roleChanges = {};
+        renderRoleManagerTable();
+      }catch(e){
+        const msg = e && e.message ? e.message : 'Failed to load roles';
+        setRoleManagerMessage(msg);
+      }
+    }
+    function renderRoleManagerTable(){
+      const body = $('roleManagerBody');
+      if(!body) return;
+      const roles = ['admin','member','viewer'];
+      let html = '';
+      for(const [category, perms] of Object.entries(ROLE_PERMISSION_CATEGORIES)){
+        html += `<tr class="role-manager-category"><td colspan="4">${escapeHtml(category)}</td></tr>`;
+        perms.forEach(perm => {
+          const key = perm.key;
+          const label = perm.label;
+          const cells = roles.map(role => {
+            const current = state._roleChanges[role] || state._roleConfigs[role] || {};
+            const checked = current[key] === true;
+            return `<td><input type="checkbox" data-role="${escapeHtmlAttr(role)}" data-permission="${escapeHtmlAttr(key)}"${checked ? ' checked' : ''} /></td>`;
+          }).join('');
+          html += `<tr><td>${escapeHtml(label)}</td>${cells}</tr>`;
+        });
+      }
+      body.innerHTML = html;
+    }
+    function handleRoleManagerToggle(target){
+      const box = target && target.matches ? (target.matches('input[type="checkbox"][data-role][data-permission]') ? target : null) : null;
+      if(!box) return;
+      const role = String(box.dataset.role || '').trim();
+      const perm = String(box.dataset.permission || '').trim();
+      if(!role || !perm) return;
+      if(!state._roleChanges[role]){
+        state._roleChanges[role] = { ...(state._roleConfigs[role] || {}) };
+      }
+      state._roleChanges[role][perm] = !!box.checked;
+    }
+    async function saveRoleManagerChanges(){
+      if(!canAccessRoleManager()){
+        toast('Permission denied');
+        return;
+      }
+      const entries = Object.entries(state._roleChanges || {});
+      if(!entries.length){
+        setRoleManagerMessage('No changes to save.');
+        return;
+      }
+      setRoleManagerMessage('');
+      try{
+        for(const [role, permissions] of entries){
+          const { error } = await SB.client
+            .from('role_configurations')
+            .update({
+              permissions,
+              updated_at: new Date().toISOString(),
+              updated_by: SB.user ? SB.user.id : null,
+            })
+            .eq('role_name', role);
+          if(error) throw error;
+        }
+        state._roleChanges = {};
+        await loadRoleConfigurations();
+        await sbLoadPermissions();
+        applyPermissionUI();
+        setRoleManagerMessage('Role permissions saved.');
+        toast('Role permissions saved');
+      }catch(e){
+        const msg = e && e.message ? e.message : 'Save failed';
+        setRoleManagerMessage(msg);
+      }
+    }
     async function sbUpdateMemberRole(userId, role){
       if(!SB.ready || !SB.session || !SB.client) throw Error('Not authorized');
-      if(!canManageUsers()) throw Error('Permission denied');
+      if(!canMembersChangeRole()) throw Error('Permission denied');
       const companyId = getUserMgmtCompanyId();
       if(!companyId) throw Error('Company not selected');
       const uid = String(userId || '').trim();
@@ -3618,7 +4411,7 @@
     }
     async function sbRemoveMember(userId){
       if(!SB.ready || !SB.session || !SB.client) throw Error('Not authorized');
-      if(!canManageUsers()) throw Error('Permission denied');
+      if(!canMembersRemove()) throw Error('Permission denied');
       const uid = String(userId || '').trim();
       if(!uid) throw Error('User required');
       const { data, error } = await SB.client.rpc('remove_company_member', { p_user_id: uid });
@@ -3671,7 +4464,7 @@
       try{
         if(!SB.ready || !SB.session || !SB.client) throw new Error('Not authorized');
         if(!SB.companyId) throw new Error('No company selected');
-        if(!canInvite()) throw new Error('Admin access required');
+        if(!canMembersChangeRole()) throw new Error('Permission denied');
         const { data, error } = await SB.client
           .from('role_change_requests')
           .select('id,user_id,current_role_name,requested_role,reason,status,created_at')
@@ -3704,7 +4497,7 @@
     async function openRoleRequestsModal(){
       if(!SB.ready){ toast('Supabase not configured'); return; }
       if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!canInvite()){ toast('Admin access required'); return; }
+      if(!canMembersChangeRole()){ toast('Permission denied'); return; }
       show('roleRequestsModal', true);
       await refreshRoleRequests();
     }
@@ -3754,7 +4547,7 @@
 	      let note = '';
 	      if(SB.session && !SB.authorized){
 	        if(!SB.companyId) note = 'No company access yet. Ask an admin for an invite.';
-	        else if(!SB.permissions || !SB.permissions.can_read) note = 'Your role does not allow inventory access.';
+        else if(!SB.permissions || !hasPermission(PERMISSIONS.ITEMS_VIEW)) note = 'Your role does not allow inventory access.';
 	      }
 	      if(note && SB.permissions && SB.permissions.assigned_admin_email){
 	        note += ` Contact: ${SB.permissions.assigned_admin_email}`;
@@ -3764,6 +4557,7 @@
       renderInviteUi();
       renderRoleRequestUi();
       renderRoleRequestsAdminButton();
+      renderRoleManagerButton();
       renderUserMgmtButton();
     }
 	    function renderCompanySwitcher(){
@@ -3973,6 +4767,11 @@
       state._auditTableFilter = '';
       state._auditActionFilter = '';
       state._userMgmtRows = [];
+      state._snapshots = [];
+      state._snapshotPreview = null;
+      state._metrics = null;
+      state._roleConfigs = {};
+      state._roleChanges = {};
       _inviteCompanyId = '';
       _userMgmtCompanyId = '';
       updateOrderCounterBadge();
@@ -3995,9 +4794,10 @@
 	        authorized: SB.authorized,
 	        connected: SB.connected,
 	      };
-	      SB.companyId = nextId;
-	      SB.company = target;
-	      saveCompanyId(nextId);
+      SB.companyId = nextId;
+      SB.company = target;
+      SB.companyTier = SB.company ? getCompanyTier() : null;
+      saveCompanyId(nextId);
 	      SB.permissions = null;
 	      SB.authorized = false;
 	      SB.connected = false;
@@ -4023,7 +4823,7 @@
 	        toast('Company switch failed');
 	        return false;
 	      }
-	      SB.authorized = !!(SB.permissions && SB.permissions.can_read);
+	      SB.authorized = !!(SB.permissions && hasPermission(PERMISSIONS.ITEMS_VIEW));
 	      updateStatusBar();
 	      renderProfileUi();
 	      applyPermissionUI();
@@ -4178,6 +4978,7 @@
       SB.companies = [];
       SB.companyId = null;
       SB.company = null;
+      SB.companyTier = null;
       if(!SB.ready || !SB.user){ updateStatusBar(); return false; }
       try{
         await sbLoadCompanies();
@@ -4188,6 +4989,7 @@
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
+        renderRoleManagerButton();
         renderUserMgmtButton();
         return false;
       }
@@ -4197,6 +4999,7 @@
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
+        renderRoleManagerButton();
         renderUserMgmtButton();
         return false;
       }
@@ -4209,15 +5012,17 @@
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
+        renderRoleManagerButton();
         renderUserMgmtButton();
         return false;
       }
-      SB.authorized = !!(SB.permissions && SB.permissions.can_read);
+      SB.authorized = !!(SB.permissions && hasPermission(PERMISSIONS.ITEMS_VIEW));
       updateStatusBar();
       renderCompanySwitcher();
       renderInviteUi();
       renderRoleRequestUi();
       renderRoleRequestsAdminButton();
+      renderRoleManagerButton();
       renderUserMgmtButton();
       return SB.authorized;
     }
@@ -4231,12 +5036,18 @@
       SB.companies = [];
       SB.companyId = null;
       SB.company = null;
+      SB.companyTier = null;
       updateStatusBar();
       applyPermissionUI();
 
       if(!SB.session){
         state.items = [];
         state._userMgmtRows = [];
+        state._snapshots = [];
+        state._snapshotPreview = null;
+        state._metrics = null;
+        state._roleConfigs = {};
+        state._roleChanges = {};
         _inviteCompanyId = '';
         _userMgmtCompanyId = '';
         if(_sbChannel && SB.client){ try{ SB.client.removeChannel(_sbChannel); }catch{} _sbChannel=null; }
@@ -4245,6 +5056,7 @@
         applyPermissionUI();
         renderCompanySwitcher();
         renderInviteUi();
+        renderRoleManagerButton();
         renderUserMgmtButton();
         return;
       }
@@ -4573,6 +5385,18 @@
       openUserMgmtModal();
     });
 
+    const openRoleManager = $('openRoleManager');
+    if(openRoleManager) openRoleManager.addEventListener('click', ()=>{
+      const profileDropdown = $('profileDropdown');
+      if(profileDropdown){
+        profileDropdown.classList.remove('open');
+        profileDropdown.style.display = '';
+        profileDropdown.setAttribute('aria-hidden', 'true');
+      }
+      $('profileBtn')?.setAttribute('aria-expanded', 'false');
+      openRoleManagerModal();
+    });
+
     const btnInviteClose = $('btnInviteClose');
     if(btnInviteClose) btnInviteClose.addEventListener('click', ()=>{
       show('inviteModal', false);
@@ -4594,6 +5418,12 @@
     if(btnRoleRequestsClose) btnRoleRequestsClose.addEventListener('click', closeRoleRequestsModal);
     const btnRoleRequestsRefresh = $('btnRoleRequestsRefresh');
     if(btnRoleRequestsRefresh) btnRoleRequestsRefresh.addEventListener('click', refreshRoleRequests);
+    const btnRoleManagerClose = $('btnRoleManagerClose');
+    if(btnRoleManagerClose) btnRoleManagerClose.addEventListener('click', closeRoleManagerModal);
+    const btnRoleManagerSave = $('btnRoleManagerSave');
+    if(btnRoleManagerSave) btnRoleManagerSave.addEventListener('click', saveRoleManagerChanges);
+    const roleManagerBody = $('roleManagerBody');
+    if(roleManagerBody) roleManagerBody.addEventListener('change', (e)=> handleRoleManagerToggle(e.target));
     const roleRequestsList = $('roleRequestsList');
     if(roleRequestsList) roleRequestsList.addEventListener('click', async (e)=>{
       const approveBtn = e.target.closest('[data-role-approve-id]');
@@ -5022,7 +5852,7 @@
       return { deleted: requested.length, requested: requested.length };
     }
     async function sbUpsertMany(rows){
-      if(!canCreate() || !canUpdate()) throw Error('Permission denied');
+      if(!canItemsImport()) throw Error('Permission denied');
       if(!SB.companyId) throw Error('Company not selected');
       // Load existing rows to build a case-insensitive index by name
       const { data: existing, error: selErr } = await SB.client
@@ -5579,7 +6409,7 @@ function adjustTitleSize(){
 			    '</button>';
 			}
 		function trayOrderHTML(){
-		  if(!canCreate()) return '';
+		  if(!canOrdersCreate()) return '';
 		  return ''+
 		    '<button type="button" class="card-tray-btn" data-tray-action="order" tabindex="-1" aria-label="Add to order" title="Add to order">'+
 		      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
@@ -5659,7 +6489,7 @@ function adjustTitleSize(){
 		function toggleOrderLineForItemId(id){
 		  const itemId = String(id || '').trim();
 		  if(!itemId) return;
-		  if(!canCreate()) return;
+		  if(!canOrdersCreate()) return;
 		  const item = state.items.find(x => x && x.id === itemId);
 		  if(!item) return;
 		  let exists = false;
@@ -5731,10 +6561,10 @@ function adjustTitleSize(){
 				function buildRowHTML(it){
 				  const rawId = String(it && it.id ? it.id : '');
 				  const id = escapeHtmlAttr(rawId);
-				  const allowSelect = canCreate() || canUpdate() || canDelete();
-				  const canEdit = canUpdate();
-				  const canRemove = canDelete();
-				  const canOrder = canCreate();
+				  const allowSelect = canItemsCreate() || canItemsEdit() || canItemsDelete();
+				  const canEdit = canItemsEdit();
+				  const canRemove = canItemsDelete();
+				  const canOrder = canOrdersCreate();
 				  const isLowStock = isLowStockItem(it);
 			  const inOrder = (()=> {
 			    try{
@@ -6048,7 +6878,7 @@ function emptyStateHtml(){
       show('editItemModal', false);
     }
 	    function openEditItemModal(id){
-	      if(!requirePermission('can_update', 'Read-only access')) return;
+	      if(!requirePermission(PERMISSIONS.ITEMS_EDIT, 'Read-only access')) return;
 	      const it = state.items.find(x=> x.id===id); if(!it) return;
 	      _editItemCtx = { id };
 
@@ -6181,7 +7011,7 @@ function emptyStateHtml(){
 	    async function deleteEditItemModal(){
 	      if(!_editItemCtx) return;
 	      if(!requireOnline()) return;
-	      if(!requirePermission('can_delete', 'Delete not allowed')) return;
+	      if(!requirePermission(PERMISSIONS.ITEMS_DELETE, 'Delete not allowed')) return;
 
 	      const id = _editItemCtx.id;
 	      const item = state.items.find(x=> x && x.id === id);
@@ -6443,7 +7273,7 @@ function emptyStateHtml(){
 	        const delta = toSignedInt(btn.dataset.delta, 0);
         if(!id || !delta) return;
         if(!requireOnline()) return;
-        if(!requirePermission('can_update', 'Read-only access')) return;
+        if(!requirePermission(PERMISSIONS.ITEMS_EDIT, 'Read-only access')) return;
         const it = state.items.find(x=> x.id===id); if(!it) return;
 	        const oldQty = toInt(it.qty,0);
 	        const newQty = Math.max(0, oldQty + delta);
@@ -6468,7 +7298,7 @@ function emptyStateHtml(){
 		        const id = String(stepper.querySelector('button.qty-step-btn')?.dataset?.id || '').trim();
 		        if(!id) return;
 		        if(!requireOnline()) return;
-		        if(!requirePermission('can_update', 'Read-only access')) return;
+		        if(!requirePermission(PERMISSIONS.ITEMS_EDIT, 'Read-only access')) return;
 		        const it = state.items.find(x=> x && x.id===id);
 		        if(!it) return;
 
@@ -6504,13 +7334,13 @@ function emptyStateHtml(){
 	        e.stopPropagation();
 	        closeMobileTray();
 	        if(action === 'order'){
-	          if(!canCreate()){ toast('Order creation not allowed'); return; }
+	          if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
 	          toggleOrderLineForItemId(id);
 	          return;
 	        }
 	        if(!requireOnline()) return;
 	        if(action === 'edit'){
-	          if(!requirePermission('can_update', 'Read-only access')) return;
+	          if(!requirePermission(PERMISSIONS.ITEMS_EDIT, 'Read-only access')) return;
 	          openEditItemModal(id);
 	          return;
 	        }
@@ -6694,14 +7524,14 @@ function emptyStateHtml(){
 		          if(shouldCommitEdit){
 		            closeMobileTray();
 		            if(!requireOnline()) return;
-		            if(!requirePermission('can_update', 'Read-only access')) return;
+		            if(!requirePermission(PERMISSIONS.ITEMS_EDIT, 'Read-only access')) return;
 		            openEditItemModal(id);
 		            return;
 		          }
 		          const shouldCommitOrder = (side === 'left') && (ax >= COMMIT_PX);
 		          if(shouldCommitOrder){
 		            closeMobileTray();
-		            if(!canCreate()){ toast('Order creation not allowed'); return; }
+		            if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
 		            toggleOrderLineForItemId(id);
 		            return;
 		          }
@@ -6895,14 +7725,14 @@ function emptyStateHtml(){
 		          if(shouldCommitEdit){
 		            closeMobileTray();
 		            if(!requireOnline()) return;
-		            if(!requirePermission('can_update', 'Read-only access')) return;
+		            if(!requirePermission(PERMISSIONS.ITEMS_EDIT, 'Read-only access')) return;
 		            openEditItemModal(id);
 		            return;
 		          }
 		          const shouldCommitOrder = (side === 'left') && (ax >= COMMIT_PX);
 		          if(shouldCommitOrder){
 		            closeMobileTray();
-		            if(!canCreate()){ toast('Order creation not allowed'); return; }
+		            if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
 		            toggleOrderLineForItemId(id);
 		            return;
 		          }
@@ -6951,13 +7781,13 @@ function emptyStateHtml(){
 
       if(prefersModalEditing()){
         if(!requireOnline()) return;
-        if(!requirePermission('can_update', 'Read-only access')) return;
+        if(!requirePermission(PERMISSIONS.ITEMS_EDIT, 'Read-only access')) return;
         openEditItemModal(id);
         return;
       }
 
       if(!requireOnline()) return;
-      if(!requirePermission('can_update', 'Read-only access')) return;
+      if(!requirePermission(PERMISSIONS.ITEMS_EDIT, 'Read-only access')) return;
       const fb = $('filterBox'); if (fb) fb.value = '';
 	      state._filter = '';
 	      try{ updateFilterClearBtn(); }catch(e){}
@@ -7180,7 +8010,7 @@ function emptyStateHtml(){
     $('menuImport').addEventListener('click', ()=> {
       toggleMenu(false);
       if(!requireOnline()) return;
-      if(!(canCreate() && canUpdate())){ toast('Bulk import requires create + update permissions'); return; }
+      if(!canItemsImport()){ toast('Bulk import requires import permission'); return; }
       $('#fileImport').click();
     });
     $('#fileImport').addEventListener('change', async ev=>{
@@ -7191,14 +8021,14 @@ function emptyStateHtml(){
     $('menuPaste').addEventListener('click', ()=>{
       toggleMenu(false);
       if(!requireOnline()) return;
-      if(!(canCreate() && canUpdate())){ toast('Bulk paste requires create + update permissions'); return; }
+      if(!canItemsImport()){ toast('Bulk paste requires import permission'); return; }
       $('#pasteArea').value='';
       show('pasteModal', true);
     });
     $('btnPasteCancel').addEventListener('click', ()=> show('pasteModal', false));
     $('btnPasteApply').addEventListener('click', ()=>{
       if(!requireOnline()) return;
-      if(!(canCreate() && canUpdate())){ toast('Bulk paste requires create + update permissions'); return; }
+      if(!canItemsImport()){ toast('Bulk paste requires import permission'); return; }
       const text=$('#pasteArea').value||''; if(!text.trim()){ toast('Nothing to import'); return; }
       const rows=parseDelimitedSmart(text); const items=rowsToItems(rows);
       if(!items.length){ toast('Could not detect headers or rows'); return; }
@@ -7212,7 +8042,7 @@ function emptyStateHtml(){
     drop.addEventListener('drop', async e=>{
       e.preventDefault(); drop.style.background='';
       if(!requireOnline()) return;
-      if(!(canCreate() && canUpdate())){ toast('Bulk import requires create + update permissions'); return; }
+      if(!canItemsImport()){ toast('Bulk import requires import permission'); return; }
       const f=e.dataTransfer.files[0]; if(f) await handleFile(f);
     });
 
@@ -7220,7 +8050,7 @@ function emptyStateHtml(){
 
     async function handleFile(f){
       if(!requireOnline()) return;
-      if(!(canCreate() && canUpdate())){ toast('Bulk import requires create + update permissions'); return; }
+      if(!canItemsImport()){ toast('Bulk import requires import permission'); return; }
       try{
         const items=await parseAnyFile(f);
         if(!items.length){ toast('No rows found in file'); return; }
@@ -7277,6 +8107,7 @@ function emptyStateHtml(){
 
 	    $('menuExport').addEventListener('click', ()=>{
 	      toggleMenu(false);
+	      if(!canItemsExport()){ toast('Export permission required'); return; }
 	      const rows=[["Item","Description","Qty"]];
 	      for(const it of state.items){ rows.push([it.name||'', it.desc||'', String(toInt(it.qty,0))]); }
 	      const csv = rows.map(r=> r.map(v=> '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
@@ -7537,7 +8368,7 @@ function emptyStateHtml(){
 		      updateReportOrderBadge();
 		    }
 		    function batchAddLowStockToCart(){
-		      if(!canCreate()){ toast('Order creation not allowed'); return; }
+		      if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
 		      const d = reportDataSnapshot();
 		      const rows = Array.isArray(d.lowStock) ? d.lowStock : [];
 		      if(!rows.length){ toast('No low stock items'); return; }
@@ -8381,7 +9212,7 @@ function emptyStateHtml(){
     }
     async function sbRecordOrderRecipient(email, name){
       if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return;
-      if(!canCreate()) throw new Error('Permission denied');
+      if(!canOrdersCreate()) throw new Error('Permission denied');
       const e = String(email||'').trim().toLowerCase();
       if(!e) return;
       const row = {
@@ -8416,7 +9247,7 @@ function emptyStateHtml(){
     }
     async function sbInsertOrderHistoryFromData({ toEmail, subjectLine, contactName, notes, lineItems, providerResult }){
       if(!SB.ready || !SB.session || !SB.authorized || !SB.user || !SB.companyId) return;
-      if(!canCreate()) throw new Error('Permission denied');
+      if(!canOrdersCreate()) throw new Error('Permission denied');
       const cleaned = normalizeEmailLineItems(lineItems).map(x => ({ item_id: x.item_id ? String(x.item_id).trim() : null, part: x.part, desc: x.desc, qty: x.qty }));
       const row = {
         company_id: SB.companyId,
@@ -8609,7 +9440,7 @@ function emptyStateHtml(){
 	    }
 	    async function sbDeleteOrder(orderId){
 	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) throw new Error('Not authorized');
-	      if(!canDelete()) throw new Error('Permission denied');
+	      if(!canOrdersDelete()) throw new Error('Permission denied');
 	      const id = String(orderId || '').trim();
 	      if(!id) throw new Error('Invalid order ID');
 	      const { data, error } = await SB.client
@@ -8623,7 +9454,7 @@ function emptyStateHtml(){
 	    async function deleteOrderFromHistory(orderId, btnEl){
 	      const id = String(orderId || '').trim();
 	      if(!id) return false;
-	      if(!canDelete()){ toast('Delete not allowed'); return false; }
+	      if(!canOrdersDelete()){ toast('Delete not allowed'); return false; }
 	      if(!(await openConfirmModal('Delete order?', 'Delete this order from history?', { okText:'Delete', cancelText:'Cancel' }))) return false;
 	      if(btnEl) btnEl.disabled = true;
 	      try{
@@ -8648,7 +9479,7 @@ function emptyStateHtml(){
 
 	    async function sbUpdateOrder(orderId, fields){
 	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) throw new Error('Not authorized');
-	      if(!canUpdate()) throw new Error('Permission denied');
+	      if(!canOrdersEdit()) throw new Error('Permission denied');
 	      const id = String(orderId || '').trim();
 	      if(!id) throw new Error('Invalid order ID');
 	      const { error } = await SB.client
@@ -9073,7 +9904,7 @@ function emptyStateHtml(){
 	      if(!SB.ready){ toast('Supabase not configured'); return; }
 	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
 	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
-	      if(!canUpdate()){ toast('Receive not allowed'); return; }
+	      if(!canOrdersEdit()){ toast('Receive not allowed'); return; }
 	      if(SB.ordersHasReceipt === false){
 	        showOrderReceivingSetupHelp();
 	        return;
@@ -9169,8 +10000,8 @@ function emptyStateHtml(){
 
         const orderId = String(o.id || '');
         const receiptMeta = orderNonEmpty(orderReceiptMetaText(o));
-        const canReceipt = (SB.ordersHasReceipt !== false) && canUpdate();
-        const canRemove = canDelete();
+        const canReceipt = (SB.ordersHasReceipt !== false) && canOrdersEdit();
+        const canRemove = canOrdersDelete();
         const isReceived = isOrderCurrentlyReceived(o);
         const isReceiving = canReceipt && !!String(o.receiving_at || '').trim() && !String(o.received_at || '').trim();
         det.classList.toggle('order-received', isReceived);
@@ -9446,12 +10277,13 @@ function emptyStateHtml(){
 	        if(btn){ btn.disabled = false; btn.textContent = prior || 'Refresh'; }
 	      }
 	    }
-	    async function openOrderHistoryModal(opts = {}){
-	      const returnToOrder = !!opts.returnToOrder;
-	      if(!SB.ready){ toast('Supabase not configured'); return; }
-	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
-	      _orderHistoryReturnToOrder = returnToOrder;
+    async function openOrderHistoryModal(opts = {}){
+      const returnToOrder = !!opts.returnToOrder;
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
+      if(!canOrdersView()){ toast('Order history access required'); return; }
+      _orderHistoryReturnToOrder = returnToOrder;
 	      if(returnToOrder) show('orderModal', false);
 	      show('orderHistoryModal', true);
 	      const f = $('orderHistoryFilter'); if(f) f.value = state._orderHistoryFilter || '';
@@ -9528,7 +10360,7 @@ function emptyStateHtml(){
         if(!SB.ready) throw new Error('Supabase not configured');
         if(!SB.session) throw new Error('Sign in required');
         if(!SB.companyId) throw new Error('No company selected');
-        if(!canDelete()) throw new Error('Trash access requires admin');
+        if(!canAccessTrash()) throw new Error('Trash access requires delete or restore permission');
         const { data, error } = await SB.client.rpc('get_deleted_items', { p_company_id: SB.companyId });
         if(error) throw error;
         state._trashItems = Array.isArray(data) ? data : [];
@@ -9543,7 +10375,7 @@ function emptyStateHtml(){
       if(!SB.ready){ toast('Supabase not configured'); return; }
       if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
       if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
-      if(!canDelete()){ toast('Trash access requires admin'); return; }
+      if(!canAccessTrash()){ toast('Trash access requires delete or restore permission'); return; }
       show('trashModal', true);
       const f = $('trashFilter'); if(f) f.value = state._trashFilter || '';
       await refreshTrash();
@@ -9681,7 +10513,7 @@ function emptyStateHtml(){
       }
       const histBtn = $('btnOrderHistory');
       if(histBtn){
-        histBtn.disabled = !(SB.ready && SB.session && SB.authorized);
+        histBtn.disabled = !(SB.ready && SB.session && SB.authorized && canOrdersView());
       }
       const btn = $('btnOrderSubmit');
       if(btn){
@@ -9691,7 +10523,7 @@ function emptyStateHtml(){
       }
     }
 	    function openOrderModal(opts = {}){
-		      if(!canCreate()){ toast('Order creation not allowed'); return; }
+		      if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
 		      const ord = orderState();
 		      const addSelected = !isMobileUx() && !(opts && Object.prototype.hasOwnProperty.call(opts, 'addSelected') && opts.addSelected === false);
 		      if(addSelected){
@@ -9732,7 +10564,7 @@ function emptyStateHtml(){
 	    const menuOrder = $('menuOrder');
 	    if(menuOrder) menuOrder.addEventListener('click', ()=>{
 	      toggleMenu(false);
-	      if(!requirePermission('can_create', 'Order creation not allowed')) return;
+	      if(!requirePermission(PERMISSIONS.ORDERS_CREATE, 'Order creation not allowed')) return;
 	      openOrderModal();
 	    });
     const menuHistory = $('menuHistory');
@@ -9741,6 +10573,10 @@ function emptyStateHtml(){
     if(menuTrash) menuTrash.addEventListener('click', ()=>{ toggleMenu(false); openTrashModal(); });
     const menuAudit = $('menuAudit');
     if(menuAudit) menuAudit.addEventListener('click', ()=>{ toggleMenu(false); openAuditModal(); });
+    const menuSnapshots = $('menuSnapshots');
+    if(menuSnapshots) menuSnapshots.addEventListener('click', ()=>{ toggleMenu(false); openSnapshotsModal(); });
+    const menuMetrics = $('menuMetrics');
+    if(menuMetrics) menuMetrics.addEventListener('click', ()=>{ toggleMenu(false); openMetricsModal(); });
     const btnTrashClose = $('btnTrashClose');
     if(btnTrashClose) btnTrashClose.addEventListener('click', closeTrashModal);
     const btnTrashReload = $('btnTrashReload');
@@ -9756,6 +10592,7 @@ function emptyStateHtml(){
       if(!btn) return;
       const id = String(btn.getAttribute('data-restore-id') || '').trim();
       if(!id) return;
+      if(!canItemsRestore()){ toast('Restore not allowed'); return; }
       const row = Array.isArray(state._trashItems) ? state._trashItems.find(r => String(r && r.id ? r.id : '') === id) : null;
       const name = row && row.name ? String(row.name) : 'item';
       if(!(await openConfirmModal('Restore item?', `Restore "${name}" from trash?`, { okText:'Restore', cancelText:'Cancel' }))) return;
@@ -9792,8 +10629,30 @@ function emptyStateHtml(){
       state._auditActionFilter = auditActionFilter.value || '';
       refreshAuditLog();
     });
+    const btnSnapshotsClose = $('btnSnapshotsClose');
+    if(btnSnapshotsClose) btnSnapshotsClose.addEventListener('click', closeSnapshotsModal);
+    const btnSnapshotBack = $('btnSnapshotBack');
+    if(btnSnapshotBack) btnSnapshotBack.addEventListener('click', showSnapshotList);
+    const snapshotsList = $('snapshotsList');
+    if(snapshotsList) snapshotsList.addEventListener('click', (e)=>{
+      const btn = e.target.closest('[data-snapshot-preview-id]');
+      if(!btn) return;
+      const id = String(btn.getAttribute('data-snapshot-preview-id') || '').trim();
+      if(!id) return;
+      openSnapshotPreview(id);
+    });
+    const btnMetricsClose = $('btnMetricsClose');
+    if(btnMetricsClose) btnMetricsClose.addEventListener('click', closeMetricsModal);
+    const metricsRange = $('metricsRange');
+    if(metricsRange) metricsRange.addEventListener('change', loadMetrics);
+    const metricsView = $('metricsView');
+    if(metricsView) metricsView.addEventListener('change', loadMetrics);
 		    const menuReport = $('menuReport');
-		    if(menuReport) menuReport.addEventListener('click', ()=>{ toggleMenu(false); openReportModal(); });
+		    if(menuReport) menuReport.addEventListener('click', ()=>{
+		      toggleMenu(false);
+		      if(!canItemsView()){ toast('Report access requires view permission'); return; }
+		      openReportModal();
+		    });
 		    const btnReportClose = $('btnReportClose');
 		    if(btnReportClose) btnReportClose.addEventListener('click', closeReportModal);
 				    const btnReportBatchOrder = $('btnReportBatchOrder');
@@ -9923,7 +10782,7 @@ function emptyStateHtml(){
     if(btnOrderSubmit) btnOrderSubmit.addEventListener('click', async ()=>{
       const url = buildMailtoUrl();
       if(!url){ toast('Add at least 1 item and an email'); return; }
-      if(!requirePermission('can_create', 'Order creation not allowed')) return;
+      if(!requirePermission(PERMISSIONS.ORDERS_CREATE, 'Order creation not allowed')) return;
 
       const btn = $('btnOrderSubmit');
       const priorText = btn ? btn.textContent : '';
@@ -10535,7 +11394,7 @@ function emptyStateHtml(){
     $('menuAddOne').addEventListener('click', ()=>{
       toggleMenu(false);
       if(!requireOnline()) return;
-      if(!requirePermission('can_create', 'Create permission required')) return;
+      if(!requirePermission(PERMISSIONS.ITEMS_CREATE, 'Create permission required')) return;
       show('addOneModal', true);
       $('addName').focus();
     });
@@ -10553,7 +11412,7 @@ function emptyStateHtml(){
     });
     async function saveAddOne(){
       if(!requireOnline()) return;
-      if(!requirePermission('can_create', 'Create permission required')) return;
+      if(!requirePermission(PERMISSIONS.ITEMS_CREATE, 'Create permission required')) return;
       const name = String(($('addName').value||'').trim());
       const desc = String(($('addDesc').value||'').trim());
       const qty  = toInt($('addQty').value,-1);
@@ -10577,7 +11436,7 @@ function emptyStateHtml(){
 		      const btn = e.target.closest('.row-delete-btn');
 		      if(!btn) return;
 		      if(!requireOnline()) return;
-		      if(!requirePermission('can_delete', 'Delete not allowed')) return;
+		      if(!requirePermission(PERMISSIONS.ITEMS_DELETE, 'Delete not allowed')) return;
 		      const id = btn.dataset.id;
       if(!id) return;
       const item = state.items.find(it => it.id === id);
@@ -10598,7 +11457,7 @@ function emptyStateHtml(){
       if(!btn) return;
       const id = String(btn.dataset.id || '').trim();
       if(!id) return;
-      if(!canCreate()){ toast('Order creation not allowed'); return; }
+      if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
       try{ e.preventDefault(); e.stopPropagation(); }catch(_){}
       const selectedIds = getSelectedRowIds();
       if(selectedIds.length > 1 && selectedIds.includes(id)){

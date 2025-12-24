@@ -1,0 +1,35 @@
+schema_version: 1
+product: inventory-manager
+features:
+  - feature_id: inventory.snapshots.ui
+    name: Snapshots UI
+    description: Read-only UI for viewing historical inventory snapshots.
+    tier_availability:
+      - business
+      - enterprise
+    support_impact: medium
+    status: in_progress
+  - feature_id: inventory.metrics.dashboard
+    name: Metrics Dashboard
+    description: Dashboard showing inventory counts, changes, and basic trends.
+    tier_availability:
+      - professional
+      - business
+      - enterprise
+    support_impact: medium
+    status: in_progress
+  - feature_id: inventory.security.checklist
+    name: Security Testing Checklist
+    description: Internal security validation checklist for development and releases.
+    tier_availability:
+      - enterprise
+    support_impact: none
+    status: in_progress
+  - feature_id: inventory.auth.roles
+    name: Role Engine
+    description: Role-based access control for inventory actions.
+    tier_availability:
+      - business
+      - enterprise
+    support_impact: high
+    status: in_progress

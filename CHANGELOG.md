@@ -5,6 +5,9 @@
 - [inventory.metrics.dashboard] Added user-facing documentation for the Metrics Dashboard.
 - [inventory.auth.roles] Added user-facing documentation for the Role Engine.
 - [inventory.security.checklist] Added internal security testing checklist documentation.
+- [inventory.snapshots.ui] Implemented snapshots modal with preview and tier gating.
+- [inventory.metrics.dashboard] Implemented metrics dashboard modal and metrics RPCs.
+- [inventory.auth.roles] Implemented role manager modal with permission RPCs and tier gating.
 
 ## v1.0.2 — UI polish, sorting, PWA
 - Header alignment: title/status left, logo right; constrained to table width
