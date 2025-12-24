@@ -1342,7 +1342,7 @@ BEGIN
             c.slug,
             'super_user'::text,
             true,
-            (SELECT COUNT(*) FROM public.company_members WHERE company_id = c.id)
+            (SELECT COUNT(*) FROM public.company_members cm2 WHERE cm2.company_id = c.id)
         FROM public.companies c
         WHERE c.is_active = true
         ORDER BY c.name;
@@ -1355,7 +1355,7 @@ BEGIN
             c.slug,
             cm.role,
             cm.is_super_user,
-            (SELECT COUNT(*) FROM public.company_members WHERE company_id = c.id)
+            (SELECT COUNT(*) FROM public.company_members cm2 WHERE cm2.company_id = c.id)
         FROM public.companies c
         JOIN public.company_members cm ON cm.company_id = c.id
         WHERE cm.user_id = auth.uid()
