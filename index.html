@@ -2151,6 +2151,21 @@
     }
     .role-request-card h3{margin:0;font-size:14px}
     .role-request-actions-row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+    .audit-filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .audit-filters select,.audit-filters input{min-width:160px}
+    .audit-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+    .audit-card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:var(--card);
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .audit-title{font-weight:700}
+    .audit-meta{font-size:12px;color:var(--muted)}
+    .audit-json{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;white-space:pre-wrap;color:var(--muted)}
     .menu-icon-svg{flex-shrink:0}
 </style>
 </head>
@@ -2240,6 +2255,10 @@
             <button class="menu-item" id="menuTrash" role="menuitem">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
               Trash
+            </button>
+            <button class="menu-item" id="menuAudit" role="menuitem">
+              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+              Audit Log
             </button>
           </nav>
         </div>
@@ -2828,6 +2847,39 @@
     </div>
   </div>
 
+  <!-- Audit log modal -->
+  <div id="auditModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;">Audit Log</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn" id="btnAuditRefresh" type="button">Refresh</button>
+          <button class="btn" id="btnAuditClose" type="button">Close</button>
+        </div>
+      </div>
+      <div class="audit-filters">
+        <select id="auditTableFilter">
+          <option value="">All tables</option>
+          <option value="inventory_items">Inventory Items</option>
+          <option value="orders">Orders</option>
+          <option value="company_members">Company Members</option>
+          <option value="invitations">Invitations</option>
+          <option value="role_change_requests">Role Requests</option>
+        </select>
+        <select id="auditActionFilter">
+          <option value="">All actions</option>
+          <option value="INSERT">INSERT</option>
+          <option value="UPDATE">UPDATE</option>
+          <option value="DELETE">DELETE</option>
+          <option value="RESTORE">RESTORE</option>
+          <option value="BULK_DELETE">BULK_DELETE</option>
+        </select>
+      </div>
+      <div id="auditList" class="audit-list" aria-live="polite"></div>
+      <div id="auditMsg" class="muted" style="margin-top:8px;"></div>
+    </div>
+  </div>
+
   <!-- Profile modal -->
   <div id="profileModal" class="modal" aria-hidden="true">
     <div class="box">
@@ -2941,7 +2993,10 @@
 	      _trashItems:[],
 	      _trashFilter:'',
 	      _roleRequestPending:null,
-	      _roleRequests:[]
+	      _roleRequests:[],
+	      _auditRows:[],
+	      _auditTableFilter:'',
+	      _auditActionFilter:''
 	    };
     const APP_VERSION = '2.0.0';
 
@@ -3181,6 +3236,7 @@
       setDisabled('menuOrder', !canCreate());
       setDisabled('menuHistory', !canRead);
       setDisabled('menuTrash', !canDelete());
+      setDisabled('menuAudit', !canInvite());
       setDisabled('btnOrderSubmit', !canCreate());
       setDisabled('btnEditItemDelete', !canDelete());
       setDisabled('btnReportBatchOrder', !canCreate());
@@ -3213,6 +3269,78 @@
     function setRoleRequestsMessage(msg){
       const el = $('roleRequestsMsg'); if(!el) return;
       el.textContent = String(msg || '');
+    }
+    function setAuditMessage(msg){
+      const el = $('auditMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function renderAuditList(){
+      const list = $('auditList');
+      if(!list) return;
+      const rows = Array.isArray(state._auditRows) ? state._auditRows : [];
+      if(!rows.length){
+        list.innerHTML = `<div class="trash-empty">No audit entries.</div>`;
+        return;
+      }
+      list.innerHTML = rows.map(row => {
+        const action = String(row.action || '').trim();
+        const tableName = String(row.table_name || '').trim();
+        const when = row.created_at ? formatEasternDateTime(row.created_at) : '';
+        const user = String(row.user_email || '').trim();
+        const role = String(row.user_role || '').trim();
+        const summary = [action, tableName].filter(Boolean).join(' · ');
+        const meta = [when, user, role].filter(Boolean).join(' · ');
+        const oldVals = row.old_values ? JSON.stringify(row.old_values, null, 2) : '';
+        const newVals = row.new_values ? JSON.stringify(row.new_values, null, 2) : '';
+        const changed = Array.isArray(row.changed_fields) && row.changed_fields.length
+          ? `Changed: ${row.changed_fields.join(', ')}`
+          : '';
+        return (
+          `<div class="audit-card">`+
+            `<div class="audit-title">${escapeHtml(summary || 'Entry')}</div>`+
+            `<div class="audit-meta">${escapeHtml(meta)}</div>`+
+            `${changed ? `<div class="audit-meta">${escapeHtml(changed)}</div>` : ''}`+
+            `${oldVals ? `<div class="audit-json">Old: ${escapeHtml(oldVals)}</div>` : ''}`+
+            `${newVals ? `<div class="audit-json">New: ${escapeHtml(newVals)}</div>` : ''}`+
+          `</div>`
+        );
+      }).join('');
+    }
+    async function refreshAuditLog(){
+      const list = $('auditList');
+      if(list) list.innerHTML = `<div class="muted">Loading…</div>`;
+      setAuditMessage('');
+      try{
+        if(!SB.ready || !SB.session || !SB.client) throw new Error('Not authorized');
+        if(!SB.companyId) throw new Error('No company selected');
+        if(!canInvite()) throw new Error('Admin access required');
+        const tableFilter = String(state._auditTableFilter || '').trim() || null;
+        const actionFilter = String(state._auditActionFilter || '').trim() || null;
+        const { data, error } = await SB.client.rpc('get_audit_log', {
+          p_company_id: SB.companyId,
+          p_limit: 50,
+          p_offset: 0,
+          p_table_name: tableFilter,
+          p_action: actionFilter,
+        });
+        if(error) throw error;
+        state._auditRows = Array.isArray(data) ? data : [];
+        renderAuditList();
+      }catch(e){
+        state._auditRows = [];
+        const msg = e && e.message ? e.message : 'Failed to load audit log';
+        if(list) list.innerHTML = `<div class="trash-empty">${escapeHtml(msg)}</div>`;
+      }
+    }
+    async function openAuditModal(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!canInvite()){ toast('Admin access required'); return; }
+      show('auditModal', true);
+      await refreshAuditLog();
+    }
+    function closeAuditModal(){
+      show('auditModal', false);
     }
     async function sbLoadMyRoleRequest(){
       if(!SB.ready || !SB.session || !SB.client) return null;
@@ -3578,6 +3706,9 @@
 	      if(trashFilter) trashFilter.value = '';
 	      state._roleRequestPending = null;
 	      state._roleRequests = [];
+	      state._auditRows = [];
+	      state._auditTableFilter = '';
+	      state._auditActionFilter = '';
 	      updateOrderCounterBadge();
 	    }
 	    async function sbSwitchCompany(nextCompanyId){
@@ -9250,6 +9381,8 @@ function emptyStateHtml(){
     if(menuHistory) menuHistory.addEventListener('click', ()=>{ toggleMenu(false); openOrderHistoryModal({ returnToOrder: false }); });
     const menuTrash = $('menuTrash');
     if(menuTrash) menuTrash.addEventListener('click', ()=>{ toggleMenu(false); openTrashModal(); });
+    const menuAudit = $('menuAudit');
+    if(menuAudit) menuAudit.addEventListener('click', ()=>{ toggleMenu(false); openAuditModal(); });
     const btnTrashClose = $('btnTrashClose');
     if(btnTrashClose) btnTrashClose.addEventListener('click', closeTrashModal);
     const btnTrashReload = $('btnTrashReload');
@@ -9286,6 +9419,20 @@ function emptyStateHtml(){
         btn.disabled = false;
         btn.setAttribute('aria-disabled', 'false');
       }
+    });
+    const btnAuditClose = $('btnAuditClose');
+    if(btnAuditClose) btnAuditClose.addEventListener('click', closeAuditModal);
+    const btnAuditRefresh = $('btnAuditRefresh');
+    if(btnAuditRefresh) btnAuditRefresh.addEventListener('click', refreshAuditLog);
+    const auditTableFilter = $('auditTableFilter');
+    if(auditTableFilter) auditTableFilter.addEventListener('change', ()=>{
+      state._auditTableFilter = auditTableFilter.value || '';
+      refreshAuditLog();
+    });
+    const auditActionFilter = $('auditActionFilter');
+    if(auditActionFilter) auditActionFilter.addEventListener('change', ()=>{
+      state._auditActionFilter = auditActionFilter.value || '';
+      refreshAuditLog();
     });
 		    const menuReport = $('menuReport');
 		    if(menuReport) menuReport.addEventListener('click', ()=>{ toggleMenu(false); openReportModal(); });
