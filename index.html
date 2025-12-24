@@ -2166,6 +2166,23 @@
     .audit-title{font-weight:700}
     .audit-meta{font-size:12px;color:var(--muted)}
     .audit-json{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;white-space:pre-wrap;color:var(--muted)}
+    .user-mgmt-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .user-mgmt-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+    .user-mgmt-card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:var(--card);
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+    .user-mgmt-name{font-weight:700}
+    .user-mgmt-meta{font-size:12px;color:var(--muted);margin-top:4px}
+    .user-mgmt-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .user-mgmt-role{min-width:120px}
     .menu-icon-svg{flex-shrink:0}
 </style>
 </head>
@@ -2202,6 +2219,10 @@
             <button class="menu-item" id="openInviteModal">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="17" y1="11" x2="23" y2="11"></line></svg>
               <span>Invite User</span>
+            </button>
+            <button class="menu-item" id="openUserMgmt">
+              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              <span>Manage Users</span>
             </button>
             <button class="menu-item" id="openRoleRequests">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v4H4z"></path><path d="M4 10h16v10H4z"></path><path d="M9 14h6"></path><path d="M9 17h6"></path></svg>
@@ -2807,6 +2828,10 @@
       </div>
       <div class="invite-section" id="inviteSection" style="margin-top:10px;">
         <div class="invite-grid">
+          <div id="inviteCompanyRow">
+            <label class="muted">Company</label>
+            <select id="inviteCompany" aria-label="Invite company"></select>
+          </div>
           <div>
             <label class="muted">Email</label>
             <input id="inviteEmail" type="email" placeholder="newuser@example.com" autocomplete="email" inputmode="email" />
@@ -2829,6 +2854,27 @@
         </div>
         <div id="inviteMsg" class="muted" style="margin-top:8px;"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- User management modal -->
+  <div id="userMgmtModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;">Manage Users</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn" id="btnUserMgmtRefresh" type="button">Refresh</button>
+          <button class="btn" id="btnUserMgmtClose" type="button">Close</button>
+        </div>
+      </div>
+      <div class="user-mgmt-controls" id="userMgmtControls">
+        <div>
+          <label class="muted">Company</label>
+          <select id="userMgmtCompany" aria-label="Manage users company"></select>
+        </div>
+      </div>
+      <div id="userMgmtList" class="user-mgmt-list" aria-live="polite"></div>
+      <div id="userMgmtMsg" class="muted" style="margin-top:8px;"></div>
     </div>
   </div>
 
@@ -2993,11 +3039,12 @@
 	      _trashItems:[],
 	      _trashFilter:'',
 	      _roleRequestPending:null,
-	      _roleRequests:[],
-	      _auditRows:[],
-	      _auditTableFilter:'',
-	      _auditActionFilter:''
-	    };
+      _roleRequests:[],
+      _auditRows:[],
+      _auditTableFilter:'',
+      _auditActionFilter:'',
+      _userMgmtRows:[]
+    };
     const APP_VERSION = '2.0.0';
 
     const $ = (id) => document.getElementById(String(id).replace(/^#/, ''));
@@ -3056,9 +3103,10 @@
 	    // ========================
 	    // Supabase (cloud sync) — optional
 	    // ========================
-	    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null, companyId:null, company:null, companies:[], permissions:null, itemsHasLowStockQty:null, itemsHasReorderEnabled:null, ordersHasReceipt:null, warnedLowStockSchema:false, warnedReorderSchema:false, warnedOrdersReceiptSchema:false };
+    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null, companyId:null, company:null, companies:[], permissions:null, itemsHasLowStockQty:null, itemsHasReorderEnabled:null, ordersHasReceipt:null, warnedLowStockSchema:false, warnedReorderSchema:false, warnedOrdersReceiptSchema:false };
     const COMPANY_STORAGE_PREFIX = 'inv.company.v1';
     let _inviteCompanyId = '';
+    let _userMgmtCompanyId = '';
     function getCompanyStorageKey(){
       const uid = (SB && SB.user && SB.user.id) ? String(SB.user.id) : 'anon';
       return `${COMPANY_STORAGE_PREFIX}.${uid}`;
@@ -3216,10 +3264,14 @@
       toast(message || 'Permission denied');
       return false;
     }
+    function isSuperUser(){
+      return !!(SB.permissions && String(SB.permissions.role || '').trim() === 'super_user');
+    }
     function canCreate(){ return hasPermission('can_create'); }
     function canUpdate(){ return hasPermission('can_update'); }
     function canDelete(){ return hasPermission('can_delete'); }
     function canInvite(){ return hasPermission('can_invite'); }
+    function canManageUsers(){ return hasPermission('can_manage_users'); }
     function applyPermissionUI(){
       const canRead = hasPermission('can_read');
       const allowSelect = canCreate() || canUpdate() || canDelete();
@@ -3272,6 +3324,10 @@
     }
     function setAuditMessage(msg){
       const el = $('auditMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function setUserMgmtMessage(msg){
+      const el = $('userMgmtMsg'); if(!el) return;
       el.textContent = String(msg || '');
     }
     function renderAuditList(){
@@ -3400,6 +3456,175 @@
       const allow = !!(SB.session && SB.companyId && canInvite());
       btn.disabled = !allow;
       btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
+    }
+    function renderUserMgmtButton(){
+      const btn = $('openUserMgmt');
+      if(!btn) return;
+      const allow = !!(SB.session && canManageUsers());
+      btn.disabled = !allow;
+      btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
+    }
+    function renderUserMgmtControls(){
+      const controls = $('userMgmtControls');
+      const select = $('userMgmtCompany');
+      if(!controls || !select) return;
+      if(!SB.session || !isSuperUser()){
+        controls.style.display = 'none';
+        return;
+      }
+      controls.style.display = '';
+      const rows = Array.isArray(SB.companies) ? SB.companies : [];
+      select.innerHTML = '';
+      if(!rows.length){
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'No companies available';
+        select.appendChild(opt);
+        select.disabled = true;
+        _userMgmtCompanyId = '';
+        return;
+      }
+      rows.forEach(row => {
+        const id = String(row && row.company_id ? row.company_id : '').trim();
+        if(!id) return;
+        const name = String(row.company_name || row.company_slug || row.company_id || '').trim() || id;
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = name;
+        select.appendChild(opt);
+      });
+      let desired = _userMgmtCompanyId;
+      if(desired && !rows.some(r => String(r.company_id) === desired)) desired = '';
+      if(!desired) desired = SB.companyId ? String(SB.companyId) : String(rows[0].company_id || '');
+      _userMgmtCompanyId = desired || '';
+      if(_userMgmtCompanyId) select.value = _userMgmtCompanyId;
+      select.disabled = rows.length <= 1;
+    }
+    function getUserMgmtCompanyId(){
+      if(isSuperUser()){
+        return String(_userMgmtCompanyId || SB.companyId || '').trim();
+      }
+      return SB.companyId ? String(SB.companyId).trim() : '';
+    }
+    function renderUserMgmtList(){
+      const list = $('userMgmtList');
+      if(!list) return;
+      const rows = Array.isArray(state._userMgmtRows) ? state._userMgmtRows : [];
+      if(!rows.length){
+        list.innerHTML = `<div class="trash-empty">No users found.</div>`;
+        return;
+      }
+      const currentUserId = SB.user && SB.user.id ? String(SB.user.id) : '';
+      const roleOptions = ['admin','member','viewer'];
+      list.innerHTML = rows.map(row => {
+        const userId = String(row.user_id || '').trim();
+        const profile = row.profile || {};
+        const name = [profile.first_name, profile.last_name].filter(Boolean).join(' ').trim();
+        const email = String(profile.email || row.email || '').trim();
+        const displayName = name || email || 'User';
+        const isSelf = currentUserId && userId === currentUserId;
+        const isSuper = !!row.is_super_user;
+        const currentRole = roleOptions.includes(String(row.role || '').trim()) ? String(row.role || '').trim() : 'member';
+        const canEditRole = !!(canManageUsers() && !isSuper && !isSelf);
+        const canRemove = !!(canManageUsers() && !isSuper && !isSelf);
+        const joined = row.created_at ? formatEasternDateTime(row.created_at) : '';
+        const metaParts = [];
+        if(name && email) metaParts.push(email);
+        if(joined) metaParts.push(`Joined ${joined}`);
+        if(isSelf) metaParts.push('You');
+        if(isSuper) metaParts.push('Super user');
+        const roleSelect = isSuper
+          ? `<select class="user-mgmt-role" disabled aria-disabled="true"><option selected>super_user</option></select>`
+          : `<select class="user-mgmt-role" data-user-role-id="${escapeHtmlAttr(userId)}" data-current-role="${escapeHtmlAttr(currentRole)}" data-user-name="${escapeHtmlAttr(displayName)}" ${canEditRole ? '' : 'disabled aria-disabled="true"'}>`+
+              roleOptions.map(r => `<option value="${escapeHtmlAttr(r)}"${r === currentRole ? ' selected' : ''}>${escapeHtml(r)}</option>`).join('')+
+            `</select>`;
+        return (
+          `<div class="user-mgmt-card">`+
+            `<div>`+
+              `<div class="user-mgmt-name">${escapeHtml(displayName)}</div>`+
+              `${metaParts.length ? `<div class="user-mgmt-meta">${escapeHtml(metaParts.join(' · '))}</div>` : ''}`+
+            `</div>`+
+            `<div class="user-mgmt-actions">`+
+              roleSelect+
+              `<button class="btn" data-user-remove-id="${escapeHtmlAttr(userId)}" data-user-name="${escapeHtmlAttr(displayName)}"${canRemove ? '' : ' disabled aria-disabled="true"'}>Remove</button>`+
+            `</div>`+
+          `</div>`
+        );
+      }).join('');
+    }
+    async function refreshUserMgmt(){
+      const list = $('userMgmtList');
+      if(list) list.innerHTML = `<div class="muted">Loading…</div>`;
+      setUserMgmtMessage('');
+      try{
+        if(!SB.ready || !SB.session || !SB.client) throw new Error('Not authorized');
+        if(!canManageUsers()) throw new Error('Admin access required');
+        const companyId = getUserMgmtCompanyId();
+        if(!companyId) throw new Error('No company selected');
+        const { data, error } = await SB.client
+          .from('company_members')
+          .select('user_id,role,is_super_user,invited_by,assigned_admin_id,created_at')
+          .eq('company_id', companyId)
+          .order('created_at', { ascending:true });
+        if(error) throw error;
+        const rows = Array.isArray(data) ? data : [];
+        const userIds = rows.map(r => r.user_id).filter(Boolean);
+        let profileMap = new Map();
+        if(userIds.length){
+          const { data: profiles, error: profErr } = await SB.client
+            .from('profiles')
+            .select('user_id,email,first_name,last_name')
+            .in('user_id', userIds);
+          if(profErr) throw profErr;
+          profileMap = new Map((profiles || []).map(p => [String(p.user_id), p]));
+        }
+        state._userMgmtRows = rows.map(r => ({
+          ...r,
+          profile: profileMap.get(String(r.user_id)) || null,
+        }));
+        renderUserMgmtList();
+      }catch(e){
+        state._userMgmtRows = [];
+        const msg = e && e.message ? e.message : 'Failed to load users';
+        if(list) list.innerHTML = `<div class="trash-empty">${escapeHtml(msg)}</div>`;
+      }
+    }
+    async function openUserMgmtModal(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!canManageUsers()){ toast('Admin access required'); return; }
+      renderUserMgmtControls();
+      show('userMgmtModal', true);
+      await refreshUserMgmt();
+    }
+    function closeUserMgmtModal(){
+      show('userMgmtModal', false);
+    }
+    async function sbUpdateMemberRole(userId, role){
+      if(!SB.ready || !SB.session || !SB.client) throw Error('Not authorized');
+      if(!canManageUsers()) throw Error('Permission denied');
+      const companyId = getUserMgmtCompanyId();
+      if(!companyId) throw Error('Company not selected');
+      const uid = String(userId || '').trim();
+      const cleanRole = String(role || '').trim();
+      if(!uid) throw Error('User required');
+      if(!cleanRole) throw Error('Role required');
+      const { error } = await SB.client
+        .from('company_members')
+        .update({ role: cleanRole })
+        .eq('company_id', companyId)
+        .eq('user_id', uid);
+      if(error) throw error;
+    }
+    async function sbRemoveMember(userId){
+      if(!SB.ready || !SB.session || !SB.client) throw Error('Not authorized');
+      if(!canManageUsers()) throw Error('Permission denied');
+      const uid = String(userId || '').trim();
+      if(!uid) throw Error('User required');
+      const { data, error } = await SB.client.rpc('remove_company_member', { p_user_id: uid });
+      if(error) throw error;
+      if(data && data.success === false) throw new Error(data.error || 'Remove failed');
+      return data || null;
     }
     function renderRoleRequestsList(){
       const list = $('roleRequestsList');
@@ -3534,12 +3759,13 @@
 	      if(note && SB.permissions && SB.permissions.assigned_admin_email){
 	        note += ` Contact: ${SB.permissions.assigned_admin_email}`;
 	      }
-	      setProfileMessage(note);
-	      renderCompanySwitcher();
-	      renderInviteUi();
-	      renderRoleRequestUi();
-	      renderRoleRequestsAdminButton();
-	    }
+      setProfileMessage(note);
+      renderCompanySwitcher();
+      renderInviteUi();
+      renderRoleRequestUi();
+      renderRoleRequestsAdminButton();
+      renderUserMgmtButton();
+    }
 	    function renderCompanySwitcher(){
 	      const section = $('profileCompanySection');
 	      const select = $('profileCompanySelect');
@@ -3607,38 +3833,74 @@
 	      input.value = value;
 	      row.style.display = value ? 'flex' : 'none';
 	    }
-	    function renderInviteUi(){
-	      const section = $('inviteSection');
-	      const email = $('inviteEmail');
-	      const role = $('inviteRole');
-	      const btn = $('btnInviteSend');
-	      if(!section) return;
-	      if(!SB.session){
-	        section.style.display = 'none';
-	        return;
-	      }
-	      section.style.display = '';
-	      const currentCompanyId = SB.companyId ? String(SB.companyId) : '';
-	      if(currentCompanyId !== _inviteCompanyId){
-	        _inviteCompanyId = currentCompanyId;
-	        showInviteLink('');
-	        setInviteMessage('');
-	      }
-	      const allow = !!(SB.companyId && canInvite());
-	      const disabled = !allow;
-	      if(email) email.disabled = disabled;
-	      if(role) role.disabled = disabled;
-	      if(btn){
+    function renderInviteUi(){
+      const section = $('inviteSection');
+      const email = $('inviteEmail');
+      const role = $('inviteRole');
+      const btn = $('btnInviteSend');
+      const companyRow = $('inviteCompanyRow');
+      const companySelect = $('inviteCompany');
+      if(!section) return;
+      if(!SB.session){
+        section.style.display = 'none';
+        return;
+      }
+      section.style.display = '';
+      const superUser = isSuperUser();
+      if(companyRow) companyRow.style.display = superUser ? '' : 'none';
+      let selectedCompanyId = SB.companyId ? String(SB.companyId) : '';
+      if(superUser && companySelect){
+        const rows = Array.isArray(SB.companies) ? SB.companies : [];
+        companySelect.innerHTML = '';
+        if(!rows.length){
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = 'No companies available';
+          companySelect.appendChild(opt);
+          companySelect.disabled = true;
+          selectedCompanyId = '';
+        }else{
+          rows.forEach(row => {
+            const id = String(row && row.company_id ? row.company_id : '').trim();
+            if(!id) return;
+            const name = String(row.company_name || row.company_slug || row.company_id || '').trim() || id;
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = name;
+            companySelect.appendChild(opt);
+          });
+          if(_inviteCompanyId && rows.some(r => String(r.company_id) === _inviteCompanyId)){
+            selectedCompanyId = _inviteCompanyId;
+          }else if(!selectedCompanyId || !rows.some(r => String(r.company_id) === selectedCompanyId)){
+            selectedCompanyId = String(rows[0].company_id || '');
+          }
+          companySelect.value = selectedCompanyId || '';
+          companySelect.disabled = rows.length <= 1;
+        }
+      }
+      const currentCompanyId = superUser
+        ? String(selectedCompanyId || '').trim()
+        : (SB.companyId ? String(SB.companyId) : '');
+      if(currentCompanyId !== _inviteCompanyId){
+        _inviteCompanyId = currentCompanyId;
+        showInviteLink('');
+        setInviteMessage('');
+      }
+      const allow = !!(currentCompanyId && canInvite());
+      const disabled = !allow;
+      if(email) email.disabled = disabled;
+      if(role) role.disabled = disabled;
+      if(btn){
 	        btn.disabled = disabled;
 	        btn.setAttribute('aria-disabled', disabled ? 'true' : 'false');
 	      }
-	      if(disabled){
-	        showInviteLink('');
-	        if(!SB.companyId){
-	          setInviteMessage('Select a company to invite users.');
-	        }else if(!canInvite()){
-	          setInviteMessage('Invite permissions required.');
-	        }else{
+      if(disabled){
+        showInviteLink('');
+        if(!currentCompanyId){
+          setInviteMessage('Select a company to invite users.');
+        }else if(!canInvite()){
+          setInviteMessage('Invite permissions required.');
+        }else{
 	          setInviteMessage('');
 	        }
 	      }
@@ -3676,18 +3938,19 @@
 	      }
 	      return false;
 	    }
-	    async function sbInviteUser(email, role){
-	      if(!SB.ready || !SB.session || !SB.client) throw Error('Not authorized');
-	      if(!SB.companyId) throw Error('Company not selected');
-	      if(!canInvite()) throw Error('Permission denied');
-	      const cleanEmail = String(email || '').trim();
-	      if(!cleanEmail) throw Error('Email required');
-	      const cleanRole = String(role || 'member').trim() || 'member';
-	      const { data, error } = await SB.client.rpc('invite_user', {
-	        p_company_id: SB.companyId,
-	        p_email: cleanEmail,
-	        p_role: cleanRole,
-	      });
+    async function sbInviteUser(email, role, companyId){
+      if(!SB.ready || !SB.session || !SB.client) throw Error('Not authorized');
+      const targetCompanyId = String(companyId || '').trim() || (SB.companyId ? String(SB.companyId) : '');
+      if(!targetCompanyId) throw Error('Company not selected');
+      if(!canInvite()) throw Error('Permission denied');
+      const cleanEmail = String(email || '').trim();
+      if(!cleanEmail) throw Error('Email required');
+      const cleanRole = String(role || 'member').trim() || 'member';
+      const { data, error } = await SB.client.rpc('invite_user', {
+        p_company_id: targetCompanyId,
+        p_email: cleanEmail,
+        p_role: cleanRole,
+      });
 	      if(error) throw error;
 	      return data || null;
 	    }
@@ -3705,12 +3968,15 @@
 	      const trashFilter = $('trashFilter');
 	      if(trashFilter) trashFilter.value = '';
 	      state._roleRequestPending = null;
-	      state._roleRequests = [];
-	      state._auditRows = [];
-	      state._auditTableFilter = '';
-	      state._auditActionFilter = '';
-	      updateOrderCounterBadge();
-	    }
+      state._roleRequests = [];
+      state._auditRows = [];
+      state._auditTableFilter = '';
+      state._auditActionFilter = '';
+      state._userMgmtRows = [];
+      _inviteCompanyId = '';
+      _userMgmtCompanyId = '';
+      updateOrderCounterBadge();
+    }
 	    async function sbSwitchCompany(nextCompanyId){
 	      if(!SB.ready || !SB.session) return false;
 	      const nextId = String(nextCompanyId || '').trim();
@@ -3922,6 +4188,7 @@
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
+        renderUserMgmtButton();
         return false;
       }
       if(!SB.companyId){
@@ -3930,6 +4197,7 @@
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
+        renderUserMgmtButton();
         return false;
       }
       try{
@@ -3941,6 +4209,7 @@
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
+        renderUserMgmtButton();
         return false;
       }
       SB.authorized = !!(SB.permissions && SB.permissions.can_read);
@@ -3949,6 +4218,7 @@
       renderInviteUi();
       renderRoleRequestUi();
       renderRoleRequestsAdminButton();
+      renderUserMgmtButton();
       return SB.authorized;
     }
     async function sbHandleSession(session){
@@ -3966,12 +4236,16 @@
 
       if(!SB.session){
         state.items = [];
+        state._userMgmtRows = [];
+        _inviteCompanyId = '';
+        _userMgmtCompanyId = '';
         if(_sbChannel && SB.client){ try{ SB.client.removeChannel(_sbChannel); }catch{} _sbChannel=null; }
         render();
         show('authModal', true);
         applyPermissionUI();
         renderCompanySwitcher();
         renderInviteUi();
+        renderUserMgmtButton();
         return;
       }
 
@@ -4193,12 +4467,13 @@
       if(!btnInviteSend) return;
       const email = $('inviteEmail')?.value || '';
       const role = $('inviteRole')?.value || 'member';
+      const companyId = _inviteCompanyId || (SB.companyId ? String(SB.companyId) : '');
       setInviteMessage('');
       showInviteLink('');
       btnInviteSend.disabled = true;
       btnInviteSend.setAttribute('aria-disabled', 'true');
       try{
-        const data = await sbInviteUser(email, role);
+        const data = await sbInviteUser(email, role, companyId);
         if(data && data.success){
           const url = data.invite_url ? String(data.invite_url) : '';
           if(url){
@@ -4240,6 +4515,16 @@
         $('btnInviteSend')?.click();
       }
     });
+    const inviteCompany = $('inviteCompany');
+    if(inviteCompany && !inviteCompany._wired){
+      inviteCompany._wired = true;
+      inviteCompany.addEventListener('change', ()=>{
+        _inviteCompanyId = inviteCompany.value || '';
+        showInviteLink('');
+        setInviteMessage('');
+        renderInviteUi();
+      });
+    }
 
     const openProfileSettings = $('openProfileSettings');
     if(openProfileSettings) openProfileSettings.addEventListener('click', ()=>{
@@ -4274,6 +4559,18 @@
       }
       renderInviteUi();
       show('inviteModal', true);
+    });
+
+    const openUserMgmt = $('openUserMgmt');
+    if(openUserMgmt) openUserMgmt.addEventListener('click', ()=>{
+      const profileDropdown = $('profileDropdown');
+      if(profileDropdown){
+        profileDropdown.classList.remove('open');
+        profileDropdown.style.display = '';
+        profileDropdown.setAttribute('aria-hidden', 'true');
+      }
+      $('profileBtn')?.setAttribute('aria-expanded', 'false');
+      openUserMgmtModal();
     });
 
     const btnInviteClose = $('btnInviteClose');
@@ -4335,6 +4632,67 @@
         toast(approved ? 'Role updated' : 'Request denied');
       }catch(err){
         toast(err && err.message ? err.message : 'Update failed');
+      }
+    });
+
+    const btnUserMgmtClose = $('btnUserMgmtClose');
+    if(btnUserMgmtClose) btnUserMgmtClose.addEventListener('click', closeUserMgmtModal);
+    const btnUserMgmtRefresh = $('btnUserMgmtRefresh');
+    if(btnUserMgmtRefresh) btnUserMgmtRefresh.addEventListener('click', refreshUserMgmt);
+    const userMgmtCompany = $('userMgmtCompany');
+    if(userMgmtCompany && !userMgmtCompany._wired){
+      userMgmtCompany._wired = true;
+      userMgmtCompany.addEventListener('change', async (e)=>{
+        _userMgmtCompanyId = e && e.target ? e.target.value : '';
+        await refreshUserMgmt();
+      });
+    }
+    const userMgmtList = $('userMgmtList');
+    if(userMgmtList) userMgmtList.addEventListener('change', async (e)=>{
+      const select = e.target.closest('[data-user-role-id]');
+      if(!select) return;
+      const userId = String(select.getAttribute('data-user-role-id') || '').trim();
+      const currentRole = String(select.getAttribute('data-current-role') || '').trim();
+      const nextRole = String(select.value || '').trim();
+      if(!userId || !nextRole || nextRole === currentRole) return;
+      const displayName = String(select.getAttribute('data-user-name') || 'user');
+      const ok = await openConfirmModal(
+        `Change role for ${displayName}?`,
+        `This will set the role to ${nextRole}.`,
+        { okText:'Update', cancelText:'Cancel' }
+      );
+      if(!ok){
+        select.value = currentRole;
+        return;
+      }
+      try{
+        await sbUpdateMemberRole(userId, nextRole);
+        toast('Role updated');
+        await refreshUserMgmt();
+      }catch(err){
+        select.value = currentRole;
+        toast(err && err.message ? err.message : 'Update failed');
+      }
+    });
+    if(userMgmtList) userMgmtList.addEventListener('click', async (e)=>{
+      const removeBtn = e.target.closest('[data-user-remove-id]');
+      if(!removeBtn) return;
+      if(removeBtn.disabled) return;
+      const userId = String(removeBtn.getAttribute('data-user-remove-id') || '').trim();
+      if(!userId) return;
+      const displayName = String(removeBtn.getAttribute('data-user-name') || 'user');
+      const ok = await openConfirmModal(
+        `Remove ${displayName}?`,
+        'This will revoke their access to the company.',
+        { okText:'Remove', cancelText:'Cancel' }
+      );
+      if(!ok) return;
+      try{
+        await sbRemoveMember(userId);
+        toast('User removed');
+        await refreshUserMgmt();
+      }catch(err){
+        toast(err && err.message ? err.message : 'Remove failed');
       }
     });
 
