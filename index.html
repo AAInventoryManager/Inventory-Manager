@@ -2122,6 +2122,12 @@
     .trash-title{font-weight:700}
     .trash-meta{font-size:12px;color:var(--muted);margin-top:6px}
     .trash-empty{padding:14px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);text-align:center}
+    .auth-actions{display:flex;justify-content:flex-end;margin-top:6px}
+    .auth-link{
+      background:none;border:none;padding:0;
+      color:var(--accent);font-size:13px;cursor:pointer;
+    }
+    .auth-link:hover{text-decoration:underline}
     .menu-icon-svg{flex-shrink:0}
 </style>
 </head>
@@ -2719,7 +2725,30 @@
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
         <button class="btn primary" id="btnAuthSubmit">Sign In</button>
       </div>
+      <div class="auth-actions">
+        <button class="auth-link" id="btnAuthForgot" type="button">Forgot password?</button>
+      </div>
       <div id="authMsg" class="muted" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- Password reset modal -->
+  <div id="resetModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;">Reset Password</h2>
+        <button class="btn" id="btnResetClose" type="button">Close</button>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr; gap:8px; margin-top:10px;">
+        <label class="muted">New Password</label>
+        <input id="resetPassword" type="password" placeholder="New password" autocomplete="new-password" />
+        <label class="muted">Confirm Password</label>
+        <input id="resetPasswordConfirm" type="password" placeholder="Confirm password" autocomplete="new-password" />
+      </div>
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <button class="btn primary" id="btnResetSubmit">Update Password</button>
+      </div>
+      <div id="resetMsg" class="muted" style="margin-top:10px;"></div>
     </div>
   </div>
 
@@ -3115,6 +3144,25 @@
     function setAuthMessage(msg){
       const el = $('authMsg'); if(!el) return;
       el.textContent = String(msg || '');
+    }
+    function setResetMessage(msg){
+      const el = $('resetMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    async function sbSendPasswordReset(email){
+      if(!SB.ready || !SB.client) throw Error('Supabase not configured');
+      const e = String(email||'').trim();
+      if(!e) throw Error('Email required');
+      const redirectTo = window.location.origin + window.location.pathname;
+      const { error } = await SB.client.auth.resetPasswordForEmail(e, { redirectTo });
+      if(error) throw error;
+    }
+    async function sbUpdatePassword(newPassword){
+      if(!SB.ready || !SB.client) throw Error('Supabase not configured');
+      const pw = String(newPassword||'');
+      if(pw.length < 8) throw Error('Use at least 8 characters');
+      const { error } = await SB.client.auth.updateUser({ password: pw });
+      if(error) throw error;
     }
     function setProfileMessage(msg){
       const el = $('profileMsg'); if(!el) return;
@@ -3669,6 +3717,11 @@
       }
 
       SB.client.auth.onAuthStateChange((event, session)=>{
+        if(event === 'PASSWORD_RECOVERY'){
+          show('authModal', false);
+          show('resetModal', true);
+          setResetMessage('');
+        }
         void sbHandleSession(session);
       });
     }
@@ -3702,10 +3755,51 @@
       }
     });
 
+    const btnAuthForgot = $('btnAuthForgot');
+    if(btnAuthForgot) btnAuthForgot.addEventListener('click', async ()=>{
+      const email = $('authEmail')?.value || '';
+      setAuthMessage('');
+      btnAuthForgot.disabled = true;
+      btnAuthForgot.setAttribute('aria-disabled', 'true');
+      try{
+        await sbSendPasswordReset(email);
+        setAuthMessage('Password reset email sent.');
+      }catch(e){
+        setAuthMessage(e && e.message ? e.message : 'Reset failed');
+      }finally{
+        btnAuthForgot.disabled = false;
+        btnAuthForgot.setAttribute('aria-disabled', 'false');
+      }
+    });
+
     const authPassword = $('authPassword');
     if(authPassword) authPassword.addEventListener('keydown', (e)=>{
       if(e.key === 'Enter'){ e.preventDefault(); $('btnAuthSubmit')?.click(); }
     });
+
+    const btnResetSubmit = $('btnResetSubmit');
+    if(btnResetSubmit) btnResetSubmit.addEventListener('click', async ()=>{
+      const pw = $('resetPassword')?.value || '';
+      const confirm = $('resetPasswordConfirm')?.value || '';
+      setResetMessage('');
+      if(!pw || !confirm){ setResetMessage('Enter and confirm your new password'); return; }
+      if(pw !== confirm){ setResetMessage('Passwords do not match'); return; }
+      btnResetSubmit.disabled = true;
+      btnResetSubmit.setAttribute('aria-disabled', 'true');
+      try{
+        await sbUpdatePassword(pw);
+        setResetMessage('Password updated. You can close this window.');
+        toast('Password updated');
+      }catch(e){
+        setResetMessage(e && e.message ? e.message : 'Update failed');
+      }finally{
+        btnResetSubmit.disabled = false;
+        btnResetSubmit.setAttribute('aria-disabled', 'false');
+      }
+    });
+
+    const btnResetClose = $('btnResetClose');
+    if(btnResetClose) btnResetClose.addEventListener('click', ()=> show('resetModal', false));
 
     const btnProfileClose = $('btnProfileClose');
     if(btnProfileClose) btnProfileClose.addEventListener('click', ()=> {
