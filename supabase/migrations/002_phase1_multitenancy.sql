@@ -2284,6 +2284,11 @@ BEGIN
         RETURNING id INTO v_company_id;
         RAISE NOTICE 'Created company: Oakley Services (ID: %)', v_company_id;
     END IF;
+
+    -- If the legacy super user doesn't exist locally, skip super user assignment
+    IF NOT EXISTS (SELECT 1 FROM auth.users WHERE id = v_super_user_id) THEN
+        v_super_user_id := NULL;
+    END IF;
     
     -- Migrate authorized_users -> company_members
     -- Explicit super user assignment to Brandon's UUID
@@ -2292,21 +2297,26 @@ BEGIN
         v_company_id, 
         au.user_id,
         COALESCE(au.role, 'member'),
-        au.user_id = v_super_user_id,  -- Only Brandon is super user
+        (v_super_user_id IS NOT NULL AND au.user_id = v_super_user_id),  -- Only Brandon is super user
         v_super_user_id  -- Everyone assigned to Brandon initially
     FROM public.authorized_users au
+    JOIN auth.users u ON u.id = au.user_id
     ON CONFLICT (user_id) DO UPDATE 
     SET is_super_user = EXCLUDED.is_super_user;
     
     RAISE NOTICE 'Migrated authorized_users to company_members';
     
     -- Ensure Brandon exists in company_members even if not in authorized_users
-    INSERT INTO public.company_members (company_id, user_id, role, is_super_user)
-    VALUES (v_company_id, v_super_user_id, 'admin', true)
-    ON CONFLICT (user_id) DO UPDATE 
-    SET is_super_user = true, role = 'admin';
-    
-    RAISE NOTICE 'Ensured super user exists: %', v_super_user_id;
+    IF v_super_user_id IS NOT NULL THEN
+        INSERT INTO public.company_members (company_id, user_id, role, is_super_user)
+        VALUES (v_company_id, v_super_user_id, 'admin', true)
+        ON CONFLICT (user_id) DO UPDATE 
+        SET is_super_user = true, role = 'admin';
+        
+        RAISE NOTICE 'Ensured super user exists: %', v_super_user_id;
+    ELSE
+        RAISE NOTICE 'Skipped super user insert (auth user not found)';
+    END IF;
     
     -- Migrate items -> inventory_items (preserve existing values)
     INSERT INTO public.inventory_items (
