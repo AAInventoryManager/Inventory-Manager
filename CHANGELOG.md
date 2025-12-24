@@ -10,6 +10,9 @@
 - [inventory.auth.roles] Implemented role manager modal with permission RPCs and tier gating.
 - [inventory.audit.log] Added audit log documentation and enterprise-tier enforcement.
 - [inventory.audit.undo] Added internal undo-action documentation and permission enforcement.
+- [inventory.auth.user_management] Enforced Business tier and permission checks for member management.
+- [inventory.auth.invite_users] Enforced Business tier and permission checks for invitations.
+- [inventory.auth.role_requests] Enforced Business tier and permission checks for role requests.
 
 ## v1.0.2 — UI polish, sorting, PWA
 - Header alignment: title/status left, logo right; constrained to table width

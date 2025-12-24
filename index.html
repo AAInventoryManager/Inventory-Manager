@@ -3571,6 +3571,10 @@
     function canPlatformMetricsView(){ return hasPermission(PERMISSIONS.PLATFORM_VIEW_METRICS); }
     function canManageRoles(){ return hasPermission(PERMISSIONS.PLATFORM_MANAGE_ROLES) || isSuperUser(); }
     function canAccessTrash(){ return canItemsDelete() || canItemsRestore(); }
+    function canAccessMembers(){ return canMembersView() && hasTier('business'); }
+    function canAccessInvites(){ return canMembersInvite() && hasTier('business'); }
+    function canAccessRoleRequestsAdmin(){ return canMembersChangeRole() && hasTier('business'); }
+    function canAccessRoleRequestsSelf(){ return hasTier('business'); }
     function canAccessAuditLog(){
       return canAuditView() && hasTier('enterprise');
     }
@@ -4061,6 +4065,7 @@
     }
     async function sbLoadMyRoleRequest(){
       if(!SB.ready || !SB.session || !SB.client) return null;
+      if(!hasTier('business')) return null;
       const { data, error } = await SB.client
         .from('role_change_requests')
         .select('id, requested_role, current_role_name, reason, status, created_at')
@@ -4079,7 +4084,7 @@
       const reason = $('roleRequestReason');
       const btn = $('btnRoleRequest');
       if(!section || !roleSelect) return;
-      if(!SB.session || !SB.permissions){
+      if(!SB.session || !SB.permissions || !canAccessRoleRequestsSelf()){
         section.style.display = 'none';
         return;
       }
@@ -4114,7 +4119,7 @@
     function renderRoleRequestsAdminButton(){
       const btn = $('openRoleRequests');
       if(!btn) return;
-      const allow = !!(SB.session && SB.companyId && canMembersChangeRole());
+      const allow = !!(SB.session && SB.companyId && canAccessRoleRequestsAdmin());
       btn.disabled = !allow;
       btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
     }
@@ -4128,7 +4133,7 @@
     function renderUserMgmtButton(){
       const btn = $('openUserMgmt');
       if(!btn) return;
-      const allow = !!(SB.session && canMembersView());
+      const allow = !!(SB.session && canAccessMembers());
       btn.disabled = !allow;
       btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
     }
@@ -4226,6 +4231,7 @@
       setUserMgmtMessage('');
       try{
         if(!SB.ready || !SB.session || !SB.client) throw new Error('Not authorized');
+        if(!hasTier('business')) throw new Error('User management requires Business tier');
         if(!canMembersView()) throw new Error('Permission denied');
         const companyId = getUserMgmtCompanyId();
         if(!companyId) throw new Error('No company selected');
@@ -4260,6 +4266,7 @@
     async function openUserMgmtModal(){
       if(!SB.ready){ toast('Supabase not configured'); return; }
       if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!hasTier('business')){ toast('User management requires Business tier'); return; }
       if(!canMembersView()){ toast('Permission denied'); return; }
       renderUserMgmtControls();
       show('userMgmtModal', true);
@@ -4408,6 +4415,7 @@
     }
     async function sbUpdateMemberRole(userId, role){
       if(!SB.ready || !SB.session || !SB.client) throw Error('Not authorized');
+      if(!hasTier('business')) throw Error('Role changes require Business tier');
       if(!canMembersChangeRole()) throw Error('Permission denied');
       const companyId = getUserMgmtCompanyId();
       if(!companyId) throw Error('Company not selected');
@@ -4424,6 +4432,7 @@
     }
     async function sbRemoveMember(userId){
       if(!SB.ready || !SB.session || !SB.client) throw Error('Not authorized');
+      if(!hasTier('business')) throw Error('User removal requires Business tier');
       if(!canMembersRemove()) throw Error('Permission denied');
       const uid = String(userId || '').trim();
       if(!uid) throw Error('User required');
@@ -4477,6 +4486,7 @@
       try{
         if(!SB.ready || !SB.session || !SB.client) throw new Error('Not authorized');
         if(!SB.companyId) throw new Error('No company selected');
+        if(!hasTier('business')) throw new Error('Role requests require Business tier');
         if(!canMembersChangeRole()) throw new Error('Permission denied');
         const { data, error } = await SB.client
           .from('role_change_requests')
@@ -4510,6 +4520,7 @@
     async function openRoleRequestsModal(){
       if(!SB.ready){ toast('Supabase not configured'); return; }
       if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!hasTier('business')){ toast('Role requests require Business tier'); return; }
       if(!canMembersChangeRole()){ toast('Permission denied'); return; }
       show('roleRequestsModal', true);
       await refreshRoleRequests();
@@ -4693,7 +4704,7 @@
         showInviteLink('');
         setInviteMessage('');
       }
-      const allow = !!(currentCompanyId && canInvite());
+      const allow = !!(currentCompanyId && canAccessInvites());
       const disabled = !allow;
       if(email) email.disabled = disabled;
       if(role) role.disabled = disabled;
@@ -4705,6 +4716,8 @@
         showInviteLink('');
         if(!currentCompanyId){
           setInviteMessage('Select a company to invite users.');
+        }else if(!hasTier('business')){
+          setInviteMessage('Invites require Business tier.');
         }else if(!canInvite()){
           setInviteMessage('Invite permissions required.');
         }else{
@@ -4747,6 +4760,7 @@
 	    }
     async function sbInviteUser(email, role, companyId){
       if(!SB.ready || !SB.session || !SB.client) throw Error('Not authorized');
+      if(!hasTier('business')) throw Error('Invites require Business tier');
       const targetCompanyId = String(companyId || '').trim() || (SB.companyId ? String(SB.companyId) : '');
       if(!targetCompanyId) throw Error('Company not selected');
       if(!canInvite()) throw Error('Permission denied');

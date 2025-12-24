@@ -32,7 +32,7 @@ features:
       - business
       - enterprise
     support_impact: high
-    status: in_progress
+    status: released
   - feature_id: inventory.auth.login
     name: User Authentication
     description: Legacy feature pending governance classification (sign-in/out, password reset).
@@ -65,14 +65,12 @@ features:
     status: legacy
   - feature_id: inventory.auth.company_membership
     name: Company Membership
-    description: Legacy feature pending governance classification (company membership + roles).
+    description: Company membership and role assignment model for Inventory Manager.
     tier_availability:
-      - starter: false
-      - professional: false
-      - business: false
-      - enterprise: false
-    support_impact: low
-    status: legacy
+      - business
+      - enterprise
+    support_impact: medium
+    status: released
   - feature_id: inventory.auth.company_switcher
     name: Company Switcher
     description: Legacy feature pending governance classification (super-user company switcher).
@@ -85,34 +83,28 @@ features:
     status: legacy
   - feature_id: inventory.auth.invite_users
     name: User Invitations
-    description: Legacy feature pending governance classification (invite users to companies).
+    description: Invite users to join a company with a role assignment.
     tier_availability:
-      - starter: false
-      - professional: false
-      - business: false
-      - enterprise: false
-    support_impact: low
-    status: legacy
+      - business
+      - enterprise
+    support_impact: medium
+    status: released
   - feature_id: inventory.auth.user_management
     name: User Management
-    description: Legacy feature pending governance classification (manage users, roles, membership).
+    description: Manage company members, roles, and access.
     tier_availability:
-      - starter: false
-      - professional: false
-      - business: false
-      - enterprise: false
-    support_impact: low
-    status: legacy
+      - business
+      - enterprise
+    support_impact: high
+    status: released
   - feature_id: inventory.auth.role_requests
     name: Role Change Requests
-    description: Legacy feature pending governance classification (request/approve role changes).
+    description: Request and approve role changes within a company.
     tier_availability:
-      - starter: false
-      - professional: false
-      - business: false
-      - enterprise: false
-    support_impact: low
-    status: legacy
+      - business
+      - enterprise
+    support_impact: medium
+    status: released
   - feature_id: inventory.admin.company_management
     name: Company Management
     description: Legacy feature pending governance classification (create/list companies).

@@ -27,6 +27,8 @@ Pricing amounts are defined externally.
 
 - Snapshots UI (read-only)
 - Role-based access control
+- User management and invitations
+- Role change requests
 - Workflow-related features
 - Priority support
 
