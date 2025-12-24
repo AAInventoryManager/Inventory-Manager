@@ -33,3 +33,353 @@ features:
       - enterprise
     support_impact: high
     status: in_progress
+  - feature_id: inventory.auth.login
+    name: User Authentication
+    description: Legacy feature pending governance classification (sign-in/out, password reset).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.auth.profile_settings
+    name: Profile Settings
+    description: Legacy feature pending governance classification (profile data, low stock preferences).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.auth.allowlist
+    name: Access Allowlist
+    description: Legacy feature pending governance classification (authorized_users allowlist).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.auth.company_membership
+    name: Company Membership
+    description: Legacy feature pending governance classification (company membership + roles).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.auth.company_switcher
+    name: Company Switcher
+    description: Legacy feature pending governance classification (super-user company switcher).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.auth.invite_users
+    name: User Invitations
+    description: Legacy feature pending governance classification (invite users to companies).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.auth.user_management
+    name: User Management
+    description: Legacy feature pending governance classification (manage users, roles, membership).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.auth.role_requests
+    name: Role Change Requests
+    description: Legacy feature pending governance classification (request/approve role changes).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.admin.company_management
+    name: Company Management
+    description: Legacy feature pending governance classification (create/list companies).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.admin.user_directory
+    name: User Directory
+    description: Legacy feature pending governance classification (list platform users).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.admin.member_management
+    name: Member Administration
+    description: Legacy feature pending governance classification (remove members, set super users).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.inventory.core
+    name: Inventory Management
+    description: Legacy feature pending governance classification (inventory list, CRUD, inline edit).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.inventory.batch_edit
+    name: Inventory Batch Edit
+    description: Legacy feature pending governance classification (multi-select batch edits).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.inventory.realtime_sync
+    name: Inventory Realtime Sync
+    description: Legacy feature pending governance classification (Supabase realtime updates).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.inventory.import_export
+    name: Inventory Import/Export
+    description: Legacy feature pending governance classification (paste/file import, CSV export).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.inventory.low_stock
+    name: Low Stock Alerts
+    description: Legacy feature pending governance classification (thresholds, LEDs, prefs).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.inventory.reorder
+    name: Reorder Settings
+    description: Legacy feature pending governance classification (reorder flags and quantities).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.inventory.categories
+    name: Inventory Categories
+    description: Legacy feature pending governance classification (category hierarchy).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.inventory.locations
+    name: Inventory Locations
+    description: Legacy feature pending governance classification (location tracking).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.inventory.transactions
+    name: Inventory Transactions
+    description: Legacy feature pending governance classification (transaction ledger).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.inventory.trash
+    name: Inventory Trash
+    description: Legacy feature pending governance classification (soft delete and restore items).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.orders.cart
+    name: Order Builder
+    description: Legacy feature pending governance classification (cart, create order).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.orders.email_send
+    name: Order Email Sending
+    description: Legacy feature pending governance classification (send orders via email).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.orders.history
+    name: Order History
+    description: Legacy feature pending governance classification (history, receive, details).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.orders.recipients
+    name: Order Recipients
+    description: Legacy feature pending governance classification (recipient suggestions).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.orders.trash
+    name: Order Trash
+    description: Legacy feature pending governance classification (soft delete and restore orders).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.reports.inventory
+    name: Inventory Report
+    description: Legacy feature pending governance classification (report view, CSV/email).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.reports.low_stock_api
+    name: Low Stock Report API
+    description: Legacy feature pending governance classification (low stock reporting API).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.audit.log
+    name: Audit Log
+    description: Legacy feature pending governance classification (audit log viewer + data).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.audit.undo
+    name: Undo Actions
+    description: Legacy feature pending governance classification (rollback/undo actions).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.snapshots.core
+    name: Inventory Snapshots (Core)
+    description: Legacy feature pending governance classification (create/restore snapshots).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.metrics.action_metrics
+    name: Action Metrics
+    description: Legacy feature pending governance classification (action metrics table + RPC).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.metrics.platform_summary
+    name: Platform Metrics
+    description: Legacy feature pending governance classification (platform metrics RPC).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.pwa.offline
+    name: PWA Support
+    description: Legacy feature pending governance classification (manifest + offline cache).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
+  - feature_id: inventory.api.edge
+    name: Edge REST API
+    description: Legacy feature pending governance classification (edge API endpoints).
+    tier_availability:
+      - starter: false
+      - professional: false
+      - business: false
+      - enterprise: false
+    support_impact: low
+    status: legacy
