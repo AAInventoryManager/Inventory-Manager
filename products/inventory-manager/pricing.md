@@ -34,6 +34,7 @@ Pricing amounts are defined externally.
 - Role change requests
 - Order builder, history, and receiving workflows
 - Order email sending and recipient suggestions
+- Company PO numbers and shipping address management for orders
 - Workflow-related features
 - Priority support
 
@@ -42,7 +43,7 @@ Pricing amounts are defined externally.
 ## Enterprise
 
 - Security and governance features
-- Audit log viewer
+- Audit log viewer with filters and CSV export
 - Undo actions (admin rollback)
 - Advanced configuration
 - Rapid support access

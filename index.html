@@ -628,6 +628,10 @@
 				        position:relative;
 				        z-index:3;
 				      }
+				      #orderHistoryList details.history-item .history-address{
+				        margin-top:4px;
+				        white-space:pre-wrap;
+				      }
 				      #orderHistoryList details.history-item summary::after{
 				        position:relative;
 				        z-index:3;
@@ -1055,6 +1059,14 @@
     }
     .order-recipient{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     .order-recipient input[type=email]{ flex:1; min-width:200px; }
+    .order-shipping-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .order-shipping-row select{ flex:1; min-width:220px; }
+    .order-po-grid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
+    .order-po-subject{ grid-column:1 / -1; }
+    @media (max-width: 720px){
+      .order-po-grid{ grid-template-columns:1fr; }
+      .order-po-subject{ grid-column:auto; }
+    }
     .order-suggest{
       display:none;
       flex-direction:column;
@@ -2157,8 +2169,23 @@
     .audit-card{
       border:1px solid var(--border);
       border-radius:12px;
-      padding:12px;
       background:var(--card);
+      padding:0;
+    }
+    .audit-card summary{
+      cursor:pointer;
+      list-style:none;
+      padding:12px;
+    }
+    .audit-card summary::-webkit-details-marker{display:none}
+    .audit-card summary::after{
+      content:'▾';
+      float:right;
+      color:var(--muted);
+    }
+    .audit-card[open] summary::after{content:'▴'}
+    .audit-body{
+      padding:0 12px 12px;
       display:flex;
       flex-direction:column;
       gap:6px;
@@ -2166,6 +2193,21 @@
     .audit-title{font-weight:700}
     .audit-meta{font-size:12px;color:var(--muted)}
     .audit-json{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;white-space:pre-wrap;color:var(--muted)}
+    .shipping-address-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+    .shipping-address-card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:var(--card);
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .shipping-address-meta{font-size:12px;color:var(--muted)}
+    .shipping-address-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .shipping-address-form{display:flex;flex-direction:column;gap:8px}
+    .shipping-address-default{display:flex;align-items:center;gap:12px}
     .user-mgmt-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .user-mgmt-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
     .user-mgmt-card{
@@ -2658,11 +2700,30 @@
         </div>
 
         <div class="section">
+          <div class="section-title"><span>Shipping Address</span></div>
+          <div class="order-shipping-row">
+            <select id="orderShippingAddress" aria-label="Shipping address"></select>
+            <button class="btn" id="btnOrderShippingManage" type="button">Manage</button>
+          </div>
+          <div id="orderShippingPreview" class="muted" style="margin-top:6px;"></div>
+        </div>
+
+        <div class="section">
           <div class="section-title"><span>Message</span></div>
           <div style="display:grid; grid-template-columns:1fr; gap:10px;">
-		            <div>
-		              <div class="muted" style="margin-bottom:6px;">Subject</div>
-		              <input id="orderSubject" type="text" placeholder="Order for Modulus Software, LLC (City/State)" />
+		            <div class="order-po-grid">
+		              <div>
+		                <div class="muted" style="margin-bottom:6px;">Company PO Number (optional)</div>
+		                <input id="orderCompanyPoNumber" type="text" placeholder="Company PO #" />
+		              </div>
+		              <div>
+		                <div class="muted" style="margin-bottom:6px;">Internal PO ID</div>
+		                <input id="orderInternalPoNumber" type="text" readonly />
+		              </div>
+		              <div class="order-po-subject">
+		                <div class="muted" style="margin-bottom:6px;">Subject</div>
+		                <input id="orderSubject" type="text" readonly />
+		              </div>
 		            </div>
             <div>
               <div class="muted" style="margin-bottom:6px;">Notes (optional)</div>
@@ -2681,6 +2742,39 @@
         <button class="btn" id="btnOrderCopy">Copy</button>
         <button class="btn primary order-send" id="btnOrderSubmit">Submit Order</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Shipping addresses modal -->
+  <div id="shippingAddressModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;">Shipping Addresses</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn" id="btnShippingAddressNew" type="button">Add New</button>
+          <button class="btn" id="btnShippingAddressClose" type="button">Close</button>
+        </div>
+      </div>
+      <div id="shippingAddressList" class="shipping-address-list" aria-live="polite"></div>
+      <div class="section-divider"></div>
+      <div id="shippingAddressFormTitle" class="muted" style="margin-bottom:8px;">Add Shipping Address</div>
+      <div class="shipping-address-form">
+        <label class="muted">Label</label>
+        <input id="shippingAddressLabel" type="text" placeholder="Main Warehouse" />
+        <label class="muted">Address</label>
+        <textarea id="shippingAddressValue" rows="3" placeholder="123 Main St&#10;City, ST 12345"></textarea>
+        <div class="shipping-address-default">
+          <label class="toggle-switch">
+            <input id="shippingAddressDefault" type="checkbox" />
+            <span class="toggle-slider"></span>
+          </label>
+          <label for="shippingAddressDefault" class="muted" style="font-size:13px;cursor:pointer;">Set as default</label>
+        </div>
+      </div>
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <button class="btn primary" id="btnShippingAddressSave" type="button">Save</button>
+      </div>
+      <div id="shippingAddressMsg" class="muted" style="margin-top:8px;"></div>
     </div>
   </div>
 
@@ -3016,11 +3110,19 @@
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
         <h2 style="margin:0;font-size:16px;">Audit Log</h2>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn btn-icon" id="btnAuditDownload" type="button" title="Download audit log CSV" aria-label="Download audit log CSV">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
           <button class="btn" id="btnAuditRefresh" type="button">Refresh</button>
           <button class="btn" id="btnAuditClose" type="button">Close</button>
         </div>
       </div>
       <div class="audit-filters">
+        <input id="auditSearchFilter" type="text" placeholder="Filter audit log…" autocomplete="off" />
         <select id="auditTableFilter">
           <option value="">All tables</option>
           <option value="inventory_items">Inventory Items</option>
@@ -3121,8 +3223,6 @@
 	      <div style="display:grid; grid-template-columns:1fr; gap:8px; margin-top:8px;">
 	        <label class="muted">Phone</label>
 	        <input id="profilePhone" type="tel" placeholder="(555) 555-5555" autocomplete="tel" inputmode="tel" />
-	        <label class="muted">Shipping Address</label>
-	        <textarea id="profileDeliveryAddress" rows="3" placeholder="123 Main St&#10;City, ST 12345"></textarea>
 	        <label class="muted">Global Low Stock Qty</label>
 	        <input id="profileLowStockQtyGlobal" type="number" min="0" step="1" inputmode="numeric" placeholder="0" />
 	        <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
@@ -3212,7 +3312,21 @@
 	      updatedAt:null,
 	      _filter:'',
 	      _sort:{col:'name', dir:'asc'},
-	      _order:{lines:[], email:'', subject:'', notes:'', contactName:'', search:''},
+	      _order:{
+	        lines:[],
+	        email:'',
+	        companyPoNumber:'',
+	        internalPoNumber:'',
+	        subject:'',
+	        notes:'',
+	        contactName:'',
+	        search:'',
+	        shippingAddressId:'',
+	        shippingAddressSnapshot:null
+	      },
+	      _shippingAddresses:[],
+	      _shippingAddressById:new Map(),
+	      _shippingAddressEditing:null,
 	      _trashItems:[],
 	      _trashFilter:'',
 	      _roleRequestPending:null,
@@ -3220,6 +3334,7 @@
       _auditRows:[],
       _auditTableFilter:'',
       _auditActionFilter:'',
+      _auditSearch:'',
       _userMgmtRows:[],
       _snapshots:[],
       _snapshotPreview:null,
@@ -3302,6 +3417,7 @@
       ORDERS_EDIT: 'orders:edit',
       ORDERS_DELETE: 'orders:delete',
       ORDERS_RESTORE: 'orders:restore',
+      ORDERS_MANAGE_SHIPPING: 'orders:manage_shipping',
       MEMBERS_VIEW: 'members:view',
       MEMBERS_INVITE: 'members:invite',
       MEMBERS_REMOVE: 'members:remove',
@@ -3561,6 +3677,7 @@
     function canOrdersCreate(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_CREATE); }
     function canOrdersEdit(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_EDIT); }
     function canOrdersDelete(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_DELETE); }
+    function canOrdersManageShipping(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_MANAGE_SHIPPING); }
     function canMembersView(){ return hasPermission(PERMISSIONS.MEMBERS_VIEW); }
     function canMembersInvite(){ return hasPermission(PERMISSIONS.MEMBERS_INVITE); }
     function canMembersRemove(){ return hasPermission(PERMISSIONS.MEMBERS_REMOVE); }
@@ -3616,6 +3733,7 @@
       setDisabled('menuExport', !canItemsExport());
       setDisabled('menuReport', !canItemsView());
       setDisabled('btnOrderSubmit', !canOrdersCreate());
+      setDisabled('btnOrderShippingManage', !canOrdersManageShipping());
       setDisabled('btnEditItemDelete', !canItemsDelete());
       setDisabled('btnReportBatchOrder', !canOrdersCreate());
       const chkAll = $('chkAll');
@@ -3652,6 +3770,27 @@
       const el = $('auditMsg'); if(!el) return;
       el.textContent = String(msg || '');
     }
+    function auditSearchText(row){
+      const action = String(row.action || '').trim();
+      const tableName = String(row.table_name || '').trim();
+      const recordId = String(row.record_id || '').trim();
+      const user = String(row.user_email || '').trim();
+      const role = String(row.user_role || '').trim();
+      const oldVals = row.old_values ? JSON.stringify(row.old_values) : '';
+      const newVals = row.new_values ? JSON.stringify(row.new_values) : '';
+      const changed = Array.isArray(row.changed_fields) ? row.changed_fields.join(' ') : '';
+      return `${action} ${tableName} ${recordId} ${user} ${role} ${changed} ${oldVals} ${newVals}`.toLowerCase();
+    }
+    function filteredAuditRows(){
+      const rows = Array.isArray(state._auditRows) ? state._auditRows : [];
+      const raw = String(state._auditSearch || '').trim().toLowerCase();
+      if(!raw) return rows;
+      const tokens = raw.split(/\s+/g).filter(Boolean);
+      return rows.filter(r => {
+        const hay = auditSearchText(r);
+        return tokens.every(t => hay.includes(t));
+      });
+    }
     function setUserMgmtMessage(msg){
       const el = $('userMgmtMsg'); if(!el) return;
       el.textContent = String(msg || '');
@@ -3659,7 +3798,7 @@
     function renderAuditList(){
       const list = $('auditList');
       if(!list) return;
-      const rows = Array.isArray(state._auditRows) ? state._auditRows : [];
+      const rows = filteredAuditRows();
       if(!rows.length){
         list.innerHTML = `<div class="trash-empty">No audit entries.</div>`;
         return;
@@ -3678,15 +3817,83 @@
           ? `Changed: ${row.changed_fields.join(', ')}`
           : '';
         return (
-          `<div class="audit-card">`+
-            `<div class="audit-title">${escapeHtml(summary || 'Entry')}</div>`+
-            `<div class="audit-meta">${escapeHtml(meta)}</div>`+
-            `${changed ? `<div class="audit-meta">${escapeHtml(changed)}</div>` : ''}`+
-            `${oldVals ? `<div class="audit-json">Old: ${escapeHtml(oldVals)}</div>` : ''}`+
-            `${newVals ? `<div class="audit-json">New: ${escapeHtml(newVals)}</div>` : ''}`+
-          `</div>`
+          `<details class="audit-card">`+
+            `<summary>`+
+              `<div class="audit-title">${escapeHtml(summary || 'Entry')}</div>`+
+              `<div class="audit-meta">${escapeHtml(meta)}</div>`+
+            `</summary>`+
+            `<div class="audit-body">`+
+              `${changed ? `<div class="audit-meta">${escapeHtml(changed)}</div>` : ''}`+
+              `${oldVals ? `<div class="audit-json">Old: ${escapeHtml(oldVals)}</div>` : ''}`+
+              `${newVals ? `<div class="audit-json">New: ${escapeHtml(newVals)}</div>` : ''}`+
+            `</div>`+
+          `</details>`
         );
       }).join('');
+    }
+    function buildAuditCsv(rows){
+      const header = [
+        'Audit ID',
+        'Created At (UTC)',
+        'Created (Eastern)',
+        'Action',
+        'Table',
+        'Record ID',
+        'User Email',
+        'User Role',
+        'Changed Fields',
+        'Old Values',
+        'New Values',
+      ];
+      const out = [header.map(csvEscape).join(',')];
+      const list = Array.isArray(rows) ? rows : [];
+      for(const row of list){
+        const createdAt = String(row?.created_at || '').trim();
+        const createdEastern = createdAt ? formatEasternDateTime(createdAt) : '';
+        out.push([
+          String(row?.id || '').trim(),
+          createdAt,
+          createdEastern,
+          String(row?.action || '').trim(),
+          String(row?.table_name || '').trim(),
+          String(row?.record_id || '').trim(),
+          String(row?.user_email || '').trim(),
+          String(row?.user_role || '').trim(),
+          Array.isArray(row?.changed_fields) ? row.changed_fields.join(' ') : '',
+          row?.old_values ? JSON.stringify(row.old_values) : '',
+          row?.new_values ? JSON.stringify(row.new_values) : '',
+        ].map(csvEscape).join(','));
+      }
+      return '\ufeff' + out.join('\n');
+    }
+    async function downloadAuditCsv(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!hasTier('enterprise')){ toast('Audit log requires Enterprise tier'); return; }
+      if(!canAuditView()){ toast('Permission denied'); return; }
+      const btn = $('btnAuditDownload');
+      const priorTitle = btn ? btn.getAttribute('title') : '';
+      if(btn){ btn.disabled = true; btn.setAttribute('title', 'Downloading…'); }
+      try{
+        const rows = filteredAuditRows();
+        if(!rows.length){ toast('No audit entries to download'); return; }
+        const csv = buildAuditCsv(rows);
+        const blob = new Blob([csv], { type:'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+        a.download = `audit-log-${stamp}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast(`Downloaded ${rows.length} audit entries`);
+      }catch(e){
+        toast((e && e.message) ? e.message : 'Download failed');
+      }finally{
+        if(btn){ btn.disabled = false; btn.setAttribute('title', priorTitle || 'Download CSV'); }
+      }
     }
     async function refreshAuditLog(){
       const list = $('auditList');
@@ -3721,6 +3928,9 @@
       if(!hasTier('enterprise')){ toast('Audit log requires Enterprise tier'); return; }
       if(!canAuditView()){ toast('Permission denied'); return; }
       show('auditModal', true);
+      const tableFilter = $('auditTableFilter'); if(tableFilter) tableFilter.value = state._auditTableFilter || '';
+      const actionFilter = $('auditActionFilter'); if(actionFilter) actionFilter.value = state._auditActionFilter || '';
+      const searchFilter = $('auditSearchFilter'); if(searchFilter) searchFilter.value = state._auditSearch || '';
       await refreshAuditLog();
     }
     function closeAuditModal(){
@@ -4292,6 +4502,7 @@
         { key: PERMISSIONS.ORDERS_EDIT, label: 'Edit Orders' },
         { key: PERMISSIONS.ORDERS_DELETE, label: 'Delete Orders' },
         { key: PERMISSIONS.ORDERS_RESTORE, label: 'Restore Orders' },
+        { key: PERMISSIONS.ORDERS_MANAGE_SHIPPING, label: 'Manage Shipping Addresses' },
       ],
       'Members': [
         { key: PERMISSIONS.MEMBERS_VIEW, label: 'View Members' },
@@ -4565,7 +4776,6 @@
 	      const elFirstName = $('profileFirstName'); if(elFirstName) elFirstName.value = (SB.profile && SB.profile.first_name) ? String(SB.profile.first_name) : '';
 	      const elLastName = $('profileLastName'); if(elLastName) elLastName.value = (SB.profile && SB.profile.last_name) ? String(SB.profile.last_name) : '';
 	      const elPhone = $('profilePhone'); if(elPhone) elPhone.value = formatPhoneNumber((SB.profile && SB.profile.phone) ? String(SB.profile.phone) : '');
-	      const elAddress = $('profileDeliveryAddress'); if(elAddress) elAddress.value = (SB.profile && SB.profile.delivery_address) ? String(SB.profile.delivery_address) : '';
 	      const elLowGlobal = $('profileLowStockQtyGlobal'); if(elLowGlobal) elLowGlobal.value = String(getGlobalLowStockQty());
 	      const elSilence = $('profileSilenceLowStockAlerts'); if(elSilence) elSilence.checked = lowStockAlertsSilenced();
 	      let note = '';
@@ -4793,6 +5003,12 @@
       state._auditRows = [];
       state._auditTableFilter = '';
       state._auditActionFilter = '';
+      state._auditSearch = '';
+      const auditSearch = $('auditSearchFilter');
+      if(auditSearch) auditSearch.value = '';
+      state._shippingAddresses = [];
+      state._shippingAddressById = new Map();
+      state._shippingAddressEditing = null;
       state._userMgmtRows = [];
       state._snapshots = [];
       state._snapshotPreview = null;
@@ -4875,7 +5091,6 @@
 	          data.first_name = data.first_name || '';
 	          data.last_name = data.last_name || '';
 	          data.phone = data.phone || '';
-	          data.delivery_address = data.delivery_address || '';
 	          if(typeof data.silence_low_stock_alerts === 'undefined'){
 	            data.silence_low_stock_alerts = lowStockAlertsSilenced();
 	          }else{
@@ -4901,34 +5116,27 @@
 	          last_name: '',
 	          phone: '',
 	        };
-	        const address = '';
 	        const attempts = [
-	          { delivery:true, silence:true, global:true },
-	          { delivery:true, silence:true, global:false },
-	          { delivery:true, silence:false, global:true },
-	          { delivery:true, silence:false, global:false },
-	          { delivery:false, silence:true, global:true },
-	          { delivery:false, silence:true, global:false },
-	          { delivery:false, silence:false, global:true },
-	          { delivery:false, silence:false, global:false },
+	          { silence:true, global:true },
+	          { silence:true, global:false },
+	          { silence:false, global:true },
+	          { silence:false, global:false },
 	        ];
 	        let lastError = null;
 	        for(const a of attempts){
 	          const row = { ...base };
-	          if(a.delivery) row.delivery_address = address;
 	          if(a.silence) row.silence_low_stock_alerts = desiredSilence;
 	          if(a.global) row.low_stock_qty_global = desiredGlobal;
 	          const res = await SB.client.from('profiles').insert([row]);
 	          if(!res.error){
 	            SB.profile = { ...row };
-	            if(!a.delivery) SB.profile.delivery_address = '';
 	            SB.profile.silence_low_stock_alerts = desiredSilence;
 	            SB.profile.low_stock_qty_global = desiredGlobal;
 	            return SB.profile;
 	        }
 	        lastError = res.error;
 	        const msg = errToText(res.error);
-	        if(!(msg.includes('delivery_address') || msg.includes('silence_low_stock_alerts') || msg.includes('low_stock_qty_global'))){
+	        if(!(msg.includes('silence_low_stock_alerts') || msg.includes('low_stock_qty_global'))){
 	          break;
 	        }
 	        }
@@ -4942,14 +5150,13 @@
 	          first_name: '',
 	          last_name: '',
 	          phone: '',
-	          delivery_address: '',
 	          silence_low_stock_alerts: lowStockAlertsSilenced(),
 	          low_stock_qty_global: getGlobalLowStockQty(),
 	        };
 	        return SB.profile;
 	      }
 	    }
-    async function sbSaveProfile(firstName, lastName, phone, deliveryAddress, silenceLowStockAlerts, lowStockQtyGlobal){
+    async function sbSaveProfile(firstName, lastName, phone, silenceLowStockAlerts, lowStockQtyGlobal){
       if(!SB.ready || !SB.user) throw Error('Not signed in');
       const desiredSilence = !!silenceLowStockAlerts;
       const desiredGlobal = toInt(lowStockQtyGlobal, -1);
@@ -4964,35 +5171,28 @@
         last_name: String(lastName||'').trim(),
         phone: String(phone||'').trim(),
       };
-      const address = String(deliveryAddress||'').trim();
 
       const attempts = [
-        { delivery:true, silence:true, global:true },
-        { delivery:true, silence:true, global:false },
-        { delivery:true, silence:false, global:true },
-        { delivery:true, silence:false, global:false },
-        { delivery:false, silence:true, global:true },
-        { delivery:false, silence:true, global:false },
-        { delivery:false, silence:false, global:true },
-        { delivery:false, silence:false, global:false },
+        { silence:true, global:true },
+        { silence:true, global:false },
+        { silence:false, global:true },
+        { silence:false, global:false },
       ];
       let lastError = null;
       for(const a of attempts){
         const row = { ...base };
-        if(a.delivery) row.delivery_address = address;
         if(a.silence) row.silence_low_stock_alerts = desiredSilence;
         if(a.global) row.low_stock_qty_global = desiredGlobal;
         const res = await SB.client.from('profiles').upsert([row], { onConflict: 'user_id' });
         if(!res.error){
           SB.profile = { ...row };
-          if(!a.delivery) SB.profile.delivery_address = '';
           SB.profile.silence_low_stock_alerts = desiredSilence;
           SB.profile.low_stock_qty_global = desiredGlobal;
           return SB.profile;
         }
         lastError = res.error;
         const msg = String(res.error && res.error.message ? res.error.message : '');
-        if(!(msg.includes('delivery_address') || msg.includes('silence_low_stock_alerts') || msg.includes('low_stock_qty_global'))){
+        if(!(msg.includes('silence_low_stock_alerts') || msg.includes('low_stock_qty_global'))){
           break;
         }
       }
@@ -5574,12 +5774,11 @@
       const firstName = $('profileFirstName')?.value || '';
       const lastName = $('profileLastName')?.value || '';
       const phone = $('profilePhone')?.value || '';
-      const deliveryAddress = $('profileDeliveryAddress')?.value || '';
       const lowStockQtyGlobal = $('profileLowStockQtyGlobal')?.value || '';
       const silenceLowStockAlerts = !!($('profileSilenceLowStockAlerts')?.checked);
       setProfileMessage('');
       try{
-        await sbSaveProfile(firstName, lastName, phone, deliveryAddress, silenceLowStockAlerts, lowStockQtyGlobal);
+        await sbSaveProfile(firstName, lastName, phone, silenceLowStockAlerts, lowStockQtyGlobal);
         renderProfileUi();
         try{ renderTable(); }catch(e){}
         toast('Auto-saved');
@@ -5592,7 +5791,7 @@
       _profileAutoSaveTimer = setTimeout(()=> autoSaveProfile(), 600);
     }
     // Attach auto-save listeners to profile inputs
-    ['profileFirstName','profileLastName','profilePhone','profileDeliveryAddress','profileLowStockQtyGlobal'].forEach(id=>{
+    ['profileFirstName','profileLastName','profilePhone','profileLowStockQtyGlobal'].forEach(id=>{
       const el = $(id);
       if(el){
         el.addEventListener('blur', scheduleProfileAutoSave);
@@ -8780,57 +8979,6 @@ function emptyStateHtml(){
         .join(' ')
         .trim();
     }
-	    function cityStateFromDeliveryAddress(address){
-	      const raw = String(address || '').trim();
-	      if(!raw) return '';
-
-	      const normalized = raw
-	        .replace(/\r?\n/g, ', ')
-	        .replace(/\s+/g, ' ')
-	        .trim();
-
-	      const noCountry = normalized
-	        .replace(/\b(USA|UNITED STATES|UNITED STATES OF AMERICA)\b/gi, '')
-	        .replace(/\s+/g, ' ')
-	        .trim();
-
-	      // Remove ZIP (and ZIP+4) to make parsing easier.
-	      const zipStripped = noCountry
-	        .replace(/\s+\d{5}(?:-\d{4})?\b/g, '')
-	        .replace(/\s+/g, ' ')
-	        .trim();
-
-	      // Prefer the common US format: "Street, City, ST"
-	      const parts = zipStripped.split(',').map(s => s.trim()).filter(Boolean);
-	      if(parts.length >= 2){
-	        const last = parts[parts.length - 1] || '';
-	        const stateMatch = String(last).match(/\b([A-Za-z]{2})\b/);
-	        const st = stateMatch ? String(stateMatch[1]).toUpperCase() : '';
-	        if(st){
-	          let city = String(parts[parts.length - 2] || '').trim();
-	          // If the "city" looks like it's actually a street (starts with a number), try the segment before it.
-	          if(/^\d/.test(city)){
-	            if(parts.length >= 3){
-	              city = String(parts[parts.length - 3] || '').trim();
-	            }else{
-	              // Handle: "Street, City ST"
-	              city = String(last).replace(new RegExp(`\\b${st}\\b`, 'i'), '').trim();
-	            }
-	          }
-	          if(city) return `${city}, ${st}`;
-	        }
-	      }
-
-	      // Fallback: last "City ST" style (no commas).
-	      const m = zipStripped.match(/^(.+?)\s+([A-Za-z]{2})$/);
-	      if(m){
-	        const city = String(m[1] || '').replace(/,$/, '').trim();
-	        const st = String(m[2] || '').toUpperCase();
-	        if(city && st) return `${city}, ${st}`;
-	      }
-
-	      return '';
-	    }
     function formatEasternDateTime(value){
       const d = (value instanceof Date) ? value : new Date(value);
       try{
@@ -8848,11 +8996,31 @@ function emptyStateHtml(){
         return d.toLocaleString(undefined, { hour12:true });
       }
     }
-	    const ORDER_COMPANY_NAME = 'Modulus Software, LLC';
-	    function defaultOrderSubject(){
-	      const base = `Order for ${ORDER_COMPANY_NAME}`;
-	      const loc = cityStateFromDeliveryAddress(SB && SB.profile ? SB.profile.delivery_address : '');
-	      return loc ? `${base} (${loc})` : base;
+	    function getOrderCompanyName(){
+	      const name = SB && SB.company && SB.company.company_name ? String(SB.company.company_name).trim() : '';
+	      return name;
+	    }
+	    function generateInternalPoNumber(){
+	      const seed = Math.random().toString(36).slice(2, 8).toUpperCase();
+	      const stamp = new Date().toISOString().slice(2,10).replace(/-/g, '');
+	      return `PO-${stamp}-${seed}`;
+	    }
+	    function ensureOrderIdentifiers(ord){
+	      if(!ord) return;
+	      if(!ord.internalPoNumber) ord.internalPoNumber = generateInternalPoNumber();
+	    }
+	    function getOrderIdentifier(ord){
+	      if(!ord) return '';
+	      const companyPo = String(ord.companyPoNumber || '').trim();
+	      if(companyPo) return companyPo;
+	      ensureOrderIdentifiers(ord);
+	      return String(ord.internalPoNumber || '').trim();
+	    }
+	    function composeOrderSubject(ord){
+	      const companyName = getOrderCompanyName();
+	      if(!companyName) return '';
+	      const po = getOrderIdentifier(ord);
+	      return po ? `Purchase Order ${po} \u2013 ${companyName}` : `Purchase Order \u2013 ${companyName}`;
 	    }
     function orderActiveLines(){
       const ord = orderState();
@@ -8863,9 +9031,16 @@ function emptyStateHtml(){
     }
     function orderState(){
       if(!state._order){
-        state._order = { lines:[], email:'', subject:defaultOrderSubject(), notes:'', contactName:'', search:'' };
+        state._order = { lines:[], email:'', companyPoNumber:'', internalPoNumber:'', subject:'', notes:'', contactName:'', search:'', shippingAddressId:'', shippingAddressSnapshot:null };
       }
+      ensureOrderIdentifiers(state._order);
       return state._order;
+    }
+    function resetOrderIdentifiers(){
+      const ord = orderState();
+      ord.companyPoNumber = '';
+      ord.internalPoNumber = generateInternalPoNumber();
+      ord.subject = composeOrderSubject(ord);
     }
     const orderLineSelection = new Set();
     function pruneOrderLineSelection(lines){
@@ -8962,13 +9137,31 @@ function emptyStateHtml(){
         .filter((x) => x.part && x.qty > 0)
         .sort((a,b)=> toKey(a.part).localeCompare(toKey(b.part)));
     }
-    function buildOrderBodyFromData({ subjectLine, notes, lineItems }){
+    function normalizeShippingSnapshot(value){
+      if(!value || typeof value !== 'object') return null;
+      const label = String(value.label || '').trim();
+      const address = String(value.address || '').trim();
+      if(!label && !address) return null;
+      return { label, address };
+    }
+    function formatShippingSnapshotLines(value){
+      const snap = normalizeShippingSnapshot(value);
+      if(!snap) return [];
+      const lines = [];
+      if(snap.label) lines.push(snap.label);
+      if(snap.address) lines.push(snap.address);
+      return lines;
+    }
+    function buildOrderBodyFromData({ subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber }){
       const when = formatEasternDateTime(new Date());
-      const subject = String(subjectLine||'').trim() || defaultOrderSubject();
+      const subject = String(subjectLine||'').trim();
       const out = [];
 
       out.push(subject);
       out.push(`Date: ${when}`);
+      if(companyName) out.push(`Company: ${companyName}`);
+      if(companyPoNumber) out.push(`Company PO: ${companyPoNumber}`);
+      if(internalPoNumber) out.push(`Internal PO: ${internalPoNumber}`);
       out.push('');
       out.push('Items:');
       out.push('');
@@ -8999,34 +9192,39 @@ function emptyStateHtml(){
         out.push(nt);
       }
 
-      // Add delivery info from profile
+      // Add sender info from profile
       const profileData = SB && SB.profile ? SB.profile : {};
       const firstName = String(profileData.first_name || '').trim();
       const lastName = String(profileData.last_name || '').trim();
       const fullName = [firstName, lastName].filter(Boolean).join(' ');
-      const deliveryAddr = String(profileData.delivery_address || '').trim();
       const userPhone = String(profileData.phone || '').trim();
       const userEmail = String(profileData.email || '').trim();
 
       const deliveryLines = [];
       if(fullName) deliveryLines.push(fullName);
-      if(deliveryAddr) deliveryLines.push(deliveryAddr);
       if(userPhone) deliveryLines.push(userPhone);
       if(userEmail) deliveryLines.push(userEmail);
 
       if(deliveryLines.length){
         out.push('');
-        out.push('Shipping Address:');
+        out.push('Contact:');
         for(const line of deliveryLines) out.push(line);
+      }
+
+      const shippingLines = formatShippingSnapshotLines(shippingAddress);
+      if(shippingLines.length){
+        out.push('');
+        out.push('Shipping Address:');
+        for(const line of shippingLines) out.push(line);
       }
 
       out.push('');
       out.push('contact@modulus-software.com');
       return out.join('\n');
     }
-    function buildOrderHtmlFromData({ subjectLine, notes, lineItems }){
+    function buildOrderHtmlFromData({ subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber }){
       const when = formatEasternDateTime(new Date());
-      const subject = String(subjectLine||'').trim() || defaultOrderSubject();
+      const subject = String(subjectLine||'').trim();
 
       const active = normalizeEmailLineItems(lineItems);
       const rows = active.map(l=>{
@@ -9045,28 +9243,44 @@ function emptyStateHtml(){
       const notesRaw = String(notes||'').trim();
       const notesHtml = notesRaw ? escapeHtml(notesRaw).replace(/\n/g, '<br>') : '';
 
-      // Build user/delivery info block from profile
+      // Build contact + shipping blocks
       const profileData = SB && SB.profile ? SB.profile : {};
       const firstName = String(profileData.first_name || '').trim();
       const lastName = String(profileData.last_name || '').trim();
       const fullName = [firstName, lastName].filter(Boolean).join(' ');
-      const deliveryAddr = String(profileData.delivery_address || '').trim();
       const userPhone = String(profileData.phone || '').trim();
       const userEmail = String(profileData.email || '').trim();
 
-      const deliveryInfoLines = [];
-      if(fullName) deliveryInfoLines.push(escapeHtml(fullName));
-      if(deliveryAddr) deliveryInfoLines.push(escapeHtml(deliveryAddr).replace(/\n/g, '<br>'));
-      if(userPhone) deliveryInfoLines.push(escapeHtml(userPhone));
-      if(userEmail) deliveryInfoLines.push(`<a href="mailto:${escapeHtmlAttr(userEmail)}" style="color:#0969da;text-decoration:underline;">${escapeHtml(userEmail)}</a>`);
+      const contactLines = [];
+      if(fullName) contactLines.push(escapeHtml(fullName));
+      if(userPhone) contactLines.push(escapeHtml(userPhone));
+      if(userEmail) contactLines.push(`<a href="mailto:${escapeHtmlAttr(userEmail)}" style="color:#0969da;text-decoration:underline;">${escapeHtml(userEmail)}</a>`);
 
-      const deliveryInfoBlock = deliveryInfoLines.length
+      const contactBlock = contactLines.length
+        ? (
+          `<div style="margin:16px 0 16px;padding:12px;background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;">`+
+            `<div style="font-weight:700;margin-bottom:8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Contact</div>`+
+            `<div style="font-size:14px;line-height:1.5;">${contactLines.join('<br>')}</div>`+
+          `</div>`
+        )
+        : '';
+
+      const shippingLines = formatShippingSnapshotLines(shippingAddress);
+      const shippingBlock = shippingLines.length
         ? (
           `<div style="margin:16px 0 16px;padding:12px;background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;">`+
             `<div style="font-weight:700;margin-bottom:8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Shipping Address</div>`+
-            `<div style="font-size:14px;line-height:1.5;">${deliveryInfoLines.join('<br>')}</div>`+
+            `<div style="font-size:14px;line-height:1.5;">${shippingLines.map(l => escapeHtml(l).replace(/\\n/g, '<br>')).join('<br>')}</div>`+
           `</div>`
         )
+        : '';
+
+      const metaLines = [];
+      if(companyName) metaLines.push(`<div><strong>Company:</strong> ${escapeHtml(companyName)}</div>`);
+      if(companyPoNumber) metaLines.push(`<div><strong>Company PO:</strong> ${escapeHtml(companyPoNumber)}</div>`);
+      if(internalPoNumber) metaLines.push(`<div><strong>Internal PO:</strong> ${escapeHtml(internalPoNumber)}</div>`);
+      const metaBlock = metaLines.length
+        ? `<div style="margin:12px 0 0;font-size:14px;line-height:1.5;">${metaLines.join('')}</div>`
         : '';
 
       const notesBlock = notesHtml
@@ -9108,11 +9322,13 @@ function emptyStateHtml(){
           `<h2 style="margin:0 0 10px;font-size:18px;">${escapeHtml(subject)}</h2>`+
           `<div style="font-size:13px;color:#444;margin:0 0 16px;">`+
             `<div style="margin:2px 0;"><strong>Date:</strong> ${escapeHtml(when)}</div>`+
+            `${metaBlock}`+
           `</div>`+
           `<div style="margin:0 0 10px;">Please supply the following materials:</div>`+
           `${itemsBlock}`+
           `${notesBlock}`+
-          `${deliveryInfoBlock}`+
+          `${contactBlock}`+
+          `${shippingBlock}`+
           `${brandLogo}`+
           `${brandLine}`+
         `</div>`+
@@ -9125,24 +9341,44 @@ function emptyStateHtml(){
       if(s.length > 254) return false;
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
     }
+    function getOrderShippingSnapshot(ord){
+      if(!ord) return null;
+      const direct = normalizeShippingSnapshot(ord.shippingAddressSnapshot);
+      if(direct) return direct;
+      const id = String(ord.shippingAddressId || '').trim();
+      if(!id) return null;
+      const row = state._shippingAddressById && typeof state._shippingAddressById.get === 'function'
+        ? state._shippingAddressById.get(id)
+        : null;
+      if(!row) return null;
+      return normalizeShippingSnapshot({ label: row.label, address: row.address });
+    }
     function buildOrderBody(){
       const ord = orderState();
-      const subjectLine = String(ord.subject||'').trim() || defaultOrderSubject();
+      const subjectLine = composeOrderSubject(ord);
       const notes = String(ord.notes||'').trim();
       const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), desc: String(l.desc||'').trim(), qty: toInt(l.qty, 0) }));
-      return buildOrderBodyFromData({ subjectLine, notes, lineItems });
+      const shippingAddress = getOrderShippingSnapshot(ord);
+      const companyName = getOrderCompanyName();
+      const companyPoNumber = String(ord.companyPoNumber||'').trim();
+      const internalPoNumber = String(ord.internalPoNumber||'').trim();
+      return buildOrderBodyFromData({ subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber });
     }
     function buildOrderHtml(){
       const ord = orderState();
-      const subjectLine = String(ord.subject||'').trim() || defaultOrderSubject();
+      const subjectLine = composeOrderSubject(ord);
       const notesRaw = String(ord.notes||'').trim();
       const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), desc: String(l.desc||'').trim(), qty: toInt(l.qty, 0) }));
-      return buildOrderHtmlFromData({ subjectLine, notes: notesRaw, lineItems });
+      const shippingAddress = getOrderShippingSnapshot(ord);
+      const companyName = getOrderCompanyName();
+      const companyPoNumber = String(ord.companyPoNumber||'').trim();
+      const internalPoNumber = String(ord.internalPoNumber||'').trim();
+      return buildOrderHtmlFromData({ subjectLine, notes: notesRaw, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber });
     }
     function buildMailtoUrl(){
       const ord = orderState();
       const to = String(ord.email||'').trim();
-      const subject = String(ord.subject||'').trim() || defaultOrderSubject();
+      const subject = composeOrderSubject(ord);
       const body = buildOrderBody();
       if(!to) return '';
       return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -9157,12 +9393,12 @@ function emptyStateHtml(){
       // Fallback to local dev server
       return '/api/send-order';
     }
-    async function sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems }){
+    async function sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber }){
       const toEmail = String(to||'').trim();
       const replyTo = getSignedInEmail();
-      const subject = String(subjectLine||'').trim() || defaultOrderSubject();
-      const text = buildOrderBodyFromData({ subjectLine: subject, notes, lineItems });
-      const html = buildOrderHtmlFromData({ subjectLine: subject, notes, lineItems });
+      const subject = String(subjectLine||'').trim();
+      const text = buildOrderBodyFromData({ subjectLine: subject, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber });
+      const html = buildOrderHtmlFromData({ subjectLine: subject, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber });
       const apiUrl = getOrderApiUrl();
 
       // Build headers - include Supabase auth if using Edge Function
@@ -9204,10 +9440,15 @@ function emptyStateHtml(){
     async function sendOrderViaApi(){
       const ord = orderState();
       const to = String(ord.email||'').trim();
-      const subjectLine = String(ord.subject||'').trim() || defaultOrderSubject();
+      const companyName = getOrderCompanyName();
+      if(!companyName) throw new Error('Company name is required to send orders');
+      const subjectLine = composeOrderSubject(ord);
       const notes = String(ord.notes||'').trim();
       const lineItems = orderActiveLines().map(l => ({ part: String(l.name||'').trim(), desc: String(l.desc||'').trim(), qty: toInt(l.qty, 0) }));
-      return sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems });
+      const shippingAddress = getOrderShippingSnapshot(ord);
+      const companyPoNumber = String(ord.companyPoNumber||'').trim();
+      const internalPoNumber = String(ord.internalPoNumber||'').trim();
+      return sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber });
     }
     async function copyText(text){
       if(navigator.clipboard && navigator.clipboard.writeText){
@@ -9229,6 +9470,166 @@ function emptyStateHtml(){
         toast('Copied order text');
       }catch{
         toast('Copy failed');
+      }
+    }
+
+    function setShippingAddressMessage(msg){
+      const el = $('shippingAddressMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function clearShippingAddressForm(){
+      state._shippingAddressEditing = null;
+      const label = $('shippingAddressLabel'); if(label) label.value = '';
+      const address = $('shippingAddressValue'); if(address) address.value = '';
+      const isDefault = $('shippingAddressDefault'); if(isDefault) isDefault.checked = false;
+      const title = $('shippingAddressFormTitle'); if(title) title.textContent = 'Add Shipping Address';
+      setShippingAddressMessage('');
+    }
+    function renderShippingAddressList(){
+      const list = $('shippingAddressList');
+      if(!list) return;
+      const rows = Array.isArray(state._shippingAddresses) ? state._shippingAddresses : [];
+      if(!rows.length){
+        list.innerHTML = `<div class="trash-empty">No shipping addresses yet.</div>`;
+        return;
+      }
+      list.innerHTML = rows.map(row => {
+        const id = String(row.id || '').trim();
+        const label = String(row.label || '').trim();
+        const address = String(row.address || '').trim();
+        const isDefault = !!row.is_default;
+        const meta = [isDefault ? 'Default' : '', id ? `ID: ${id.slice(0,8)}` : ''].filter(Boolean).join(' · ');
+        return (
+          `<div class="shipping-address-card" data-shipping-id="${escapeHtmlAttr(id)}">`+
+            `<div>`+
+              `<div style="font-weight:700;">${escapeHtml(label || 'Address')}</div>`+
+              `<div class="shipping-address-meta">${escapeHtml(meta)}</div>`+
+              `<div style="margin-top:6px;white-space:pre-wrap;">${escapeHtml(address)}</div>`+
+            `</div>`+
+            `<div class="shipping-address-actions">`+
+              `<button class="btn small" type="button" data-shipping-edit="${escapeHtmlAttr(id)}">Edit</button>`+
+              `<button class="btn small danger" type="button" data-shipping-delete="${escapeHtmlAttr(id)}">Delete</button>`+
+            `</div>`+
+          `</div>`
+        );
+      }).join('');
+    }
+    function renderShippingAddressSelect(){
+      const select = $('orderShippingAddress');
+      if(!select) return;
+      const rows = Array.isArray(state._shippingAddresses) ? state._shippingAddresses : [];
+      select.innerHTML = '';
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = rows.length ? 'Select shipping address' : 'No shipping addresses';
+      placeholder.disabled = !rows.length;
+      select.appendChild(placeholder);
+      rows.forEach(row => {
+        const id = String(row && row.id ? row.id : '').trim();
+        if(!id) return;
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = String(row.label || row.address || id).trim();
+        select.appendChild(opt);
+      });
+      const ord = orderState();
+      if(ord.shippingAddressId && !rows.some(r => String(r.id) === String(ord.shippingAddressId))){
+        ord.shippingAddressId = '';
+        ord.shippingAddressSnapshot = null;
+      }
+      if(!ord.shippingAddressId && rows.length){
+        const def = rows.find(r => r && r.is_default) || rows[0];
+        ord.shippingAddressId = def ? String(def.id) : '';
+        ord.shippingAddressSnapshot = def ? { label: def.label, address: def.address } : null;
+      }
+      select.value = ord.shippingAddressId || '';
+      const manageBtn = $('btnOrderShippingManage');
+      if(manageBtn){
+        manageBtn.disabled = !canOrdersManageShipping();
+        manageBtn.style.display = canOrdersManageShipping() ? '' : 'none';
+      }
+    }
+    async function sbFetchShippingAddresses(){
+      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
+      if(!canOrdersView()) return [];
+      const { data, error } = await SB.client
+        .from('company_shipping_addresses')
+        .select('id,label,address,is_default,created_at,updated_at')
+        .eq('company_id', SB.companyId)
+        .order('is_default', { ascending:false })
+        .order('label', { ascending:true });
+      if(error) throw error;
+      return Array.isArray(data) ? data : [];
+    }
+    async function loadShippingAddresses(){
+      const rows = await sbFetchShippingAddresses();
+      state._shippingAddresses = rows;
+      state._shippingAddressById = new Map(rows.map(r => [String(r.id || '').trim(), r]).filter(x => x[0]));
+      renderShippingAddressSelect();
+      renderShippingAddressList();
+    }
+    async function openShippingAddressModal(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!canOrdersManageShipping()){ toast('Shipping address permissions required'); return; }
+      clearShippingAddressForm();
+      show('shippingAddressModal', true);
+      try{ await loadShippingAddresses(); }catch(e){ setShippingAddressMessage(e && e.message ? e.message : 'Failed to load addresses'); }
+    }
+    function closeShippingAddressModal(){
+      show('shippingAddressModal', false);
+    }
+    async function saveShippingAddress(){
+      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) throw new Error('Not authorized');
+      if(!canOrdersManageShipping()) throw new Error('Permission denied');
+      const label = String($('shippingAddressLabel')?.value || '').trim();
+      const address = String($('shippingAddressValue')?.value || '').trim();
+      const isDefault = !!($('shippingAddressDefault')?.checked);
+      if(!label || !address) throw new Error('Label and address are required');
+      if(isDefault){
+        await SB.client
+          .from('company_shipping_addresses')
+          .update({ is_default: false })
+          .eq('company_id', SB.companyId);
+      }
+      const payload = {
+        company_id: SB.companyId,
+        label,
+        address,
+        is_default: isDefault,
+        updated_at: new Date().toISOString(),
+        updated_by: SB.user ? SB.user.id : null,
+      };
+      if(state._shippingAddressEditing){
+        payload.id = state._shippingAddressEditing;
+      }else{
+        payload.created_by = SB.user ? SB.user.id : null;
+      }
+      const { error } = await SB.client
+        .from('company_shipping_addresses')
+        .upsert([payload], { onConflict: 'id' });
+      if(error) throw error;
+      await loadShippingAddresses();
+      clearShippingAddressForm();
+      renderOrderPreview();
+    }
+    async function deleteShippingAddress(id){
+      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) throw new Error('Not authorized');
+      if(!canOrdersManageShipping()) throw new Error('Permission denied');
+      const addrId = String(id || '').trim();
+      if(!addrId) return;
+      const { error } = await SB.client
+        .from('company_shipping_addresses')
+        .delete()
+        .eq('id', addrId)
+        .eq('company_id', SB.companyId);
+      if(error) throw error;
+      await loadShippingAddresses();
+      const ord = orderState();
+      if(String(ord.shippingAddressId || '') === addrId){
+        ord.shippingAddressId = '';
+        ord.shippingAddressSnapshot = null;
+        renderOrderPreview();
       }
     }
 
@@ -9282,7 +9683,7 @@ function emptyStateHtml(){
         })
         .filter((x) => x.part);
     }
-    async function sbInsertOrderHistoryFromData({ toEmail, subjectLine, contactName, notes, lineItems, providerResult }){
+    async function sbInsertOrderHistoryFromData({ toEmail, subjectLine, contactName, notes, lineItems, providerResult, companyPoNumber, internalPoNumber, shippingAddressId, shippingAddressSnapshot }){
       if(!SB.ready || !SB.session || !SB.authorized || !SB.user || !SB.companyId) return;
       if(!canOrdersCreate()) throw new Error('Permission denied');
       const cleaned = normalizeEmailLineItems(lineItems).map(x => ({ item_id: x.item_id ? String(x.item_id).trim() : null, part: x.part, desc: x.desc, qty: x.qty }));
@@ -9291,11 +9692,15 @@ function emptyStateHtml(){
         created_by: SB.user.id,
         to_email: String(toEmail||'').trim(),
         reply_to_email: String(getSignedInEmail()||'').trim(),
-        subject: String(subjectLine||'').trim() || defaultOrderSubject(),
+        subject: String(subjectLine||'').trim(),
         contact_name: String(contactName||'').trim(),
         notes: String(notes||'').trim(),
         line_items: cleaned,
         provider_result: providerResult || null,
+        company_po_number: String(companyPoNumber||'').trim() || null,
+        internal_po_number: String(internalPoNumber||'').trim() || null,
+        shipping_address_id: shippingAddressId ? String(shippingAddressId).trim() : null,
+        shipping_address_snapshot: shippingAddressSnapshot || null,
       };
       const { error } = await SB.client.from('orders').insert([row]);
       if(error) throw error;
@@ -9305,18 +9710,22 @@ function emptyStateHtml(){
       const lineItems = orderActiveLines().map(l => ({ item_id: String(l.id || '').trim() || null, part: String(l.name||'').trim(), desc: String(l.desc||'').trim(), qty: toInt(l.qty, 0) }));
       return sbInsertOrderHistoryFromData({
         toEmail: String(ord.email||'').trim(),
-        subjectLine: String(ord.subject||'').trim() || defaultOrderSubject(),
+        subjectLine: composeOrderSubject(ord),
         contactName: String(ord.contactName||'').trim(),
         notes: String(ord.notes||'').trim(),
         lineItems,
         providerResult,
+        companyPoNumber: String(ord.companyPoNumber||'').trim(),
+        internalPoNumber: String(ord.internalPoNumber||'').trim(),
+        shippingAddressId: ord.shippingAddressId,
+        shippingAddressSnapshot: getOrderShippingSnapshot(ord),
       });
     }
 	    async function sbFetchOrders(limit = 50){
 	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
 	      if(!canOrdersView()) return [];
 	      const lim = Math.max(1, Math.min(200, toInt(limit, 50)));
-	      let sel = 'id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items';
+	      let sel = 'id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items,internal_po_number,company_po_number,shipping_address_snapshot,shipping_address_id';
 	      if(SB.ordersHasReceipt !== false){
 	        sel += ',receiving_at,receiving_by,receiving_snapshot,received_at,received_by,received_snapshot,received_undone_at,received_undone_by';
 	      }
@@ -9332,7 +9741,7 @@ function emptyStateHtml(){
 	          SB.ordersHasReceipt = false;
 	          const { data: data2, error: err2 } = await SB.client
 	            .from('orders')
-	            .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items')
+	            .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items,internal_po_number,company_po_number,shipping_address_snapshot,shipping_address_id')
 	            .eq('company_id', SB.companyId)
 	            .is('deleted_at', null)
 	            .order('created_at', { ascending:false })
@@ -9351,7 +9760,7 @@ function emptyStateHtml(){
 	      let offset = 0;
 	      const out = [];
 	      for(let page=0; page<200; page++){
-	        let sel = 'id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items';
+	        let sel = 'id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items,internal_po_number,company_po_number,shipping_address_snapshot,shipping_address_id';
 	        if(SB.ordersHasReceipt !== false){
 	          sel += ',receiving_at,receiving_by,receiving_snapshot,received_at,received_by,received_snapshot,received_undone_at,received_undone_by';
 	        }
@@ -9367,7 +9776,7 @@ function emptyStateHtml(){
 	            SB.ordersHasReceipt = false;
 	            const { data: data2, error: err2 } = await SB.client
 	              .from('orders')
-	              .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items')
+	              .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items,internal_po_number,company_po_number,shipping_address_snapshot,shipping_address_id')
 	              .eq('company_id', SB.companyId)
 	              .is('deleted_at', null)
 	              .order('created_at', { ascending:false })
@@ -9405,18 +9814,21 @@ function emptyStateHtml(){
 	        .join(' ; ');
 	    }
 	    function buildOrderHistoryCsv(rows){
-	      const header = [
-	        'Order ID',
-	        'Created At (UTC)',
-	        'Created (Eastern)',
-	        'To',
-	        'Reply-To',
-	        'Subject',
-	        'Contact Name',
-	        'Notes',
-	        'Item Count',
-	        'Items',
-	      ];
+      const header = [
+        'Order ID',
+        'Created At (UTC)',
+        'Created (Eastern)',
+        'To',
+        'Reply-To',
+        'Subject',
+        'Company PO Number',
+        'Internal PO ID',
+        'Shipping Address',
+        'Contact Name',
+        'Notes',
+        'Item Count',
+        'Items',
+      ];
 	      const out = [header.map(csvEscape).join(',')];
 	      const list = Array.isArray(rows) ? rows : [];
 	      for(const o of list){
@@ -9425,24 +9837,33 @@ function emptyStateHtml(){
 	        const createdEastern = formatEasternDateTime(createdAt || new Date());
 	        const to = String(o?.to_email || '').trim();
 	        const replyTo = String(o?.reply_to_email || '').trim();
-	        const subject = String(o?.subject || '').trim() || defaultOrderSubject();
-	        const contact = String(o?.contact_name || '').trim();
-	        const notes = String(o?.notes || '').trim();
-	        const items = normalizeOrderLineItems(o?.line_items);
-	        const itemsCell = orderLineItemsToCsvCell(o?.line_items);
-	        out.push([
-	          id,
-	          createdAt,
-	          createdEastern,
-	          to,
-	          replyTo,
-	          subject,
-	          contact,
-	          notes,
-	          String(items.length),
-	          itemsCell,
-	        ].map(csvEscape).join(','));
-	      }
+        const subject = String(o?.subject || '').trim();
+        const companyPo = String(o?.company_po_number || '').trim();
+        const internalPo = String(o?.internal_po_number || '').trim();
+        const shippingSnap = normalizeShippingSnapshot(o?.shipping_address_snapshot) || null;
+        const shippingText = shippingSnap
+          ? [shippingSnap.label, shippingSnap.address].filter(Boolean).join(' | ')
+          : '';
+        const contact = String(o?.contact_name || '').trim();
+        const notes = String(o?.notes || '').trim();
+        const items = normalizeOrderLineItems(o?.line_items);
+        const itemsCell = orderLineItemsToCsvCell(o?.line_items);
+        out.push([
+          id,
+          createdAt,
+          createdEastern,
+          to,
+          replyTo,
+          subject,
+          companyPo,
+          internalPo,
+          shippingText,
+          contact,
+          notes,
+          String(items.length),
+          itemsCell,
+        ].map(csvEscape).join(','));
+      }
 	      // Add BOM so Excel opens UTF-8 correctly
 	      return '\ufeff' + out.join('\n');
 	    }
@@ -9543,6 +9964,17 @@ function emptyStateHtml(){
 	      }catch(e){}
 	      const safe = id.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 	      return list.querySelector(`details.history-item[data-order-id="${safe}"]`) || null;
+	    }
+	    function orderSubjectFromRow(row){
+	      const explicit = String(row && row.subject ? row.subject : '').trim();
+	      if(explicit) return explicit;
+	      const companyName = getOrderCompanyName();
+	      const companyPo = String(row && row.company_po_number ? row.company_po_number : '').trim();
+	      const internalPo = String(row && row.internal_po_number ? row.internal_po_number : '').trim();
+	      const id = companyPo || internalPo || String(row && row.id ? row.id : '').trim();
+	      if(companyName && id) return `Purchase Order ${id} \u2013 ${companyName}`;
+	      if(companyName) return `Purchase Order \u2013 ${companyName}`;
+	      return id ? `Purchase Order ${id}` : 'Purchase Order';
 	    }
 	    function setHistoryTrayA11y(det, open){
 	      const tray = det ? det.querySelector('.history-tray') : null;
@@ -9952,7 +10384,7 @@ function emptyStateHtml(){
 	      if(!row){ toast('Order not found'); return; }
 
 	      const isUndo = isOrderCurrentlyReceived(row);
-	      const subject = String(row.subject || defaultOrderSubject()).trim();
+	      const subject = orderSubjectFromRow(row);
 	      const receivingAt = String(row.receiving_at || '').trim();
 	      const receivedAt = String(row.received_at || '').trim();
 	      const resumable = !isUndo && !!receivingAt && !receivedAt && row.receiving_snapshot;
@@ -10028,12 +10460,16 @@ function emptyStateHtml(){
         det.className = 'history-item';
         det.dataset.orderId = String(o.id || '');
 
-	        const subject = escapeHtml(String(o.subject||defaultOrderSubject()));
+	        const subject = escapeHtml(orderSubjectFromRow(o));
         const created = escapeHtml(formatEasternDateTime(o.created_at || ''));
         const to = escapeHtml(String(o.to_email||''));
         const replyTo = String(o.reply_to_email||'').trim();
         const contact = String(o.contact_name||'').trim();
         const notes = String(o.notes||'').trim();
+        const companyPo = String(o.company_po_number || '').trim();
+        const internalPo = String(o.internal_po_number || '').trim();
+        const shippingSnap = normalizeShippingSnapshot(o.shipping_address_snapshot) || null;
+        const shippingLines = shippingSnap ? [shippingSnap.label, shippingSnap.address].filter(Boolean) : [];
         const items = normalizeOrderLineItems(o.line_items);
 
         const orderId = String(o.id || '');
@@ -10129,6 +10565,9 @@ function emptyStateHtml(){
             `<div class="history-kv">`+
               (replyTo ? `<div><span class="muted">Reply-To:</span> ${escapeHtml(replyTo)}</div>` : '')+
               (contact ? `<div><span class="muted">Contact:</span> ${escapeHtml(contact)}</div>` : '')+
+              (companyPo ? `<div><span class="muted">Company PO:</span> ${escapeHtml(companyPo)}</div>` : '')+
+              (internalPo ? `<div><span class="muted">Internal PO:</span> ${escapeHtml(internalPo)}</div>` : '')+
+              (shippingLines.length ? `<div><span class="muted">Shipping Address:</span><div class="history-address">${shippingLines.map(l => escapeHtml(l)).join('<br>')}</div></div>` : '')+
               (notes ? `<div><span class="muted">Notes:</span> ${escapeHtml(notes)}</div>` : '')+
             `</div>`+
             itemsTable +
@@ -10142,15 +10581,19 @@ function emptyStateHtml(){
 	      const o = orderRow || {};
 	      const createdAt = String(o.created_at || '').trim();
 	      const createdEastern = String(formatEasternDateTime(createdAt || '') || '').trim();
-	      const subject = String(o.subject || '').trim();
+	      const subject = orderSubjectFromRow(o);
 	      const to = String(o.to_email || '').trim();
 	      const replyTo = String(o.reply_to_email || '').trim();
 	      const contact = String(o.contact_name || '').trim();
 	      const notes = String(o.notes || '').trim();
 	      const id = String(o.id || '').trim();
+	      const companyPo = String(o.company_po_number || '').trim();
+	      const internalPo = String(o.internal_po_number || '').trim();
+	      const shippingSnap = normalizeShippingSnapshot(o.shipping_address_snapshot) || null;
+	      const shippingText = shippingSnap ? [shippingSnap.label, shippingSnap.address].filter(Boolean).join(' ') : '';
 	      const items = normalizeOrderLineItems(o.line_items);
 	      const itemText = items.map(it => `${it.part} ${it.desc} ${toInt(it.qty,0)}`).join(' ');
-	      return `${id} ${createdAt} ${createdEastern} ${to} ${replyTo} ${subject} ${contact} ${notes} ${itemText}`.toLowerCase();
+	      return `${id} ${createdAt} ${createdEastern} ${to} ${replyTo} ${subject} ${contact} ${notes} ${companyPo} ${internalPo} ${shippingText} ${itemText}`.toLowerCase();
 	    }
 	    function renderOrderHistoryFiltered(){
 	      const rows = Array.isArray(state._orderHistoryRows) ? state._orderHistoryRows : [];
@@ -10269,11 +10712,25 @@ function emptyStateHtml(){
       if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
 
       try{
-        const subjectLine = String(row.subject||'').trim() || defaultOrderSubject();
+        const subjectLine = orderSubjectFromRow(row);
         const notes = String(row.notes||'').trim();
         const lineItems = Array.isArray(row.line_items) ? row.line_items : [];
+        const companyName = getOrderCompanyName();
+        if(!companyName) throw new Error('Company name is required to send orders');
+        const shippingAddress = normalizeShippingSnapshot(row.shipping_address_snapshot);
+        const companyPoNumber = String(row.company_po_number || '').trim();
+        const internalPoNumber = String(row.internal_po_number || '').trim();
 
-        const sendRes = await sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems });
+        const sendRes = await sendOrderPayloadViaApi({
+          to,
+          subjectLine,
+          notes,
+          lineItems,
+          shippingAddress,
+          companyName,
+          companyPoNumber,
+          internalPoNumber,
+        });
         try{ await sbRecordOrderRecipient(to, ''); }catch{}
         try{
           await sbInsertOrderHistoryFromData({
@@ -10283,6 +10740,10 @@ function emptyStateHtml(){
             notes,
             lineItems,
             providerResult: sendRes && Object.prototype.hasOwnProperty.call(sendRes, 'result') ? sendRes.result : sendRes,
+            companyPoNumber,
+            internalPoNumber,
+            shippingAddressId: row.shipping_address_id,
+            shippingAddressSnapshot: shippingAddress,
           });
         }catch{}
 
@@ -10541,9 +11002,20 @@ function emptyStateHtml(){
     function renderOrderPreview(){
       const ord = orderState();
       const wrap = $('orderPreviewHtml');
+      const subjectLine = composeOrderSubject(ord);
+      ord.subject = subjectLine;
+      const subjectInput = $('orderSubject'); if(subjectInput) subjectInput.value = subjectLine;
+      const internalInput = $('orderInternalPoNumber'); if(internalInput) internalInput.value = String(ord.internalPoNumber || '').trim();
       if(wrap){
         const html = buildOrderHtml();
         wrap.innerHTML = `<iframe srcdoc="${html.replace(/"/g, '&quot;')}" sandbox="allow-same-origin"></iframe>`;
+      }
+      const shippingPreview = $('orderShippingPreview');
+      if(shippingPreview){
+        const shippingLines = formatShippingSnapshotLines(getOrderShippingSnapshot(ord));
+        shippingPreview.innerHTML = shippingLines.length
+          ? shippingLines.map(l => escapeHtml(l)).join('<br>')
+          : '<span class="muted">No shipping address selected.</span>';
       }
       const replyEl = $('orderReplyToNote');
       if(replyEl){
@@ -10558,10 +11030,11 @@ function emptyStateHtml(){
       if(btn){
         const okEmail = !!String(ord.email||'').trim();
         const okLines = ord.lines.some(l => toInt(l.qty, 0) > 0);
-        btn.disabled = !(okEmail && okLines);
+        const okCompany = !!getOrderCompanyName();
+        btn.disabled = !(okEmail && okLines && okCompany);
       }
     }
-	    function openOrderModal(opts = {}){
+    async function openOrderModal(opts = {}){
 		      if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
 		      const ord = orderState();
 		      const addSelected = !isMobileUx() && !(opts && Object.prototype.hasOwnProperty.call(opts, 'addSelected') && opts.addSelected === false);
@@ -10578,22 +11051,19 @@ function emptyStateHtml(){
 	        if(added) toast(`Added ${added} selected item(s)`);
 	      }
 
-	      if(
-	        !ord.subject
-	        || ord.subject === 'Materials Order'
-	        || ord.subject === 'Material Order'
-		        || /^Materials? Order\s*-\s*/i.test(String(ord.subject||'').trim())
-	      ){
-	        ord.subject = defaultOrderSubject();
-	      }
+	      ensureOrderIdentifiers(ord);
+	      ord.subject = composeOrderSubject(ord);
 
       const s = $('orderSearch'); if(s) s.value = ord.search || '';
       const e = $('orderEmail'); if(e) e.value = ord.email || '';
+      const companyPo = $('orderCompanyPoNumber'); if(companyPo) companyPo.value = ord.companyPoNumber || '';
+      const internalPo = $('orderInternalPoNumber'); if(internalPo) internalPo.value = ord.internalPoNumber || '';
       const sub = $('orderSubject'); if(sub) sub.value = ord.subject || '';
       const n = $('orderNotes'); if(n) n.value = ord.notes || '';
 
       renderOrderResults();
       renderOrderLines();
+      try{ await loadShippingAddresses(); }catch(e){}
       renderOrderPreview();
       try{ updateOrderSearchClearBtn(); }catch(e){}
 
@@ -10668,6 +11138,13 @@ function emptyStateHtml(){
       state._auditActionFilter = auditActionFilter.value || '';
       refreshAuditLog();
     });
+    const auditSearchFilter = $('auditSearchFilter');
+    if(auditSearchFilter) auditSearchFilter.addEventListener('input', ()=>{
+      state._auditSearch = auditSearchFilter.value || '';
+      renderAuditList();
+    });
+    const btnAuditDownload = $('btnAuditDownload');
+    if(btnAuditDownload) btnAuditDownload.addEventListener('click', downloadAuditCsv);
     const btnSnapshotsClose = $('btnSnapshotsClose');
     if(btnSnapshotsClose) btnSnapshotsClose.addEventListener('click', closeSnapshotsModal);
     const btnSnapshotBack = $('btnSnapshotBack');
@@ -10778,6 +11255,51 @@ function emptyStateHtml(){
 	    const btnOrderHistoryRefresh = $('btnOrderHistoryRefresh');
 	    if(btnOrderHistoryRefresh) btnOrderHistoryRefresh.addEventListener('click', refreshOrderHistory);
 
+    const btnShippingAddressClose = $('btnShippingAddressClose');
+    if(btnShippingAddressClose) btnShippingAddressClose.addEventListener('click', closeShippingAddressModal);
+    const btnShippingAddressNew = $('btnShippingAddressNew');
+    if(btnShippingAddressNew) btnShippingAddressNew.addEventListener('click', clearShippingAddressForm);
+    const btnShippingAddressSave = $('btnShippingAddressSave');
+    if(btnShippingAddressSave) btnShippingAddressSave.addEventListener('click', async ()=>{
+      setShippingAddressMessage('');
+      try{
+        await saveShippingAddress();
+        toast('Shipping address saved');
+      }catch(e){
+        setShippingAddressMessage(e && e.message ? e.message : 'Save failed');
+      }
+    });
+    const shippingAddressList = $('shippingAddressList');
+    if(shippingAddressList) shippingAddressList.addEventListener('click', async (e)=>{
+      const editBtn = e.target.closest('[data-shipping-edit]');
+      const delBtn = e.target.closest('[data-shipping-delete]');
+      if(editBtn){
+        const id = String(editBtn.getAttribute('data-shipping-edit') || '').trim();
+        const row = state._shippingAddressById && typeof state._shippingAddressById.get === 'function'
+          ? state._shippingAddressById.get(id)
+          : null;
+        if(!row) return;
+        state._shippingAddressEditing = id;
+        const label = $('shippingAddressLabel'); if(label) label.value = row.label || '';
+        const address = $('shippingAddressValue'); if(address) address.value = row.address || '';
+        const isDefault = $('shippingAddressDefault'); if(isDefault) isDefault.checked = !!row.is_default;
+        const title = $('shippingAddressFormTitle'); if(title) title.textContent = 'Edit Shipping Address';
+        return;
+      }
+      if(delBtn){
+        const id = String(delBtn.getAttribute('data-shipping-delete') || '').trim();
+        if(!id) return;
+        const ok = await openConfirmModal('Delete address?', 'Delete this shipping address?', { okText:'Delete', cancelText:'Cancel' });
+        if(!ok) return;
+        try{
+          await deleteShippingAddress(id);
+          toast('Shipping address deleted');
+        }catch(e){
+          toast(e && e.message ? e.message : 'Delete failed');
+        }
+      }
+    });
+
 	    const orderHistoryFilter = $('orderHistoryFilter');
 	    if(orderHistoryFilter){
 	      updateOrderHistoryFilterClearBtn();
@@ -10843,6 +11365,9 @@ function emptyStateHtml(){
 	          clearAllOrderLines();
 	          renderOrderResults();
 	          renderOrderLines();
+	          resetOrderIdentifiers();
+	          const companyPo = $('orderCompanyPoNumber'); if(companyPo) companyPo.value = '';
+	          const internalPo = $('orderInternalPoNumber'); if(internalPo) internalPo.value = orderState().internalPoNumber || '';
 	        }catch(e){}
 	        show('orderModal', false);
 	      }catch(e){
@@ -10906,11 +11431,26 @@ function emptyStateHtml(){
 	        hideOrderEmailSuggestions();
 	      }, 0);
 	    });
-	    const orderSubject = $('orderSubject');
-	    if(orderSubject) orderSubject.addEventListener('input', ()=>{
+	    const orderCompanyPoNumber = $('orderCompanyPoNumber');
+	    if(orderCompanyPoNumber) orderCompanyPoNumber.addEventListener('input', ()=>{
 	      const ord = orderState();
-	      ord.subject = orderSubject.value || '';
+	      ord.companyPoNumber = orderCompanyPoNumber.value || '';
+	      ord.subject = composeOrderSubject(ord);
+	      renderOrderPreview();
 	    });
+	    const orderShippingAddress = $('orderShippingAddress');
+	    if(orderShippingAddress) orderShippingAddress.addEventListener('change', ()=>{
+	      const ord = orderState();
+	      const selected = String(orderShippingAddress.value || '').trim();
+	      ord.shippingAddressId = selected;
+	      const row = state._shippingAddressById && typeof state._shippingAddressById.get === 'function'
+	        ? state._shippingAddressById.get(selected)
+	        : null;
+	      ord.shippingAddressSnapshot = row ? { label: row.label, address: row.address } : null;
+	      renderOrderPreview();
+	    });
+	    const btnOrderShippingManage = $('btnOrderShippingManage');
+	    if(btnOrderShippingManage) btnOrderShippingManage.addEventListener('click', openShippingAddressModal);
     const orderNotes = $('orderNotes');
     if(orderNotes) orderNotes.addEventListener('input', ()=>{
       const ord = orderState();

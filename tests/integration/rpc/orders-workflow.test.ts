@@ -239,6 +239,74 @@ describe('Orders: tier and permission enforcement', () => {
     expect(allowedInsert).toBeNull();
   });
 
+  it('enforces tier and permission gating for company shipping addresses', async () => {
+    await setCompanyTier(companyId, 'business');
+
+    const { data: addressRow, error: insertError } = await adminAuth
+      .from('company_shipping_addresses')
+      .insert({
+        company_id: companyId,
+        label: 'Main Warehouse',
+        address: '123 Main St\nCity, ST 12345',
+        is_default: true,
+        created_by: adminUserId
+      })
+      .select('id')
+      .single();
+    expect(insertError).toBeNull();
+    const addressId = String(addressRow?.id || '').trim();
+    expect(addressId).toBeTruthy();
+
+    const { error: memberInsertError } = await memberAuth
+      .from('company_shipping_addresses')
+      .insert({
+        company_id: companyId,
+        label: 'Member Address',
+        address: '456 Side St\nCity, ST 12345'
+      });
+    expect(memberInsertError).not.toBeNull();
+
+    const { data: viewerRows, error: viewerSelectError } = await viewerAuth
+      .from('company_shipping_addresses')
+      .select('id')
+      .eq('company_id', companyId);
+    expect(viewerSelectError).toBeNull();
+    expect((viewerRows || []).length).toBeGreaterThan(0);
+
+    await setCompanyTier(companyId, 'starter');
+    const { data: deniedRows, error: deniedRowsError } = await adminAuth
+      .from('company_shipping_addresses')
+      .select('id')
+      .eq('company_id', companyId);
+    expect(deniedRowsError).toBeNull();
+    expect(deniedRows || []).toHaveLength(0);
+
+    await setCompanyTier(companyId, 'business');
+    const { error: memberUpdateError } = await memberAuth
+      .from('company_shipping_addresses')
+      .update({ label: 'Updated Warehouse' })
+      .eq('id', addressId);
+    expect(memberUpdateError).not.toBeNull();
+
+    const { error: adminUpdateError } = await adminAuth
+      .from('company_shipping_addresses')
+      .update({ label: 'Updated Warehouse' })
+      .eq('id', addressId);
+    expect(adminUpdateError).toBeNull();
+
+    const { error: viewerDeleteError } = await viewerAuth
+      .from('company_shipping_addresses')
+      .delete()
+      .eq('id', addressId);
+    expect(viewerDeleteError).not.toBeNull();
+
+    const { error: adminDeleteError } = await adminAuth
+      .from('company_shipping_addresses')
+      .delete()
+      .eq('id', addressId);
+    expect(adminDeleteError).toBeNull();
+  });
+
   it('requires Business tier for send-order endpoint', async () => {
     await setCompanyTier(companyId, 'starter');
     const { data: sessionData } = await adminAuth.auth.getSession();

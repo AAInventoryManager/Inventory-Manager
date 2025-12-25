@@ -11,7 +11,7 @@ const corsHeaders = {
 };
 
 type AuthResult =
-  | { ok: true; companyId: string }
+  | { ok: true; companyId: string; companyName: string; userEmail: string }
   | { ok: false; status: number; error: string };
 
 function getSupabaseClient(token: string) {
@@ -50,6 +50,7 @@ async function authorizeRequest(req: Request, body: Record<string, unknown>): Pr
   if (userError || !userData?.user) {
     return { ok: false, status: 401, error: "Invalid or expired JWT token" };
   }
+  const userEmail = String(userData.user.email || "").trim();
 
   let companyId = String(body?.company_id || body?.companyId || "").trim();
   if (!companyId) {
@@ -90,7 +91,20 @@ async function authorizeRequest(req: Request, body: Record<string, unknown>): Pr
     return { ok: false, status: 403, error: "Permission denied" };
   }
 
-  return { ok: true, companyId };
+  const { data: company, error: companyError } = await supabase
+    .from("companies")
+    .select("name")
+    .eq("id", companyId)
+    .maybeSingle();
+  if (companyError) {
+    return { ok: false, status: 500, error: "Failed to load company" };
+  }
+  const companyName = String(company?.name || "").trim();
+  if (!companyName) {
+    return { ok: false, status: 400, error: "Company name is required" };
+  }
+
+  return { ok: true, companyId, companyName, userEmail };
 }
 
 function looksLikeEmail(email: string): boolean {
@@ -190,7 +204,7 @@ serve(async (req) => {
     const subject = String(body?.subject || "Material Order").trim();
     const text = String(body?.text || body?.body || "").trim();
     const html = String(body?.html || "").trim();
-    const replyTo = String(body?.replyTo || body?.reply_to || "").trim();
+    const replyTo = auth.userEmail;
 
     // Validation
     if (!looksLikeEmail(to)) {

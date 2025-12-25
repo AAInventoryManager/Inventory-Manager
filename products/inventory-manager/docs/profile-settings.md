@@ -12,7 +12,7 @@ Profile Settings lets users manage their personal information, notification pref
 - Enterprise
 
 ## How It Works
-- Update your name, phone number, and delivery address.
+- Update your name and phone number.
 - Configure low stock preferences (global threshold and alert visibility).
 - Change your password from within the app.
 

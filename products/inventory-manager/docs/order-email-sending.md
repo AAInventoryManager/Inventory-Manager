@@ -10,9 +10,11 @@ Order Email Sending delivers the order content from the Order Builder to a recip
 - Enterprise
 
 ## How It Works
-- Provide a recipient email, subject, and optional notes.
-- The system sends the order summary as a formatted email.
-- A reply-to address is set to the signed-in user when available.
+- Provide a recipient email and optional notes.
+- The subject is generated as: `Purchase Order <Company PO Number or Internal PO ID> - <Company Name>`.
+- The company name must be set to send; the system blocks sends when it is missing.
+- The email includes the selected shipping address snapshot and order line items.
+- A reply-to address is set to the signed-in user's email.
 
 ## Limitations
 - Delivery depends on the configured email provider.

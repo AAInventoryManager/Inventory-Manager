@@ -22,6 +22,11 @@
 - [inventory.orders.history] Added order history documentation and Business-tier enforcement.
 - [inventory.orders.recipients] Added order recipient documentation and Business-tier enforcement.
 - [inventory.orders.trash] Enforced Business tier and permission checks for order delete/restore.
+- [inventory.orders.cart] Added company-managed shipping addresses and PO identifiers to order builder.
+- [inventory.orders.email_send] Enforced PO-based subject format, sender reply-to, and company name requirement.
+- [inventory.orders.history] Persisted PO identifiers and shipping address snapshots in order history and export.
+- [inventory.audit.log] Added collapsed entries, free-text filtering, and CSV export.
+- [inventory.auth.profile_settings] Removed delivery address from profile settings.
 - [inventory.inventory.core] Enforced inventory CRUD permissions and documented core workflows.
 - [inventory.inventory.batch_edit] Documented batch edit behavior for inventory updates.
 - [inventory.inventory.import_export] Enforced Professional tier for bulk import/export and documented behavior.

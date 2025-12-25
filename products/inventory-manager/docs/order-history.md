@@ -11,7 +11,7 @@ Order History provides a record of submitted orders, including their contents an
 
 ## How It Works
 - Submitted orders are listed chronologically.
-- Users can view order details and notes.
+- Users can view order details, including Company PO Number, Internal PO ID, and selected shipping address.
 - Receiving actions update inventory when enabled.
 
 ## Limitations
