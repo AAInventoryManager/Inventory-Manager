@@ -7,7 +7,7 @@ import {
   TEST_PASSWORD
 } from '../../setup/test-utils';
 
-type Tier = 'starter' | 'professional' | 'business' | 'enterprise';
+type Tier = 'starter' | 'professional' | 'business' | 'enterprise' | string;
 
 const uniqueSuffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
@@ -224,6 +224,39 @@ describe('Inventory core enforcement', () => {
     );
     expect(allowedImportError).toBeNull();
     expect(allowedImport?.success).toBe(true);
+  });
+
+  it('denies bulk import without permission at Professional tier', async () => {
+    await setCompanyTier(companyId, 'professional');
+    const { data, error } = await viewerAuth.rpc('bulk_upsert_inventory_items', {
+      p_company_id: companyId,
+      p_items: [{ name: `Viewer Import ${uniqueSuffix}`, desc: 'Denied', qty: 2 }]
+    });
+    expect(error).toBeNull();
+    expect(data?.success).toBe(false);
+    expect(String(data?.error || '')).toMatch(/permission/i);
+  });
+
+  it('defaults invalid tier to Starter for import and export', async () => {
+    await setCompanyTier(companyId, 'invalid-tier');
+
+    const { data: deniedImport, error: deniedImportError } = await adminAuth.rpc(
+      'bulk_upsert_inventory_items',
+      {
+        p_company_id: companyId,
+        p_items: [{ name: `Invalid Tier ${uniqueSuffix}`, desc: 'Denied', qty: 1 }]
+      }
+    );
+    expect(deniedImportError).toBeNull();
+    expect(deniedImport?.success).toBe(false);
+    expect(String(deniedImport?.error || '')).toMatch(/plan/i);
+
+    const { data: deniedExport, error: deniedExportError } = await viewerAuth.rpc(
+      'export_inventory_items',
+      { p_company_id: companyId }
+    );
+    expect(deniedExportError).toBeNull();
+    expect((deniedExport || []).length).toBe(0);
   });
 
   it('restricts export to Professional tier', async () => {
