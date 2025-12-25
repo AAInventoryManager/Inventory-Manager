@@ -3555,8 +3555,8 @@
     function canItemsEdit(){ return hasPermission(PERMISSIONS.ITEMS_EDIT); }
     function canItemsDelete(){ return hasPermission(PERMISSIONS.ITEMS_DELETE); }
     function canItemsRestore(){ return hasPermission(PERMISSIONS.ITEMS_RESTORE); }
-    function canItemsExport(){ return hasPermission(PERMISSIONS.ITEMS_EXPORT); }
-    function canItemsImport(){ return hasPermission(PERMISSIONS.ITEMS_IMPORT); }
+    function canItemsExport(){ return hasTier('professional') && hasPermission(PERMISSIONS.ITEMS_EXPORT); }
+    function canItemsImport(){ return hasTier('professional') && hasPermission(PERMISSIONS.ITEMS_IMPORT); }
     function canOrdersView(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_VIEW); }
     function canOrdersCreate(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_CREATE); }
     function canOrdersEdit(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_EDIT); }
@@ -5881,60 +5881,31 @@
     async function sbUpsertMany(rows){
       if(!canItemsImport()) throw Error('Permission denied');
       if(!SB.companyId) throw Error('Company not selected');
-      // Load existing rows to build a case-insensitive index by name
-      const { data: existing, error: selErr } = await SB.client
-        .from('inventory_items')
-        .select('id,name,description,quantity')
-        .eq('company_id', SB.companyId)
-        .is('deleted_at', null);
-      if (selErr) throw selErr;
+      const payload = (Array.isArray(rows) ? rows : [])
+        .map(r => ({
+          name: String(r && r.name ? r.name : '').trim(),
+          desc: String(r && r.desc ? r.desc : '').trim(),
+          qty: toInt(r && r.qty ? r.qty : 0, 0),
+        }))
+        .filter(r => r.name);
+      if(!payload.length) throw Error('No valid rows to import');
 
-      const idx = new Map((existing||[]).map(it => [toKey(it.name), it]));
-      const toInsert = [];
-      const toUpdate = [];
-
-      for (const r of rows){
-        const k = toKey(r.name); if (!k) continue;
-        const ex = idx.get(k);
-        const name = String(r.name||'').trim();
-        const description = String(r.desc||'').trim();
-        const qty = toInt(r.qty,0);
-
-        if (!ex){
-          toInsert.push({
-            company_id: SB.companyId,
-            name,
-            description,
-            quantity: qty,
-            reorder_enabled: true,
-            created_by: SB.user ? SB.user.id : null,
-          });
-        } else {
-          toUpdate.push({
-            id: ex.id,
-            company_id: SB.companyId,
-            name,
-            description: (description || ex.description || ''),
-            quantity: qty,
-          });
-        }
+      const { data, error } = await SB.client.rpc('bulk_upsert_inventory_items', {
+        p_company_id: SB.companyId,
+        p_items: payload,
+      });
+      if(error) throw error;
+      if(data && data.success === false){
+        throw new Error(data.error || 'Import failed');
       }
+    }
 
-      if (toInsert.length){
-        const { error: insErr } = await SB.client.from('inventory_items').insert(toInsert);
-        if (insErr) throw insErr;
-      }
-      // Upsert updates by primary key id (safe and efficient)
-      if (toUpdate.length){
-        // Chunk to avoid payload limits
-        const chunks = [];
-        const size = 500;
-        for (let i=0;i<toUpdate.length;i+=size) chunks.push(toUpdate.slice(i, i+size));
-        for (const part of chunks){
-          const { error: upErr } = await SB.client.from('inventory_items').upsert(part, { onConflict: 'id' });
-          if (upErr) throw upErr;
-        }
-      }
+    async function sbExportItems(){
+      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) throw new Error('Not authorized');
+      if(!canItemsExport()) throw new Error('Export permission required');
+      const { data, error } = await SB.client.rpc('export_inventory_items', { p_company_id: SB.companyId });
+      if(error) throw error;
+      return Array.isArray(data) ? data : [];
     }
 
     // ========================
@@ -8037,7 +8008,10 @@ function emptyStateHtml(){
     $('menuImport').addEventListener('click', ()=> {
       toggleMenu(false);
       if(!requireOnline()) return;
-      if(!canItemsImport()){ toast('Bulk import requires import permission'); return; }
+      if(!canItemsImport()){
+        toast(hasTier('professional') ? 'Bulk import requires import permission' : 'Bulk import requires Professional tier');
+        return;
+      }
       $('#fileImport').click();
     });
     $('#fileImport').addEventListener('change', async ev=>{
@@ -8048,14 +8022,20 @@ function emptyStateHtml(){
     $('menuPaste').addEventListener('click', ()=>{
       toggleMenu(false);
       if(!requireOnline()) return;
-      if(!canItemsImport()){ toast('Bulk paste requires import permission'); return; }
+      if(!canItemsImport()){
+        toast(hasTier('professional') ? 'Bulk paste requires import permission' : 'Bulk paste requires Professional tier');
+        return;
+      }
       $('#pasteArea').value='';
       show('pasteModal', true);
     });
     $('btnPasteCancel').addEventListener('click', ()=> show('pasteModal', false));
     $('btnPasteApply').addEventListener('click', ()=>{
       if(!requireOnline()) return;
-      if(!canItemsImport()){ toast('Bulk paste requires import permission'); return; }
+      if(!canItemsImport()){
+        toast(hasTier('professional') ? 'Bulk paste requires import permission' : 'Bulk paste requires Professional tier');
+        return;
+      }
       const text=$('#pasteArea').value||''; if(!text.trim()){ toast('Nothing to import'); return; }
       const rows=parseDelimitedSmart(text); const items=rowsToItems(rows);
       if(!items.length){ toast('Could not detect headers or rows'); return; }
@@ -8069,7 +8049,10 @@ function emptyStateHtml(){
     drop.addEventListener('drop', async e=>{
       e.preventDefault(); drop.style.background='';
       if(!requireOnline()) return;
-      if(!canItemsImport()){ toast('Bulk import requires import permission'); return; }
+      if(!canItemsImport()){
+        toast(hasTier('professional') ? 'Bulk import requires import permission' : 'Bulk import requires Professional tier');
+        return;
+      }
       const f=e.dataTransfer.files[0]; if(f) await handleFile(f);
     });
 
@@ -8077,7 +8060,10 @@ function emptyStateHtml(){
 
     async function handleFile(f){
       if(!requireOnline()) return;
-      if(!canItemsImport()){ toast('Bulk import requires import permission'); return; }
+      if(!canItemsImport()){
+        toast(hasTier('professional') ? 'Bulk import requires import permission' : 'Bulk import requires Professional tier');
+        return;
+      }
       try{
         const items=await parseAnyFile(f);
         if(!items.length){ toast('No rows found in file'); return; }
@@ -8134,12 +8120,24 @@ function emptyStateHtml(){
 
 	    $('menuExport').addEventListener('click', ()=>{
 	      toggleMenu(false);
-	      if(!canItemsExport()){ toast('Export permission required'); return; }
-	      const rows=[["Item","Description","Qty"]];
-	      for(const it of state.items){ rows.push([it.name||'', it.desc||'', String(toInt(it.qty,0))]); }
-	      const csv = rows.map(r=> r.map(v=> '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
-	      const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
-	      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='inventory.csv'; a.click(); URL.revokeObjectURL(url);
+	      if(!requireOnline()) return;
+	      if(!canItemsExport()){
+	        toast(hasTier('professional') ? 'Export permission required' : 'Export requires Professional tier');
+	        return;
+	      }
+	      (async ()=>{
+	        try{
+	          const items = await sbExportItems();
+	          if(!items.length){ toast('No items to export'); return; }
+	          const rows=[["Item","Description","Qty"]];
+	          for(const it of items){ rows.push([it.name||'', it.description||'', String(toInt(it.quantity,0))]); }
+	          const csv = rows.map(r=> r.map(v=> '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+	          const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+	          const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='inventory.csv'; a.click(); URL.revokeObjectURL(url);
+	        }catch(e){
+	          toast(e && e.message ? e.message : 'Export failed');
+	        }
+	      })();
 	    });
 
 			    // ========================

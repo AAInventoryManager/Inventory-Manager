@@ -9,6 +9,7 @@ Pricing amounts are defined externally.
 
 - Core inventory table
 - Inline editing
+- Batch edits and trash restore
 - Inventory report (CSV/email)
 - Self-serve usage only
 - No human support guaranteed
@@ -17,7 +18,7 @@ Pricing amounts are defined externally.
 
 ## Professional
 
-- Advanced imports (CSV, XLSX, DOCX)
+- Bulk import/export (CSV, XLSX, DOCX)
 - Metrics Dashboard
 - Low stock API
 - Email support (best effort)

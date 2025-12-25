@@ -22,6 +22,10 @@
 - [inventory.orders.history] Added order history documentation and Business-tier enforcement.
 - [inventory.orders.recipients] Added order recipient documentation and Business-tier enforcement.
 - [inventory.orders.trash] Enforced Business tier and permission checks for order delete/restore.
+- [inventory.inventory.core] Enforced inventory CRUD permissions and documented core workflows.
+- [inventory.inventory.batch_edit] Documented batch edit behavior for inventory updates.
+- [inventory.inventory.import_export] Enforced Professional tier for bulk import/export and documented behavior.
+- [inventory.inventory.trash] Enforced inventory trash permissions and documented restore flow.
 
 ## v1.0.2 — UI polish, sorting, PWA
 - Header alignment: title/status left, logo right; constrained to table width
