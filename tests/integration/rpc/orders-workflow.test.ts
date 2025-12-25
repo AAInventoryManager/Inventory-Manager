@@ -57,6 +57,22 @@ async function setCompanyTier(companyId: string, tier: Tier) {
   if (updateError) throw updateError;
 }
 
+async function setRolePermission(roleName: string, permissionKey: string, value: boolean) {
+  const { data, error } = await adminClient
+    .from('role_configurations')
+    .select('permissions')
+    .eq('role_name', roleName)
+    .single();
+  if (error) throw error;
+  const permissions = data?.permissions && typeof data.permissions === 'object' ? data.permissions : {};
+  const nextPermissions = { ...permissions, [permissionKey]: value };
+  const { error: updateError } = await adminClient
+    .from('role_configurations')
+    .update({ permissions: nextPermissions, updated_at: new Date().toISOString() })
+    .eq('role_name', roleName);
+  if (updateError) throw updateError;
+}
+
 describe('Orders: tier and permission enforcement', () => {
   let companyId: string;
   let orderId: string;
@@ -240,6 +256,8 @@ describe('Orders: tier and permission enforcement', () => {
   });
 
   it('enforces tier and permission gating for company shipping addresses', async () => {
+    await setRolePermission('admin', 'orders:manage_shipping', true);
+    await setRolePermission('member', 'orders:manage_shipping', false);
     await setCompanyTier(companyId, 'business');
 
     const { data: addressRow, error: insertError } = await adminAuth
@@ -282,29 +300,37 @@ describe('Orders: tier and permission enforcement', () => {
     expect(deniedRows || []).toHaveLength(0);
 
     await setCompanyTier(companyId, 'business');
-    const { error: memberUpdateError } = await memberAuth
+    const { data: memberUpdateRows, error: memberUpdateError } = await memberAuth
       .from('company_shipping_addresses')
       .update({ label: 'Updated Warehouse' })
-      .eq('id', addressId);
-    expect(memberUpdateError).not.toBeNull();
+      .eq('id', addressId)
+      .select('id');
+    expect(memberUpdateError).toBeNull();
+    expect(memberUpdateRows || []).toHaveLength(0);
 
-    const { error: adminUpdateError } = await adminAuth
+    const { data: adminUpdateRows, error: adminUpdateError } = await adminAuth
       .from('company_shipping_addresses')
       .update({ label: 'Updated Warehouse' })
-      .eq('id', addressId);
+      .eq('id', addressId)
+      .select('id');
     expect(adminUpdateError).toBeNull();
+    expect((adminUpdateRows || []).length).toBe(1);
 
-    const { error: viewerDeleteError } = await viewerAuth
+    const { data: viewerDeleteRows, error: viewerDeleteError } = await viewerAuth
       .from('company_shipping_addresses')
       .delete()
-      .eq('id', addressId);
-    expect(viewerDeleteError).not.toBeNull();
+      .eq('id', addressId)
+      .select('id');
+    expect(viewerDeleteError).toBeNull();
+    expect(viewerDeleteRows || []).toHaveLength(0);
 
-    const { error: adminDeleteError } = await adminAuth
+    const { data: adminDeleteRows, error: adminDeleteError } = await adminAuth
       .from('company_shipping_addresses')
       .delete()
-      .eq('id', addressId);
+      .eq('id', addressId)
+      .select('id');
     expect(adminDeleteError).toBeNull();
+    expect((adminDeleteRows || []).length).toBe(1);
   });
 
   it('requires Business tier for send-order endpoint', async () => {
