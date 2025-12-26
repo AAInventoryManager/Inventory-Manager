@@ -146,16 +146,35 @@ describe('RPC: role & access control enforcement', () => {
 
   it('allows super users to update role configurations regardless of tier', async () => {
     await setCompanyTier(companyId, 'starter');
+    const { data: beforeRow, error: beforeError } = await adminClient
+      .from('role_configurations')
+      .select('updated_at, updated_by')
+      .eq('role_name', 'viewer')
+      .single();
+    if (beforeError) throw beforeError;
+
+    const updatePayload = { updated_at: new Date().toISOString(), updated_by: superUserId };
     const { data: allowedRows, error: allowed } = await superClientAuth
       .from('role_configurations')
-      .update({ updated_at: new Date().toISOString(), updated_by: superUserId })
+      .update(updatePayload)
       .eq('role_name', 'viewer')
       .select('role_name');
     if (allowed) {
       expect(String(allowed.message || '')).toMatch(/permission|policy|denied/i);
       return;
     }
-    expect((allowedRows || []).length).toBe(1);
+    if ((allowedRows || []).length === 1) return;
+
+    const { data: afterRow, error: afterError } = await adminClient
+      .from('role_configurations')
+      .select('updated_at, updated_by')
+      .eq('role_name', 'viewer')
+      .single();
+    if (afterError) throw afterError;
+    expect(afterRow?.updated_by).toBe(superUserId);
+    expect(new Date(afterRow?.updated_at || 0).getTime()).toBeGreaterThan(
+      new Date(beforeRow?.updated_at || 0).getTime()
+    );
   });
 
   it('enforces tier gating on invitations and acceptance', async () => {
