@@ -1,4 +1,4 @@
-import { parse } from 'https://deno.land/std@0.177.0/yaml/mod.ts';
+import { parse } from 'https://deno.land/std@0.224.0/yaml/mod.ts';
 import type { MetricDefinition } from './types.ts';
 
 export async function loadMetricDefinitionsFromDirectory(

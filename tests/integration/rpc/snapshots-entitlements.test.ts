@@ -59,7 +59,8 @@ describe('Snapshots entitlement enforcement', () => {
       .insert({
         name: 'Snapshots Test',
         slug,
-        settings: { test: true, tier: 'business' }
+        settings: { test: true, tier: 'business' },
+        company_type: 'test'
       })
       .select()
       .single();

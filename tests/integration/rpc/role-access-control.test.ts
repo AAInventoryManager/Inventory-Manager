@@ -99,7 +99,8 @@ describe('RPC: role & access control enforcement', () => {
       .insert({
         name: 'Role Access Test',
         slug,
-        settings: { test: true, tier: 'business' }
+        settings: { test: true, tier: 'business' },
+        company_type: 'test'
       })
       .select()
       .single();

@@ -2071,6 +2071,121 @@
     .profile-info{padding:12px 16px}
     .profile-email{font-weight:600;font-size:14px;color:var(--fg);margin-bottom:4px;word-break:break-all}
     .profile-connection{font-size:12px;color:var(--muted)}
+    .env-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      border:1px solid transparent;
+      color:#0c1220;
+      background:#9fb3c8;
+      white-space:nowrap;
+    }
+    .env-badge.env-production{background:#22c55e;color:#072215;border-color:#1a8b42}
+    .env-badge.env-sandbox{background:#f59e0b;color:#2a1b00;border-color:#b27307}
+    .env-badge.env-test{background:#ef4444;color:#2b0c0c;border-color:#b91c1c}
+    .env-badge.env-system{background:#38bdf8;color:#04212c;border-color:#0ea5e9}
+    .profile-env-badge{
+      font-size:9px;
+      padding:2px 6px;
+      border-radius:999px;
+    }
+    .profile-env-badge.hidden{display:none}
+    .advanced-switcher-controls{
+      display:grid;
+      grid-template-columns:2fr 1fr;
+      gap:10px;
+    }
+    .advanced-switcher-controls .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .advanced-switcher-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      justify-content:flex-end;
+      margin-top:8px;
+    }
+    .advanced-switcher-results{
+      margin-top:10px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      max-height:320px;
+      overflow:auto;
+      background:#121820;
+    }
+    .advanced-switcher-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+    .advanced-switcher-table th,.advanced-switcher-table td{
+      text-align:left;
+      padding:8px 10px;
+      border-bottom:1px solid var(--border);
+      vertical-align:middle;
+    }
+    .advanced-switcher-table th{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+    .advanced-switcher-id{font-size:11px;color:var(--muted);word-break:break-all}
+    .advanced-switcher-row-actions{display:flex;gap:6px}
+    .advanced-switcher-hint{margin-top:6px;font-size:12px;color:var(--muted)}
+    .diag-section{margin-top:10px}
+    .diag-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+    .diag-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+    .diag-table th,.diag-table td{
+      text-align:left;
+      padding:8px 10px;
+      border-bottom:1px solid var(--border);
+      vertical-align:middle;
+    }
+    .diag-table th{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+    .diag-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      border:1px solid transparent;
+      white-space:nowrap;
+    }
+    .diag-badge.pass{background:#12361f;color:#9ff5bf;border-color:#1b5d35}
+    .diag-badge.fail{background:#3a1515;color:#ffb4b4;border-color:#7a1f1f}
+    .diag-output{
+      margin-top:8px;
+      background:#0f141b;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:10px;
+      font-size:12px;
+      color:#dbe5f0;
+      max-height:240px;
+      overflow:auto;
+      white-space:pre-wrap;
+    }
+    @media (max-width: 720px){
+      .advanced-switcher-controls{
+        grid-template-columns:1fr;
+      }
+      .advanced-switcher-actions{
+        justify-content:flex-start;
+      }
+    }
     .profile-dropdown .menu-item{
       display:flex;align-items:center;gap:10px;width:100%;
       padding:12px 16px;border:none;background:transparent;
@@ -2316,6 +2431,7 @@
         <div class="profile-menu">
           <button class="profile-btn" id="profileBtn" aria-label="Account menu" aria-expanded="false">
             <span class="profile-status" id="profileStatus"></span>
+            <span class="env-badge profile-env-badge hidden" id="profileEnvBadge">Production</span>
             <svg class="profile-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           </button>
           <div class="profile-dropdown" id="profileDropdown">
@@ -2334,6 +2450,14 @@
               <div class="profile-company-hint" id="profileRoleTestingHint"></div>
             </div>
             <div class="menu-divider" id="profileCompanyDivider"></div>
+            <button class="menu-item" id="openAdvancedCompanySwitcher">
+              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <span>Advanced Company Switcher</span>
+            </button>
+            <button class="menu-item" id="openDiagnostics">
+              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
+              <span>Diagnostics</span>
+            </button>
             <button class="menu-item" id="openProfileSettings">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
               <span>Profile Settings</span>
@@ -3297,6 +3421,95 @@
     </div>
   </div>
 
+  <!-- Advanced company switcher (super user only) -->
+  <div id="advancedCompanyModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <h2 style="margin:0 0 10px;font-size:16px;">Advanced Company Switcher</h2>
+      <div class="muted" style="margin-bottom:10px;">Super-user only. Switching here does not change your default company.</div>
+      <div class="advanced-switcher-controls">
+        <div class="field">
+          <label class="muted" for="advancedCompanySearch">Search</label>
+          <input id="advancedCompanySearch" type="text" placeholder="Company name or exact company ID" />
+        </div>
+        <div class="field">
+          <label class="muted" for="advancedCompanyTypeFilter">Environment</label>
+          <select id="advancedCompanyTypeFilter">
+            <option value="production" selected>Production</option>
+            <option value="sandbox">Sandbox</option>
+            <option value="test">Test</option>
+            <option value="system">System</option>
+            <option value="">All</option>
+          </select>
+        </div>
+      </div>
+      <div class="advanced-switcher-actions">
+        <button class="btn" id="advancedCompanySearchBtn" type="button">Search</button>
+        <button class="btn" id="advancedCompanyReturnBtn" type="button">Return to Production</button>
+      </div>
+      <div id="advancedCompanyResults" class="advanced-switcher-results"></div>
+      <div id="advancedCompanyMsg" class="advanced-switcher-hint"></div>
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <button class="btn" id="advancedCompanyClose" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Diagnostics modal (super user only) -->
+  <div id="diagnosticsModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <h2 style="margin:0 0 6px;font-size:16px;">Diagnostics</h2>
+      <div class="muted" style="margin-bottom:10px;">Simulation and inspection only. No data writes.</div>
+      <div class="diag-section">
+        <div class="role-request-title">Role & Tier Simulation</div>
+        <div class="muted" style="margin-bottom:6px;">Session-scoped only. Does not affect backend authorization.</div>
+        <label class="muted" for="diagRoleSelect">Simulated Role</label>
+        <select id="diagRoleSelect">
+          <option value="">Use current role</option>
+          <option value="super_user">super_user</option>
+          <option value="admin">admin</option>
+          <option value="member">member</option>
+          <option value="viewer">viewer</option>
+        </select>
+        <label class="muted" for="diagTierSelect" style="margin-top:8px;">Simulated Subscription Tier</label>
+        <select id="diagTierSelect">
+          <option value="">Use current tier</option>
+          <option value="starter">Starter</option>
+          <option value="professional">Professional</option>
+          <option value="business">Business</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+        <div class="diag-actions">
+          <button class="btn" id="diagApply" type="button">Apply Simulation</button>
+          <button class="btn" id="diagReset" type="button">Reset Simulation</button>
+        </div>
+        <div id="diagSimMsg" class="muted"></div>
+      </div>
+      <div class="section-divider"></div>
+      <div class="diag-section">
+        <div class="role-request-title">Enforcement Inspection</div>
+        <div id="diagChecks"></div>
+      </div>
+      <div class="section-divider"></div>
+      <div class="diag-section">
+        <div class="role-request-title">Metric Preview (Read-Only)</div>
+        <label class="muted" for="diagMetricId">Metric ID</label>
+        <input id="diagMetricId" type="text" placeholder="INVENTORY_TURNOVER" />
+        <label class="muted" for="diagMetricContext" style="margin-top:8px;">Time Context (JSON)</label>
+        <textarea id="diagMetricContext" rows="3" placeholder='{"period_start":"2025-01-01","period_end":"2025-01-31"}'></textarea>
+        <label class="muted" for="diagMetricInputs" style="margin-top:8px;">Inputs (JSON)</label>
+        <textarea id="diagMetricInputs" rows="4" placeholder='{"COGS":100000,"AverageInventory":50000}'></textarea>
+        <div class="diag-actions">
+          <div class="muted" id="diagMetricTierHint"></div>
+          <button class="btn" id="diagMetricRun" type="button">Run Preview</button>
+        </div>
+        <pre id="diagMetricOutput" class="diag-output"></pre>
+      </div>
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <button class="btn" id="diagClose" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
 	  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script type="module" src="./src/utils.js"></script>
@@ -3387,7 +3600,14 @@
       _impersonationRole:'super_user',
       _impersonationPermissions:null,
       _tierDetails:null,
-      _tierDetailsCompanyId:null
+      _tierDetailsCompanyId:null,
+      _advancedCompanies:[],
+      _advancedSearch:'',
+      _advancedType:'production',
+      _defaultCompanyId:null,
+      _diagRole:'',
+      _diagTier:'',
+      _diagPermissions:null
     };
     const APP_VERSION = '2.0.0';
 
@@ -3530,6 +3750,7 @@
         const id = String(companyId || '').trim();
         if(!id) return;
         localStorage.setItem(getCompanyStorageKey(), id);
+        state._defaultCompanyId = id;
       }catch(e){}
     }
     async function sbLoadCompanies(){
@@ -3537,7 +3758,7 @@
       SB.companyId = null;
       SB.company = null;
       if(!SB.ready || !SB.user) return null;
-      const { data, error } = await SB.client.rpc('get_my_companies');
+      const { data, error } = await SB.client.rpc('get_my_companies', { p_include_non_production: false });
       if(error) throw error;
       const rows = Array.isArray(data) ? data : [];
       SB.companies = rows;
@@ -3545,6 +3766,7 @@
       if(selected && !rows.some(r => String(r.company_id) === String(selected))) selected = null;
       if(!selected && rows.length) selected = rows[0].company_id;
       SB.companyId = selected ? String(selected) : null;
+      state._defaultCompanyId = SB.companyId ? String(SB.companyId) : null;
       SB.company = SB.companyId ? rows.find(r => String(r.company_id) === String(SB.companyId)) || null : null;
       SB.companyTier = SB.company ? getCompanyTier() : null;
       if(SB.companyId) saveCompanyId(SB.companyId);
@@ -3609,6 +3831,7 @@
       }
 
       if(statusEl) statusEl.classList.remove('online','offline','warning');
+      renderCompanyEnvBadge();
 
       if(!SB.ready){
         if(emailEl) emailEl.textContent = 'Not configured';
@@ -3801,6 +4024,8 @@
       renderRoleTestingSwitcher();
       renderInviteUi();
       renderRoleRequestUi();
+      renderAdvancedCompanySwitcherButton();
+      renderDiagnosticsButton();
       renderRoleRequestsAdminButton();
       renderRoleManagerButton();
       renderUserMgmtButton();
@@ -4542,6 +4767,22 @@
       btn.disabled = !allow;
       btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
     }
+    function renderAdvancedCompanySwitcherButton(){
+      const btn = $('openAdvancedCompanySwitcher');
+      if(!btn) return;
+      const allow = !!(SB.session && isEffectiveSuperUser());
+      btn.style.display = allow ? '' : 'none';
+      btn.disabled = !allow;
+      btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
+    }
+    function renderDiagnosticsButton(){
+      const btn = $('openDiagnostics');
+      if(!btn) return;
+      const allow = !!(SB.session && isEffectiveSuperUser());
+      btn.style.display = allow ? '' : 'none';
+      btn.disabled = !allow;
+      btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
+    }
     function renderUserMgmtControls(){
       const controls = $('userMgmtControls');
       const select = $('userMgmtCompany');
@@ -4983,6 +5224,8 @@
 	      }
       setProfileMessage(note);
       renderCompanySwitcher();
+      renderAdvancedCompanySwitcherButton();
+      renderDiagnosticsButton();
       renderInviteUi();
       renderRoleRequestUi();
       renderRoleRequestsAdminButton();
@@ -5034,20 +5277,492 @@
 	        select.selectedIndex = 0;
 	      }
 	      select.disabled = rows.length <= 1;
-	      if(hint){
-	        const selectedId = String(select.value || '').trim();
-	        const currentRow = rows.find(r => String(r.company_id) === selectedId) || null;
-	        const role = currentRow ? String(currentRow.my_role || (currentRow.is_super_user ? 'super_user' : '')).trim() : '';
-	        if(role && role !== 'super_user'){
-	          hint.textContent = `Role: ${role}`;
-	        }else if(rows.length <= 1){
-	          hint.textContent = 'Only one company assigned.';
-	        }else{
-	          hint.textContent = '';
-	        }
-	      }
+      if(hint){
+        const currentRow = rows.find(r => String(r.company_id) === String(SB.companyId || '')) || null;
+        const role = currentRow ? String(currentRow.my_role || (currentRow.is_super_user ? 'super_user' : '')).trim() : '';
+        const currentType = normalizeCompanyType(SB.company && SB.company.company_type);
+        if(!currentRow && SB.companyId && currentType !== 'production'){
+          hint.textContent = `Advanced switcher active · ${formatCompanyTypeLabel(currentType)}`;
+        }else if(role && role !== 'super_user'){
+          hint.textContent = `Role: ${role}`;
+        }else if(rows.length <= 1){
+          hint.textContent = 'Only one company assigned.';
+        }else{
+          hint.textContent = '';
+        }
+      }
       renderRoleTestingSwitcher();
 	    }
+    function setAdvancedCompanyMessage(msg){
+      const el = $('advancedCompanyMsg');
+      if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function getDefaultProductionCompanyId(){
+      const rows = Array.isArray(SB.companies) ? SB.companies : [];
+      const preferred = state._defaultCompanyId ? String(state._defaultCompanyId) : '';
+      if(preferred && rows.some(r => String(r.company_id) === preferred)){
+        return preferred;
+      }
+      if(rows.length) return String(rows[0].company_id || '');
+      return '';
+    }
+    function renderAdvancedCompanyActions(){
+      const btn = $('advancedCompanyReturnBtn');
+      if(!btn) return;
+      const defaultId = getDefaultProductionCompanyId();
+      const allow = !!(defaultId && String(SB.companyId || '') !== defaultId);
+      btn.disabled = !allow;
+      btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
+    }
+    function renderAdvancedCompanyResults(){
+      const container = $('advancedCompanyResults');
+      if(!container) return;
+      const rows = Array.isArray(state._advancedCompanies) ? state._advancedCompanies : [];
+      if(!rows.length){
+        container.innerHTML = '<div class="trash-empty">No companies found.</div>';
+        return;
+      }
+      const header = '<thead><tr><th>Company</th><th>Environment</th><th>Members</th><th>Action</th></tr></thead>';
+      const body = rows.map(row => {
+        const name = String(row.company_name || row.company_slug || row.company_id || '').trim() || 'Company';
+        const id = String(row.company_id || '').trim();
+        const type = normalizeCompanyType(row.company_type);
+        const badge = `<span class="env-badge env-${escapeHtmlAttr(type)}">${escapeHtml(formatCompanyTypeLabel(type))}</span>`;
+        const members = Number.isFinite(Number(row.member_count)) ? String(row.member_count) : '0';
+        return (
+          `<tr>` +
+            `<td>` +
+              `<div>${escapeHtml(name)}</div>` +
+              `<div class="advanced-switcher-id">${escapeHtml(id)}</div>` +
+            `</td>` +
+            `<td>${badge}</td>` +
+            `<td>${escapeHtml(members)}</td>` +
+            `<td><div class="advanced-switcher-row-actions">` +
+              `<button class="btn small" type="button" data-advanced-switch="${escapeHtmlAttr(id)}">Switch</button>` +
+            `</div></td>` +
+          `</tr>`
+        );
+      }).join('');
+      container.innerHTML = `<table class="advanced-switcher-table">${header}<tbody>${body}</tbody></table>`;
+      if(!container._wired){
+        container._wired = true;
+        container.addEventListener('click', async (e)=>{
+          const btn = e.target.closest('[data-advanced-switch]');
+          if(!btn) return;
+          const targetId = String(btn.getAttribute('data-advanced-switch') || '').trim();
+          const row = (Array.isArray(state._advancedCompanies) ? state._advancedCompanies : [])
+            .find(r => String(r.company_id || '') === targetId);
+          if(!row) return;
+          await handleAdvancedCompanySwitch(row);
+        });
+      }
+    }
+    async function loadAdvancedCompanies(){
+      if(!SB.ready || !SB.session || !SB.client) return;
+      if(!isEffectiveSuperUser()){
+        setAdvancedCompanyMessage('Super user access required.');
+        return;
+      }
+      const searchInput = $('advancedCompanySearch');
+      const typeSelect = $('advancedCompanyTypeFilter');
+      const search = String(searchInput ? searchInput.value : '').trim();
+      const type = String(typeSelect ? typeSelect.value : '').trim();
+      state._advancedSearch = search;
+      state._advancedType = type;
+      setAdvancedCompanyMessage('Loading...');
+      try{
+        const { data, error } = await SB.client.rpc('get_company_switcher_companies', {
+          p_search: search || null,
+          p_company_type: type || null,
+          p_limit: 50
+        });
+        if(error) throw error;
+        state._advancedCompanies = Array.isArray(data) ? data : [];
+        renderAdvancedCompanyResults();
+        renderAdvancedCompanyActions();
+        if(!state._advancedCompanies.length){
+          setAdvancedCompanyMessage('No companies found.');
+        }else{
+          setAdvancedCompanyMessage('');
+        }
+      }catch(e){
+        console.warn('Advanced company search failed:', e);
+        setAdvancedCompanyMessage('Failed to load companies.');
+        state._advancedCompanies = [];
+        renderAdvancedCompanyResults();
+      }
+    }
+    async function openAdvancedCompanySwitcher(){
+      if(!SB.session || !isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return;
+      }
+      const searchInput = $('advancedCompanySearch');
+      const typeSelect = $('advancedCompanyTypeFilter');
+      if(searchInput) searchInput.value = state._advancedSearch || '';
+      if(typeSelect){
+        const desiredType = Object.prototype.hasOwnProperty.call(state, '_advancedType')
+          ? state._advancedType
+          : 'production';
+        typeSelect.value = desiredType === undefined ? 'production' : desiredType;
+      }
+      setAdvancedCompanyMessage('');
+      show('advancedCompanyModal', true);
+      renderAdvancedCompanyActions();
+      await loadAdvancedCompanies();
+    }
+    async function handleAdvancedCompanySwitch(company){
+      if(!company) return;
+      if(!SB.session || !isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return;
+      }
+      const type = normalizeCompanyType(company.company_type);
+      if(type !== 'production'){
+        const ok = await openConfirmModal(
+          'Switch to non-production',
+          `You are about to switch into ${formatCompanyTypeLabel(type)}. Continue?`,
+          { okText: 'Switch', cancelText: 'Cancel' }
+        );
+        if(!ok) return;
+      }
+      const ok = await sbSwitchCompany(company.company_id, {
+        persist: false,
+        companyRow: company,
+        audit: true,
+        source: 'advanced_switcher'
+      });
+      if(ok){
+        const name = String(company.company_name || company.company_slug || company.company_id || 'company');
+        toast(`Switched to ${name}`);
+        renderAdvancedCompanyActions();
+        renderCompanyEnvBadge();
+      }
+    }
+    function setDiagnosticsMessage(msg){
+      const el = $('diagSimMsg');
+      if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function setDiagnosticsMetricOutput(content){
+      const el = $('diagMetricOutput');
+      if(!el) return;
+      el.textContent = content || '';
+    }
+    function getDiagnosticsRole(){
+      const raw = state._diagRole ? String(state._diagRole) : '';
+      const normalized = raw ? normalizeRoleName(raw) : '';
+      if(normalized) return normalized;
+      return getAuthorityRole() || 'super_user';
+    }
+    function getDiagnosticsTier(){
+      const raw = state._diagTier ? String(state._diagTier) : '';
+      const normalized = raw ? normalizeTier(raw) : '';
+      if(normalized) return normalized;
+      return normalizeTier(getCompanyTier()) || TIER_FALLBACK;
+    }
+    function isDiagnosticsTierSimulated(){
+      return !!state._diagTier;
+    }
+    function isDiagnosticsRoleSimulated(){
+      return !!state._diagRole;
+    }
+    function isTierAtLeast(current, required){
+      const currentTier = normalizeTier(current);
+      const requiredTier = normalizeTier(required);
+      if(!requiredTier) return true;
+      return TIER_ORDER.indexOf(currentTier) >= TIER_ORDER.indexOf(requiredTier);
+    }
+    function hasPermissionInSet(permissions, key){
+      if(!permissions || !key) return false;
+      if(Object.prototype.hasOwnProperty.call(permissions, key)){
+        return permissions[key] === true;
+      }
+      const legacy = LEGACY_PERMISSION_MAP[key];
+      if(legacy && Array.isArray(legacy.any)){
+        return legacy.any.some(k => permissions[k] === true);
+      }
+      if(legacy && Array.isArray(legacy.all)){
+        return legacy.all.every(k => permissions[k] === true);
+      }
+      return false;
+    }
+    async function applyDiagnosticsSimulation(){
+      const roleSelect = $('diagRoleSelect');
+      const tierSelect = $('diagTierSelect');
+      const roleValue = roleSelect ? String(roleSelect.value || '').trim() : '';
+      const tierValue = tierSelect ? String(tierSelect.value || '').trim() : '';
+      state._diagRole = roleValue ? normalizeRoleName(roleValue) : '';
+      state._diagTier = tierValue ? normalizeTier(tierValue) : '';
+      state._diagPermissions = null;
+      if(state._diagRole && state._diagRole !== 'super_user'){
+        state._diagPermissions = await loadImpersonationPermissions(state._diagRole);
+      }
+      renderDiagnosticsChecks();
+      updateDiagnosticsMetricTierHint();
+      if(!state._diagRole && !state._diagTier){
+        setDiagnosticsMessage('Simulation cleared.');
+      }else{
+        const roleLabel = state._diagRole ? state._diagRole : 'current';
+        const tierLabel = state._diagTier ? formatTierLabel(state._diagTier) : 'current';
+        setDiagnosticsMessage(`Simulation active: role=${roleLabel}, tier=${tierLabel}.`);
+      }
+    }
+    function resetDiagnosticsSimulation(){
+      state._diagRole = '';
+      state._diagTier = '';
+      state._diagPermissions = null;
+      const roleSelect = $('diagRoleSelect');
+      const tierSelect = $('diagTierSelect');
+      if(roleSelect) roleSelect.value = '';
+      if(tierSelect) tierSelect.value = '';
+      renderDiagnosticsChecks();
+      updateDiagnosticsMetricTierHint();
+      setDiagnosticsMessage('Simulation cleared.');
+    }
+    function getDiagnosticsPermissions(){
+      const role = getDiagnosticsRole();
+      if(role === 'super_user') return null;
+      if(state._diagPermissions && typeof state._diagPermissions === 'object') return state._diagPermissions;
+      return getEffectivePermissions();
+    }
+    function getDiagnosticsTierLabel(){
+      const tier = getDiagnosticsTier();
+      const label = formatTierLabel(tier);
+      return isDiagnosticsTierSimulated() ? `${label} (simulated)` : label;
+    }
+    const DIAGNOSTIC_CHECKS = [
+      {
+        id: 'items_view',
+        label: 'Inventory Items: View',
+        requiredTier: 'starter',
+        requiredPermission: PERMISSIONS.ITEMS_VIEW,
+        source: 'policy',
+      },
+      {
+        id: 'items_export',
+        label: 'Inventory: Export',
+        requiredTier: 'professional',
+        requiredPermission: PERMISSIONS.ITEMS_EXPORT,
+        source: 'workflow',
+      },
+      {
+        id: 'orders_view',
+        label: 'Orders: View',
+        requiredTier: 'business',
+        requiredPermission: PERMISSIONS.ORDERS_VIEW,
+        source: 'policy',
+      },
+      {
+        id: 'orders_create',
+        label: 'Orders: Create',
+        requiredTier: 'business',
+        requiredPermission: PERMISSIONS.ORDERS_CREATE,
+        source: 'policy',
+      },
+      {
+        id: 'snapshots_view',
+        label: 'Snapshots: View',
+        requiredTier: 'business',
+        requiredPermission: PERMISSIONS.SNAPSHOTS_VIEW,
+        source: 'workflow',
+      },
+      {
+        id: 'metrics_dashboard',
+        label: 'Metrics Dashboard',
+        requiredTier: 'professional',
+        requiredPermission: PERMISSIONS.METRICS_VIEW,
+        source: 'workflow',
+      },
+      {
+        id: 'audit_log_view',
+        label: 'Audit Log: View',
+        requiredTier: 'enterprise',
+        requiredPermission: PERMISSIONS.AUDIT_LOG_VIEW,
+        source: 'policy',
+      },
+      {
+        id: 'platform_metrics',
+        label: 'Platform Metrics',
+        requiredTier: 'professional',
+        requiredPermission: PERMISSIONS.PLATFORM_VIEW_METRICS,
+        source: 'workflow',
+      },
+    ];
+    function renderDiagnosticsChecks(){
+      const container = $('diagChecks');
+      if(!container) return;
+      if(!SB.session || !isEffectiveSuperUser()){
+        container.innerHTML = '<div class="trash-empty">Super user access required.</div>';
+        return;
+      }
+      const role = getDiagnosticsRole();
+      const tierLabel = getDiagnosticsTierLabel();
+      const permissions = getDiagnosticsPermissions();
+      const rows = DIAGNOSTIC_CHECKS.map(check => {
+        const tierOk = role === 'super_user' ? true : isTierAtLeast(getDiagnosticsTier(), check.requiredTier);
+        const permissionOk = role === 'super_user'
+          ? true
+          : (check.requiredPermission ? hasPermissionInSet(permissions, check.requiredPermission) : true);
+        let rule = 'allowed';
+        let allowed = true;
+        if(role === 'super_user'){
+          rule = 'super_user_bypass';
+        }else if(!tierOk){
+          rule = 'tier_gate';
+          allowed = false;
+        }else if(!permissionOk){
+          rule = 'permission_gate';
+          allowed = false;
+        }
+        const requiredPermission = check.requiredPermission || '—';
+        const badge = `<span class="diag-badge ${allowed ? 'pass' : 'fail'}">${allowed ? 'ALLOW' : 'BLOCK'}</span>`;
+        return (
+          `<tr>` +
+            `<td>${escapeHtml(check.label)}</td>` +
+            `<td>${escapeHtml(check.source)}</td>` +
+            `<td>${escapeHtml(formatTierLabel(check.requiredTier))}</td>` +
+            `<td>${escapeHtml(requiredPermission)}</td>` +
+            `<td>${escapeHtml(tierLabel)}</td>` +
+            `<td>${escapeHtml(rule)}</td>` +
+            `<td>${badge}</td>` +
+          `</tr>`
+        );
+      }).join('');
+      container.innerHTML =
+        `<table class="diag-table">` +
+          `<thead>` +
+            `<tr>` +
+              `<th>Action</th>` +
+              `<th>Source</th>` +
+              `<th>Required Tier</th>` +
+              `<th>Required Permission</th>` +
+              `<th>Current Tier</th>` +
+              `<th>Rule Fired</th>` +
+              `<th>Result</th>` +
+            `</tr>` +
+          `</thead>` +
+          `<tbody>${rows}</tbody>` +
+        `</table>`;
+    }
+    function mapSubscriptionTierToMetricTier(tier){
+      const normalized = normalizeTier(tier);
+      if(normalized === 'starter') return 'TIER_1';
+      if(normalized === 'professional') return 'TIER_2';
+      if(normalized === 'business') return 'TIER_2';
+      if(normalized === 'enterprise') return 'TIER_3';
+      return 'TIER_1';
+    }
+    function updateDiagnosticsMetricTierHint(){
+      const hint = $('diagMetricTierHint');
+      if(!hint) return;
+      const tier = getDiagnosticsTier();
+      const metricTier = mapSubscriptionTierToMetricTier(tier);
+      const label = isDiagnosticsTierSimulated()
+        ? `Metric tier preview uses ${metricTier} (from simulated ${formatTierLabel(tier)}).`
+        : `Metric tier preview uses ${metricTier} (from ${formatTierLabel(tier)}).`;
+      hint.textContent = label;
+    }
+    function getMetricsPreviewUrl(){
+      const override = (typeof window.METRICS_PREVIEW_URL === 'string') ? window.METRICS_PREVIEW_URL.trim() : '';
+      if(override) return override;
+      const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
+      if(sbUrl) return `${sbUrl}/functions/v1/metrics-preview`;
+      return '/functions/v1/metrics-preview';
+    }
+    function parseDiagnosticsJson(value){
+      const raw = String(value || '').trim();
+      if(!raw) return {};
+      return JSON.parse(raw);
+    }
+    async function runDiagnosticsMetricPreview(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session || !isEffectiveSuperUser()){
+        toast('Super user access required');
+        return;
+      }
+      const metricId = String($('diagMetricId')?.value || '').trim();
+      if(!metricId){
+        setDiagnosticsMetricOutput('Metric ID is required.');
+        return;
+      }
+      let context = {};
+      let inputs = {};
+      try{
+        context = parseDiagnosticsJson($('diagMetricContext')?.value || '');
+      }catch(e){
+        setDiagnosticsMetricOutput('Invalid JSON in Time Context.');
+        return;
+      }
+      try{
+        inputs = parseDiagnosticsJson($('diagMetricInputs')?.value || '');
+      }catch(e){
+        setDiagnosticsMetricOutput('Invalid JSON in Inputs.');
+        return;
+      }
+      const metricTier = mapSubscriptionTierToMetricTier(getDiagnosticsTier());
+      const payload = {
+        metric_id: metricId,
+        context,
+        inputs,
+        simulate_tier: metricTier
+      };
+      setDiagnosticsMetricOutput('Running preview...');
+      try{
+        const apiUrl = getMetricsPreviewUrl();
+        const headers = { 'content-type': 'application/json' };
+        const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
+        const sbKey = (typeof window.SB_ANON === 'string') ? window.SB_ANON.trim() : '';
+        if(sbUrl && apiUrl.startsWith(sbUrl) && sbKey){
+          headers['apikey'] = sbKey;
+          if(SB.session && SB.session.access_token){
+            headers['Authorization'] = `Bearer ${SB.session.access_token}`;
+          }
+        }
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if(!res.ok){
+          const msg = data && data.error ? `${data.error.code || 'Error'}: ${data.error.message || ''}` : 'Preview failed';
+          const tierEval = data && data.tier_evaluation ? data.tier_evaluation : null;
+          const output = {
+            ok: false,
+            error: msg,
+            tier_evaluation: tierEval,
+          };
+          setDiagnosticsMetricOutput(JSON.stringify(output, null, 2));
+          return;
+        }
+        setDiagnosticsMetricOutput(JSON.stringify(data, null, 2));
+      }catch(e){
+        setDiagnosticsMetricOutput('Preview failed.');
+      }
+    }
+    function openDiagnosticsModal(){
+      if(!SB.session || !isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return;
+      }
+      const roleSelect = $('diagRoleSelect');
+      const tierSelect = $('diagTierSelect');
+      if(roleSelect) roleSelect.value = state._diagRole ? state._diagRole : '';
+      if(tierSelect) tierSelect.value = state._diagTier ? state._diagTier : '';
+      renderDiagnosticsChecks();
+      updateDiagnosticsMetricTierHint();
+      setDiagnosticsMetricOutput('');
+      if(state._diagRole || state._diagTier){
+        const roleLabel = state._diagRole ? state._diagRole : 'current';
+        const tierLabel = state._diagTier ? formatTierLabel(state._diagTier) : 'current';
+        setDiagnosticsMessage(`Simulation active: role=${roleLabel}, tier=${tierLabel}.`);
+      }else{
+        setDiagnosticsMessage('');
+      }
+      show('diagnosticsModal', true);
+    }
     function renderRoleTestingSwitcher(){
       const section = $('profileRoleTestingSection');
       const select = $('profileRoleTestingSelect');
@@ -5083,6 +5798,31 @@
       if(!state) return '—';
       if(state === 'none') return 'None';
       return state.charAt(0).toUpperCase() + state.slice(1);
+    }
+    function normalizeCompanyType(value){
+      const type = String(value || '').trim().toLowerCase();
+      if(type === 'sandbox' || type === 'test' || type === 'system' || type === 'production') return type;
+      return 'production';
+    }
+    function formatCompanyTypeLabel(value){
+      const type = normalizeCompanyType(value);
+      if(type === 'production') return 'Production';
+      if(type === 'sandbox') return 'Sandbox';
+      if(type === 'test') return 'Test';
+      if(type === 'system') return 'System';
+      return 'Production';
+    }
+    function renderCompanyEnvBadge(){
+      const badge = $('profileEnvBadge');
+      if(!badge) return;
+      if(!SB.companyId){
+        badge.textContent = '';
+        badge.className = 'env-badge profile-env-badge hidden';
+        return;
+      }
+      const type = normalizeCompanyType(SB.company && SB.company.company_type);
+      badge.textContent = formatCompanyTypeLabel(type);
+      badge.className = `env-badge profile-env-badge env-${type}`;
     }
     function setTierOverrideMessage(msg){
       const el = $('tierOverrideMsg'); if(!el) return;
@@ -5326,30 +6066,41 @@
       _userMgmtCompanyId = '';
       updateOrderCounterBadge();
     }
-	    async function sbSwitchCompany(nextCompanyId){
+	    async function sbSwitchCompany(nextCompanyId, opts = {}){
 	      if(!SB.ready || !SB.session) return false;
+      const options = (opts && typeof opts === 'object') ? opts : {};
+      const persist = options.persist !== false;
+      const audit = options.audit === true;
+      const source = options.source ? String(options.source) : null;
+      const rowOverride = options.companyRow && typeof options.companyRow === 'object' ? options.companyRow : null;
 	      const nextId = String(nextCompanyId || '').trim();
 	      if(!nextId || nextId === SB.companyId) return false;
 	      const rows = Array.isArray(SB.companies) ? SB.companies : [];
-	      const target = rows.find(r => String(r.company_id) === nextId) || null;
+      let target = rowOverride ? { ...rowOverride } : (rows.find(r => String(r.company_id) === nextId) || null);
 	      if(!target){
 	        toast('Company not found');
 	        renderCompanySwitcher();
 	        return false;
 	      }
-	      const prev = {
-	        companyId: SB.companyId,
-	        company: SB.company,
-	        permissions: SB.permissions,
-	        authorized: SB.authorized,
-	        connected: SB.connected,
-	      };
+      if(rowOverride && !isEffectiveSuperUser()){
+        toast('Super user access required');
+        return false;
+      }
+      const prev = {
+        companyId: SB.companyId,
+        company: SB.company,
+        permissions: SB.permissions,
+        authorized: SB.authorized,
+        connected: SB.connected,
+        companyType: normalizeCompanyType(SB.company && SB.company.company_type),
+      };
+      target.company_type = normalizeCompanyType(target.company_type);
       SB.companyId = nextId;
       SB.company = target;
       SB.companyTier = SB.company ? getCompanyTier() : null;
       state._tierDetails = null;
       state._tierDetailsCompanyId = null;
-      saveCompanyId(nextId);
+      if(persist) saveCompanyId(nextId);
       SB.permissions = null;
       SB.authorized = false;
       SB.connected = false;
@@ -5381,6 +6132,19 @@
 	      updateStatusBar();
 	      renderProfileUi();
 	      applyPermissionUI();
+      if(audit && SB.client){
+        try{
+          await SB.client.rpc('log_company_switch', {
+            p_company_id: nextId,
+            p_from_company_id: prev.companyId ? String(prev.companyId) : null,
+            p_from_company_type: prev.companyType || null,
+            p_to_company_type: target.company_type || null,
+            p_source: source || null
+          });
+        }catch(e){
+          console.warn('Company switch audit failed:', e);
+        }
+      }
 	      if(!SB.authorized) return true;
 	      await checkServerHealth();
 	      if(isOnline()){
@@ -5526,6 +6290,8 @@
         console.warn('Company load failed:', e);
         updateStatusBar();
         renderCompanySwitcher();
+        renderAdvancedCompanySwitcherButton();
+        renderDiagnosticsButton();
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
@@ -5536,6 +6302,8 @@
       if(!SB.companyId){
         updateStatusBar();
         renderCompanySwitcher();
+        renderAdvancedCompanySwitcherButton();
+        renderDiagnosticsButton();
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
@@ -5549,6 +6317,8 @@
         console.warn('Permissions load failed:', e);
         updateStatusBar();
         renderCompanySwitcher();
+        renderAdvancedCompanySwitcherButton();
+        renderDiagnosticsButton();
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
@@ -5559,6 +6329,8 @@
       SB.authorized = !!(SB.permissions && hasPermission(PERMISSIONS.ITEMS_VIEW));
       updateStatusBar();
       renderCompanySwitcher();
+      renderAdvancedCompanySwitcherButton();
+      renderDiagnosticsButton();
       renderInviteUi();
       renderRoleRequestUi();
       renderRoleRequestsAdminButton();
@@ -5577,6 +6349,11 @@
       SB.companyId = null;
       SB.company = null;
       SB.companyTier = null;
+      if(!session){
+        state._diagRole = '';
+        state._diagTier = '';
+        state._diagPermissions = null;
+      }
       updateStatusBar();
       applyPermissionUI();
 
@@ -5637,6 +6414,8 @@
       const profileSignIn = $('profileSignIn');
       const profileCompanySelect = $('profileCompanySelect');
       const profileRoleTestingSelect = $('profileRoleTestingSelect');
+      const advancedCompanyBtn = $('openAdvancedCompanySwitcher');
+      const diagnosticsBtn = $('openDiagnostics');
 
       function toggleProfileDropdown(open){
         if(profileDropdown){
@@ -5686,6 +6465,20 @@
         profileRoleTestingSelect.addEventListener('change', async (e)=>{
           const nextRole = e && e.target ? e.target.value : '';
           await setImpersonationRole(nextRole, 'manual');
+        });
+      }
+      if(advancedCompanyBtn && !advancedCompanyBtn._wired){
+        advancedCompanyBtn._wired = true;
+        advancedCompanyBtn.addEventListener('click', ()=>{
+          toggleProfileDropdown(false);
+          void openAdvancedCompanySwitcher();
+        });
+      }
+      if(diagnosticsBtn && !diagnosticsBtn._wired){
+        diagnosticsBtn._wired = true;
+        diagnosticsBtn.addEventListener('click', ()=>{
+          toggleProfileDropdown(false);
+          openDiagnosticsModal();
         });
       }
 
@@ -5902,6 +6695,72 @@
         btnTierOverrideClear.disabled = false;
         btnTierOverrideClear.setAttribute('aria-disabled', 'false');
       }
+    });
+
+    const advancedCompanySearchBtn = $('advancedCompanySearchBtn');
+    if(advancedCompanySearchBtn) advancedCompanySearchBtn.addEventListener('click', async ()=>{
+      await loadAdvancedCompanies();
+    });
+    const advancedCompanyReturnBtn = $('advancedCompanyReturnBtn');
+    if(advancedCompanyReturnBtn) advancedCompanyReturnBtn.addEventListener('click', async ()=>{
+      if(!isEffectiveSuperUser()){
+        toast('Super user access required');
+        return;
+      }
+      const defaultId = getDefaultProductionCompanyId();
+      if(!defaultId){
+        toast('No production company available');
+        return;
+      }
+      const ok = await sbSwitchCompany(defaultId, {
+        persist: false,
+        audit: true,
+        source: 'advanced_switcher'
+      });
+      if(ok){
+        toast('Returned to production');
+        renderAdvancedCompanyActions();
+      }
+    });
+    const advancedCompanyClose = $('advancedCompanyClose');
+    if(advancedCompanyClose) advancedCompanyClose.addEventListener('click', ()=>{
+      show('advancedCompanyModal', false);
+    });
+    const advancedCompanySearch = $('advancedCompanySearch');
+    if(advancedCompanySearch) advancedCompanySearch.addEventListener('keydown', async (e)=>{
+      if(e.key !== 'Enter') return;
+      e.preventDefault();
+      await loadAdvancedCompanies();
+    });
+    const advancedCompanyTypeFilter = $('advancedCompanyTypeFilter');
+    if(advancedCompanyTypeFilter) advancedCompanyTypeFilter.addEventListener('change', async ()=>{
+      await loadAdvancedCompanies();
+    });
+
+    const diagApply = $('diagApply');
+    if(diagApply) diagApply.addEventListener('click', async ()=>{
+      await applyDiagnosticsSimulation();
+    });
+    const diagReset = $('diagReset');
+    if(diagReset) diagReset.addEventListener('click', ()=>{
+      resetDiagnosticsSimulation();
+    });
+    const diagClose = $('diagClose');
+    if(diagClose) diagClose.addEventListener('click', ()=>{
+      show('diagnosticsModal', false);
+    });
+    const diagMetricRun = $('diagMetricRun');
+    if(diagMetricRun) diagMetricRun.addEventListener('click', async ()=>{
+      await runDiagnosticsMetricPreview();
+    });
+    const diagRoleSelect = $('diagRoleSelect');
+    if(diagRoleSelect) diagRoleSelect.addEventListener('change', ()=>{
+      setDiagnosticsMessage('Simulation changed. Apply to activate.');
+    });
+    const diagTierSelect = $('diagTierSelect');
+    if(diagTierSelect) diagTierSelect.addEventListener('change', ()=>{
+      setDiagnosticsMessage('Simulation changed. Apply to activate.');
+      updateDiagnosticsMetricTierHint();
     });
 
     const btnProfileClose = $('btnProfileClose');
@@ -12721,6 +13580,12 @@ function emptyStateHtml(){
     if (btn) setTimeout(() => btn.focus(), 0);
   } else if (id === 'profileModal') {
     const inp = document.getElementById('profilePhone');
+    if (inp) setTimeout(() => inp.focus(), 0);
+  } else if (id === 'advancedCompanyModal') {
+    const inp = document.getElementById('advancedCompanySearch');
+    if (inp) setTimeout(() => inp.focus(), 0);
+  } else if (id === 'diagnosticsModal') {
+    const inp = document.getElementById('diagRoleSelect');
     if (inp) setTimeout(() => inp.focus(), 0);
   }
 }

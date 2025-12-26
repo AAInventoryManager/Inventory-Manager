@@ -50,7 +50,7 @@ describe('Tier overrides and super user bypass', () => {
     const slug = `tier-override-${uniqueSuffix}`;
     const { data, error } = await adminClient
       .from('companies')
-      .insert({ name: 'Tier Override Test', slug, settings: { test: true } })
+      .insert({ name: 'Tier Override Test', slug, settings: { test: true }, company_type: 'test' })
       .select()
       .single();
     if (error || !data) throw error || new Error('Failed to create company');

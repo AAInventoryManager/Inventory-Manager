@@ -81,7 +81,8 @@ describe('Orders: tier and permission enforcement', () => {
       .insert({
         name: 'Orders Enforcement Test',
         slug,
-        settings: { test: true, tier: 'business' }
+        settings: { test: true, tier: 'business' },
+        company_type: 'test'
       })
       .select()
       .single();

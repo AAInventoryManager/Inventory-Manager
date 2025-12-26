@@ -77,7 +77,8 @@ describe('RPC: metrics and reporting enforcement', () => {
       .insert({
         name: 'Low Stock Report Test',
         slug: lowStockSlug,
-        settings: { test: true }
+        settings: { test: true },
+        company_type: 'test'
       })
       .select('id')
       .single();

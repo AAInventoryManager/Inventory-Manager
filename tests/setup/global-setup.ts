@@ -23,7 +23,10 @@ export default async function globalSetup() {
   for (const [key, company] of Object.entries(TEST_COMPANIES)) {
     const { data, error } = await adminClient
       .from('companies')
-      .upsert({ name: company.name, slug: company.slug, settings: { test: true } }, { onConflict: 'slug' })
+      .upsert(
+        { name: company.name, slug: company.slug, settings: { test: true }, company_type: 'test' },
+        { onConflict: 'slug' }
+      )
       .select()
       .single();
     if (error || !data) throw error || new Error(`Failed to upsert company ${company.slug}`);

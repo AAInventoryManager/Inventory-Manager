@@ -79,7 +79,8 @@ describe('Inventory core enforcement', () => {
       .insert({
         name: 'Inventory Core Test',
         slug,
-        settings: { test: true, tier: 'starter' }
+        settings: { test: true, tier: 'starter' },
+        company_type: 'test'
       })
       .select()
       .single();
