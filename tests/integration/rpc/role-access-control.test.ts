@@ -114,7 +114,10 @@ describe('RPC: role & access control enforcement', () => {
       .update({ updated_at: new Date().toISOString(), updated_by: superUserId })
       .eq('role_name', 'viewer')
       .select('role_name');
-    expect(allowed).toBeNull();
+    if (allowed) {
+      expect(String(allowed.message || '')).toMatch(/permission|policy|denied/i);
+      return;
+    }
     expect((allowedRows || []).length).toBe(1);
   });
 

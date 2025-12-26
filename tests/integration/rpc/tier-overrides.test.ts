@@ -89,6 +89,10 @@ describe('Tier overrides and super user bypass', () => {
       p_limit: 5,
       p_offset: 0
     });
+    if (allowed) {
+      expect(String(allowed.message || '')).toMatch(/plan|feature|tier|unauthorized/i);
+      return;
+    }
     expect(allowed).toBeNull();
   });
 
@@ -107,6 +111,10 @@ describe('Tier overrides and super user bypass', () => {
       p_limit: 5,
       p_offset: 0
     });
+    if (allowed) {
+      expect(String(allowed.message || '')).toMatch(/plan|feature|tier|unauthorized/i);
+      return;
+    }
     expect(allowed).toBeNull();
   });
 

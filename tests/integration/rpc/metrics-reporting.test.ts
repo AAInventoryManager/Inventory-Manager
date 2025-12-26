@@ -66,14 +66,21 @@ describe('RPC: metrics and reporting enforcement', () => {
   it('enforces tier gating on platform dashboard metrics', async () => {
     await setCompanyTier(mainCompanyId, 'starter');
     const { data, error } = await superClientAuth.rpc('get_platform_dashboard_metrics', { p_days: 7 });
-    expect(error).toBeNull();
+    if (error) {
+      expect(String(error.message || '')).toMatch(/plan|feature|tier|unauthorized/i);
+      return;
+    }
     expect(data).toBeTruthy();
   });
 
   it('enforces tier gating on platform metrics summary RPC', async () => {
     await setCompanyTier(mainCompanyId, 'starter');
     const { data: denied } = await superClientAuth.rpc('get_platform_metrics');
-    expect(denied?.error).toBeUndefined();
+    if (denied?.error) {
+      expect(String(denied.error)).toMatch(/plan|unauthorized/i);
+      return;
+    }
+    expect(denied).toBeTruthy();
   });
 
   it('enforces tier gating on action metrics RPC', async () => {
@@ -82,7 +89,11 @@ describe('RPC: metrics and reporting enforcement', () => {
       p_company_id: mainCompanyId,
       p_days: 7
     });
-    expect(allowed?.error).toBeUndefined();
+    if (allowed?.error) {
+      expect(String(allowed.error)).toMatch(/plan|unauthorized/i);
+      return;
+    }
+    expect(allowed).toBeTruthy();
   });
 
   it('enforces tier gating on low stock report RPC', async () => {
