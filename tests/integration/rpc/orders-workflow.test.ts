@@ -126,6 +126,7 @@ describe('Orders: tier and permission enforcement', () => {
     viewerAuth = await createAuthenticatedClient(viewerEmail, TEST_PASSWORD);
 
     await setRolePermission('viewer', 'orders:view', true);
+    await setCompanyTier(companyId, 'business');
 
     const { data: orderRow, error: orderError } = await adminAuth
       .from('orders')
