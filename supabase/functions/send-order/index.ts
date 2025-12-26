@@ -70,13 +70,14 @@ async function authorizeRequest(req: Request, body: Record<string, unknown>): Pr
     return { ok: false, status: 400, error: "Missing company_id" };
   }
 
-  const { data: tier, error: tierError } = await supabase.rpc("get_company_tier", {
+  const { data: tierAllowed, error: tierError } = await supabase.rpc("has_tier_access", {
     p_company_id: companyId,
+    p_required_tier: "business",
   });
   if (tierError) {
     return { ok: false, status: 500, error: "Failed to check tier" };
   }
-  if (!["business", "enterprise"].includes(String(tier))) {
+  if (!tierAllowed) {
     return { ok: false, status: 403, error: "Feature not available for current plan" };
   }
 

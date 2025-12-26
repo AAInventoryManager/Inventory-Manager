@@ -4,6 +4,7 @@ import {
   adminClient,
   createAuthenticatedClient,
   getAuthUserIdByEmail,
+  getClient,
   SUPABASE_ANON_KEY,
   SUPABASE_URL,
   TEST_PASSWORD
@@ -43,18 +44,16 @@ async function createTestUser(email: string): Promise<string> {
 }
 
 async function setCompanyTier(companyId: string, tier: Tier) {
-  const { data, error } = await adminClient
-    .from('companies')
-    .select('settings')
-    .eq('id', companyId)
-    .single();
+  const superAuth = await getClient('SUPER');
+  const overrideTier = tier === 'starter' ? null : tier;
+  await adminClient.from('billing_subscriptions').delete().eq('company_id', companyId);
+  const { data, error } = await superAuth.rpc('set_company_tier_override', {
+    p_company_id: companyId,
+    p_tier: overrideTier,
+    p_reason: `Test tier override: ${tier}`
+  });
   if (error) throw error;
-  const settings = data?.settings && typeof data.settings === 'object' ? data.settings : {};
-  const { error: updateError } = await adminClient
-    .from('companies')
-    .update({ settings: { ...settings, tier } })
-    .eq('id', companyId);
-  if (updateError) throw updateError;
+  if (data && data.success === false) throw new Error(data.error || 'Tier override failed');
 }
 
 async function setRolePermission(roleName: string, permissionKey: string, value: boolean) {

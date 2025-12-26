@@ -4,6 +4,7 @@ import {
   adminClient,
   createAuthenticatedClient,
   getAuthUserIdByEmail,
+  getClient,
   TEST_PASSWORD
 } from '../../setup/test-utils';
 
@@ -41,18 +42,16 @@ async function createTestUser(email: string): Promise<string> {
 }
 
 async function setCompanyTier(companyId: string, tier: Tier) {
-  const { data, error } = await adminClient
-    .from('companies')
-    .select('settings')
-    .eq('id', companyId)
-    .single();
+  const superAuth = await getClient('SUPER');
+  const overrideTier = tier === 'starter' ? null : tier;
+  await adminClient.from('billing_subscriptions').delete().eq('company_id', companyId);
+  const { data, error } = await superAuth.rpc('set_company_tier_override', {
+    p_company_id: companyId,
+    p_tier: overrideTier,
+    p_reason: `Test tier override: ${tier}`
+  });
   if (error) throw error;
-  const settings = data?.settings && typeof data.settings === 'object' ? data.settings : {};
-  const { error: updateError } = await adminClient
-    .from('companies')
-    .update({ settings: { ...settings, tier } })
-    .eq('id', companyId);
-  if (updateError) throw updateError;
+  if (data && data.success === false) throw new Error(data.error || 'Tier override failed');
 }
 
 describe('RPC: role & access control enforcement', () => {
@@ -116,17 +115,8 @@ describe('RPC: role & access control enforcement', () => {
     superClientAuth = await createAuthenticatedClient(superEmail, TEST_PASSWORD);
   });
 
-  it('enforces tier gating on role configuration updates', async () => {
+  it('allows super users to update role configurations regardless of tier', async () => {
     await setCompanyTier(companyId, 'starter');
-    const { data: deniedRows, error: denied } = await superClientAuth
-      .from('role_configurations')
-      .update({ updated_at: new Date().toISOString(), updated_by: superUserId })
-      .eq('role_name', 'viewer')
-      .select('role_name');
-    expect(denied).toBeNull();
-    expect((deniedRows || []).length).toBe(0);
-
-    await setCompanyTier(companyId, 'business');
     const { data: allowedRows, error: allowed } = await superClientAuth
       .from('role_configurations')
       .update({ updated_at: new Date().toISOString(), updated_by: superUserId })

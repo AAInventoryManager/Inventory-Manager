@@ -4,6 +4,7 @@ import {
   adminClient,
   createAuthenticatedClient,
   getAuthUserIdByEmail,
+  getClient,
   TEST_PASSWORD
 } from '../../setup/test-utils';
 
@@ -41,18 +42,16 @@ async function createTestUser(email: string): Promise<string> {
 }
 
 async function setCompanyTier(companyId: string, tier: Tier) {
-  const { data, error } = await adminClient
-    .from('companies')
-    .select('settings')
-    .eq('id', companyId)
-    .single();
+  const superAuth = await getClient('SUPER');
+  const overrideTier = tier === 'starter' ? null : tier;
+  await adminClient.from('billing_subscriptions').delete().eq('company_id', companyId);
+  const { data, error } = await superAuth.rpc('set_company_tier_override', {
+    p_company_id: companyId,
+    p_tier: overrideTier,
+    p_reason: `Test tier override: ${tier}`
+  });
   if (error) throw error;
-  const settings = data?.settings && typeof data.settings === 'object' ? data.settings : {};
-  const { error: updateError } = await adminClient
-    .from('companies')
-    .update({ settings: { ...settings, tier } })
-    .eq('id', companyId);
-  if (updateError) throw updateError;
+  if (data && data.success === false) throw new Error(data.error || 'Tier override failed');
 }
 
 describe('Inventory core enforcement', () => {
@@ -237,26 +236,16 @@ describe('Inventory core enforcement', () => {
     expect(String(data?.error || '')).toMatch(/permission/i);
   });
 
-  it('defaults invalid tier to Starter for import and export', async () => {
-    await setCompanyTier(companyId, 'invalid-tier');
-
-    const { data: deniedImport, error: deniedImportError } = await adminAuth.rpc(
-      'bulk_upsert_inventory_items',
-      {
-        p_company_id: companyId,
-        p_items: [{ name: `Invalid Tier ${uniqueSuffix}`, desc: 'Denied', qty: 1 }]
-      }
-    );
-    expect(deniedImportError).toBeNull();
-    expect(deniedImport?.success).toBe(false);
-    expect(String(deniedImport?.error || '')).toMatch(/plan/i);
-
-    const { data: deniedExport, error: deniedExportError } = await viewerAuth.rpc(
-      'export_inventory_items',
-      { p_company_id: companyId }
-    );
-    expect(deniedExportError).toBeNull();
-    expect((deniedExport || []).length).toBe(0);
+  it('rejects invalid manual tier overrides', async () => {
+    const superAuth = await getClient('SUPER');
+    const { data, error } = await superAuth.rpc('set_company_tier_override', {
+      p_company_id: companyId,
+      p_tier: 'invalid-tier',
+      p_reason: 'Invalid override test'
+    });
+    expect(error).toBeNull();
+    expect(data?.success).toBe(false);
+    expect(String(data?.error || '')).toMatch(/invalid tier/i);
   });
 
   it('restricts export to Professional tier', async () => {

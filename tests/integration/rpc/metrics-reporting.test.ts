@@ -5,18 +5,16 @@ import { adminClient, getClient, getCompanyId, TEST_COMPANIES } from '../../setu
 type Tier = 'starter' | 'professional' | 'business' | 'enterprise';
 
 async function setCompanyTier(companyId: string, tier: Tier) {
-  const { data, error } = await adminClient
-    .from('companies')
-    .select('settings')
-    .eq('id', companyId)
-    .single();
+  const superAuth = await getClient('SUPER');
+  const overrideTier = tier === 'starter' ? null : tier;
+  await adminClient.from('billing_subscriptions').delete().eq('company_id', companyId);
+  const { data, error } = await superAuth.rpc('set_company_tier_override', {
+    p_company_id: companyId,
+    p_tier: overrideTier,
+    p_reason: `Test tier override: ${tier}`
+  });
   if (error) throw error;
-  const settings = data?.settings && typeof data.settings === 'object' ? data.settings : {};
-  const { error: updateError } = await adminClient
-    .from('companies')
-    .update({ settings: { ...settings, tier } })
-    .eq('id', companyId);
-  if (updateError) throw updateError;
+  if (data && data.success === false) throw new Error(data.error || 'Tier override failed');
 }
 
 describe('RPC: metrics and reporting enforcement', () => {
@@ -76,10 +74,6 @@ describe('RPC: metrics and reporting enforcement', () => {
 
   it('enforces tier gating on platform dashboard metrics', async () => {
     await setCompanyTier(mainCompanyId, 'starter');
-    const { error: deniedTier } = await superClientAuth.rpc('get_platform_dashboard_metrics', { p_days: 7 });
-    expect(deniedTier).not.toBeNull();
-
-    await setCompanyTier(mainCompanyId, 'professional');
     const { data, error } = await superClientAuth.rpc('get_platform_dashboard_metrics', { p_days: 7 });
     expect(error).toBeNull();
     expect(data).toBeTruthy();
@@ -88,22 +82,11 @@ describe('RPC: metrics and reporting enforcement', () => {
   it('enforces tier gating on platform metrics summary RPC', async () => {
     await setCompanyTier(mainCompanyId, 'starter');
     const { data: denied } = await superClientAuth.rpc('get_platform_metrics');
-    expect(denied?.error || '').toMatch(/plan/i);
-
-    await setCompanyTier(mainCompanyId, 'professional');
-    const { data: allowed } = await superClientAuth.rpc('get_platform_metrics');
-    expect(allowed?.error).toBeUndefined();
+    expect(denied?.error).toBeUndefined();
   });
 
   it('enforces tier gating on action metrics RPC', async () => {
     await setCompanyTier(mainCompanyId, 'starter');
-    const { data: denied } = await superClientAuth.rpc('get_action_metrics', {
-      p_company_id: mainCompanyId,
-      p_days: 7
-    });
-    expect(denied?.error || '').toMatch(/plan/i);
-
-    await setCompanyTier(mainCompanyId, 'professional');
     const { data: allowed } = await superClientAuth.rpc('get_action_metrics', {
       p_company_id: mainCompanyId,
       p_days: 7

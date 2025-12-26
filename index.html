@@ -2151,6 +2151,12 @@
     }
     .role-request-meta{font-size:12px;color:var(--muted)}
     .role-request-actions{display:flex;justify-content:flex-end}
+    .tier-admin-section{display:flex;flex-direction:column;gap:8px}
+    .tier-admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+    .tier-admin-card{border:1px solid var(--border);border-radius:10px;padding:10px;background:var(--card)}
+    .tier-admin-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
+    .tier-admin-value{font-size:13px;font-weight:600;color:var(--fg)}
+    .tier-admin-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
     .role-requests-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
     .role-request-card{
       border:1px solid var(--border);
@@ -3251,6 +3257,38 @@
 	        </div>
 	        <div id="roleRequestMsg" class="muted" style="margin-top:4px;"></div>
 	      </div>
+      <div class="section-divider" id="tierOverrideDivider"></div>
+      <div class="tier-admin-section" id="tierOverrideSection">
+        <div class="role-request-title">Company Tier</div>
+        <div class="role-request-meta" id="tierOverrideCompany"></div>
+        <div class="tier-admin-grid">
+          <div class="tier-admin-card">
+            <div class="tier-admin-label">Billing Tier</div>
+            <div class="tier-admin-value" id="tierBillingValue">—</div>
+          </div>
+          <div class="tier-admin-card">
+            <div class="tier-admin-label">Manual Override</div>
+            <div class="tier-admin-value" id="tierOverrideValue">—</div>
+          </div>
+          <div class="tier-admin-card">
+            <div class="tier-admin-label">Effective Tier</div>
+            <div class="tier-admin-value" id="tierEffectiveValue">—</div>
+          </div>
+          <div class="tier-admin-card">
+            <div class="tier-admin-label">Billing State</div>
+            <div class="tier-admin-value" id="tierBillingStateValue">—</div>
+          </div>
+        </div>
+        <label class="muted" for="tierOverrideSelect">Set Manual Override</label>
+        <select id="tierOverrideSelect" aria-label="Select manual tier override"></select>
+        <label class="muted" for="tierOverrideReason">Reason</label>
+        <textarea id="tierOverrideReason" rows="2" placeholder="Why is this override needed?"></textarea>
+        <div class="tier-admin-actions">
+          <button class="btn" id="btnTierOverrideSave" type="button">Save Override</button>
+          <button class="btn" id="btnTierOverrideClear" type="button">Clear Override</button>
+        </div>
+        <div id="tierOverrideMsg" class="muted" style="margin-top:4px;"></div>
+      </div>
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
         <button class="btn" id="btnSignOut">Sign Out</button>
         <button class="btn" id="btnProfileClose">Close</button>
@@ -3347,7 +3385,9 @@
       _roleConfigs:{},
       _roleChanges:{},
       _impersonationRole:'super_user',
-      _impersonationPermissions:null
+      _impersonationPermissions:null,
+      _tierDetails:null,
+      _tierDetailsCompanyId:null
     };
     const APP_VERSION = '2.0.0';
 
@@ -3467,6 +3507,12 @@
       : ['super_user','admin','member','viewer'];
     const IMPERSONATION_LOG_LIMIT = 25;
     const TIER_ORDER = ['starter','professional','business','enterprise'];
+    const TIER_LABELS = {
+      starter: 'Starter',
+      professional: 'Professional',
+      business: 'Business',
+      enterprise: 'Enterprise'
+    };
     const TIER_FALLBACK = 'starter';
     function getCompanyStorageKey(){
       const uid = (SB && SB.user && SB.user.id) ? String(SB.user.id) : 'anon';
@@ -3638,7 +3684,7 @@
       return TIER_ORDER.includes(tier) ? tier : '';
     }
     function getCompanyTier(){
-      const fromCompany = SB.company ? (SB.company.company_tier || SB.company.tier || '') : '';
+      const fromCompany = SB.company ? (SB.company.effective_tier || SB.company.company_tier || SB.company.tier || '') : '';
       const tier = normalizeTier(fromCompany);
       if(tier) return tier;
       if(SB.companyId && !SB.warnedTierMissing){
@@ -3648,6 +3694,7 @@
       return TIER_FALLBACK;
     }
     function hasTier(minTier){
+      if(isEffectiveSuperUser()) return true;
       const current = normalizeTier(getCompanyTier()) || TIER_FALLBACK;
       const target = normalizeTier(minTier);
       if(!target) return true;
@@ -3759,6 +3806,7 @@
       renderUserMgmtButton();
       renderUserMgmtControls();
       renderUserMgmtList();
+      renderTierAdminSection();
       applyPermissionUI();
       render();
     }
@@ -4940,6 +4988,7 @@
       renderRoleRequestsAdminButton();
       renderRoleManagerButton();
       renderUserMgmtButton();
+      renderTierAdminSection();
     }
 	    function renderCompanySwitcher(){
 	      const section = $('profileCompanySection');
@@ -5023,6 +5072,89 @@
         const label = isImpersonating() ? `Testing as ${effective}` : 'Testing mode';
         hint.textContent = `${label}. UI only; backend stays super_user.`;
       }
+    }
+    function formatTierLabel(value){
+      const tier = normalizeTier(value);
+      if(!tier) return '—';
+      return TIER_LABELS[tier] || tier;
+    }
+    function formatBillingState(value){
+      const state = String(value || '').trim().toLowerCase();
+      if(!state) return '—';
+      if(state === 'none') return 'None';
+      return state.charAt(0).toUpperCase() + state.slice(1);
+    }
+    function setTierOverrideMessage(msg){
+      const el = $('tierOverrideMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    async function loadTierDetails(companyId){
+      if(!SB.ready || !SB.session || !SB.client) return null;
+      try{
+        const { data, error } = await SB.client.rpc('get_company_tier_details', {
+          p_company_id: companyId
+        });
+        if(error) throw error;
+        const row = Array.isArray(data) ? data[0] : data;
+        return row && typeof row === 'object' ? row : null;
+      }catch(e){
+        console.warn('Tier details load failed:', e);
+        return null;
+      }
+    }
+    async function refreshTierAdminDetails(){
+      if(!SB.companyId) return;
+      state._tierDetailsCompanyId = String(SB.companyId);
+      state._tierDetails = await loadTierDetails(SB.companyId);
+      renderTierAdminSection();
+    }
+    function renderTierAdminSection(){
+      const section = $('tierOverrideSection');
+      const divider = $('tierOverrideDivider');
+      if(!section) return;
+      if(!SB.session || !isEffectiveSuperUser() || !SB.companyId){
+        section.style.display = 'none';
+        if(divider) divider.style.display = 'none';
+        return;
+      }
+      section.style.display = '';
+      if(divider) divider.style.display = '';
+      const companyName = SB.company ? String(SB.company.company_name || SB.company.company_slug || SB.company.company_id || '') : '';
+      const meta = $('tierOverrideCompany');
+      if(meta) meta.textContent = companyName ? `Company: ${companyName}` : '';
+
+      const select = $('tierOverrideSelect');
+      if(select){
+        const options = ['', ...TIER_ORDER];
+        select.innerHTML = options.map(tier => {
+          const label = tier ? formatTierLabel(tier) : 'None';
+          return `<option value="${escapeHtmlAttr(tier)}">${escapeHtml(label)}</option>`;
+        }).join('');
+      }
+
+      const details = (state._tierDetailsCompanyId === String(SB.companyId)) ? state._tierDetails : null;
+      if(!details){
+        if($('tierBillingValue')) $('tierBillingValue').textContent = 'Loading…';
+        if($('tierOverrideValue')) $('tierOverrideValue').textContent = 'Loading…';
+        if($('tierEffectiveValue')) $('tierEffectiveValue').textContent = 'Loading…';
+        if($('tierBillingStateValue')) $('tierBillingStateValue').textContent = 'Loading…';
+        if(select) select.value = '';
+        setTierOverrideMessage('');
+        void refreshTierAdminDetails();
+        return;
+      }
+
+      if($('tierBillingValue')) $('tierBillingValue').textContent = formatTierLabel(details.subscription_tier);
+      if($('tierOverrideValue')) $('tierOverrideValue').textContent = details.override_tier ? formatTierLabel(details.override_tier) : 'None';
+      if($('tierEffectiveValue')) $('tierEffectiveValue').textContent = formatTierLabel(details.effective_tier);
+      if($('tierBillingStateValue')) $('tierBillingStateValue').textContent = formatBillingState(details.billing_state);
+      if(select) select.value = details.override_tier ? String(details.override_tier) : '';
+
+      const reasonInput = $('tierOverrideReason');
+      if(reasonInput && !reasonInput.value){
+        reasonInput.value = details.override_reason ? String(details.override_reason) : '';
+      }
+      setTierOverrideMessage('');
     }
 	    function setInviteMessage(msg){
 	      const el = $('inviteMsg'); if(!el) return;
@@ -5215,12 +5347,15 @@
       SB.companyId = nextId;
       SB.company = target;
       SB.companyTier = SB.company ? getCompanyTier() : null;
+      state._tierDetails = null;
+      state._tierDetailsCompanyId = null;
       saveCompanyId(nextId);
-	      SB.permissions = null;
-	      SB.authorized = false;
-	      SB.connected = false;
-	      updateStatusBar();
-	      renderCompanySwitcher();
+      SB.permissions = null;
+      SB.authorized = false;
+      SB.connected = false;
+      updateStatusBar();
+      renderCompanySwitcher();
+      renderTierAdminSection();
 	      applyPermissionUI();
 	      resetCompanyScopedState();
 	      render();
@@ -5382,6 +5517,8 @@
       SB.companyId = null;
       SB.company = null;
       SB.companyTier = null;
+      state._tierDetails = null;
+      state._tierDetailsCompanyId = null;
       if(!SB.ready || !SB.user){ updateStatusBar(); return false; }
       try{
         await sbLoadCompanies();
@@ -5679,6 +5816,91 @@
       }finally{
         btnRoleRequest.disabled = false;
         btnRoleRequest.setAttribute('aria-disabled', 'false');
+      }
+    });
+
+    const btnTierOverrideSave = $('btnTierOverrideSave');
+    if(btnTierOverrideSave) btnTierOverrideSave.addEventListener('click', async ()=>{
+      const reason = String($('tierOverrideReason')?.value || '').trim();
+      const selected = String($('tierOverrideSelect')?.value || '').trim();
+      setTierOverrideMessage('');
+      if(!SB.session || !isEffectiveSuperUser()){
+        setTierOverrideMessage('Super user access required.');
+        return;
+      }
+      if(!SB.companyId){
+        setTierOverrideMessage('Select a company first.');
+        return;
+      }
+      if(!reason){
+        setTierOverrideMessage('Reason required.');
+        return;
+      }
+      btnTierOverrideSave.disabled = true;
+      btnTierOverrideSave.setAttribute('aria-disabled', 'true');
+      try{
+        const { data, error } = await SB.client.rpc('set_company_tier_override', {
+          p_company_id: SB.companyId,
+          p_tier: selected || null,
+          p_reason: reason
+        });
+        if(error) throw error;
+        if(data && data.success === false){
+          throw new Error(data.error || 'Override failed');
+        }
+        await sbRefreshAccess();
+        await refreshTierAdminDetails();
+        setTierOverrideMessage(selected ? 'Override saved.' : 'Override cleared.');
+        toast(selected ? 'Tier override saved' : 'Tier override cleared');
+        const reasonInput = $('tierOverrideReason');
+        if(reasonInput) reasonInput.value = '';
+      }catch(e){
+        setTierOverrideMessage(e && e.message ? e.message : 'Override failed');
+      }finally{
+        btnTierOverrideSave.disabled = false;
+        btnTierOverrideSave.setAttribute('aria-disabled', 'false');
+      }
+    });
+
+    const btnTierOverrideClear = $('btnTierOverrideClear');
+    if(btnTierOverrideClear) btnTierOverrideClear.addEventListener('click', async ()=>{
+      const reason = String($('tierOverrideReason')?.value || '').trim();
+      setTierOverrideMessage('');
+      if(!SB.session || !isEffectiveSuperUser()){
+        setTierOverrideMessage('Super user access required.');
+        return;
+      }
+      if(!SB.companyId){
+        setTierOverrideMessage('Select a company first.');
+        return;
+      }
+      if(!reason){
+        setTierOverrideMessage('Reason required.');
+        return;
+      }
+      btnTierOverrideClear.disabled = true;
+      btnTierOverrideClear.setAttribute('aria-disabled', 'true');
+      try{
+        const { data, error } = await SB.client.rpc('set_company_tier_override', {
+          p_company_id: SB.companyId,
+          p_tier: null,
+          p_reason: reason
+        });
+        if(error) throw error;
+        if(data && data.success === false){
+          throw new Error(data.error || 'Override failed');
+        }
+        await sbRefreshAccess();
+        await refreshTierAdminDetails();
+        setTierOverrideMessage('Override cleared.');
+        toast('Tier override cleared');
+        const reasonInput = $('tierOverrideReason');
+        if(reasonInput) reasonInput.value = '';
+      }catch(e){
+        setTierOverrideMessage(e && e.message ? e.message : 'Override failed');
+      }finally{
+        btnTierOverrideClear.disabled = false;
+        btnTierOverrideClear.setAttribute('aria-disabled', 'false');
       }
     });
 

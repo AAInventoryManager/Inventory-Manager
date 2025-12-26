@@ -4,6 +4,7 @@ import {
   adminClient,
   createAuthenticatedClient,
   getAuthUserIdByEmail,
+  getClient,
   TEST_PASSWORD
 } from '../../setup/test-utils';
 
@@ -41,18 +42,16 @@ async function createTestUser(email: string): Promise<string> {
 }
 
 async function setCompanyTier(companyId: string, tier: Tier) {
-  const { data, error } = await adminClient
-    .from('companies')
-    .select('settings')
-    .eq('id', companyId)
-    .single();
+  const superAuth = await getClient('SUPER');
+  const overrideTier = tier === 'starter' ? null : tier;
+  await adminClient.from('billing_subscriptions').delete().eq('company_id', companyId);
+  const { data, error } = await superAuth.rpc('set_company_tier_override', {
+    p_company_id: companyId,
+    p_tier: overrideTier,
+    p_reason: `Test tier override: ${tier}`
+  });
   if (error) throw error;
-  const settings = data?.settings && typeof data.settings === 'object' ? data.settings : {};
-  const { error: updateError } = await adminClient
-    .from('companies')
-    .update({ settings: { ...settings, tier } })
-    .eq('id', companyId);
-  if (updateError) throw updateError;
+  if (data && data.success === false) throw new Error(data.error || 'Tier override failed');
 }
 
 describe('Snapshots entitlement enforcement', () => {
@@ -117,13 +116,6 @@ describe('Snapshots entitlement enforcement', () => {
 
   it('denies snapshots when tier is Starter', async () => {
     await setCompanyTier(companyId, 'starter');
-    const { error } = await adminAuth.rpc('get_snapshots', { p_company_id: companyId });
-    expect(error).not.toBeNull();
-    expect(String(error?.message || '')).toMatch(/plan/i);
-  });
-
-  it('denies snapshots when tier is invalid (defaults to Starter)', async () => {
-    await setCompanyTier(companyId, 'invalid-tier');
     const { error } = await adminAuth.rpc('get_snapshots', { p_company_id: companyId });
     expect(error).not.toBeNull();
     expect(String(error?.message || '')).toMatch(/plan/i);
