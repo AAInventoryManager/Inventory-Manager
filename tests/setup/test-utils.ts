@@ -79,9 +79,9 @@ export type Tier = 'starter' | 'professional' | 'business' | 'enterprise';
 
 function isMissingRelation(error: { code?: string; message?: string } | null): boolean {
   if (!error) return false;
-  if (error.code === '42P01') return true;
+  if (error.code === '42P01' || error.code === 'PGRST205') return true;
   const message = String(error.message || '');
-  return message.includes('does not exist') || message.includes('relation');
+  return message.includes('does not exist') || message.includes('relation') || message.includes('Could not find the table');
 }
 
 async function setCompanyTierViaSettings(companyId: string, tier: Tier): Promise<void> {
