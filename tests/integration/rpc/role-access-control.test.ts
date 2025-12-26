@@ -12,13 +12,11 @@ import {
 type Tier = 'starter' | 'professional' | 'business' | 'enterprise';
 
 const uniqueSuffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-const viewerPermissions = {
-  can_read: true,
-  can_create: false,
-  can_update: false,
-  can_delete: false,
-  can_invite: false,
-  can_manage_users: false
+const viewerPermissionDefaults = {
+  'items:view': true,
+  'items:export': true,
+  'orders:view': true,
+  'members:view': true
 };
 
 function uniqueEmail(prefix: string) {
@@ -54,16 +52,33 @@ async function setCompanyTier(companyId: string, tier: Tier) {
   await setCompanyTierForTests(companyId, tier, `Test tier override: ${tier}`);
 }
 
-async function ensureRoleConfiguration(roleName: 'admin' | 'member' | 'viewer') {
-  const { error } = await adminClient.from('role_configurations').upsert(
-    {
-      role_name: roleName,
-      permissions: roleName === 'viewer' ? viewerPermissions : { can_read: true },
-      description: roleName === 'viewer' ? 'Read-only access' : null
-    },
-    { onConflict: 'role_name' }
-  );
+async function ensureViewerPermissions() {
+  const { data, error } = await adminClient
+    .from('role_configurations')
+    .select('permissions')
+    .eq('role_name', 'viewer')
+    .maybeSingle();
   if (error) throw error;
+  const permissions =
+    data?.permissions && typeof data.permissions === 'object' && !Array.isArray(data.permissions)
+      ? data.permissions
+      : {};
+  const nextPermissions = { ...permissions, ...viewerPermissionDefaults };
+  if (!data) {
+    const { error: insertError } = await adminClient.from('role_configurations').insert({
+      role_name: 'viewer',
+      permissions: nextPermissions,
+      description: 'Read-only access'
+    });
+    if (insertError) throw insertError;
+    return;
+  }
+  if (JSON.stringify(permissions) === JSON.stringify(nextPermissions)) return;
+  const { error: updateError } = await adminClient
+    .from('role_configurations')
+    .update({ permissions: nextPermissions, updated_at: new Date().toISOString() })
+    .eq('role_name', 'viewer');
+  if (updateError) throw updateError;
 }
 
 describe('RPC: role & access control enforcement', () => {
@@ -76,7 +91,7 @@ describe('RPC: role & access control enforcement', () => {
   let superUserId: string;
 
   beforeAll(async () => {
-    await ensureRoleConfiguration('viewer');
+    await ensureViewerPermissions();
 
     const slug = `role-access-${uniqueSuffix}`;
     const { data, error } = await adminClient

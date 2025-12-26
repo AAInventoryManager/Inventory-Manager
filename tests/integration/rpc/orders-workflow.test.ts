@@ -124,6 +124,8 @@ describe('Orders: tier and permission enforcement', () => {
     memberAuth = await createAuthenticatedClient(memberEmail, TEST_PASSWORD);
     viewerAuth = await createAuthenticatedClient(viewerEmail, TEST_PASSWORD);
 
+    await setRolePermission('viewer', 'orders:view', true);
+
     const { data: orderRow, error: orderError } = await adminAuth
       .from('orders')
       .insert({

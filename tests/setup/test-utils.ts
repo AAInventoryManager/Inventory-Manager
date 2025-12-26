@@ -28,9 +28,27 @@ function createAuthStorageKey(seed: string): string {
   return `sb-test-${seed.replace(/[^a-z0-9]/gi, '-')}-${Date.now()}-${suffix}`;
 }
 
+function createMemoryStorage() {
+  const store = new Map<string, string>();
+  return {
+    getItem: (key: string) => (store.has(key) ? store.get(key)! : null),
+    setItem: (key: string, value: string) => {
+      store.set(key, value);
+    },
+    removeItem: (key: string) => {
+      store.delete(key);
+    }
+  };
+}
+
 export async function createAuthenticatedClient(email: string, password: string): Promise<SupabaseClient> {
   const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false, storageKey: createAuthStorageKey(email) }
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      storageKey: createAuthStorageKey(email),
+      storage: createMemoryStorage()
+    }
   });
 
   const { data, error } = await client.auth.signInWithPassword({ email, password });

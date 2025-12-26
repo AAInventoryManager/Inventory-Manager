@@ -46,6 +46,22 @@ async function setCompanyTier(companyId: string, tier: Tier) {
   await setCompanyTierForTests(companyId, tier, `Test tier override: ${tier}`);
 }
 
+async function setRolePermission(roleName: string, permissionKey: string, value: boolean) {
+  const { data, error } = await adminClient
+    .from('role_configurations')
+    .select('permissions')
+    .eq('role_name', roleName)
+    .single();
+  if (error) throw error;
+  const permissions = data?.permissions && typeof data.permissions === 'object' ? data.permissions : {};
+  const nextPermissions = { ...permissions, [permissionKey]: value };
+  const { error: updateError } = await adminClient
+    .from('role_configurations')
+    .update({ permissions: nextPermissions, updated_at: new Date().toISOString() })
+    .eq('role_name', roleName);
+  if (updateError) throw updateError;
+}
+
 describe('Inventory core enforcement', () => {
   let companyId: string;
   let adminAuth: SupabaseClient;
@@ -105,6 +121,9 @@ describe('Inventory core enforcement', () => {
     adminAuth = await createAuthenticatedClient(adminEmail, TEST_PASSWORD);
     memberAuth = await createAuthenticatedClient(memberEmail, TEST_PASSWORD);
     viewerAuth = await createAuthenticatedClient(viewerEmail, TEST_PASSWORD);
+
+    await setRolePermission('viewer', 'items:view', true);
+    await setRolePermission('viewer', 'items:export', true);
 
     const { data: seed, error: seedError } = await adminAuth
       .from('inventory_items')
