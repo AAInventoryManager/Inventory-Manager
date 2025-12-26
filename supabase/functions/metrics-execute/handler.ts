@@ -14,6 +14,7 @@ export interface AuthenticatedUser {
 export interface AuthResult {
   user: AuthenticatedUser | null;
   error?: string;
+  is_super_user?: boolean;
 }
 
 export interface MetricsExecuteDependencies {
@@ -26,6 +27,8 @@ export async function handleMetricsExecuteRequest(
   req: Request,
   deps: MetricsExecuteDependencies
 ): Promise<Response> {
+  // Tier enforcement MUST route through DB-backed entitlement checks.
+  // JWT tier claims are not authoritative on their own; never trust client-provided tiers.
   const corsHeaders = deps.corsHeaders ?? {};
 
   if (req.method === 'OPTIONS') {
@@ -50,7 +53,7 @@ export async function handleMetricsExecuteRequest(
     );
   }
 
-  const { user, error } = await deps.getUser(req);
+  const { user, error, is_super_user } = await deps.getUser(req);
   if (error || !user) {
     return new Response(
       JSON.stringify({ ok: false, error: { code: 'Unauthorized', message: 'Unauthorized' } }),
@@ -58,7 +61,8 @@ export async function handleMetricsExecuteRequest(
     );
   }
 
-  const requesting_user_tier = user.app_metadata?.tier;
+  const isSuperUser = is_super_user === true;
+  const requesting_user_tier = isSuperUser ? 'TIER_3' : user.app_metadata?.tier;
   if (typeof requesting_user_tier !== 'string' || !requesting_user_tier) {
     return new Response(
       JSON.stringify({ ok: false, error: { code: 'UnauthorizedTier', message: 'No tier assigned to user' } }),

@@ -25,7 +25,7 @@ beforeAll(async () => {
 });
 
 describe('metrics-execute handler', () => {
-  it('ignores client-supplied tier and enforces JWT tier', async () => {
+  it('denies when client forges an elevated tier', async () => {
     const request = new Request('http://localhost/functions/v1/metrics-execute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -56,5 +56,41 @@ describe('metrics-execute handler', () => {
     };
     expect(payload.ok).toBe(false);
     expect(payload.error?.code).toBe('UnauthorizedTier');
+  });
+
+  it('allows super_user to bypass tier enforcement', async () => {
+    const request = new Request('http://localhost/functions/v1/metrics-execute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        metric_id: 'INVENTORY_TURNOVER',
+        context: {
+          period_start: '2025-01-01',
+          period_end: '2025-01-31',
+        },
+        inputs: {
+          COGS: 120000,
+          InventoryBegin: 40000,
+          InventoryEnd: 60000,
+        },
+      }),
+    });
+
+    const response = await handleMetricsExecuteRequest(request, {
+      metricService,
+      getUser: async () => ({
+        user: { app_metadata: { tier: 'TIER_1' } },
+        is_super_user: true,
+      }),
+    });
+
+    expect(response.status).toBe(200);
+    const payload = (await response.json()) as {
+      ok: boolean;
+      data?: { metric_id?: string };
+      error?: { code?: string; message?: string };
+    };
+    expect(payload.ok).toBe(true);
+    expect(payload.data?.metric_id).toBe('INVENTORY_TURNOVER');
   });
 });

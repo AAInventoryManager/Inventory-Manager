@@ -63,5 +63,15 @@ async function getUserFromRequest(req: Request) {
     return { user: null, error: 'Unauthorized' };
   }
 
-  return { user: data.user };
+  let isSuperUser = false;
+  try {
+    const { data: superUserFlag, error: superUserError } = await supabase.rpc('is_super_user');
+    if (!superUserError) {
+      isSuperUser = superUserFlag === true;
+    }
+  } catch (_error) {
+    isSuperUser = false;
+  }
+
+  return { user: data.user, is_super_user: isSuperUser };
 }
