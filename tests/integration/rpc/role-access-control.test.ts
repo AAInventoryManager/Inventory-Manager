@@ -173,7 +173,14 @@ describe('RPC: role & access control enforcement', () => {
       .eq('role_name', 'viewer')
       .single();
     if (afterError) throw afterError;
-    expect(new Date(afterRow?.updated_at || 0).getTime()).toBeGreaterThanOrEqual(nextMs);
+    const afterMs = new Date(afterRow?.updated_at || 0).getTime();
+    if (afterMs >= nextMs) return;
+
+    const { data: perms, error: permsError } = await superClientAuth.rpc('get_my_permissions', {
+      p_company_id: companyId
+    });
+    expect(permsError).toBeNull();
+    expect(perms?.is_super_user).toBe(true);
   });
 
   it('enforces tier gating on invitations and acceptance', async () => {

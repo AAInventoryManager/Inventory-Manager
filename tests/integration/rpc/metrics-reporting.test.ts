@@ -32,6 +32,7 @@ describe('RPC: metrics and reporting enforcement', () => {
         quantity: 0,
         reorder_point: 5,
         low_stock_qty: 5,
+        reorder_enabled: true,
         sku: `LS-${unique}`
       })
       .select('id')
