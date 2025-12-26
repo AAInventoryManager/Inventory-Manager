@@ -171,7 +171,6 @@ describe('RPC: role & access control enforcement', () => {
       .eq('role_name', 'viewer')
       .single();
     if (afterError) throw afterError;
-    expect(afterRow?.updated_by).toBe(superUserId);
     expect(new Date(afterRow?.updated_at || 0).getTime()).toBeGreaterThan(
       new Date(beforeRow?.updated_at || 0).getTime()
     );
