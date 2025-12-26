@@ -1,8 +1,48 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { adminClient, getClient, getCompanyId, setCompanyTierForTests, TEST_COMPANIES } from '../../setup/test-utils';
+import {
+  adminClient,
+  createAuthenticatedClient,
+  getAuthUserIdByEmail,
+  getClient,
+  getCompanyId,
+  setCompanyTierForTests,
+  TEST_COMPANIES,
+  TEST_PASSWORD
+} from '../../setup/test-utils';
 
 type Tier = 'starter' | 'professional' | 'business' | 'enterprise';
+
+const uniqueSuffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+function uniqueEmail(prefix: string) {
+  return `${prefix}+${uniqueSuffix}@test.local`;
+}
+
+async function createTestUser(email: string): Promise<string> {
+  const { data, error } = await adminClient.auth.admin.createUser({
+    email,
+    password: TEST_PASSWORD,
+    email_confirm: true
+  });
+  let userId = data?.user?.id;
+  if (!userId) {
+    if (error && error.message.toLowerCase().includes('already')) {
+      userId = await getAuthUserIdByEmail(email);
+    } else if (error) {
+      throw error;
+    }
+  }
+  if (!userId) throw new Error('Failed to create user');
+
+  const { error: updateError } = await adminClient.auth.admin.updateUserById(userId, {
+    password: TEST_PASSWORD,
+    email_confirm: true
+  });
+  if (updateError) throw updateError;
+
+  return userId;
+}
 
 async function setCompanyTier(companyId: string, tier: Tier) {
   await setCompanyTierForTests(companyId, tier, `Test tier override: ${tier}`);
@@ -14,6 +54,8 @@ describe('RPC: metrics and reporting enforcement', () => {
   let superClientAuth: SupabaseClient;
   let mainCompanyId: string;
   let lowStockItemId: string | null = null;
+  let lowStockCompanyId: string;
+  let lowStockAdminAuth: SupabaseClient;
 
   beforeAll(async () => {
     adminClientAuth = await getClient('ADMIN');
@@ -29,11 +71,41 @@ describe('RPC: metrics and reporting enforcement', () => {
 
     await setCompanyTier(mainCompanyId, 'professional');
 
+    const lowStockSlug = `low-stock-${uniqueSuffix}`;
+    const { data: lowStockCompany, error: lowStockCompanyError } = await adminClient
+      .from('companies')
+      .insert({
+        name: 'Low Stock Report Test',
+        slug: lowStockSlug,
+        settings: { test: true }
+      })
+      .select('id')
+      .single();
+    if (lowStockCompanyError || !lowStockCompany) {
+      throw lowStockCompanyError || new Error('Failed to create low stock company');
+    }
+    lowStockCompanyId = lowStockCompany.id;
+
+    const lowStockAdminEmail = uniqueEmail('low-stock-admin');
+    const lowStockAdminUserId = await createTestUser(lowStockAdminEmail);
+
+    const { error: lowStockMemberError } = await adminClient.from('company_members').insert({
+      company_id: lowStockCompanyId,
+      user_id: lowStockAdminUserId,
+      role: 'admin',
+      assigned_admin_id: lowStockAdminUserId
+    });
+    if (lowStockMemberError) throw lowStockMemberError;
+
+    lowStockAdminAuth = await createAuthenticatedClient(lowStockAdminEmail, TEST_PASSWORD);
+
+    await setCompanyTier(lowStockCompanyId, 'professional');
+
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const { data, error } = await adminClient
       .from('inventory_items')
       .insert({
-        company_id: mainCompanyId,
+        company_id: lowStockCompanyId,
         name: `Low Stock ${unique}`,
         quantity: 0,
         reorder_point: 5,
@@ -104,20 +176,23 @@ describe('RPC: metrics and reporting enforcement', () => {
   });
 
   it('enforces tier gating on low stock report RPC', async () => {
-    await setCompanyTier(mainCompanyId, 'starter');
-    const { error: deniedTier } = await adminClientAuth.rpc('get_low_stock_items', {
+    await setCompanyTier(lowStockCompanyId, 'starter');
+    const { error: deniedTier } = await lowStockAdminAuth.rpc('get_low_stock_items', {
       p_limit: 10,
       p_offset: 0
     });
     expect(deniedTier).not.toBeNull();
 
-    await setCompanyTier(mainCompanyId, 'professional');
-    const { data, error } = await adminClientAuth.rpc('get_low_stock_items', {
+    await setCompanyTier(lowStockCompanyId, 'professional');
+    const { data, error } = await lowStockAdminAuth.rpc('get_low_stock_items', {
       p_limit: 10,
       p_offset: 0
     });
     expect(error).toBeNull();
     const rows = Array.isArray(data) ? data : [];
     expect(rows.length).toBeGreaterThan(0);
+    if (lowStockItemId) {
+      expect(rows.some((row: { id: string }) => String(row.id) === String(lowStockItemId))).toBe(true);
+    }
   });
 });
