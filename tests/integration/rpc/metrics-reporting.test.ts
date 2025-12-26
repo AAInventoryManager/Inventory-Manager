@@ -19,7 +19,13 @@ describe('RPC: metrics and reporting enforcement', () => {
     adminClientAuth = await getClient('ADMIN');
     memberClientAuth = await getClient('MEMBER');
     superClientAuth = await getClient('SUPER');
-    mainCompanyId = await getCompanyId(TEST_COMPANIES.MAIN.slug);
+    const { data: adminCompanyId, error: adminCompanyError } =
+      await adminClientAuth.rpc<string>('get_user_company_id');
+    if (!adminCompanyError && adminCompanyId) {
+      mainCompanyId = adminCompanyId;
+    } else {
+      mainCompanyId = await getCompanyId(TEST_COMPANIES.MAIN.slug);
+    }
 
     await setCompanyTier(mainCompanyId, 'professional');
 
