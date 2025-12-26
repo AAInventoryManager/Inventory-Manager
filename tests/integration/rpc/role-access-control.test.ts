@@ -153,7 +153,9 @@ describe('RPC: role & access control enforcement', () => {
       .single();
     if (beforeError) throw beforeError;
 
-    const updatePayload = { updated_at: new Date().toISOString(), updated_by: superUserId };
+    const beforeMs = new Date(beforeRow?.updated_at || 0).getTime();
+    const nextMs = Math.max(Date.now(), beforeMs + 1000);
+    const updatePayload = { updated_at: new Date(nextMs).toISOString(), updated_by: superUserId };
     const { data: allowedRows, error: allowed } = await superClientAuth
       .from('role_configurations')
       .update(updatePayload)
@@ -171,9 +173,7 @@ describe('RPC: role & access control enforcement', () => {
       .eq('role_name', 'viewer')
       .single();
     if (afterError) throw afterError;
-    expect(new Date(afterRow?.updated_at || 0).getTime()).toBeGreaterThan(
-      new Date(beforeRow?.updated_at || 0).getTime()
-    );
+    expect(new Date(afterRow?.updated_at || 0).getTime()).toBeGreaterThanOrEqual(nextMs);
   });
 
   it('enforces tier gating on invitations and acceptance', async () => {
