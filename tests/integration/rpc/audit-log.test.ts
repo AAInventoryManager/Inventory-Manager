@@ -1,20 +1,11 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { adminClient, getClient, getCompanyId, TEST_COMPANIES } from '../../setup/test-utils';
+import { adminClient, getClient, getCompanyId, setCompanyTierForTests, TEST_COMPANIES } from '../../setup/test-utils';
 
 type Tier = 'starter' | 'professional' | 'business' | 'enterprise';
 
 async function setCompanyTier(companyId: string, tier: Tier) {
-  const superAuth = await getClient('SUPER');
-  const overrideTier = tier === 'starter' ? null : tier;
-  await adminClient.from('billing_subscriptions').delete().eq('company_id', companyId);
-  const { data, error } = await superAuth.rpc('set_company_tier_override', {
-    p_company_id: companyId,
-    p_tier: overrideTier,
-    p_reason: `Test tier override: ${tier}`
-  });
-  if (error) throw error;
-  if (data && data.success === false) throw new Error(data.error || 'Tier override failed');
+  await setCompanyTierForTests(companyId, tier, `Test tier override: ${tier}`);
 }
 
 async function getLatestAuditId(recordId: string) {

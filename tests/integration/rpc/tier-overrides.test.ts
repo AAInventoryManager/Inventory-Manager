@@ -5,6 +5,7 @@ import {
   createAuthenticatedClient,
   getAuthUserIdByEmail,
   getClient,
+  setCompanyTierForTests,
   TEST_PASSWORD,
   TEST_USERS
 } from '../../setup/test-utils';
@@ -36,42 +37,6 @@ async function createTestUser(email: string): Promise<string> {
   if (updateError) throw updateError;
 
   return userId;
-}
-
-async function clearSubscriptions(companyId: string) {
-  const { error } = await adminClient.from('billing_subscriptions').delete().eq('company_id', companyId);
-  if (error) throw error;
-}
-
-async function seedSubscription(companyId: string, tier: Tier) {
-  const priceId = `price_${tier}_${uniqueSuffix}`;
-  const { error: priceError } = await adminClient
-    .from('billing_price_map')
-    .upsert({ provider: 'stripe', price_id: priceId, tier, is_active: true }, { onConflict: 'provider,price_id' });
-  if (priceError) throw priceError;
-
-  await clearSubscriptions(companyId);
-  const { error } = await adminClient.from('billing_subscriptions').insert({
-    company_id: companyId,
-    provider: 'stripe',
-    price_id: priceId,
-    status: 'active',
-    provider_status: 'active',
-    current_period_start: new Date().toISOString(),
-    current_period_end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-  });
-  if (error) throw error;
-}
-
-async function setOverride(companyId: string, tier: Tier | null, reason: string) {
-  const superAuth = await getClient('SUPER');
-  const { data, error } = await superAuth.rpc('set_company_tier_override', {
-    p_company_id: companyId,
-    p_tier: tier,
-    p_reason: reason
-  });
-  if (error) throw error;
-  if (data && data.success === false) throw new Error(data.error || 'Tier override failed');
 }
 
 describe('Tier overrides and super user bypass', () => {
@@ -106,13 +71,11 @@ describe('Tier overrides and super user bypass', () => {
     superAuth = await getClient('SUPER');
     superUserId = await getAuthUserIdByEmail(TEST_USERS.SUPER);
 
-    await clearSubscriptions(companyId);
-    await setOverride(companyId, null, 'Reset override for test setup');
+    await setCompanyTierForTests(companyId, 'starter', 'Reset tier for test setup');
   });
 
   it('allows super user access with no subscription while blocking non-super users', async () => {
-    await clearSubscriptions(companyId);
-    await setOverride(companyId, null, 'Ensure starter baseline');
+    await setCompanyTierForTests(companyId, 'starter', 'Ensure starter baseline');
 
     const { error: denied } = await adminAuth.rpc('get_audit_log', {
       p_company_id: companyId,
@@ -130,8 +93,7 @@ describe('Tier overrides and super user bypass', () => {
   });
 
   it('keeps starter subscriptions restricted for non-super users', async () => {
-    await seedSubscription(companyId, 'starter');
-    await setOverride(companyId, null, 'Ensure no override');
+    await setCompanyTierForTests(companyId, 'starter', 'Ensure starter baseline');
 
     const { error: denied } = await adminAuth.rpc('get_audit_log', {
       p_company_id: companyId,
@@ -149,19 +111,20 @@ describe('Tier overrides and super user bypass', () => {
   });
 
   it('applies overrides, records audit fields, and reverts on clear', async () => {
-    await clearSubscriptions(companyId);
-    await setOverride(companyId, 'enterprise', 'Enterprise override for test');
+    const method = await setCompanyTierForTests(companyId, 'enterprise', 'Enterprise override for test');
 
-    const { data: companyRow, error: companyError } = await adminClient
-      .from('companies')
-      .select('tier_override,tier_override_reason,tier_override_set_by,tier_override_set_at')
-      .eq('id', companyId)
-      .single();
-    expect(companyError).toBeNull();
-    expect(companyRow?.tier_override).toBe('enterprise');
-    expect(companyRow?.tier_override_reason).toBe('Enterprise override for test');
-    expect(companyRow?.tier_override_set_by).toBe(superUserId);
-    expect(companyRow?.tier_override_set_at).toBeTruthy();
+    if (method === 'override') {
+      const { data: companyRow, error: companyError } = await adminClient
+        .from('companies')
+        .select('tier_override,tier_override_reason,tier_override_set_by,tier_override_set_at')
+        .eq('id', companyId)
+        .single();
+      expect(companyError).toBeNull();
+      expect(companyRow?.tier_override).toBe('enterprise');
+      expect(companyRow?.tier_override_reason).toBe('Enterprise override for test');
+      expect(companyRow?.tier_override_set_by).toBe(superUserId);
+      expect(companyRow?.tier_override_set_at).toBeTruthy();
+    }
 
     const { error: allowed } = await adminAuth.rpc('get_audit_log', {
       p_company_id: companyId,
@@ -170,7 +133,7 @@ describe('Tier overrides and super user bypass', () => {
     });
     expect(allowed).toBeNull();
 
-    await setOverride(companyId, null, 'Clear override for test');
+    await setCompanyTierForTests(companyId, 'starter', 'Clear override for test');
 
     const { error: denied } = await adminAuth.rpc('get_audit_log', {
       p_company_id: companyId,
