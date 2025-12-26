@@ -1,0 +1,109 @@
+metric_id: ABC_CLASSIFICATION
+display_name: ABC Inventory Classification
+tier: TIER_2
+
+description: >
+  Classifies inventory items into A, B, or C categories based on their
+  contribution to total annual consumption value. Used to prioritize
+  inventory management focus and control effort.
+
+formula:
+  expression: "ABC_CLASSIFICATION"
+
+math_operations:
+  - multiplication
+  - comparison
+  - cumulative_percentage
+
+variables:
+  AnnualUsageQuantity:
+    description: Total quantity sold or issued during the evaluation period.
+    source_tables:
+      - inventory_transactions
+    source_fields:
+      - quantity
+    aggregation: SUM
+    notes: Includes SALE and ISSUE transactions only.
+
+  UnitCost:
+    description: Cost per unit for the inventory item.
+    source_tables:
+      - inventory_costs
+    source_fields:
+      - unit_cost
+    aggregation: DERIVED
+    notes: Uses current or average cost per unit.
+
+time_semantics:
+  type: PERIOD_BASED
+  required_dates:
+    - period_start
+    - period_end
+
+dimensions_supported:
+  - item
+  - category
+  - location
+  - warehouse
+
+classification_rules:
+  A:
+    description: Highest value items that account for the top portion of total consumption value.
+    cumulative_value_percent_max: 80
+
+  B:
+    description: Moderate value items contributing to the next portion of total consumption value.
+    cumulative_value_percent_max: 95
+
+  C:
+    description: Lowest value items comprising the remaining tail of consumption value.
+    cumulative_value_percent_max: 100
+
+edge_cases:
+  - If total consumption value equals 0, classify all items as C.
+  - Exclude items with zero AnnualUsageQuantity from ranking.
+  - Explicitly handle missing UnitCost by excluding affected items.
+
+output:
+  data_type: CLASSIFICATION
+  precision: 0
+  unit: category
+
+tests:
+  - name: simple_abc
+    inputs:
+      records:
+        - item: SKU_A
+          AnnualUsageQuantity: 100
+          UnitCost: 10
+        - item: SKU_B
+          AnnualUsageQuantity: 50
+          UnitCost: 10
+        - item: SKU_C
+          AnnualUsageQuantity: 10
+          UnitCost: 10
+    expected_output:
+      SKU_A: A
+      SKU_B: B
+      SKU_C: C
+
+  - name: zero_value_exclusion
+    inputs:
+      records:
+        - item: SKU_X
+          AnnualUsageQuantity: 0
+          UnitCost: 10
+        - item: SKU_Y
+          AnnualUsageQuantity: 20
+          UnitCost: 5
+        - item: SKU_Z
+          AnnualUsageQuantity: 10
+          UnitCost: 5
+    expected_output:
+      SKU_Y: A
+      SKU_Z: B
+
+audit:
+  created_by: Product Engineering
+  approved_by: Chief Engineer
+  approval_date: 2025-12-25

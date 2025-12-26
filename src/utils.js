@@ -111,6 +111,33 @@ export function rowsToItems(rows) {
   return out;
 }
 
+export const DEFAULT_IMPERSONATION_ROLES = ['super_user', 'admin', 'member', 'viewer'];
+
+export function normalizeImpersonationRole(value, roles = DEFAULT_IMPERSONATION_ROLES) {
+  const allowed = Array.isArray(roles) && roles.length ? roles : DEFAULT_IMPERSONATION_ROLES;
+  const role = String(value || '').trim().toLowerCase();
+  return allowed.includes(role) ? role : '';
+}
+
+export function ensureImpersonationRole(value, roles = DEFAULT_IMPERSONATION_ROLES) {
+  const normalized = normalizeImpersonationRole(value, roles);
+  return normalized || 'super_user';
+}
+
+export function buildImpersonationRoleOptions(roles = DEFAULT_IMPERSONATION_ROLES) {
+  const allowed = Array.isArray(roles) && roles.length ? roles : DEFAULT_IMPERSONATION_ROLES;
+  const options = [];
+  const seen = new Set();
+  for (const role of allowed) {
+    const normalized = normalizeImpersonationRole(role, allowed);
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    options.push(normalized);
+  }
+  if (!seen.has('super_user')) options.unshift('super_user');
+  return options;
+}
+
 if (typeof window !== 'undefined') {
   const existing = window.IMUtils || {};
   window.IMUtils = {
@@ -118,6 +145,10 @@ if (typeof window !== 'undefined') {
     toKey: existing.toKey || toKey,
     toInt: existing.toInt || toInt,
     parseDelimitedSmart: existing.parseDelimitedSmart || parseDelimitedSmart,
-    rowsToItems: existing.rowsToItems || rowsToItems
+    rowsToItems: existing.rowsToItems || rowsToItems,
+    DEFAULT_IMPERSONATION_ROLES: existing.DEFAULT_IMPERSONATION_ROLES || DEFAULT_IMPERSONATION_ROLES,
+    normalizeImpersonationRole: existing.normalizeImpersonationRole || normalizeImpersonationRole,
+    ensureImpersonationRole: existing.ensureImpersonationRole || ensureImpersonationRole,
+    buildImpersonationRoleOptions: existing.buildImpersonationRoleOptions || buildImpersonationRoleOptions
   };
 }

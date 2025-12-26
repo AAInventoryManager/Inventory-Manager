@@ -1,0 +1,71 @@
+metric_id: DAYS_INVENTORY_OUTSTANDING
+display_name: Days Inventory Outstanding
+tier: TIER_2
+
+description: >
+  Measures the average number of days inventory is held before being sold.
+  This metric indicates inventory liquidity and operational efficiency.
+
+formula:
+  expression: "(AverageInventory / COGS) * 365"
+
+math_operations:
+  - division
+
+variables:
+  AverageInventory:
+    description: Average inventory value over the reporting period.
+    source_tables:
+      - inventory_snapshots
+    source_fields:
+      - inventory_value
+    aggregation: DERIVED
+    notes: Calculated as (InventoryBegin + InventoryEnd) / 2.
+
+  COGS:
+    description: Cost of goods sold during the reporting period.
+    source_tables:
+      - inventory_transactions
+    source_fields:
+      - extended_cost
+    aggregation: SUM
+    notes: Includes only SALE transactions posted to cost of goods sold.
+
+time_semantics:
+  type: PERIOD_BASED
+  required_dates:
+    - period_start
+    - period_end
+
+dimensions_supported:
+  - item
+  - category
+  - location
+  - warehouse
+
+edge_cases:
+  - Explicitly handle division by zero: if COGS equals 0, return NULL.
+  - If AverageInventory equals 0 and COGS is greater than 0, return 0.
+
+output:
+  data_type: DAYS
+  precision: 2
+  unit: days
+
+tests:
+  - name: standard_case
+    inputs:
+      AverageInventory: 50000
+      COGS: 100000
+    expected_output: 182.50
+
+  - name: zero_cogs
+    inputs:
+      AverageInventory: 50000
+      COGS: 0
+    expected_output: NULL
+
+audit:
+  created_by: Product Engineering
+  approved_by: Chief Engineer
+  approval_date: 2025-12-25

@@ -325,4 +325,13 @@ describe('RPC: role & access control enforcement', () => {
     expect(removeError).toBeNull();
     expect(removed?.success).toBe(true);
   });
+
+  it('keeps super user authority in permission RPCs', async () => {
+    const { data, error } = await superClientAuth.rpc('get_my_permissions', {
+      p_company_id: companyId
+    });
+    expect(error).toBeNull();
+    expect(data?.role).toBe('super_user');
+    expect(data?.is_super_user).toBe(true);
+  });
 });

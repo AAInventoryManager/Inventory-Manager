@@ -2322,6 +2322,11 @@
               <select id="profileCompanySelect" aria-label="Switch company"></select>
               <div class="profile-company-hint" id="profileCompanyHint"></div>
             </div>
+            <div class="profile-company" id="profileRoleTestingSection">
+              <label class="profile-company-label" for="profileRoleTestingSelect">Role (Testing Mode)</label>
+              <select id="profileRoleTestingSelect" aria-label="Select testing role"></select>
+              <div class="profile-company-hint" id="profileRoleTestingHint"></div>
+            </div>
             <div class="menu-divider" id="profileCompanyDivider"></div>
             <button class="menu-item" id="openProfileSettings">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -3340,7 +3345,9 @@
       _snapshotPreview:null,
       _metrics:null,
       _roleConfigs:{},
-      _roleChanges:{}
+      _roleChanges:{},
+      _impersonationRole:'super_user',
+      _impersonationPermissions:null
     };
     const APP_VERSION = '2.0.0';
 
@@ -3455,6 +3462,10 @@
       [PERMISSIONS.PLATFORM_MANAGE_ROLES]: { any:['is_super_user'] },
       [PERMISSIONS.PLATFORM_VIEW_METRICS]: { any:['is_super_user'] },
     };
+    const IMPERSONATION_ROLES = IMUtils.buildImpersonationRoleOptions
+      ? IMUtils.buildImpersonationRoleOptions(['super_user','admin','member','viewer'])
+      : ['super_user','admin','member','viewer'];
+    const IMPERSONATION_LOG_LIMIT = 25;
     const TIER_ORDER = ['starter','professional','business','enterprise'];
     const TIER_FALLBACK = 'starter';
     function getCompanyStorageKey(){
@@ -3572,19 +3583,20 @@
       const userEmail = SB.session?.user?.email || 'Unknown user';
       if(emailEl) emailEl.textContent = userEmail;
 
+      const testingLabel = isImpersonating() ? ` · Testing: ${getEffectiveRole()}` : '';
       if(!SB.authorized){
         const reason = (!SB.companyId) ? 'No company access' : ((!SB.permissions || !hasPermission(PERMISSIONS.ITEMS_VIEW)) ? 'Permission denied' : 'Not authorized');
-        if(connEl) connEl.textContent = reason;
+        if(connEl) connEl.textContent = `${reason}${testingLabel}`;
         if(statusEl) statusEl.classList.add('warning');
         setSignInUI('Sign Out', signOutIcon);
         return;
       }
       const companyName = (SB.company && SB.company.company_name) ? ` · ${SB.company.company_name}` : '';
       if(SB.connected){
-        if(connEl) connEl.textContent = `Connected${companyName}`;
+        if(connEl) connEl.textContent = `Connected${companyName}${testingLabel}`;
         if(statusEl) statusEl.classList.add('online');
       }else{
-        if(connEl) connEl.textContent = `Offline${companyName}`;
+        if(connEl) connEl.textContent = `Offline${companyName}${testingLabel}`;
         if(statusEl) statusEl.classList.add('offline');
       }
       setSignInUI('Sign Out', signOutIcon);
@@ -3641,17 +3653,151 @@
       if(!target) return true;
       return TIER_ORDER.indexOf(current) >= TIER_ORDER.indexOf(target);
     }
+    function normalizeRoleName(value){
+      if(IMUtils.normalizeImpersonationRole){
+        return IMUtils.normalizeImpersonationRole(value, IMPERSONATION_ROLES);
+      }
+      const role = String(value || '').trim().toLowerCase();
+      return IMPERSONATION_ROLES.includes(role) ? role : '';
+    }
+    function ensureImpersonationRole(value){
+      if(IMUtils.ensureImpersonationRole){
+        return IMUtils.ensureImpersonationRole(value, IMPERSONATION_ROLES);
+      }
+      return normalizeRoleName(value) || 'super_user';
+    }
+    function getImpersonationRoleOptions(){
+      if(IMUtils.buildImpersonationRoleOptions){
+        return IMUtils.buildImpersonationRoleOptions(IMPERSONATION_ROLES);
+      }
+      return IMPERSONATION_ROLES.slice();
+    }
+    function getAuthorityRole(){
+      const raw = String((SB.company && SB.company.my_role) || (SB.permissions && SB.permissions.role) || '').trim();
+      const normalized = normalizeRoleName(raw);
+      if(normalized) return normalized;
+      return isSuperUser() ? 'super_user' : '';
+    }
+    function isImpersonating(){
+      const role = normalizeRoleName(state._impersonationRole);
+      return !!(isSuperUser() && role && role !== 'super_user');
+    }
+    function getEffectiveRole(){
+      if(isImpersonating()){
+        return normalizeRoleName(state._impersonationRole) || 'super_user';
+      }
+      return getAuthorityRole();
+    }
+    function isEffectiveSuperUser(){
+      return isSuperUser() && !isImpersonating();
+    }
+    function getEffectivePermissions(){
+      if(isImpersonating() && state._impersonationPermissions && typeof state._impersonationPermissions === 'object'){
+        return state._impersonationPermissions;
+      }
+      return SB.permissions;
+    }
+    function getImpersonationLogKey(){
+      const userId = SB.user && SB.user.id ? String(SB.user.id) : 'anonymous';
+      return `inv.impersonation.log.${userId}`;
+    }
+    function logImpersonationEvent(fromRole, toRole, reason){
+      if(!SB.user) return;
+      const entry = {
+        ts: new Date().toISOString(),
+        user_id: SB.user.id,
+        company_id: SB.companyId || null,
+        company_name: (SB.company && SB.company.company_name) ? SB.company.company_name : null,
+        from: fromRole,
+        to: toRole,
+        reason: reason || 'manual',
+      };
+      try{
+        const key = getImpersonationLogKey();
+        const existing = JSON.parse(localStorage.getItem(key) || '[]');
+        const list = Array.isArray(existing) ? existing : [];
+        list.unshift(entry);
+        if(list.length > IMPERSONATION_LOG_LIMIT) list.length = IMPERSONATION_LOG_LIMIT;
+        localStorage.setItem(key, JSON.stringify(list));
+      }catch(e){}
+      console.info('[impersonation]', entry);
+    }
+    function resetImpersonationState(reason){
+      const prev = normalizeRoleName(state._impersonationRole) || 'super_user';
+      state._impersonationRole = 'super_user';
+      state._impersonationPermissions = null;
+      if(prev && prev !== 'super_user'){
+        logImpersonationEvent(prev, 'super_user', reason || 'reset');
+      }
+    }
+    async function loadImpersonationPermissions(role){
+      if(!role || role === 'super_user') return null;
+      const cached = state._roleConfigs && state._roleConfigs[role];
+      if(cached && typeof cached === 'object') return cached;
+      if(!SB.ready || !SB.session || !SB.client) return null;
+      try{
+        const { data, error } = await SB.client
+          .from('role_configurations')
+          .select('permissions')
+          .eq('role_name', role)
+          .maybeSingle();
+        if(error) throw error;
+        if(data && typeof data.permissions === 'object') return data.permissions;
+        return {};
+      }catch(e){
+        console.warn('Impersonation permissions load failed:', e);
+        return null;
+      }
+    }
+    function refreshImpersonationUi(){
+      updateStatusBar();
+      renderRoleTestingSwitcher();
+      renderInviteUi();
+      renderRoleRequestUi();
+      renderRoleRequestsAdminButton();
+      renderRoleManagerButton();
+      renderUserMgmtButton();
+      renderUserMgmtControls();
+      renderUserMgmtList();
+      applyPermissionUI();
+      render();
+    }
+    async function setImpersonationRole(nextRole, reason){
+      if(!isSuperUser()){
+        resetImpersonationState('not_super_user');
+        refreshImpersonationUi();
+        return false;
+      }
+      const desired = ensureImpersonationRole(nextRole);
+      const prev = normalizeRoleName(state._impersonationRole) || 'super_user';
+      if(desired === 'super_user'){
+        if(prev !== 'super_user'){
+          resetImpersonationState(reason || 'manual');
+          refreshImpersonationUi();
+        }
+        return true;
+      }
+      state._impersonationRole = desired;
+      const permissions = await loadImpersonationPermissions(desired);
+      state._impersonationPermissions = (permissions && typeof permissions === 'object') ? permissions : {};
+      if(prev !== desired){
+        logImpersonationEvent(prev, desired, reason || 'manual');
+      }
+      refreshImpersonationUi();
+      return true;
+    }
     function hasPermission(key){
-      if(!SB.permissions || !key) return false;
-      if(Object.prototype.hasOwnProperty.call(SB.permissions, key)){
-        return SB.permissions[key] === true;
+      const permissions = getEffectivePermissions();
+      if(!permissions || !key) return false;
+      if(Object.prototype.hasOwnProperty.call(permissions, key)){
+        return permissions[key] === true;
       }
       const legacy = LEGACY_PERMISSION_MAP[key];
       if(legacy && Array.isArray(legacy.any)){
-        return legacy.any.some(k => SB.permissions[k] === true);
+        return legacy.any.some(k => permissions[k] === true);
       }
       if(legacy && Array.isArray(legacy.all)){
-        return legacy.all.every(k => SB.permissions[k] === true);
+        return legacy.all.every(k => permissions[k] === true);
       }
       return false;
     }
@@ -3686,7 +3832,7 @@
     function canMetricsView(){ return hasPermission(PERMISSIONS.METRICS_VIEW); }
     function canSnapshotsView(){ return hasPermission(PERMISSIONS.SNAPSHOTS_VIEW); }
     function canPlatformMetricsView(){ return hasPermission(PERMISSIONS.PLATFORM_VIEW_METRICS); }
-    function canManageRoles(){ return hasPermission(PERMISSIONS.PLATFORM_MANAGE_ROLES) || isSuperUser(); }
+    function canManageRoles(){ return hasPermission(PERMISSIONS.PLATFORM_MANAGE_ROLES) || isEffectiveSuperUser(); }
     function canAccessTrash(){ return canItemsDelete() || canItemsRestore(); }
     function canAccessMembers(){ return canMembersView() && hasTier('business'); }
     function canAccessInvites(){ return canMembersInvite() && hasTier('business'); }
@@ -3700,11 +3846,11 @@
     }
     function canAccessMetrics(){
       const allowCompany = canMetricsView() && hasTier('professional');
-      const allowPlatform = canPlatformMetricsView() && isSuperUser() && hasTier('professional');
+      const allowPlatform = canPlatformMetricsView() && isEffectiveSuperUser() && hasTier('professional');
       return allowCompany || allowPlatform;
     }
     function canAccessRoleManager(){
-      return isSuperUser() && canManageRoles() && hasTier('business');
+      return isEffectiveSuperUser() && canManageRoles() && hasTier('business');
     }
     function canCreate(){ return canItemsCreate(); }
     function canUpdate(){ return canItemsEdit(); }
@@ -4098,7 +4244,7 @@
     function renderMetricsControls(){
       const viewSelect = $('metricsView');
       if(!viewSelect) return;
-      const allowPlatform = canPlatformMetricsView() && isSuperUser() && hasTier('professional');
+      const allowPlatform = canPlatformMetricsView() && isEffectiveSuperUser() && hasTier('professional');
       viewSelect.style.display = allowPlatform ? '' : 'none';
       if(!allowPlatform) viewSelect.value = 'company';
     }
@@ -4257,7 +4403,7 @@
         const viewEl = $('metricsView');
         const days = toInt(rangeEl ? rangeEl.value : 30, 30);
         const view = viewEl && viewEl.style.display !== 'none' ? String(viewEl.value || 'company') : 'company';
-        if(view === 'platform' && canPlatformMetricsView() && isSuperUser() && hasTier('professional')){
+        if(view === 'platform' && canPlatformMetricsView() && isEffectiveSuperUser() && hasTier('professional')){
           const { data, error } = await SB.client.rpc('get_platform_dashboard_metrics', { p_days: days });
           if(error) throw error;
           const title = $('metricsTitle'); if(title) title.textContent = 'Platform Metrics';
@@ -4298,13 +4444,14 @@
         section.style.display = 'none';
         return;
       }
-      const role = String((SB.company && SB.company.my_role) || (SB.permissions && SB.permissions.role) || '').trim();
+      const role = getEffectiveRole();
       if(role === 'super_user'){
         section.style.display = 'none';
         return;
       }
       section.style.display = '';
-      if(current) current.textContent = role ? `Current role: ${role}` : 'Current role: (unknown)';
+      const roleLabel = role ? (isImpersonating() ? `${role} (testing)` : role) : '';
+      if(current) current.textContent = role ? `Current role: ${roleLabel}` : 'Current role: (unknown)';
       const pending = state._roleRequestPending;
       if(pending){
         roleSelect.innerHTML = `<option value="${escapeHtmlAttr(pending.requested_role || '')}" selected>${escapeHtml(pending.requested_role || 'pending')}</option>`;
@@ -4351,7 +4498,7 @@
       const controls = $('userMgmtControls');
       const select = $('userMgmtCompany');
       if(!controls || !select) return;
-      if(!SB.session || !isSuperUser()){
+      if(!SB.session || !isEffectiveSuperUser()){
         controls.style.display = 'none';
         return;
       }
@@ -4384,7 +4531,7 @@
       select.disabled = rows.length <= 1;
     }
     function getUserMgmtCompanyId(){
-      if(isSuperUser()){
+      if(isEffectiveSuperUser()){
         return String(_userMgmtCompanyId || SB.companyId || '').trim();
       }
       return SB.companyId ? String(SB.companyId).trim() : '';
@@ -4803,6 +4950,7 @@
 	      if(!SB.session){
 	        section.style.display = 'none';
 	        if(divider) divider.style.display = 'none';
+        renderRoleTestingSwitcher();
 	        return;
 	      }
 	      const rows = Array.isArray(SB.companies) ? SB.companies : [];
@@ -4816,6 +4964,7 @@
 	        select.appendChild(opt);
 	        select.disabled = true;
 	        if(hint) hint.textContent = 'No company access yet.';
+        renderRoleTestingSwitcher();
 	        return;
 	      }
 	      rows.forEach(row => {
@@ -4848,7 +4997,33 @@
 	          hint.textContent = '';
 	        }
 	      }
+      renderRoleTestingSwitcher();
 	    }
+    function renderRoleTestingSwitcher(){
+      const section = $('profileRoleTestingSection');
+      const select = $('profileRoleTestingSelect');
+      const hint = $('profileRoleTestingHint');
+      if(!section || !select) return;
+      if(!SB.session || !isSuperUser()){
+        section.style.display = 'none';
+        if(hint) hint.textContent = '';
+        return;
+      }
+      section.style.display = '';
+      const options = getImpersonationRoleOptions();
+      const selected = ensureImpersonationRole(state._impersonationRole);
+      select.innerHTML = options.map(role => (
+        `<option value="${escapeHtmlAttr(role)}">${escapeHtml(role)}</option>`
+      )).join('');
+      select.value = options.includes(selected) ? selected : 'super_user';
+      select.disabled = false;
+      select.setAttribute('aria-disabled', 'false');
+      if(hint){
+        const effective = getEffectiveRole() || 'super_user';
+        const label = isImpersonating() ? `Testing as ${effective}` : 'Testing mode';
+        hint.textContent = `${label}. UI only; backend stays super_user.`;
+      }
+    }
 	    function setInviteMessage(msg){
 	      const el = $('inviteMsg'); if(!el) return;
 	      el.textContent = String(msg || '');
@@ -4874,7 +5049,7 @@
         return;
       }
       section.style.display = '';
-      const superUser = isSuperUser();
+      const superUser = isEffectiveSuperUser();
       if(companyRow) companyRow.style.display = superUser ? '' : 'none';
       let selectedCompanyId = SB.companyId ? String(SB.companyId) : '';
       if(superUser && companySelect){
@@ -5066,6 +5241,7 @@
 	        toast('Company switch failed');
 	        return false;
 	      }
+      resetImpersonationState('company_switch');
 	      SB.authorized = !!(SB.permissions && hasPermission(PERMISSIONS.ITEMS_VIEW));
 	      updateStatusBar();
 	      renderProfileUi();
@@ -5275,6 +5451,8 @@
         state._metrics = null;
         state._roleConfigs = {};
         state._roleChanges = {};
+        state._impersonationRole = 'super_user';
+        state._impersonationPermissions = null;
         _inviteCompanyId = '';
         _userMgmtCompanyId = '';
         if(_sbChannel && SB.client){ try{ SB.client.removeChannel(_sbChannel); }catch{} _sbChannel=null; }
@@ -5321,6 +5499,7 @@
       const profileDropdown = $('profileDropdown');
       const profileSignIn = $('profileSignIn');
       const profileCompanySelect = $('profileCompanySelect');
+      const profileRoleTestingSelect = $('profileRoleTestingSelect');
 
       function toggleProfileDropdown(open){
         if(profileDropdown){
@@ -5362,6 +5541,14 @@
             const name = SB.company && SB.company.company_name ? SB.company.company_name : 'company';
             toast(`Switched to ${name}`);
           }
+        });
+      }
+
+      if(profileRoleTestingSelect && !profileRoleTestingSelect._wired){
+        profileRoleTestingSelect._wired = true;
+        profileRoleTestingSelect.addEventListener('change', async (e)=>{
+          const nextRole = e && e.target ? e.target.value : '';
+          await setImpersonationRole(nextRole, 'manual');
         });
       }
 

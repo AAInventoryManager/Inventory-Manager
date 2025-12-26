@@ -25,6 +25,26 @@ features:
       - enterprise
     support_impact: none
     status: in_progress
+  - feature_id: inventory.billing.subscriptions
+    name: Subscription State & Tier Resolution
+    description: Subscription state tracking and tier resolution for entitlement enforcement.
+    tier_availability:
+      - starter
+      - professional
+      - business
+      - enterprise
+    support_impact: medium
+    status: in_progress
+  - feature_id: inventory.billing.webhooks
+    name: Billing Webhook State Sync
+    description: Stripe webhook ingestion to synchronize subscription state.
+    tier_availability:
+      - starter
+      - professional
+      - business
+      - enterprise
+    support_impact: low
+    status: in_progress
   - feature_id: inventory.auth.roles
     name: Role Engine
     description: Role-based access control for inventory actions.

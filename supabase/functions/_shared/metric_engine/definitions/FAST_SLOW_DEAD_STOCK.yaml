@@ -1,0 +1,98 @@
+metric_id: FAST_SLOW_DEAD_STOCK
+display_name: Fast / Slow / Dead Stock
+tier: TIER_2
+
+description: >
+  Classifies inventory items based on movement velocity over a defined
+  historical period. Used to identify fast-moving, slow-moving, and
+  non-moving (dead) stock for inventory optimization.
+
+formula:
+  expression: "MOVEMENT_CLASSIFICATION"
+
+math_operations:
+  - comparison
+
+variables:
+  QuantityMoved:
+    description: Total quantity of inventory issued or sold during the evaluation period.
+    source_tables:
+      - inventory_transactions
+    source_fields:
+      - quantity
+    aggregation: SUM
+    notes: Includes SALE and ISSUE transaction types only.
+
+  DaysObserved:
+    description: Number of days in the evaluation period.
+    source_tables:
+      - system
+    source_fields:
+      - derived
+    aggregation: DERIVED
+    notes: Calculated as (period_end - period_start) in days.
+
+time_semantics:
+  type: PERIOD_BASED
+  required_dates:
+    - period_start
+    - period_end
+
+dimensions_supported:
+  - item
+  - category
+  - location
+  - warehouse
+
+classification_rules:
+  fast:
+    description: High-velocity items with frequent movement.
+    condition: "average_daily_movement >= fast_threshold"
+
+  slow:
+    description: Low-velocity items with some movement.
+    condition: "average_daily_movement > 0 AND average_daily_movement < fast_threshold"
+
+  dead:
+    description: Items with no movement during the evaluation period.
+    condition: "average_daily_movement == 0"
+
+thresholds:
+  fast_threshold:
+    description: Minimum average daily movement to be considered fast-moving.
+    value: 0.1
+    unit: units_per_day
+
+edge_cases:
+  - If DaysObserved equals 0, return classification UNKNOWN.
+  - Explicitly handle no movement: if QuantityMoved equals 0, classify as DEAD.
+  - Exclude negative adjustments from movement calculations.
+
+output:
+  data_type: CLASSIFICATION
+  precision: 0
+  unit: category
+
+tests:
+  - name: fast_item
+    inputs:
+      QuantityMoved: 30
+      DaysObserved: 30
+    expected_output: FAST
+
+  - name: slow_item
+    inputs:
+      QuantityMoved: 2
+      DaysObserved: 30
+    expected_output: SLOW
+
+  - name: dead_item
+    inputs:
+      QuantityMoved: 0
+      DaysObserved: 30
+    expected_output: DEAD
+
+audit:
+  created_by: Product Engineering
+  approved_by: Chief Engineer
+  approval_date: 2025-12-25

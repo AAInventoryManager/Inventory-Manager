@@ -1,0 +1,97 @@
+metric_id: INVENTORY_AGING
+display_name: Inventory Aging
+tier: TIER_2
+
+description: >
+  Classifies on-hand inventory into age buckets based on the number
+  of days since receipt. Used to identify slow-moving and aging stock.
+
+formula:
+  expression: "AGE_BUCKET_SUMS"
+
+variables:
+  ReceiptDate:
+    description: Date inventory was received into stock.
+    source_tables:
+      - inventory_receipts
+    source_fields:
+      - receipt_date
+    aggregation: DERIVED
+    notes: Used to calculate age in days relative to as_of_date.
+
+  QuantityOnHand:
+    description: Quantity currently on hand for the inventory item.
+    source_tables:
+      - inventory_balances
+    source_fields:
+      - quantity_on_hand
+    aggregation: SUM
+    notes: Quantity remaining from each receipt lot.
+
+time_semantics:
+  type: AS_OF
+  required_dates:
+    - as_of_date
+
+dimensions_supported:
+  - item
+  - category
+  - location
+  - warehouse
+
+aging_buckets:
+  - name: "0_30"
+    min_days: 0
+    max_days: 30
+  - name: "31_60"
+    min_days: 31
+    max_days: 60
+  - name: "61_90"
+    min_days: 61
+    max_days: 90
+  - name: "90_PLUS"
+    min_days: 91
+    max_days: null
+
+edge_cases:
+  - Explicitly handle missing receipt dates: exclude records without ReceiptDate.
+  - If QuantityOnHand equals 0, exclude from all buckets.
+
+output:
+  data_type: BUCKETED_QUANTITY
+  precision: 0
+  unit: units
+
+tests:
+  - name: mixed_inventory
+    inputs:
+      records:
+        - receipt_date: "2025-11-25"
+          quantity_on_hand: 10
+        - receipt_date: "2025-10-15"
+          quantity_on_hand: 5
+        - receipt_date: "2025-08-01"
+          quantity_on_hand: 20
+    as_of_date: "2025-12-25"
+    expected_output:
+      0_30: 10
+      31_60: 5
+      61_90: 0
+      90_PLUS: 20
+
+  - name: zero_quantity
+    inputs:
+      records:
+        - receipt_date: "2025-11-01"
+          quantity_on_hand: 0
+    as_of_date: "2025-12-25"
+    expected_output:
+      0_30: 0
+      31_60: 0
+      61_90: 0
+      90_PLUS: 0
+
+audit:
+  created_by: Product Engineering
+  approved_by: Chief Engineer
+  approval_date: 2025-12-25

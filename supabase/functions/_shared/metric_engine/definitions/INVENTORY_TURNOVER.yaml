@@ -1,0 +1,74 @@
+metric_id: INVENTORY_TURNOVER
+display_name: Inventory Turnover
+tier: TIER_2
+
+description: >
+  Measures how many times inventory is sold and replaced
+  during a defined accounting period. Higher values indicate
+  more efficient inventory usage.
+
+formula:
+  expression: "COGS / AverageInventory"
+
+math_operations:
+  - division
+
+variables:
+  COGS:
+    description: Cost of goods sold during the reporting period.
+    source_tables:
+      - inventory_transactions
+    source_fields:
+      - extended_cost
+    aggregation: SUM
+    notes: Includes only SALE transactions posted to cost of goods sold.
+
+  AverageInventory:
+    description: Average inventory value over the reporting period.
+    source_tables:
+      - inventory_snapshots
+    source_fields:
+      - inventory_value
+    aggregation: DERIVED
+    notes: Calculated as (InventoryBegin + InventoryEnd) / 2.
+
+time_semantics:
+  type: PERIOD_BASED
+  required_dates:
+    - period_start
+    - period_end
+
+dimensions_supported:
+  - item
+  - category
+  - location
+  - warehouse
+
+edge_cases:
+  - Explicitly handle division by zero: if AverageInventory equals 0, return NULL.
+  - If COGS equals 0, return 0 (no inventory movement).
+
+output:
+  data_type: RATIO
+  precision: 2
+  unit: turns
+
+tests:
+  - name: standard_case
+    inputs:
+      COGS: 120000
+      InventoryBegin: 40000
+      InventoryEnd: 60000
+    expected_output: 2.40
+
+  - name: zero_inventory
+    inputs:
+      COGS: 50000
+      InventoryBegin: 0
+      InventoryEnd: 0
+    expected_output: NULL
+
+audit:
+  created_by: Product Engineering
+  approved_by: Chief Engineer
+  approval_date: 2025-12-25

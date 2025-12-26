@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { toInt, toKey, parseDelimitedSmart, rowsToItems } from '../../src/utils.js';
+import {
+  toInt,
+  toKey,
+  parseDelimitedSmart,
+  rowsToItems,
+  normalizeImpersonationRole,
+  ensureImpersonationRole,
+  buildImpersonationRoleOptions
+} from '../../src/utils.js';
 
 describe('utils', () => {
   it('toKey normalizes text', () => {
@@ -30,5 +38,21 @@ describe('utils', () => {
     const items = rowsToItems(rows);
     expect(items).toHaveLength(1);
     expect(items[0]).toEqual({ name: 'Widget', desc: 'Example', qty: 7 });
+  });
+});
+
+describe('impersonation helpers', () => {
+  it('normalizes roles and rejects unknown values', () => {
+    expect(normalizeImpersonationRole(' Admin ')).toBe('admin');
+    expect(normalizeImpersonationRole('owner')).toBe('');
+  });
+
+  it('ensures a safe fallback role', () => {
+    expect(ensureImpersonationRole('')).toBe('super_user');
+    expect(ensureImpersonationRole('viewer')).toBe('viewer');
+  });
+
+  it('always includes super_user in role options', () => {
+    expect(buildImpersonationRoleOptions(['admin', 'member'])).toEqual(['super_user', 'admin', 'member']);
   });
 });
