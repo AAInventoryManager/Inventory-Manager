@@ -23,9 +23,14 @@ export const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
   auth: { autoRefreshToken: false, persistSession: false }
 });
 
+function createAuthStorageKey(seed: string): string {
+  const suffix = Math.random().toString(16).slice(2);
+  return `sb-test-${seed.replace(/[^a-z0-9]/gi, '-')}-${Date.now()}-${suffix}`;
+}
+
 export async function createAuthenticatedClient(email: string, password: string): Promise<SupabaseClient> {
   const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false }
+    auth: { autoRefreshToken: false, persistSession: false, storageKey: createAuthStorageKey(email) }
   });
 
   const { data, error } = await client.auth.signInWithPassword({ email, password });
