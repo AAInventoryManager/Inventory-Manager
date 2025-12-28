@@ -3123,6 +3123,30 @@
     </div>
   </div>
 
+  <!-- Invite accept modal -->
+  <div id="inviteAcceptModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;">Set Your Password</h2>
+        <button class="btn" id="btnInviteAcceptClose" type="button">Close</button>
+      </div>
+      <div class="muted" style="margin-top:6px;">Create a password to activate your invited account.</div>
+      <div style="display:grid; grid-template-columns:1fr; gap:8px; margin-top:10px;">
+        <label class="muted">New Password</label>
+        <input id="inviteAcceptPassword" type="password" placeholder="New password" autocomplete="new-password" />
+        <label class="muted">Confirm Password</label>
+        <input id="inviteAcceptPasswordConfirm" type="password" placeholder="Confirm password" autocomplete="new-password" />
+      </div>
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <button class="btn primary" id="btnInviteAcceptSubmit">Create Account</button>
+      </div>
+      <div class="auth-actions">
+        <button class="auth-link" id="btnInviteAcceptSignIn" type="button">Already have an account? Sign in</button>
+      </div>
+      <div id="inviteAcceptMsg" class="muted" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
   <!-- Password reset modal -->
   <div id="resetModal" class="modal" aria-hidden="true">
     <div class="box">
@@ -6108,10 +6132,12 @@
 	      try{
 	        const params = new URLSearchParams(window.location.search);
 	        const token = params.get('invite');
-	        if(!token) return;
+	        if(!token) return '';
 	        localStorage.setItem('inv.pendingInvite', token);
 	        window.history.replaceState({}, '', window.location.pathname);
+	        return token;
 	      }catch(e){}
+	      return '';
 	    }
 	    async function sbCheckPendingInvite(){
 	      storeInviteTokenFromUrl();
@@ -6137,6 +6163,63 @@
 	      }
 	      return false;
 	    }
+    function getInviteAcceptUrl(){
+      const override = (typeof window.INVITE_ACCEPT_URL === 'string') ? window.INVITE_ACCEPT_URL.trim() : '';
+      if(override) return override;
+      const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
+      if(sbUrl) return `${sbUrl}/functions/v1/accept-invite`;
+      return '/functions/v1/accept-invite';
+    }
+    function getPendingInviteToken(){
+      try{
+        return localStorage.getItem('inv.pendingInvite') || '';
+      }catch(e){
+        return '';
+      }
+    }
+    function setInviteAcceptMessage(msg){
+      const el = $('inviteAcceptMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function resetInviteAcceptForm(){
+      const pw = $('inviteAcceptPassword');
+      const confirm = $('inviteAcceptPasswordConfirm');
+      if(pw) pw.value = '';
+      if(confirm) confirm.value = '';
+      setInviteAcceptMessage('');
+    }
+    function openInviteAcceptModal(){
+      resetInviteAcceptForm();
+      show('inviteAcceptModal', true);
+    }
+    function closeInviteAcceptModal(){
+      show('inviteAcceptModal', false);
+    }
+    async function sbCompleteInvite(password, confirm){
+      const token = getPendingInviteToken();
+      if(!token) throw Error('Invite token missing');
+      const pw = String(password || '');
+      const pwConfirm = String(confirm || '');
+      if(pw.length < 8) throw Error('Use at least 8 characters');
+      if(pw !== pwConfirm) throw Error('Passwords do not match');
+      const apiUrl = getInviteAcceptUrl();
+      const headers = { 'content-type': 'application/json' };
+      const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
+      const sbKey = (typeof window.SB_ANON === 'string') ? window.SB_ANON.trim() : '';
+      if(sbUrl && apiUrl.startsWith(sbUrl) && sbKey){
+        headers['apikey'] = sbKey;
+      }
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ token, password: pw }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if(!res.ok){
+        return { ok: false, error: data && data.error ? data.error : 'Invite setup failed', code: data?.code, email: data?.email };
+      }
+      return data || { ok: true };
+    }
     function getInviteSendUrl(){
       const override = (typeof window.INVITE_SEND_URL === 'string') ? window.INVITE_SEND_URL.trim() : '';
       if(override) return override;
@@ -6509,6 +6592,7 @@
       applyPermissionUI();
 
       if(!SB.session){
+        const inviteToken = storeInviteTokenFromUrl() || getPendingInviteToken();
         state.items = [];
         state._userMgmtRows = [];
         state._snapshots = [];
@@ -6522,7 +6606,12 @@
         _userMgmtCompanyId = '';
         if(_sbChannel && SB.client){ try{ SB.client.removeChannel(_sbChannel); }catch{} _sbChannel=null; }
         render();
-        show('authModal', true);
+        if(inviteToken){
+          show('authModal', false);
+          openInviteAcceptModal();
+        }else{
+          show('authModal', true);
+        }
         applyPermissionUI();
         renderCompanySwitcher();
         renderInviteUi();
@@ -6709,6 +6798,59 @@
     const authPassword = $('authPassword');
     if(authPassword) authPassword.addEventListener('keydown', (e)=>{
       if(e.key === 'Enter'){ e.preventDefault(); $('btnAuthSubmit')?.click(); }
+    });
+
+    const btnInviteAcceptSubmit = $('btnInviteAcceptSubmit');
+    if(btnInviteAcceptSubmit) btnInviteAcceptSubmit.addEventListener('click', async ()=>{
+      const password = $('inviteAcceptPassword')?.value || '';
+      const confirm = $('inviteAcceptPasswordConfirm')?.value || '';
+      setInviteAcceptMessage('');
+      btnInviteAcceptSubmit.disabled = true;
+      btnInviteAcceptSubmit.setAttribute('aria-disabled', 'true');
+      try{
+        const result = await sbCompleteInvite(password, confirm);
+        if(result && result.ok){
+          const email = String(result.email || '').trim();
+          if(!email) throw new Error('Invite email missing');
+          setInviteAcceptMessage('Account created. Signing you in...');
+          await sbSignIn(email, password);
+          closeInviteAcceptModal();
+        }else{
+          const code = result && result.code ? String(result.code) : '';
+          const email = result && result.email ? String(result.email) : '';
+          if(code === 'ExistingUser'){
+            if(email) $('authEmail') && ($('authEmail').value = email);
+            closeInviteAcceptModal();
+            show('authModal', true);
+            setAuthMessage('Account already exists. Please sign in.');
+          }else{
+            const msg = result && result.error ? String(result.error) : 'Invite setup failed';
+            setInviteAcceptMessage(msg);
+          }
+        }
+      }catch(e){
+        setInviteAcceptMessage(e && e.message ? e.message : 'Invite setup failed');
+      }finally{
+        btnInviteAcceptSubmit.disabled = false;
+        btnInviteAcceptSubmit.setAttribute('aria-disabled', 'false');
+      }
+    });
+
+    const inviteAcceptConfirm = $('inviteAcceptPasswordConfirm');
+    if(inviteAcceptConfirm) inviteAcceptConfirm.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){ e.preventDefault(); $('btnInviteAcceptSubmit')?.click(); }
+    });
+
+    const btnInviteAcceptClose = $('btnInviteAcceptClose');
+    if(btnInviteAcceptClose) btnInviteAcceptClose.addEventListener('click', ()=>{
+      closeInviteAcceptModal();
+      show('authModal', true);
+    });
+
+    const btnInviteAcceptSignIn = $('btnInviteAcceptSignIn');
+    if(btnInviteAcceptSignIn) btnInviteAcceptSignIn.addEventListener('click', ()=>{
+      closeInviteAcceptModal();
+      show('authModal', true);
     });
 
     const btnResetSubmit = $('btnResetSubmit');
