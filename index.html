@@ -153,35 +153,12 @@
     #invTable thead th[data-col="desc"]{
       text-align:left;
     }
-	    #invTable thead th.col-resize-hot{
-	      cursor:col-resize;
-	    }
-	    #invTable thead th.col-resize-hot::after{
-	      width:2px;
-	      background:rgba(226,232,240,0.75);
-	    }
-    #tableWrap .col-resize-guide{
-      position:absolute;
-      top:0;
-      bottom:0;
-      width:2px;
-      background:rgba(148,163,184,0.8);
-      box-shadow:0 0 0 1px rgba(15,23,42,0.6);
-      pointer-events:none;
-      display:none;
-      z-index:8;
-    }
-    body.col-resize-active{
-      cursor:col-resize;
-      user-select:none;
-    }
 	    #invTable tbody td[data-col="name"] .cell-val{ font-weight:900; }
 	    #invTable tbody td[data-col="desc"] .cell-val{ color:var(--muted); }
-    th.sortable{ cursor:default; user-select:none }
+    th.sortable{ cursor:pointer; user-select:none }
     th.sortable .sort-ind{
       margin-left:6px;
       display:inline-block;
-      cursor:pointer;
       padding:4px 6px;
       border-radius:4px;
       transition:background 0.15s, opacity 0.15s;
@@ -7719,7 +7696,6 @@
     }
     function render(){
       renderTable();
-      applySavedColumnWidths();
       renderKpis();
     }
 
@@ -7792,59 +7768,6 @@ function adjustTitleSize(){
 	  });
 	}
 
-	const COL_WIDTH_MIN = 48;
-	const COL_WIDTH_STORAGE_PREFIX = 'inv.colwidths.v1';
-
-	function getColumnWidthStorageKey(){
-	  const uid = (SB && SB.user && SB.user.id) ? String(SB.user.id) : 'anon';
-	  return `${COL_WIDTH_STORAGE_PREFIX}.${uid}`;
-	}
-	function readSavedColumnWidths(){
-	  try{
-	    const raw = localStorage.getItem(getColumnWidthStorageKey());
-	    if(!raw) return null;
-	    const data = JSON.parse(raw);
-	    if(!data || typeof data !== 'object') return null;
-	    return data.widths ? data.widths : data;
-	  }catch(e){ return null; }
-	}
-	function applySavedColumnWidths(){
-	  try{
-	    const table = document.getElementById('invTable');
-	    if(!table) return;
-	    const colgroup = table.querySelector('colgroup');
-	    if(!colgroup) return;
-	    const widths = readSavedColumnWidths();
-	    if(!widths) return;
-	    colgroup.querySelectorAll('col[id]').forEach(col=>{
-	      const width = Math.round(parseFloat(widths[col.id]));
-	      if(!Number.isFinite(width) || width < COL_WIDTH_MIN) return;
-	      col.style.width = `${width}px`;
-	      col.dataset.userWidth = '1';
-	    });
-	  }catch(e){}
-	}
-	function saveColumnWidths(){
-	  try{
-	    const table = document.getElementById('invTable');
-	    if(!table) return;
-	    const colgroup = table.querySelector('colgroup');
-	    if(!colgroup) return;
-	    const widths = {};
-	    colgroup.querySelectorAll('col[id]').forEach(col=>{
-	      if(col.dataset.userWidth !== '1') return;
-	      const width = parseFloat(col.style.width);
-	      if(Number.isFinite(width) && width > 0) widths[col.id] = Math.round(width);
-	    });
-	    if(!Object.keys(widths).length) return;
-	    localStorage.setItem(getColumnWidthStorageKey(), JSON.stringify({
-	      widths,
-	      updatedAt: new Date().toISOString()
-	    }));
-	  }catch(e){}
-	}
-
-
 	function adjustDescColumnWidth(){
 	  try{
 	    const table = document.getElementById('invTable');
@@ -7885,149 +7808,6 @@ function adjustTitleSize(){
       el.style.whiteSpace='nowrap'; el.style.wordBreak='normal'; el.style.hyphens='manual';
     });
 	  }catch(e){ /* no-op */ }
-	}
-
-	function autoFitColumnByIndex(index){
-	  const table = document.getElementById('invTable');
-	  if(!table) return;
-	  const colgroup = table.querySelector('colgroup');
-	  if(!colgroup) return;
-	  const cols = Array.from(colgroup.children);
-	  const col = cols[index];
-	  if(!col) return;
-	  const ths = Array.from(table.querySelectorAll('thead th'));
-	  const th = ths[index];
-	  let max = th ? th.scrollWidth : 0;
-	  const cells = Array.from(table.querySelectorAll(`tbody tr td:nth-child(${index + 1})`));
-	  for(const cell of cells){
-	    max = Math.max(max, cell.scrollWidth);
-	  }
-	  const padding = 18;
-	  const width = Math.max(COL_WIDTH_MIN, Math.ceil(max + padding));
-	  col.style.width = `${width}px`;
-	  col.dataset.userWidth = '1';
-	  saveColumnWidths();
-	}
-
-	function getHeaderResizeTarget(e){
-	  const th = e.target.closest('th');
-	  if(!th) return null;
-	  const thead = th.closest('thead');
-	  if(!thead) return null;
-	  const ths = Array.from(thead.querySelectorAll('th'));
-	  const idx = ths.indexOf(th);
-	  if(idx < 0) return null;
-	  const rect = th.getBoundingClientRect();
-	  const edge = 6;
-	  const leftHit = e.clientX - rect.left;
-	  const rightHit = rect.right - e.clientX;
-	  let targetIdx = null;
-	  if(rightHit >= 0 && rightHit <= edge) targetIdx = idx;
-	  else if(leftHit >= 0 && leftHit <= edge) targetIdx = idx - 1;
-	  if(targetIdx === null || targetIdx < 0) return null;
-	  const targetTh = ths[targetIdx];
-	  if(!targetTh || !targetTh.dataset.col) return null;
-	  return { targetIdx, targetTh, ths, thead };
-	}
-
-	function handleHeaderAutoFit(e){
-	  if(isMobileUx()) return;
-	  const target = getHeaderResizeTarget(e);
-	  if(!target) return;
-	  autoFitColumnByIndex(target.targetIdx);
-	}
-
-	function updateHeaderResizeCursor(e){
-	  if(_headerResize) return;
-	  if(isMobileUx()) return;
-	  const target = getHeaderResizeTarget(e);
-	  const th = e.target.closest('th');
-	  if(!th) return;
-	  const thead = th.closest('thead');
-	  if(!thead) return;
-	  thead.querySelectorAll('th').forEach(t => t.classList.remove('col-resize-hot'));
-	  if(!target) return;
-	  target.targetTh.classList.add('col-resize-hot');
-	}
-
-	let _headerResize = null;
-	function ensureResizeGuide(){
-	  const tableWrap = document.getElementById('tableWrap');
-	  if(!tableWrap) return null;
-	  let guide = tableWrap.querySelector('.col-resize-guide');
-	  if(!guide){
-	    guide = document.createElement('div');
-	    guide.className = 'col-resize-guide';
-	    tableWrap.appendChild(guide);
-	  }
-	  return guide;
-	}
-	function startHeaderResize(e){
-	  if(isMobileUx()) return;
-	  if(e.button !== 0) return;
-	  const target = getHeaderResizeTarget(e);
-	  if(!target) return;
-	  const table = document.getElementById('invTable');
-	  const colgroup = table ? table.querySelector('colgroup') : null;
-	  if(!table || !colgroup) return;
-	  const cols = Array.from(colgroup.children);
-	  const col = cols[target.targetIdx];
-	  if(!col) return;
-	  const tableWrap = document.getElementById('tableWrap');
-	  if(!tableWrap) return;
-	  const guide = ensureResizeGuide();
-	  if(!guide) return;
-
-	  const targetRect = target.targetTh.getBoundingClientRect();
-	  const wrapRect = tableWrap.getBoundingClientRect();
-	  const startX = targetRect.right;
-	  const startWidth = target.targetTh.getBoundingClientRect().width;
-	  const minWidth = COL_WIDTH_MIN;
-	  const maxWidth = Math.max(minWidth, tableWrap.clientWidth * 2);
-
-	  _headerResize = {
-	    col,
-	    startX,
-	    startWidth,
-	    minWidth,
-	    maxWidth,
-	    guide,
-	    wrapRect,
-	    tableWrap,
-	    lastWidth: startWidth,
-	  };
-
-	  const left = (startX - wrapRect.left) + tableWrap.scrollLeft;
-	  guide.style.left = `${Math.max(0, left)}px`;
-	  guide.style.display = 'block';
-	  document.body.classList.add('col-resize-active');
-	  e.preventDefault();
-	  e.stopPropagation();
-	  window.addEventListener('mousemove', onHeaderResizeMove);
-	  window.addEventListener('mouseup', onHeaderResizeUp);
-	}
-	function onHeaderResizeMove(e){
-	  if(!_headerResize) return;
-	  const st = _headerResize;
-	  const delta = e.clientX - st.startX;
-	  const width = Math.round(Math.min(st.maxWidth, Math.max(st.minWidth, st.startWidth + delta)));
-	  st.lastWidth = width;
-	  st.col.style.width = `${width}px`;
-	  const left = (e.clientX - st.wrapRect.left) + st.tableWrap.scrollLeft;
-	  st.guide.style.left = `${Math.max(0, left)}px`;
-	}
-	function onHeaderResizeUp(){
-	  if(!_headerResize) return;
-	  const st = _headerResize;
-	  const width = Math.round(Math.min(st.maxWidth, Math.max(st.minWidth, st.lastWidth || st.startWidth)));
-	  st.col.style.width = `${width}px`;
-	  st.col.dataset.userWidth = '1';
-	  st.guide.style.display = 'none';
-	  document.body.classList.remove('col-resize-active');
-	  window.removeEventListener('mousemove', onHeaderResizeMove);
-	  window.removeEventListener('mouseup', onHeaderResizeUp);
-	  _headerResize = null;
-	  saveColumnWidths();
 	}
 
 		function isMobileUx(){
@@ -9057,15 +8837,6 @@ function emptyStateHtml(){
 		      }, { passive:true });
 		    }
 		    if(invTable){
-		      const thead = invTable.querySelector('thead');
-		      if(thead){
-		        thead.addEventListener('dblclick', handleHeaderAutoFit);
-		        thead.addEventListener('mousemove', updateHeaderResizeCursor);
-		        thead.addEventListener('mousedown', startHeaderResize);
-		        thead.addEventListener('mouseleave', ()=> {
-		          thead.querySelectorAll('th.col-resize-hot').forEach(th => th.classList.remove('col-resize-hot'));
-		        });
-		      }
 		      invTable.addEventListener('click', (e)=>{
 		        const btn = e.target.closest('button.qty-step-btn');
 		        if(!btn) return;
@@ -14283,11 +14054,8 @@ function emptyStateHtml(){
 	        });
 	      }
 
-	      document.querySelectorAll('#invTable thead th.sortable .sort-ind').forEach(ind=>{
-	        ind.addEventListener('click', (e)=>{
-	          e.stopPropagation();
-	          const th = ind.closest('th');
-	          if(!th) return;
+	      document.querySelectorAll('#invTable thead th.sortable').forEach(th=>{
+	        th.addEventListener('click', ()=>{
 	          const col = th.getAttribute('data-col'); if(!col) return;
 	          const srt = getSort();
 	          if(srt.col === col){
