@@ -103,19 +103,6 @@ serve(async (req) => {
       );
     }
 
-    const { data: existingUser } = await supabase.auth.admin.getUserByEmail(email);
-    if (existingUser?.user) {
-      return new Response(
-        JSON.stringify({
-          ok: false,
-          code: "ExistingUser",
-          error: "Account already exists. Please sign in.",
-          email,
-        }),
-        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     const { error: createError } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -124,10 +111,20 @@ serve(async (req) => {
 
     if (createError) {
       const msg = createError.message || "Failed to create account";
-      const status = msg.toLowerCase().includes("already") ? 409 : 500;
+      if (msg.toLowerCase().includes("already")) {
+        return new Response(
+          JSON.stringify({
+            ok: false,
+            code: "ExistingUser",
+            error: "Account already exists. Please sign in.",
+            email,
+          }),
+          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
       return new Response(
         JSON.stringify({ ok: false, error: msg, email }),
-        { status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
