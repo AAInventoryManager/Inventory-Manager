@@ -250,17 +250,17 @@ describe('Inventory core enforcement', () => {
 
   it('rejects invalid manual tier overrides', async () => {
     const superAuth = await getClient('SUPER');
-    const { data, error } = await superAuth.rpc('set_company_tier_override', {
+    const { data, error } = await superAuth.rpc('grant_company_tier_override', {
       p_company_id: companyId,
-      p_tier: 'invalid-tier',
-      p_reason: 'Invalid override test'
+      p_override_tier: 'invalid-tier',
+      p_ends_at: null
     });
     if (error && error.code === 'PGRST202') {
       return;
     }
     expect(error).toBeNull();
     expect(data?.success).toBe(false);
-    expect(String(data?.error || '')).toMatch(/invalid tier/i);
+    expect(String(data?.error || '')).toMatch(/invalid.*tier/i);
   });
 
   it('restricts export to Professional tier', async () => {

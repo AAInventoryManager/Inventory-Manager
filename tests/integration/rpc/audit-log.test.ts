@@ -24,11 +24,13 @@ async function getLatestAuditId(recordId: string) {
 describe('RPC: audit log and undo actions', () => {
   let adminClientAuth: SupabaseClient;
   let memberClientAuth: SupabaseClient;
+  let superClientAuth: SupabaseClient;
   let mainCompanyId: string;
 
   beforeAll(async () => {
     adminClientAuth = await getClient('ADMIN');
     memberClientAuth = await getClient('MEMBER');
+    superClientAuth = await getClient('SUPER');
     mainCompanyId = await getCompanyId(TEST_COMPANIES.MAIN.slug);
     await setCompanyTier(mainCompanyId, 'enterprise');
   });
@@ -44,6 +46,27 @@ describe('RPC: audit log and undo actions', () => {
 
     expect(error).not.toBeNull();
     expect(error?.message || '').toMatch(/plan/i);
+
+    await setCompanyTier(mainCompanyId, 'enterprise');
+  });
+
+  it('allows audit log when override elevates base tier', async () => {
+    await setCompanyTier(mainCompanyId, 'starter');
+    const endsAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+
+    const { error: overrideError } = await superClientAuth.rpc('grant_company_tier_override', {
+      p_company_id: mainCompanyId,
+      p_override_tier: 'enterprise',
+      p_ends_at: endsAt
+    });
+    expect(overrideError).toBeNull();
+
+    const { error } = await adminClientAuth.rpc('get_audit_log', {
+      p_company_id: mainCompanyId,
+      p_limit: 10,
+      p_offset: 0
+    });
+    expect(error).toBeNull();
 
     await setCompanyTier(mainCompanyId, 'enterprise');
   });

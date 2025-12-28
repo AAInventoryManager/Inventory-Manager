@@ -46,7 +46,7 @@ describe('metrics-execute handler', () => {
 
     const response = await handleMetricsExecuteRequest(request, {
       metricService,
-      getUser: async () => ({ user: { app_metadata: { tier: 'TIER_1' } } }),
+      getUser: async () => ({ user: { app_metadata: { tier: 'TIER_3' } }, effective_company_tier: 'starter' }),
     });
 
     expect(response.status).toBe(403);
@@ -81,6 +81,7 @@ describe('metrics-execute handler', () => {
       getUser: async () => ({
         user: { app_metadata: { tier: 'TIER_1' } },
         is_super_user: true,
+        effective_company_tier: 'enterprise',
       }),
     });
 

@@ -15,6 +15,7 @@ export interface AuthResult {
   user: AuthenticatedUser | null;
   error?: string;
   is_super_user?: boolean;
+  effective_company_tier?: string | null;
 }
 
 export interface MetricsExecuteDependencies {
@@ -53,7 +54,7 @@ export async function handleMetricsExecuteRequest(
     );
   }
 
-  const { user, error, is_super_user } = await deps.getUser(req);
+  const { user, error, is_super_user, effective_company_tier } = await deps.getUser(req);
   if (error || !user) {
     return new Response(
       JSON.stringify({ ok: false, error: { code: 'Unauthorized', message: 'Unauthorized' } }),
@@ -61,11 +62,10 @@ export async function handleMetricsExecuteRequest(
     );
   }
 
-  const isSuperUser = is_super_user === true;
-  const requesting_user_tier = isSuperUser ? 'TIER_3' : user.app_metadata?.tier;
-  if (typeof requesting_user_tier !== 'string' || !requesting_user_tier) {
+  const requesting_user_tier = mapCompanyTierToMetricTier(effective_company_tier);
+  if (!requesting_user_tier) {
     return new Response(
-      JSON.stringify({ ok: false, error: { code: 'UnauthorizedTier', message: 'No tier assigned to user' } }),
+      JSON.stringify({ ok: false, error: { code: 'UnauthorizedTier', message: 'No effective tier available' } }),
       { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
@@ -95,6 +95,17 @@ export async function handleMetricsExecuteRequest(
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
+}
+
+function mapCompanyTierToMetricTier(
+  tier: string | null | undefined
+): MetricExecutionRequest['requesting_user_tier'] | null {
+  const normalized = String(tier || '').trim().toLowerCase();
+  if (!normalized) return null;
+  if (normalized === 'starter') return 'TIER_1';
+  if (normalized === 'professional' || normalized === 'business') return 'TIER_2';
+  if (normalized === 'enterprise') return 'TIER_3';
+  return null;
 }
 
 function statusForMetricError(error: unknown): number {

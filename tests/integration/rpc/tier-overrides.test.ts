@@ -39,7 +39,28 @@ async function createTestUser(email: string): Promise<string> {
   return userId;
 }
 
-describe('Tier overrides and super user bypass', () => {
+async function fetchEntitlementEvents(companyId: string, eventName: string, recordId?: string) {
+  const query = adminClient
+    .from('audit_log')
+    .select('id,new_values,record_id,user_id,created_at')
+    .eq('company_id', companyId)
+    .eq('table_name', 'entitlement_events')
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (recordId) {
+    query.eq('record_id', recordId);
+  }
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data || []).filter(row => row?.new_values?.event_name === eventName);
+}
+
+async function fetchEntitlementEvent(companyId: string, eventName: string) {
+  const events = await fetchEntitlementEvents(companyId, eventName);
+  return events[0] || null;
+}
+
+describe('Company tier overrides and enforcement', () => {
   let companyId: string;
   let adminAuth: SupabaseClient;
   let superAuth: SupabaseClient;
@@ -74,80 +95,127 @@ describe('Tier overrides and super user bypass', () => {
     await setCompanyTierForTests(companyId, 'starter', 'Reset tier for test setup');
   });
 
-  it('allows super user access with no subscription while blocking non-super users', async () => {
-    await setCompanyTierForTests(companyId, 'starter', 'Ensure starter baseline');
+  it('applies base tier when no override exists', async () => {
+    await setCompanyTierForTests(companyId, 'business', 'Base tier set to business');
+    const { data, error } = await adminClient.rpc('effective_company_tier', { p_company_id: companyId });
+    expect(error).toBeNull();
+    expect(String(data)).toBe('business');
 
-    const { error: denied } = await adminAuth.rpc('get_audit_log', {
-      p_company_id: companyId,
-      p_limit: 5,
-      p_offset: 0
-    });
-    expect(denied).not.toBeNull();
-
-    const { error: allowed } = await superAuth.rpc('get_audit_log', {
-      p_company_id: companyId,
-      p_limit: 5,
-      p_offset: 0
-    });
-    if (allowed) {
-      expect(String(allowed.message || '')).toMatch(/plan|feature|tier|unauthorized/i);
-      return;
-    }
-    expect(allowed).toBeNull();
+    const event = await fetchEntitlementEvent(companyId, 'entitlement.company_tier.base_changed');
+    expect(event).toBeTruthy();
+    expect(event?.new_values?.new_effective_tier).toBe('business');
   });
 
-  it('keeps starter subscriptions restricted for non-super users', async () => {
-    await setCompanyTierForTests(companyId, 'starter', 'Ensure starter baseline');
+  it('applies override tier while active', async () => {
+    await setCompanyTierForTests(companyId, 'starter', 'Base tier reset to starter');
+    const endsAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
-    const { error: denied } = await adminAuth.rpc('get_audit_log', {
+    const { data, error } = await superAuth.rpc('grant_company_tier_override', {
       p_company_id: companyId,
-      p_limit: 5,
-      p_offset: 0
+      p_override_tier: 'enterprise',
+      p_ends_at: endsAt
     });
-    expect(denied).not.toBeNull();
+    expect(error).toBeNull();
+    expect(data?.success).toBe(true);
 
-    const { error: allowed } = await superAuth.rpc('get_audit_log', {
-      p_company_id: companyId,
-      p_limit: 5,
-      p_offset: 0
+    const { data: effective, error: effectiveError } = await adminClient.rpc('effective_company_tier', {
+      p_company_id: companyId
     });
-    if (allowed) {
-      expect(String(allowed.message || '')).toMatch(/plan|feature|tier|unauthorized/i);
-      return;
-    }
-    expect(allowed).toBeNull();
+    expect(effectiveError).toBeNull();
+    expect(String(effective)).toBe('enterprise');
+
+    const event = await fetchEntitlementEvent(companyId, 'entitlement.company_tier.override_granted');
+    expect(event).toBeTruthy();
+    expect(event?.user_id).toBe(superUserId);
+    expect(event?.new_values?.new_effective_tier).toBe('enterprise');
   });
 
-  it('applies overrides, records audit fields, and reverts on clear', async () => {
-    const method = await setCompanyTierForTests(companyId, 'enterprise', 'Enterprise override for test');
-
-    if (method === 'override') {
-      const { data: companyRow, error: companyError } = await adminClient
-        .from('companies')
-        .select('tier_override,tier_override_reason,tier_override_set_by,tier_override_set_at')
-        .eq('id', companyId)
-        .single();
-      expect(companyError).toBeNull();
-      expect(companyRow?.tier_override).toBe('enterprise');
-      expect(companyRow?.tier_override_reason).toBe('Enterprise override for test');
-      expect(companyRow?.tier_override_set_by).toBe(superUserId);
-      expect(companyRow?.tier_override_set_at).toBeTruthy();
-    }
-
-    const { error: allowed } = await adminAuth.rpc('get_audit_log', {
+  it('revokes override immediately and reverts to base tier', async () => {
+    await setCompanyTierForTests(companyId, 'professional', 'Base tier set to professional');
+    await superAuth.rpc('grant_company_tier_override', {
       p_company_id: companyId,
-      p_limit: 5,
-      p_offset: 0
+      p_override_tier: 'enterprise',
+      p_ends_at: null
     });
-    expect(allowed).toBeNull();
 
-    await setCompanyTierForTests(companyId, 'starter', 'Clear override for test');
+    const { data: revokeData, error: revokeError } = await superAuth.rpc('revoke_company_tier_override', {
+      p_company_id: companyId
+    });
+    expect(revokeError).toBeNull();
+    expect(revokeData?.success).toBe(true);
 
-    const { error: denied } = await adminAuth.rpc('get_audit_log', {
+    const { data: effective, error: effectiveError } = await adminClient.rpc('effective_company_tier', {
+      p_company_id: companyId
+    });
+    expect(effectiveError).toBeNull();
+    expect(String(effective)).toBe('professional');
+
+    const event = await fetchEntitlementEvent(companyId, 'entitlement.company_tier.override_revoked');
+    expect(event).toBeTruthy();
+    expect(event?.new_values?.new_effective_tier).toBe('professional');
+  });
+
+  it('expires overrides automatically and logs expiration', async () => {
+    await setCompanyTierForTests(companyId, 'starter', 'Base tier reset to starter');
+
+    const expiredEnd = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const expiredStart = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+
+    const { data: overrideRow, error: insertError } = await adminClient
+      .from('company_tier_overrides')
+      .insert({
+        company_id: companyId,
+        override_tier: 'business',
+        starts_at: expiredStart,
+        ends_at: expiredEnd,
+        revoked_at: null,
+        created_by: superUserId,
+        created_at: expiredStart
+      })
+      .select('id')
+      .single();
+    expect(insertError).toBeNull();
+    if (!overrideRow?.id) throw new Error('Failed to insert override');
+
+    const { data: effective, error: effectiveError } = await adminClient.rpc('effective_company_tier', {
+      p_company_id: companyId
+    });
+    expect(effectiveError).toBeNull();
+    expect(String(effective)).toBe('starter');
+
+    const { error: detailsError } = await superAuth.rpc('get_company_tier_details', {
+      p_company_id: companyId
+    });
+    expect(detailsError).toBeNull();
+
+    const { error: detailsErrorRepeat } = await superAuth.rpc('get_company_tier_details', {
+      p_company_id: companyId
+    });
+    expect(detailsErrorRepeat).toBeNull();
+
+    const events = await fetchEntitlementEvents(
+      companyId,
+      'entitlement.company_tier.override_expired',
+      overrideRow.id
+    );
+    expect(events.length).toBe(1);
+    expect(events[0]?.new_values?.new_effective_tier).toBe('starter');
+  });
+
+  it('rejects unauthorized override mutations', async () => {
+    const { data, error } = await adminAuth.rpc('grant_company_tier_override', {
       p_company_id: companyId,
-      p_limit: 5,
-      p_offset: 0
+      p_override_tier: 'business',
+      p_ends_at: null
     });
-    expect(denied).not.toBeNull();
+    expect(data).toBeNull();
+    expect(error).not.toBeNull();
+
+    const { data: baseData, error: baseError } = await adminAuth.rpc('set_company_base_tier', {
+      p_company_id: companyId,
+      p_new_base_tier: 'business'
+    });
+    expect(baseData).toBeNull();
+    expect(baseError).not.toBeNull();
   });
 });

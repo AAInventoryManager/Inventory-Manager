@@ -164,17 +164,18 @@ export async function setCompanyTierForTests(
   companyId: string,
   tier: Tier,
   reason?: string
-): Promise<'override' | 'billing' | 'settings'> {
+): Promise<'base' | 'billing' | 'settings'> {
   const superAuth = await getClient('SUPER');
-  const overrideTier = tier === 'starter' ? null : tier;
-  const { data, error } = await superAuth.rpc('set_company_tier_override', {
+  try{
+    await superAuth.rpc('revoke_company_tier_override', { p_company_id: companyId });
+  }catch(_e){}
+  const { data, error } = await superAuth.rpc('set_company_base_tier', {
     p_company_id: companyId,
-    p_tier: overrideTier,
-    p_reason: reason || `Test tier override: ${tier}`
+    p_new_base_tier: tier
   });
   if (!error) {
-    if (data && data.success === false) throw new Error(data.error || 'Tier override failed');
-    return 'override';
+    if (data && data.success === false) throw new Error(data.error || 'Base tier update failed');
+    return 'base';
   }
   if (error.code !== 'PGRST202') throw error;
 

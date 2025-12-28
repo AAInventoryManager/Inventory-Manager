@@ -74,5 +74,31 @@ async function getUserFromRequest(req: Request) {
     isSuperUser = false;
   }
 
-  return { user: data.user, is_super_user: isSuperUser };
+  let companyId: string | null = null;
+  try {
+    const { data: companyData, error: companyError } = await supabase.rpc('get_user_company_id');
+    if (!companyError && typeof companyData === 'string') {
+      companyId = companyData;
+    }
+  } catch (_error) {
+    companyId = null;
+  }
+
+  let effectiveCompanyTier: string | null = null;
+  if (companyId || isSuperUser) {
+    try {
+      const { data: tierData, error: tierError } = await supabase.rpc('get_company_tier', {
+        p_company_id: companyId,
+      });
+      if (!tierError) {
+        const row = Array.isArray(tierData) ? tierData[0] : tierData;
+        const tierValue = row && typeof row.effective_tier === 'string' ? row.effective_tier : '';
+        effectiveCompanyTier = tierValue || null;
+      }
+    } catch (_error) {
+      effectiveCompanyTier = null;
+    }
+  }
+
+  return { user: data.user, is_super_user: isSuperUser, effective_company_tier: effectiveCompanyTier };
 }
