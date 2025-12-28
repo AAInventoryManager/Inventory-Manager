@@ -6228,7 +6228,7 @@
       return '/functions/v1/send-invite';
     }
     async function sbInviteUser(email, role, companyId){
-      if(!SB.ready || !SB.session) throw Error('Not authorized');
+      if(!SB.ready || !SB.client) throw Error('Not authorized');
       if(!hasTier('business')) throw Error('Invites require Business tier');
       const targetCompanyId = String(companyId || '').trim() || (SB.companyId ? String(SB.companyId) : '');
       if(!targetCompanyId) throw Error('Company not selected');
@@ -6241,15 +6241,23 @@
         email: cleanEmail,
         role: cleanRole,
       };
+      const { data: sessionData, error: sessionError } = await SB.client.auth.getSession();
+      if(sessionError) throw sessionError;
+      let session = sessionData && sessionData.session ? sessionData.session : null;
+      const now = Math.floor(Date.now() / 1000);
+      if(session && session.expires_at && session.expires_at <= now){
+        const { data: refreshData, error: refreshError } = await SB.client.auth.refreshSession();
+        if(refreshError) throw refreshError;
+        session = refreshData && refreshData.session ? refreshData.session : session;
+      }
+      if(!session || !session.access_token) throw Error('Not authorized');
       const apiUrl = getInviteSendUrl();
       const headers = { 'content-type': 'application/json' };
       const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
       const sbKey = (typeof window.SB_ANON === 'string') ? window.SB_ANON.trim() : '';
       if(sbUrl && apiUrl.startsWith(sbUrl) && sbKey){
         headers['apikey'] = sbKey;
-        if(SB.session && SB.session.access_token){
-          headers['Authorization'] = `Bearer ${SB.session.access_token}`;
-        }
+        headers['Authorization'] = `Bearer ${session.access_token}`;
       }
       const res = await fetch(apiUrl, {
         method: 'POST',
