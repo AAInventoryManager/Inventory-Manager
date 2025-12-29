@@ -151,6 +151,7 @@ Notes:
 - The service worker is configured network‑first for HTML navigations and cache‑first for static assets.
 - The app will show a connection banner: “Server Status = Connected” when Supabase is reachable, otherwise “Offline – Edits cannot be made until Connected”.
 - All edits are server‑first; the table re‑renders from the server snapshot and realtime updates.
+- If you change tier logic, permissions, or auth checks used by Edge Functions, redeploy them (e.g. `supabase functions deploy send-order --project-ref <project-ref>`). See `Dev-Governance/TESTING_POLICY.md` for the edge function deployment requirement and testing expectations.
 
 ---
 

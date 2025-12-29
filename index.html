@@ -620,7 +620,7 @@
 				        display:flex;
 				        flex-direction:row;
 				        align-items:center;
-				        justify-content:space-between;
+				        justify-content:flex-end;
 				        gap:8px;
 				        opacity:1;
 				        pointer-events:none;
@@ -660,6 +660,8 @@
 				      #orderHistoryList details.history-item .history-tray-btn--receive{
 				        border-top-right-radius:12px;
 				        border-bottom-right-radius:12px;
+				        border-top-left-radius:12px;
+				        border-bottom-left-radius:12px;
 				      }
 				      #orderHistoryList details.history-item .history-tray-btn svg{
 				        width:55px;
@@ -1298,13 +1300,19 @@
       border:none;
       color:#3b82f6;
       cursor:pointer;
-      padding:4px;
+      padding:6px 8px;
       border-radius:4px;
       display:flex;
       align-items:center;
       justify-content:center;
+      gap:6px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
       transition:color 0.15s, background 0.15s, opacity 0.15s;
     }
+    .btn-icon-receive .btn-icon-receive-text{ white-space:nowrap; }
     .btn-icon-receive:hover{
       color:#60a5fa;
       background:rgba(59,130,246,0.12);
@@ -1325,6 +1333,10 @@
     .history-item.order-received .btn-icon-receive .recv-check{
       opacity:1;
     }
+    @media (max-width: 720px){
+      .btn-icon-receive{ padding:6px; }
+      .btn-icon-receive .btn-icon-receive-text{ display:none; }
+    }
     .btn-icon-danger{
       background:transparent;
       border:none;
@@ -1341,6 +1353,172 @@
 	      color:#ff6b6b;
 	      background:rgba(239,68,68,0.14);
 	    }
+    /* Receive Order modal */
+    #receiveOrderModal .box{
+      max-width:1100px;
+      width:min(1100px, 95vw);
+    }
+    .receive-order-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .receive-order-meta{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+      gap:10px;
+      margin-top:10px;
+    }
+    .receive-order-card{
+      border:1px solid var(--border);
+      background:#0d1420;
+      border-radius:10px;
+      padding:8px 10px;
+    }
+    .receive-order-card .label{
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-weight:800;
+    }
+    .receive-order-card .value{
+      font-size:14px;
+      font-weight:800;
+      margin-top:4px;
+    }
+    .receive-summary{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+      gap:10px;
+      margin-top:10px;
+    }
+    .receive-order-note{
+      margin-top:10px;
+      padding:8px 10px;
+      border:1px dashed var(--border);
+      border-radius:10px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .receive-lines{
+      margin-top:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .receive-line{
+      border:1px solid var(--border);
+      background:#0b0f14;
+      border-radius:12px;
+      padding:10px;
+    }
+    .receive-line.disabled{
+      opacity:.6;
+    }
+    .receive-line-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .receive-line-title{
+      font-weight:800;
+      font-size:14px;
+    }
+    .receive-line-sku{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:2px;
+    }
+    .receive-line-stats{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .receive-line-inputs{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+      gap:8px;
+      margin-top:8px;
+    }
+    .receive-line-inputs label{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+    .receive-line-warning{
+      display:none;
+      margin-top:6px;
+      font-size:12px;
+      color:#f59e0b;
+      font-weight:700;
+    }
+    .receive-line.over{
+      border-color:rgba(245,158,11,0.5);
+      box-shadow:0 0 0 1px rgba(245,158,11,0.25);
+    }
+    .receive-line.over .receive-line-warning{
+      display:block;
+    }
+    .receive-line-note{
+      margin-top:6px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .receive-order-warning{
+      margin-top:8px;
+      color:#f59e0b;
+      font-size:12px;
+      font-weight:700;
+    }
+    .receive-receipts{
+      margin-top:16px;
+    }
+    .receive-receipt{
+      border:1px solid var(--border);
+      background:#0b0f14;
+      border-radius:12px;
+      padding:10px;
+      margin-top:10px;
+    }
+    .receive-receipt-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .receive-receipt-title{
+      font-weight:800;
+      font-size:13px;
+    }
+    .receive-receipt-meta{
+      color:var(--muted);
+      font-size:12px;
+    }
+    .receive-receipt-lines{
+      margin-top:8px;
+      display:grid;
+      gap:6px;
+    }
+    .receive-receipt-line{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .receive-receipt-line span{
+      white-space:nowrap;
+    }
 	    /* iOS-style qty picker */
 	    .qty-picker-modal{
 	      display:flex !important;
@@ -2307,6 +2485,43 @@
     .shipping-address-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .shipping-address-form{display:flex;flex-direction:column;gap:8px}
     .shipping-address-default{display:flex;align-items:center;gap:12px}
+    .company-locations-list{margin-top:12px}
+    .company-locations-table{min-width:860px}
+    .company-location-address{white-space:pre-line;color:var(--muted)}
+    .company-location-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .company-location-status{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      font-weight:700;
+      color:#86efac;
+    }
+    .company-location-status.archived{color:#fca5a5}
+    .company-location-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+    .company-location-badge{
+      display:inline-flex;
+      align-items:center;
+      padding:2px 6px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      font-weight:700;
+      background:var(--card);
+      color:var(--muted);
+    }
+    .company-location-badge.ship{border-color:#1d4ed8;color:#93c5fd;background:#0f263a}
+    .company-location-badge.receive{border-color:#16a34a;color:#86efac;background:#0f2f26}
+    .company-location-form{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:10px;
+      margin-top:10px;
+    }
+    .company-location-form .field{display:flex;flex-direction:column;gap:6px}
+    .company-location-form .field.full{grid-column:1 / -1}
+    .company-location-defaults{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
     .user-mgmt-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .user-mgmt-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
     .user-mgmt-card{
@@ -2477,6 +2692,10 @@
             <button class="menu-item" id="openProfileSettings">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
               <span>Profile Settings</span>
+            </button>
+            <button class="menu-item" id="openCompanyLocations">
+              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 5-9 11-9 11S3 15 3 10a9 9 0 1 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>Company Locations</span>
             </button>
             <button class="menu-item" id="openInviteModal">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="17" y1="11" x2="23" y2="11"></line></svg>
@@ -2858,7 +3077,7 @@
           <div class="section-title"><span>Shipping Address</span></div>
           <div class="order-shipping-row">
             <select id="orderShippingAddress" aria-label="Shipping address"></select>
-            <button class="btn" id="btnOrderShippingManage" type="button">Manage</button>
+            <button class="btn" id="btnOrderShippingManage" type="button">Locations</button>
           </div>
           <div id="orderShippingPreview" class="muted" style="margin-top:6px;"></div>
         </div>
@@ -2933,6 +3152,88 @@
     </div>
   </div>
 
+  <!-- Company locations modal -->
+  <div id="companyLocationsModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;">Company Settings - Locations</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn" id="btnCompanyLocationNew" type="button">Add Location</button>
+          <button class="btn" id="btnCompanyLocationsClose" type="button">Close</button>
+        </div>
+      </div>
+      <div id="companyLocationsList" class="company-locations-list" aria-live="polite"></div>
+      <div id="companyLocationsMsg" class="muted" style="margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <!-- Company location editor modal -->
+  <div id="companyLocationEditorModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;" id="companyLocationEditorTitle">Add Location</h2>
+        <button class="btn" id="btnCompanyLocationEditorClose" type="button">Close</button>
+      </div>
+      <div class="company-location-form">
+        <div class="field">
+          <label class="muted" for="companyLocationName">Name</label>
+          <input id="companyLocationName" type="text" placeholder="Main Warehouse" />
+        </div>
+        <div class="field">
+          <label class="muted" for="companyLocationType">Location Type</label>
+          <select id="companyLocationType">
+            <option value="warehouse">Warehouse</option>
+            <option value="yard">Yard</option>
+            <option value="office">Office</option>
+            <option value="job_site">Job Site</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label class="muted" for="companyLocationAddress1">Address Line 1</label>
+          <input id="companyLocationAddress1" type="text" placeholder="123 Main St" />
+        </div>
+        <div class="field full">
+          <label class="muted" for="companyLocationAddress2">Address Line 2</label>
+          <input id="companyLocationAddress2" type="text" placeholder="Suite 200" />
+        </div>
+        <div class="field">
+          <label class="muted" for="companyLocationCity">City</label>
+          <input id="companyLocationCity" type="text" placeholder="Austin" />
+        </div>
+        <div class="field">
+          <label class="muted" for="companyLocationState">State/Region</label>
+          <input id="companyLocationState" type="text" placeholder="TX" />
+        </div>
+        <div class="field">
+          <label class="muted" for="companyLocationPostal">Postal Code</label>
+          <input id="companyLocationPostal" type="text" placeholder="78701" />
+        </div>
+        <div class="field">
+          <label class="muted" for="companyLocationCountry">Country</label>
+          <select id="companyLocationCountry"></select>
+        </div>
+      </div>
+      <div class="company-location-defaults">
+        <label class="toggle-switch">
+          <input id="companyLocationDefaultShipTo" type="checkbox" />
+          <span class="toggle-slider"></span>
+        </label>
+        <label for="companyLocationDefaultShipTo" class="muted" style="font-size:13px;cursor:pointer;">Set as Default Ship-To</label>
+        <label class="toggle-switch">
+          <input id="companyLocationDefaultReceiveAt" type="checkbox" />
+          <span class="toggle-slider"></span>
+        </label>
+        <label for="companyLocationDefaultReceiveAt" class="muted" style="font-size:13px;cursor:pointer;">Set as Default Receive-At</label>
+      </div>
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <button class="btn primary" id="btnCompanyLocationSave" type="button">Save</button>
+        <button class="btn" id="btnCompanyLocationCancel" type="button">Cancel</button>
+      </div>
+      <div id="companyLocationEditorMsg" class="muted" style="margin-top:8px;"></div>
+    </div>
+  </div>
+
   <!-- iOS-style qty picker -->
   <div id="qtyPickerModal" class="modal qty-picker-modal" aria-hidden="true">
     <div class="qty-picker-backdrop"></div>
@@ -2949,11 +3250,11 @@
     </div>
   </div>
 
-	  <!-- Order history -->
+		  <!-- Order history -->
 		  <div id="orderHistoryModal" class="modal" aria-hidden="true">
 		    <div class="box">
 	      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-	        <h2 style="margin:0;font-size:16px;">Order History</h2>
+	        <h2 style="margin:0;font-size:16px;">Purchase Orders</h2>
 	        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
 	          <button class="btn btn-icon" id="btnOrderHistoryDownload" type="button" title="Download CSV" aria-label="Download order history CSV">
 	            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2967,7 +3268,7 @@
 	        </div>
 	      </div>
 	      <div class="input-wrap" style="max-width:100%; margin-top:10px;">
-	        <input id="orderHistoryFilter" type="text" placeholder="Filter history…" autocomplete="off" />
+	        <input id="orderHistoryFilter" type="text" placeholder="Filter purchase orders…" autocomplete="off" />
 	        <button class="clear-input-btn" id="btnClearOrderHistoryFilter" type="button" aria-label="Clear history filter" title="Clear filter" style="display:none">
 	          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 	            <path d="M18 6L6 18"></path>
@@ -2978,6 +3279,28 @@
 		      <div id="orderHistoryList" class="history-list" aria-live="polite"></div>
 		    </div>
 		  </div>
+
+      <!-- Receive order -->
+      <div id="receiveOrderModal" class="modal" aria-hidden="true">
+        <div class="box">
+          <div class="receive-order-header">
+            <h2 style="margin:0;font-size:16px;">Receive Order</h2>
+            <button class="btn" id="btnReceiveOrderClose" type="button">Close</button>
+          </div>
+          <div id="receiveOrderMeta" class="receive-order-meta"></div>
+          <div id="receiveOrderSummary" class="receive-summary"></div>
+          <div class="receive-order-note">Inventory is updated only when the receipt is completed.</div>
+          <div id="receiveOrderLines" class="receive-lines" aria-live="polite"></div>
+          <div id="receiveOrderWarning" class="receive-order-warning" role="status"></div>
+          <div class="toolbar" style="margin-top:12px;justify-content:flex-end;">
+            <div id="receiveOrderMsg" class="muted" style="margin-right:auto;"></div>
+            <button class="btn" id="btnReceiveOrderSave" type="button">Save Draft</button>
+            <button class="btn primary" id="btnReceiveOrderComplete" type="button">Complete Receipt</button>
+            <button class="btn" id="btnReceiveOrderCancel" type="button">Cancel</button>
+          </div>
+          <div id="receiveOrderReceipts" class="receive-receipts"></div>
+        </div>
+      </div>
 
 		  <!-- Trash -->
 		  <div id="trashModal" class="modal" aria-hidden="true">
@@ -3781,21 +4104,28 @@
 	      updatedAt:null,
 	      _filter:'',
 	      _sort:{col:'name', dir:'asc'},
-	      _order:{
-	        lines:[],
-	        email:'',
-	        companyPoNumber:'',
-	        internalPoNumber:'',
-	        subject:'',
-	        notes:'',
-	        contactName:'',
-	        search:'',
-	        shippingAddressId:'',
-	        shippingAddressSnapshot:null
-	      },
-	      _shippingAddresses:[],
+      _order:{
+        lines:[],
+        email:'',
+        companyPoNumber:'',
+        internalPoNumber:'',
+        subject:'',
+        notes:'',
+        contactName:'',
+        search:'',
+        shippingAddressId:'',
+        shippingAddressSnapshot:null
+      },
+      _orderHistoryLinesByPo:new Map(),
+      _receiveOrder:null,
+      _shippingAddresses:[],
 	      _shippingAddressById:new Map(),
 	      _shippingAddressEditing:null,
+      _orderShippingOptions:[],
+      _orderShippingById:new Map(),
+      _companyLocations:[],
+      _companyLocationById:new Map(),
+      _companyLocationEditing:null,
 	      _trashItems:[],
 	      _trashFilter:'',
 	      _roleRequestPending:null,
@@ -3842,6 +4172,18 @@
       const i = Math.floor(n);
       return i < 0 ? f : i;
     });
+    const toQty = (v, f = 0) => {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return f;
+      return n < 0 ? f : n;
+    };
+    function formatQty(value){
+      const n = Number(value);
+      if(!Number.isFinite(n)) return '0';
+      if(Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
+      const fixed = n.toFixed(2);
+      return fixed.replace(/\.00$/, '').replace(/(\.\d)0$/, '$1');
+    }
     if (!IMUtils.toKey) IMUtils.toKey = toKey;
     if (!IMUtils.toInt) IMUtils.toInt = toInt;
     window.IMUtils = IMUtils;
@@ -3907,6 +4249,11 @@
       ORDERS_DELETE: 'orders:delete',
       ORDERS_RESTORE: 'orders:restore',
       ORDERS_MANAGE_SHIPPING: 'orders:manage_shipping',
+      RECEIVING_VIEW: 'receiving:view',
+      RECEIVING_CREATE: 'receiving:create',
+      RECEIVING_EDIT: 'receiving:edit',
+      RECEIVING_APPROVE: 'receiving:approve',
+      RECEIVING_VOID: 'receiving:void',
       MEMBERS_VIEW: 'members:view',
       MEMBERS_INVITE: 'members:invite',
       MEMBERS_REMOVE: 'members:remove',
@@ -4250,6 +4597,7 @@
       renderProvisioningDashboardButton();
       renderDiagnosticsButton();
       renderSubscriptionManagerButton();
+      renderCompanyLocationsButton();
       renderRoleRequestsAdminButton();
       renderRoleManagerButton();
       renderUserMgmtButton();
@@ -4323,6 +4671,22 @@
     function canOrdersEdit(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_EDIT); }
     function canOrdersDelete(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_DELETE); }
     function canOrdersManageShipping(){ return hasTier('business') && hasPermission(PERMISSIONS.ORDERS_MANAGE_SHIPPING); }
+    function canAccessCompanyLocations(){
+      if(isEffectiveSuperUser()) return true;
+      const role = getEffectiveRole();
+      return role === 'admin';
+    }
+    function canManageCompanyLocations(){
+      return canAccessCompanyLocations();
+    }
+    function canReceivingView(){ return hasTier('professional') && hasPermission(PERMISSIONS.RECEIVING_VIEW); }
+    function canReceivingCreate(){ return hasTier('professional') && hasPermission(PERMISSIONS.RECEIVING_CREATE); }
+    function canReceivingEdit(){ return hasTier('professional') && hasPermission(PERMISSIONS.RECEIVING_EDIT); }
+    function canReceivingApprove(){ return hasTier('professional') && hasPermission(PERMISSIONS.RECEIVING_APPROVE); }
+    function canReceivingVoid(){ return hasTier('enterprise') && hasPermission(PERMISSIONS.RECEIVING_VOID); }
+    function canReceiveOrders(){
+      return canReceivingCreate() || canReceivingEdit() || canReceivingApprove();
+    }
     function canMembersView(){ return hasPermission(PERMISSIONS.MEMBERS_VIEW); }
     function canMembersInvite(){ return hasPermission(PERMISSIONS.MEMBERS_INVITE); }
     function canMembersRemove(){ return hasPermission(PERMISSIONS.MEMBERS_REMOVE); }
@@ -5033,6 +5397,14 @@
       btn.disabled = !allow;
       btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
     }
+    function renderCompanyLocationsButton(){
+      const btn = $('openCompanyLocations');
+      if(!btn) return;
+      const allow = !!(SB.session && SB.companyId && canAccessCompanyLocations());
+      btn.style.display = allow ? '' : 'none';
+      btn.disabled = !allow;
+      btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
+    }
     function renderUserMgmtControls(){
       const controls = $('userMgmtControls');
       const select = $('userMgmtCompany');
@@ -5418,6 +5790,13 @@
         { key: PERMISSIONS.ORDERS_RESTORE, label: 'Restore Orders' },
         { key: PERMISSIONS.ORDERS_MANAGE_SHIPPING, label: 'Manage Shipping Addresses' },
       ],
+      'Receiving': [
+        { key: PERMISSIONS.RECEIVING_VIEW, label: 'View Receipts' },
+        { key: PERMISSIONS.RECEIVING_CREATE, label: 'Create Receipts' },
+        { key: PERMISSIONS.RECEIVING_EDIT, label: 'Edit Draft Receipts' },
+        { key: PERMISSIONS.RECEIVING_APPROVE, label: 'Complete Receipts' },
+        { key: PERMISSIONS.RECEIVING_VOID, label: 'Void Receipts' },
+      ],
       'Members': [
         { key: PERMISSIONS.MEMBERS_VIEW, label: 'View Members' },
         { key: PERMISSIONS.MEMBERS_INVITE, label: 'Invite Members' },
@@ -5706,6 +6085,7 @@
       renderProvisioningDashboardButton();
       renderDiagnosticsButton();
       renderSubscriptionManagerButton();
+      renderCompanyLocationsButton();
       renderInviteUi();
       renderRoleRequestUi();
       renderRoleRequestsAdminButton();
@@ -7353,9 +7733,10 @@
 	      state.items = [];
 	      try{ applySelectedRowIds([]); }catch(e){}
 	      try{ clearAllOrderLines(); }catch(e){}
-	      state._orderHistoryRows = [];
-	      state._orderHistoryById = new Map();
-	      state._orderHistoryFilter = '';
+      state._orderHistoryRows = [];
+      state._orderHistoryById = new Map();
+      state._orderHistoryLinesByPo = new Map();
+      state._orderHistoryFilter = '';
 	      const orderHistoryFilter = $('orderHistoryFilter');
 	      if(orderHistoryFilter) orderHistoryFilter.value = '';
 	      state._trashItems = [];
@@ -7373,6 +7754,12 @@
       state._shippingAddresses = [];
       state._shippingAddressById = new Map();
       state._shippingAddressEditing = null;
+      state._orderShippingOptions = [];
+      state._orderShippingById = new Map();
+      state._companyLocations = [];
+      state._companyLocationById = new Map();
+      state._companyLocationEditing = null;
+      state._receiveOrder = null;
       state._userMgmtRows = [];
       state._pendingInvites = [];
       state._pendingInviteBusy = {};
@@ -7613,6 +8000,7 @@
         renderProvisioningDashboardButton();
         renderDiagnosticsButton();
         renderSubscriptionManagerButton();
+        renderCompanyLocationsButton();
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
@@ -7628,6 +8016,7 @@
         renderProvisioningDashboardButton();
         renderDiagnosticsButton();
         renderSubscriptionManagerButton();
+        renderCompanyLocationsButton();
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
@@ -7645,6 +8034,7 @@
         renderProvisioningDashboardButton();
         renderDiagnosticsButton();
         renderSubscriptionManagerButton();
+        renderCompanyLocationsButton();
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
@@ -7659,6 +8049,7 @@
       renderProvisioningDashboardButton();
       renderDiagnosticsButton();
       renderSubscriptionManagerButton();
+      renderCompanyLocationsButton();
       renderInviteUi();
       renderRoleRequestUi();
       renderRoleRequestsAdminButton();
@@ -8391,6 +8782,18 @@
       }
     });
 
+    const openCompanyLocations = $('openCompanyLocations');
+    if(openCompanyLocations) openCompanyLocations.addEventListener('click', ()=>{
+      const profileDropdown = $('profileDropdown');
+      if(profileDropdown){
+        profileDropdown.classList.remove('open');
+        profileDropdown.style.display = '';
+        profileDropdown.setAttribute('aria-hidden', 'true');
+      }
+      $('profileBtn')?.setAttribute('aria-expanded', 'false');
+      void openCompanyLocationsModal();
+    });
+
     const openSubscriptionManager = $('openSubscriptionManager');
     if(openSubscriptionManager) openSubscriptionManager.addEventListener('click', ()=>{
       const profileDropdown = $('profileDropdown');
@@ -8901,6 +9304,20 @@
 	        if(err.code) parts.push(String(err.code));
 	      }catch(e){}
 	      return parts.join(' ');
+	    }
+
+	    function isMissingRelationError(err){
+	      const msg = errToText(err);
+	      if(!msg) return false;
+	      const lower = msg.toLowerCase();
+	      if(lower.includes('schema cache') && lower.includes('relationship')) return true;
+	      return (
+	        lower.includes('does not exist') ||
+	        lower.includes('relation') ||
+	        lower.includes('could not find the table') ||
+	        String(err && err.code || '') === '42P01' ||
+	        String(err && err.code || '') === 'PGRST205'
+	      );
 	    }
 
 	    function isSchemaCacheMissingColumnError(err, column){
@@ -11675,6 +12092,20 @@ function emptyStateHtml(){
         return d.toLocaleString(undefined, { hour12:true });
       }
     }
+    function formatDateShort(value){
+      if(!value) return '';
+      const d = (value instanceof Date) ? value : new Date(value);
+      if(Number.isNaN(d.getTime())) return String(value);
+      try{
+        return new Intl.DateTimeFormat('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: '2-digit',
+        }).format(d);
+      }catch{
+        return d.toLocaleDateString();
+      }
+    }
 	    function getOrderCompanyName(){
 	      const name = SB && SB.company && SB.company.company_name ? String(SB.company.company_name).trim() : '';
 	      return name;
@@ -12031,9 +12462,12 @@ function emptyStateHtml(){
       if(direct) return direct;
       const id = String(ord.shippingAddressId || '').trim();
       if(!id) return null;
-      const row = state._shippingAddressById && typeof state._shippingAddressById.get === 'function'
-        ? state._shippingAddressById.get(id)
-        : null;
+      const row = (state._orderShippingById && typeof state._orderShippingById.get === 'function'
+        ? state._orderShippingById.get(id)
+        : null)
+        || (state._shippingAddressById && typeof state._shippingAddressById.get === 'function'
+          ? state._shippingAddressById.get(id)
+          : null);
       if(!row) return null;
       return normalizeShippingSnapshot({ label: row.label, address: row.address });
     }
@@ -12201,11 +12635,11 @@ function emptyStateHtml(){
     function renderShippingAddressSelect(){
       const select = $('orderShippingAddress');
       if(!select) return;
-      const rows = Array.isArray(state._shippingAddresses) ? state._shippingAddresses : [];
+      const rows = Array.isArray(state._orderShippingOptions) ? state._orderShippingOptions : [];
       select.innerHTML = '';
       const placeholder = document.createElement('option');
       placeholder.value = '';
-      placeholder.textContent = rows.length ? 'Select shipping address' : 'No shipping addresses';
+      placeholder.textContent = rows.length ? 'Select shipping location' : 'No locations';
       placeholder.disabled = !rows.length;
       select.appendChild(placeholder);
       rows.forEach(row => {
@@ -12229,9 +12663,59 @@ function emptyStateHtml(){
       select.value = ord.shippingAddressId || '';
       const manageBtn = $('btnOrderShippingManage');
       if(manageBtn){
-        manageBtn.disabled = !canOrdersManageShipping();
-        manageBtn.style.display = canOrdersManageShipping() ? '' : 'none';
+        manageBtn.disabled = !canAccessCompanyLocations();
+        manageBtn.style.display = canAccessCompanyLocations() ? '' : 'none';
       }
+    }
+    function mapLocationToOrderShipping(row){
+      if(!row) return null;
+      const id = String(row.id || '').trim();
+      if(!id) return null;
+      const label = String(row.name || '').trim() || 'Location';
+      return {
+        id,
+        label,
+        address: formatLocationAddress(row),
+        is_default: !!row.is_default_ship_to,
+        source: 'location'
+      };
+    }
+    function buildOrderShippingOptions(locationRows){
+      const options = [];
+      const seen = new Set();
+      const add = (opt) => {
+        if(!opt || !opt.id || seen.has(opt.id)) return;
+        seen.add(opt.id);
+        options.push(opt);
+      };
+      (locationRows || []).forEach(row => add(mapLocationToOrderShipping(row)));
+      return options;
+    }
+    async function sbFetchOrderShippingLocations(){
+      if(!SB.ready || !SB.session || !SB.companyId) return [];
+      const { data, error } = await SB.client
+        .from('company_locations')
+        .select('id,name,location_type,address_line1,address_line2,city,state_region,postal_code,country_code,is_active,is_default_ship_to')
+        .eq('company_id', SB.companyId)
+        .eq('is_active', true)
+        .order('is_default_ship_to', { ascending:false })
+        .order('name', { ascending:true });
+      if(error) throw error;
+      return Array.isArray(data) ? data : [];
+    }
+    async function loadOrderShippingOptions(){
+      let locations = [];
+      try{
+        locations = await sbFetchOrderShippingLocations();
+      }catch(e){
+        if(!isMissingRelationError(e)){
+          console.warn('Order shipping locations load failed:', e);
+        }
+      }
+      const options = buildOrderShippingOptions(locations);
+      state._orderShippingOptions = options;
+      state._orderShippingById = new Map(options.map(r => [String(r.id || '').trim(), r]).filter(x => x[0]));
+      renderShippingAddressSelect();
     }
     async function sbFetchShippingAddresses(){
       if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
@@ -12249,7 +12733,6 @@ function emptyStateHtml(){
       const rows = await sbFetchShippingAddresses();
       state._shippingAddresses = rows;
       state._shippingAddressById = new Map(rows.map(r => [String(r.id || '').trim(), r]).filter(x => x[0]));
-      renderShippingAddressSelect();
       renderShippingAddressList();
     }
     async function openShippingAddressModal(){
@@ -12315,6 +12798,388 @@ function emptyStateHtml(){
         ord.shippingAddressSnapshot = null;
         renderOrderPreview();
       }
+    }
+
+    const LOCATION_COUNTRY_OPTIONS = [
+      { code:'US', label:'United States' },
+      { code:'CA', label:'Canada' },
+      { code:'MX', label:'Mexico' },
+      { code:'GB', label:'United Kingdom' },
+      { code:'IE', label:'Ireland' },
+      { code:'AU', label:'Australia' },
+      { code:'NZ', label:'New Zealand' },
+      { code:'DE', label:'Germany' },
+      { code:'FR', label:'France' },
+      { code:'ES', label:'Spain' },
+      { code:'IT', label:'Italy' },
+      { code:'NL', label:'Netherlands' },
+      { code:'SE', label:'Sweden' },
+      { code:'NO', label:'Norway' },
+      { code:'DK', label:'Denmark' },
+      { code:'CH', label:'Switzerland' },
+      { code:'AT', label:'Austria' },
+      { code:'BE', label:'Belgium' },
+      { code:'PT', label:'Portugal' },
+      { code:'JP', label:'Japan' }
+    ];
+    function setCompanyLocationsMessage(msg){
+      const el = $('companyLocationsMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function setCompanyLocationEditorMessage(msg){
+      const el = $('companyLocationEditorMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function formatLocationTypeLabel(value){
+      return formatStateToken(value || '');
+    }
+    function formatLocationAddress(row){
+      const line1 = String(row && row.address_line1 ? row.address_line1 : '').trim();
+      const line2 = String(row && row.address_line2 ? row.address_line2 : '').trim();
+      const city = String(row && row.city ? row.city : '').trim();
+      const region = String(row && row.state_region ? row.state_region : '').trim();
+      const postal = String(row && row.postal_code ? row.postal_code : '').trim();
+      const country = String(row && row.country_code ? row.country_code : '').trim();
+      let cityLine = '';
+      if(city && region) cityLine = `${city}, ${region}`;
+      else cityLine = city || region;
+      if(postal) cityLine = cityLine ? `${cityLine} ${postal}` : postal;
+      const parts = [line1, line2, cityLine, country].filter(Boolean);
+      return parts.join('\n');
+    }
+    function renderCompanyLocationsList(){
+      const list = $('companyLocationsList');
+      if(!list) return;
+      const rows = Array.isArray(state._companyLocations) ? state._companyLocations : [];
+      if(!rows.length){
+        list.innerHTML = `<div class="order-empty">No locations yet. Add your first location to enable receiving.</div>`;
+        return;
+      }
+      const canManage = canManageCompanyLocations();
+      list.innerHTML =
+        `<div class="pending-invites-table-wrap">`+
+          `<table class="metrics-table company-locations-table">`+
+            `<thead>`+
+              `<tr>`+
+                `<th>Name</th>`+
+                `<th>Type</th>`+
+                `<th>Address</th>`+
+                `<th>Status</th>`+
+                `<th>Defaults</th>`+
+                `<th></th>`+
+              `</tr>`+
+            `</thead>`+
+            `<tbody>`+
+              rows.map(row => {
+                const id = String(row && row.id ? row.id : '').trim();
+                const name = String(row && row.name ? row.name : '').trim() || 'Location';
+                const type = formatLocationTypeLabel(row && row.location_type ? row.location_type : '');
+                const address = formatLocationAddress(row || {});
+                const active = !!(row && row.is_active);
+                const statusText = active ? 'Active' : 'Archived';
+                const statusClass = active ? 'active' : 'archived';
+                const shipDefault = !!(row && row.is_default_ship_to);
+                const receiveDefault = !!(row && row.is_default_receive_at);
+                const badges = [
+                  shipDefault ? `<span class="company-location-badge ship">Ship-To</span>` : '',
+                  receiveDefault ? `<span class="company-location-badge receive">Receive-At</span>` : ''
+                ].filter(Boolean).join('');
+                const disableActions = !canManage || !active;
+                const editBtn = active
+                  ? `<button class="btn small" type="button" data-location-edit="${escapeHtmlAttr(id)}"${disableActions ? ' disabled aria-disabled=\"true\"' : ''}>Edit</button>`
+                  : `<span class="muted">Read-only</span>`;
+                const defaultShipBtn = active
+                  ? `<button class="btn small" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="ship_to"${disableActions || shipDefault ? ' disabled aria-disabled=\"true\"' : ''}>Set Ship-To</button>`
+                  : '';
+                const defaultReceiveBtn = active
+                  ? `<button class="btn small" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="receive_at"${disableActions || receiveDefault ? ' disabled aria-disabled=\"true\"' : ''}>Set Receive-At</button>`
+                  : '';
+                const archiveBtn = active
+                  ? `<button class="btn small danger" type="button" data-location-archive="${escapeHtmlAttr(id)}"${disableActions ? ' disabled aria-disabled=\"true\"' : ''}>Archive</button>`
+                  : '';
+                return (
+                  `<tr data-location-id="${escapeHtmlAttr(id)}">`+
+                    `<td>`+
+                      `<div style="font-weight:700;">${escapeHtml(name)}</div>`+
+                      `<div class="muted" style="font-size:12px;">ID: ${escapeHtml(id.slice(0,8))}</div>`+
+                    `</td>`+
+                    `<td>${escapeHtml(type || 'Other')}</td>`+
+                    `<td class="company-location-address">${escapeHtml(address)}</td>`+
+                    `<td><span class="company-location-status ${statusClass}">${statusText}</span></td>`+
+                    `<td><div class="company-location-badges">${badges || '<span class=\"muted\">None</span>'}</div></td>`+
+                    `<td>`+
+                      `<div class="company-location-actions">`+
+                        editBtn+
+                        defaultShipBtn+
+                        defaultReceiveBtn+
+                        archiveBtn+
+                      `</div>`+
+                    `</td>`+
+                  `</tr>`
+                );
+              }).join('')+
+            `</tbody>`+
+          `</table>`+
+        `</div>`;
+    }
+    function renderCompanyLocationCountryOptions(selected){
+      const select = $('companyLocationCountry');
+      if(!select) return;
+      const current = String(selected || select.value || '').trim().toUpperCase();
+      select.innerHTML = LOCATION_COUNTRY_OPTIONS
+        .map(opt => `<option value="${escapeHtmlAttr(opt.code)}"${current === opt.code ? ' selected' : ''}>${escapeHtml(opt.label)} (${escapeHtml(opt.code)})</option>`)
+        .join('');
+      if(current && !LOCATION_COUNTRY_OPTIONS.some(opt => opt.code === current)){
+        const custom = document.createElement('option');
+        custom.value = current;
+        custom.textContent = `${current} (custom)`;
+        custom.selected = true;
+        select.appendChild(custom);
+      }
+    }
+    async function sbFetchCompanyLocations(){
+      if(!SB.ready || !SB.session || !SB.companyId) return [];
+      if(!canAccessCompanyLocations()) return [];
+      const { data, error } = await SB.client
+        .from('company_locations')
+        .select('id,company_id,name,location_type,address_line1,address_line2,city,state_region,postal_code,country_code,is_active,is_default_ship_to,is_default_receive_at,created_at,updated_at')
+        .eq('company_id', SB.companyId)
+        .order('is_active', { ascending:false })
+        .order('name', { ascending:true });
+      if(error) throw error;
+      return Array.isArray(data) ? data : [];
+    }
+    async function loadCompanyLocations(){
+      const rows = await sbFetchCompanyLocations();
+      state._companyLocations = rows;
+      state._companyLocationById = new Map(rows.map(r => [String(r.id || '').trim(), r]).filter(x => x[0]));
+      renderCompanyLocationsList();
+    }
+    function clearCompanyLocationForm(){
+      state._companyLocationEditing = null;
+      const name = $('companyLocationName'); if(name) name.value = '';
+      const type = $('companyLocationType'); if(type) type.value = 'warehouse';
+      const addr1 = $('companyLocationAddress1'); if(addr1) addr1.value = '';
+      const addr2 = $('companyLocationAddress2'); if(addr2) addr2.value = '';
+      const city = $('companyLocationCity'); if(city) city.value = '';
+      const region = $('companyLocationState'); if(region) region.value = '';
+      const postal = $('companyLocationPostal'); if(postal) postal.value = '';
+      renderCompanyLocationCountryOptions('US');
+      const ship = $('companyLocationDefaultShipTo'); if(ship){ ship.checked = false; ship.disabled = false; }
+      const receive = $('companyLocationDefaultReceiveAt'); if(receive){ receive.checked = false; receive.disabled = false; }
+      const title = $('companyLocationEditorTitle'); if(title) title.textContent = 'Add Location';
+      setCompanyLocationEditorMessage('');
+    }
+    function openCompanyLocationEditor(locationId){
+      const id = String(locationId || '').trim();
+      if(id){
+        const row = state._companyLocationById && typeof state._companyLocationById.get === 'function'
+          ? state._companyLocationById.get(id)
+          : null;
+        if(!row) return;
+        state._companyLocationEditing = id;
+        const title = $('companyLocationEditorTitle'); if(title) title.textContent = 'Edit Location';
+        const name = $('companyLocationName'); if(name) name.value = row.name || '';
+        const type = $('companyLocationType'); if(type) type.value = row.location_type || 'warehouse';
+        const addr1 = $('companyLocationAddress1'); if(addr1) addr1.value = row.address_line1 || '';
+        const addr2 = $('companyLocationAddress2'); if(addr2) addr2.value = row.address_line2 || '';
+        const city = $('companyLocationCity'); if(city) city.value = row.city || '';
+        const region = $('companyLocationState'); if(region) region.value = row.state_region || '';
+        const postal = $('companyLocationPostal'); if(postal) postal.value = row.postal_code || '';
+        renderCompanyLocationCountryOptions(row.country_code || 'US');
+        const ship = $('companyLocationDefaultShipTo');
+        if(ship){
+          ship.checked = !!row.is_default_ship_to;
+          ship.disabled = !!row.is_default_ship_to;
+        }
+        const receive = $('companyLocationDefaultReceiveAt');
+        if(receive){
+          receive.checked = !!row.is_default_receive_at;
+          receive.disabled = !!row.is_default_receive_at;
+        }
+        setCompanyLocationEditorMessage('');
+      }else{
+        clearCompanyLocationForm();
+      }
+      show('companyLocationEditorModal', true);
+    }
+    function closeCompanyLocationEditor(){
+      show('companyLocationEditorModal', false);
+    }
+    async function openCompanyLocationsModal(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!canAccessCompanyLocations()){ toast('Company admin access required'); return; }
+      const list = $('companyLocationsList');
+      if(list) list.innerHTML = `<div class="muted">Loading locations...</div>`;
+      setCompanyLocationsMessage('');
+      show('companyLocationsModal', true);
+      const btnNew = $('btnCompanyLocationNew');
+      if(btnNew){
+        btnNew.disabled = !canManageCompanyLocations();
+        btnNew.setAttribute('aria-disabled', canManageCompanyLocations() ? 'false' : 'true');
+      }
+      try{
+        await loadCompanyLocations();
+      }catch(e){
+        const msg = e && e.message ? e.message : 'Failed to load locations';
+        if(isMissingRelationError(e)){
+          setCompanyLocationsMessage('Locations are not available yet.');
+        }else{
+          setCompanyLocationsMessage(msg);
+        }
+      }
+    }
+    function closeCompanyLocationsModal(){
+      show('companyLocationsModal', false);
+    }
+    function companyLocationFormPayload(){
+      return {
+        name: String($('companyLocationName')?.value || '').trim(),
+        locationType: String($('companyLocationType')?.value || '').trim(),
+        addressLine1: String($('companyLocationAddress1')?.value || '').trim(),
+        addressLine2: String($('companyLocationAddress2')?.value || '').trim(),
+        city: String($('companyLocationCity')?.value || '').trim(),
+        stateRegion: String($('companyLocationState')?.value || '').trim(),
+        postalCode: String($('companyLocationPostal')?.value || '').trim(),
+        countryCode: String($('companyLocationCountry')?.value || '').trim().toUpperCase(),
+        setDefaultShipTo: !!$('companyLocationDefaultShipTo')?.checked,
+        setDefaultReceiveAt: !!$('companyLocationDefaultReceiveAt')?.checked
+      };
+    }
+    function validateCompanyLocationPayload(payload){
+      if(!payload.name) return 'Name is required.';
+      if(!payload.locationType) return 'Location type is required.';
+      if(!payload.addressLine1) return 'Address Line 1 is required.';
+      if(!payload.city) return 'City is required.';
+      if(!payload.stateRegion) return 'State/Region is required.';
+      if(!payload.postalCode) return 'Postal Code is required.';
+      if(!payload.countryCode || payload.countryCode.length !== 2) return 'Country code is required.';
+      return '';
+    }
+    async function saveCompanyLocation(){
+      if(!SB.ready || !SB.session || !SB.companyId) return;
+      if(!canManageCompanyLocations()){
+        setCompanyLocationEditorMessage('Location permissions required.');
+        return;
+      }
+      const payload = companyLocationFormPayload();
+      const errorMsg = validateCompanyLocationPayload(payload);
+      if(errorMsg){
+        setCompanyLocationEditorMessage(errorMsg);
+        return;
+      }
+      const btn = $('btnCompanyLocationSave');
+      const prior = btn ? btn.textContent : '';
+      if(btn){ btn.disabled = true; btn.textContent = 'Saving...'; }
+      try{
+        if(state._companyLocationEditing){
+          const locationId = state._companyLocationEditing;
+          const { data, error } = await SB.client.rpc('update_company_location', {
+            p_location_id: locationId,
+            p_name: payload.name,
+            p_location_type: payload.locationType,
+            p_address_line1: payload.addressLine1,
+            p_address_line2: payload.addressLine2 || null,
+            p_city: payload.city,
+            p_state_region: payload.stateRegion,
+            p_postal_code: payload.postalCode,
+            p_country_code: payload.countryCode
+          });
+          if(error) throw error;
+          if(data && data.success === false){
+            throw new Error(data.error || 'Update failed');
+          }
+          const row = state._companyLocationById && typeof state._companyLocationById.get === 'function'
+            ? state._companyLocationById.get(locationId)
+            : null;
+          if(payload.setDefaultShipTo && row && !row.is_default_ship_to){
+            const { data: defData, error: defError } = await SB.client.rpc('set_default_location', {
+              p_location_id: locationId,
+              p_default_type: 'ship_to'
+            });
+            if(defError) throw defError;
+            if(defData && defData.success === false){
+              throw new Error(defData.error || 'Failed to set default ship-to');
+            }
+          }
+          if(payload.setDefaultReceiveAt && row && !row.is_default_receive_at){
+            const { data: defData, error: defError } = await SB.client.rpc('set_default_location', {
+              p_location_id: locationId,
+              p_default_type: 'receive_at'
+            });
+            if(defError) throw defError;
+            if(defData && defData.success === false){
+              throw new Error(defData.error || 'Failed to set default receive-at');
+            }
+          }
+        }else{
+          const { data, error } = await SB.client.rpc('create_company_location', {
+            p_company_id: SB.companyId,
+            p_name: payload.name,
+            p_location_type: payload.locationType,
+            p_address_line1: payload.addressLine1,
+            p_address_line2: payload.addressLine2 || null,
+            p_city: payload.city,
+            p_state_region: payload.stateRegion,
+            p_postal_code: payload.postalCode,
+            p_country_code: payload.countryCode,
+            p_set_default_ship_to: payload.setDefaultShipTo,
+            p_set_default_receive_at: payload.setDefaultReceiveAt
+          });
+          if(error) throw error;
+          if(data && data.success === false){
+            throw new Error(data.error || 'Create failed');
+          }
+        }
+        await loadCompanyLocations();
+        closeCompanyLocationEditor();
+        clearCompanyLocationForm();
+        toast('Location saved');
+      }catch(e){
+        setCompanyLocationEditorMessage(e && e.message ? e.message : 'Save failed');
+      }finally{
+        if(btn){ btn.disabled = false; btn.textContent = prior || 'Save'; }
+      }
+    }
+    async function setDefaultCompanyLocation(locationId, defaultType){
+      const id = String(locationId || '').trim();
+      const type = String(defaultType || '').trim();
+      if(!id || !type) return;
+      if(!canManageCompanyLocations()){
+        toast('Location permissions required');
+        return;
+      }
+      const { data, error } = await SB.client.rpc('set_default_location', {
+        p_location_id: id,
+        p_default_type: type
+      });
+      if(error) throw error;
+      if(data && data.success === false){
+        throw new Error(data.error || 'Default update failed');
+      }
+      await loadCompanyLocations();
+    }
+    async function archiveCompanyLocation(locationId){
+      const id = String(locationId || '').trim();
+      if(!id) return;
+      if(!canManageCompanyLocations()){
+        toast('Location permissions required');
+        return;
+      }
+      const ok = await openConfirmModal(
+        'Archive location?',
+        'Archived locations cannot be used for new shipments or receipts.',
+        { okText:'Archive', cancelText:'Cancel' }
+      );
+      if(!ok) return;
+      const { data, error } = await SB.client.rpc('archive_company_location', { p_location_id: id });
+      if(error) throw error;
+      if(data && data.success === false){
+        throw new Error(data.error || 'Archive failed');
+      }
+      await loadCompanyLocations();
+      toast('Location archived');
     }
 
     async function sbFetchOrderRecipientSuggestions(prefix){
@@ -12409,34 +13274,33 @@ function emptyStateHtml(){
 	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
 	      if(!canOrdersView()) return [];
 	      const lim = Math.max(1, Math.min(200, toInt(limit, 50)));
-	      let sel = 'id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items,internal_po_number,company_po_number,shipping_address_snapshot,shipping_address_id';
-	      if(SB.ordersHasReceipt !== false){
-	        sel += ',receiving_at,receiving_by,receiving_snapshot,received_at,received_by,received_snapshot,received_undone_at,received_undone_by';
-	      }
+	      const baseSelect = 'id,po_number,status,order_date,expected_date,received_date,notes,vendor_id,created_at';
+	      let rows = [];
 	      const { data, error } = await SB.client
-	        .from('orders')
-	        .select(sel)
+	        .from('purchase_orders')
+	        .select(`${baseSelect},vendor:vendors(name)`)
 	        .eq('company_id', SB.companyId)
-	        .is('deleted_at', null)
+	        .order('order_date', { ascending:false })
 	        .order('created_at', { ascending:false })
 	        .limit(lim);
 	      if(error){
-	        if(SB.ordersHasReceipt !== false && isOrdersReceiptColumnsMissingError(error)){
-	          SB.ordersHasReceipt = false;
+	        if(isMissingRelationError(error)){
 	          const { data: data2, error: err2 } = await SB.client
-	            .from('orders')
-	            .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items,internal_po_number,company_po_number,shipping_address_snapshot,shipping_address_id')
+	            .from('purchase_orders')
+	            .select(baseSelect)
 	            .eq('company_id', SB.companyId)
-	            .is('deleted_at', null)
+	            .order('order_date', { ascending:false })
 	            .order('created_at', { ascending:false })
 	            .limit(lim);
 	          if(err2) throw err2;
-	          return Array.isArray(data2) ? data2 : [];
+	          rows = Array.isArray(data2) ? data2 : [];
+	        }else{
+	          throw error;
 	        }
-	        throw error;
+	      }else{
+	        rows = Array.isArray(data) ? data : [];
 	      }
-	      if(sel.includes('received_at')) SB.ordersHasReceipt = true;
-	      return Array.isArray(data) ? data : [];
+	      return rows.map(normalizePurchaseOrderRow);
 	    }
 	    async function sbFetchAllOrders(pageSize = 200){
 	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
@@ -12444,71 +13308,122 @@ function emptyStateHtml(){
 	      let offset = 0;
 	      const out = [];
 	      for(let page=0; page<200; page++){
-	        let sel = 'id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items,internal_po_number,company_po_number,shipping_address_snapshot,shipping_address_id';
-	        if(SB.ordersHasReceipt !== false){
-	          sel += ',receiving_at,receiving_by,receiving_snapshot,received_at,received_by,received_snapshot,received_undone_at,received_undone_by';
-	        }
+	        const baseSelect = 'id,po_number,status,order_date,expected_date,received_date,notes,vendor_id,created_at';
 	        const { data, error } = await SB.client
-	          .from('orders')
-	          .select(sel)
+	          .from('purchase_orders')
+	          .select(baseSelect)
 	          .eq('company_id', SB.companyId)
-	          .is('deleted_at', null)
+	          .order('order_date', { ascending:false })
 	          .order('created_at', { ascending:false })
 	          .range(offset, offset + size - 1);
-	        if(error){
-	          if(SB.ordersHasReceipt !== false && isOrdersReceiptColumnsMissingError(error)){
-	            SB.ordersHasReceipt = false;
-	            const { data: data2, error: err2 } = await SB.client
-	              .from('orders')
-	              .select('id,created_at,to_email,reply_to_email,subject,contact_name,notes,line_items,internal_po_number,company_po_number,shipping_address_snapshot,shipping_address_id')
-	              .eq('company_id', SB.companyId)
-	              .is('deleted_at', null)
-	              .order('created_at', { ascending:false })
-	              .range(offset, offset + size - 1);
-	            if(err2) throw err2;
-	            const rows2 = Array.isArray(data2) ? data2 : [];
-	            out.push(...rows2);
-	            if(rows2.length < size) break;
-	            offset += size;
-	            continue;
-	          }
-	          throw error;
-	        }
+	        if(error) throw error;
 	        const rows = Array.isArray(data) ? data : [];
-	        out.push(...rows);
+	        out.push(...rows.map(normalizePurchaseOrderRow));
 	        if(rows.length < size) break;
 	        offset += size;
 	      }
 	      return out;
 	    }
+      function normalizePurchaseOrderRow(row){
+        const vendorName = row && row.vendor && row.vendor.name ? String(row.vendor.name).trim() : '';
+        const fallbackVendor = String(row && row.vendor_name ? row.vendor_name : '').trim();
+        return { ...row, vendor_name: vendorName || fallbackVendor };
+      }
+      function lineQtyOrdered(row){
+        return toQty(
+          row && (
+            row.quantity_ordered ??
+            row.qty_ordered ??
+            row.ordered_qty ??
+            row.quantity ??
+            row.qty
+          ),
+          0
+        );
+      }
+      function lineQtyReceived(row){
+        return toQty(
+          row && (
+            row.quantity_received ??
+            row.qty_received ??
+            row.received_qty ??
+            row.qty_received_total
+          ),
+          0
+        );
+      }
+      function normalizePurchaseOrderLine(row){
+        return {
+          id: row && row.id ? String(row.id).trim() : '',
+          purchase_order_id: row && row.purchase_order_id ? String(row.purchase_order_id).trim() : '',
+          item_id: row && row.item_id ? String(row.item_id).trim() : '',
+          item_name: String(row && (row.item_name || row.name || row.item) ? (row.item_name || row.name || row.item) : '').trim(),
+          item_sku: String(row && (row.item_sku || row.sku) ? (row.item_sku || row.sku) : '').trim(),
+          quantity_ordered: lineQtyOrdered(row),
+          quantity_received: lineQtyReceived(row),
+          unit_cost: row && row.unit_cost !== undefined ? row.unit_cost : null,
+          notes: String(row && row.notes ? row.notes : '').trim(),
+          created_at: row && row.created_at ? row.created_at : null,
+        };
+      }
+      function normalizePurchaseOrderLines(rows){
+        const list = Array.isArray(rows) ? rows : [];
+        return list.map(normalizePurchaseOrderLine);
+      }
+      async function sbFetchPurchaseOrderLinesByPoIds(poIds){
+        const ids = Array.isArray(poIds) ? poIds.filter(Boolean) : [];
+        const map = new Map();
+        if(!ids.length) return map;
+        const select =
+          'id,purchase_order_id,item_id,item_name,item_sku,quantity_ordered,quantity_received,unit_cost,notes,created_at';
+        let data = null;
+        let error = null;
+        ({ data, error } = await SB.client
+          .from('purchase_order_lines')
+          .select(select)
+          .in('purchase_order_id', ids));
+        if(error && isMissingRelationError(error)){
+          ({ data, error } = await SB.client
+            .from('purchase_order_items')
+            .select(select)
+            .in('purchase_order_id', ids));
+        }
+        if(error) throw error;
+        const rows = normalizePurchaseOrderLines(data || []);
+        for(const row of rows){
+          const key = String(row.purchase_order_id || '').trim();
+          if(!key) continue;
+          if(!map.has(key)) map.set(key, []);
+          map.get(key).push(row);
+        }
+        return map;
+      }
 	    function csvEscape(value){
 	      const s = String(value ?? '');
 	      return '"' + s.replace(/"/g, '""') + '"';
 	    }
 	    function orderLineItemsToCsvCell(value){
-	      const items = normalizeOrderLineItems(value);
+	      const items = normalizePurchaseOrderLines(value);
 	      if(!items.length) return '';
 	      return items
 	        .map(it => {
-	          const part = String(it.part||'').trim();
-	          const qty = String(toInt(it.qty,0));
-	          const desc = String(it.desc||'').replace(/[\r\n]+/g,' ').trim();
-	          return `${part} | ${qty} | ${desc}`;
+	          const name = String(it.item_name || '').trim();
+	          const sku = String(it.item_sku || '').trim();
+	          const qty = formatQty(it.quantity_ordered);
+	          const label = sku ? `${name} (${sku})` : name;
+	          return `${label} | ${qty}`;
 	        })
 	        .join(' ; ');
 	    }
-	    function buildOrderHistoryCsv(rows){
+	    function buildOrderHistoryCsv(rows, lineMap){
       const header = [
-        'Order ID',
-        'Created At (UTC)',
-        'Created (Eastern)',
-        'To',
-        'Reply-To',
-        'Subject',
-        'Company PO Number',
-        'Internal PO ID',
-        'Shipping Address',
-        'Contact Name',
+        'PO ID',
+        'PO Number',
+        'Status',
+        'Order Date',
+        'Expected Date',
+        'Received Date',
+        'Vendor',
         'Notes',
         'Item Count',
         'Items',
@@ -12517,32 +13432,24 @@ function emptyStateHtml(){
 	      const list = Array.isArray(rows) ? rows : [];
 	      for(const o of list){
 	        const id = String(o?.id || '').trim();
-	        const createdAt = String(o?.created_at || '').trim();
-	        const createdEastern = formatEasternDateTime(createdAt || new Date());
-	        const to = String(o?.to_email || '').trim();
-	        const replyTo = String(o?.reply_to_email || '').trim();
-        const subject = String(o?.subject || '').trim();
-        const companyPo = String(o?.company_po_number || '').trim();
-        const internalPo = String(o?.internal_po_number || '').trim();
-        const shippingSnap = normalizeShippingSnapshot(o?.shipping_address_snapshot) || null;
-        const shippingText = shippingSnap
-          ? [shippingSnap.label, shippingSnap.address].filter(Boolean).join(' | ')
-          : '';
-        const contact = String(o?.contact_name || '').trim();
+        const poNumber = String(o?.po_number || '').trim();
+        const status = String(o?.status || '').trim();
+        const orderDate = String(o?.order_date || '').trim();
+        const expectedDate = String(o?.expected_date || '').trim();
+        const receivedDate = String(o?.received_date || '').trim();
+        const vendor = String(o?.vendor_name || o?.vendor?.name || o?.vendor_id || '').trim();
         const notes = String(o?.notes || '').trim();
-        const items = normalizeOrderLineItems(o?.line_items);
-        const itemsCell = orderLineItemsToCsvCell(o?.line_items);
+        const lines = lineMap && typeof lineMap.get === 'function' ? (lineMap.get(id) || []) : [];
+        const items = normalizePurchaseOrderLines(lines);
+        const itemsCell = orderLineItemsToCsvCell(lines);
         out.push([
           id,
-          createdAt,
-          createdEastern,
-          to,
-          replyTo,
-          subject,
-          companyPo,
-          internalPo,
-          shippingText,
-          contact,
+          poNumber,
+          status,
+          orderDate,
+          expectedDate,
+          receivedDate,
+          vendor,
           notes,
           String(items.length),
           itemsCell,
@@ -12563,7 +13470,8 @@ function emptyStateHtml(){
 	        toast('Downloading order history…');
 	        const rows = await sbFetchAllOrders(200);
 	        if(!rows.length){ toast('No orders to download'); return; }
-	        const csv = buildOrderHistoryCsv(rows);
+	        const lineMap = await sbFetchPurchaseOrderLinesByPoIds(rows.map(r => r && r.id));
+	        const csv = buildOrderHistoryCsv(rows, lineMap);
 	        const blob = new Blob([csv], { type:'text/csv;charset=utf-8' });
 	        const url = URL.createObjectURL(blob);
 	        const a = document.createElement('a');
@@ -12650,14 +13558,11 @@ function emptyStateHtml(){
 	      return list.querySelector(`details.history-item[data-order-id="${safe}"]`) || null;
 	    }
 	    function orderSubjectFromRow(row){
-	      const explicit = String(row && row.subject ? row.subject : '').trim();
-	      if(explicit) return explicit;
-	      const companyName = getOrderCompanyName();
-	      const companyPo = String(row && row.company_po_number ? row.company_po_number : '').trim();
-	      const internalPo = String(row && row.internal_po_number ? row.internal_po_number : '').trim();
-	      const id = companyPo || internalPo || String(row && row.id ? row.id : '').trim();
-	      if(companyName && id) return `Purchase Order ${id} \u2013 ${companyName}`;
-	      if(companyName) return `Purchase Order \u2013 ${companyName}`;
+	      const poNumber = String(row && row.po_number ? row.po_number : '').trim();
+	      const vendor = String(row && (row.vendor_name || (row.vendor && row.vendor.name) || row.vendor_id) ? (row.vendor_name || (row.vendor && row.vendor.name) || row.vendor_id) : '').trim();
+	      if(poNumber && vendor) return `PO ${poNumber} \u2013 ${vendor}`;
+	      if(poNumber) return `PO ${poNumber}`;
+	      const id = String(row && row.id ? row.id : '').trim();
 	      return id ? `Purchase Order ${id}` : 'Purchase Order';
 	    }
 	    function setHistoryTrayA11y(det, open){
@@ -12722,25 +13627,13 @@ function emptyStateHtml(){
 	    }
 
 	    function isOrderCurrentlyReceived(orderRow){
-	      const rAt = String(orderRow && orderRow.received_at ? orderRow.received_at : '').trim();
-	      if(!rAt) return false;
-	      const uAt = String(orderRow && orderRow.received_undone_at ? orderRow.received_undone_at : '').trim();
-	      if(!uAt) return true;
-	      return new Date(uAt).getTime() < new Date(rAt).getTime();
+	      const status = String(orderRow && orderRow.status ? orderRow.status : '').trim().toLowerCase();
+	      return status === 'received';
 	    }
 
 	    function orderReceiptMetaText(orderRow){
-	      if(SB.ordersHasReceipt === false) return '';
-	      const o = orderRow || {};
-	      const receivingAt = String(o.receiving_at || '').trim();
-	      const receivedAt = String(o.received_at || '').trim();
-	      if(receivingAt && !receivedAt) return 'Receiving…';
-	      if(receivedAt){
-	        const undoneAt = String(o.received_undone_at || '').trim();
-	        if(undoneAt && new Date(undoneAt).getTime() >= new Date(receivedAt).getTime()) return 'Received (undone)';
-	        return 'Received';
-	      }
-	      return '';
+	      const status = String(orderRow && orderRow.status ? orderRow.status : '').trim();
+	      return status ? formatStateToken(status) : '';
 	    }
 
 	    function getOrderHistoryRowById(orderId){
@@ -13052,75 +13945,575 @@ function emptyStateHtml(){
 	      );
 	    }
 
-	    async function handleOrderReceiptButtonClick(orderId, btnEl){
+	    function setReceiveOrderMessage(msg){
+	      const el = $('receiveOrderMsg'); if(!el) return;
+	      el.textContent = String(msg || '');
+	    }
+	    function setReceiveOrderWarning(msg){
+	      const el = $('receiveOrderWarning'); if(!el) return;
+	      el.textContent = String(msg || '');
+	    }
+	    function shortId(value){
+	      const id = String(value || '').trim();
+	      return id ? id.slice(0, 8) : '';
+	    }
+	    function receiveLineOverBy(line){
+	      const remaining = Number(line && line.remaining_qty !== undefined ? line.remaining_qty : 0);
+	      const total = toQty(line && line.qty_received, 0) + toQty(line && line.qty_rejected, 0);
+	      return total - remaining;
+	    }
+	    function receiveLineHasOverage(line){
+	      return receiveLineOverBy(line) > 0;
+	    }
+	    function updateReceiveLineDom(line){
+	      const key = String(line && line.key ? line.key : '').trim();
+	      if(!key) return;
+	      let selector = `[data-receive-line-key="${key}"]`;
+	      try{
+	        if(window.CSS && CSS.escape){
+	          selector = `[data-receive-line-key="${CSS.escape(key)}"]`;
+	        }
+	      }catch(e){}
+	      const row = document.querySelector(selector);
+	      if(!row) return;
+	      const warningEl = row.querySelector('[data-receive-line-warning]');
+	      const overBy = receiveLineOverBy(line);
+	      if(overBy > 0){
+	        row.classList.add('over');
+	        if(warningEl) warningEl.textContent = `Over by ${formatQty(overBy)}`;
+	      }else{
+	        row.classList.remove('over');
+	        if(warningEl) warningEl.textContent = '';
+	      }
+	    }
+	    function getReceiveOrderLineByKey(key){
+	      const ro = state._receiveOrder;
+	      if(!ro || !Array.isArray(ro.lines)) return null;
+	      const id = String(key || '').trim();
+	      if(!id) return null;
+	      return ro.lines.find(l => String(l && l.key ? l.key : '').trim() === id) || null;
+	    }
+	    function updateReceiveLineFromInput(input, opts = {}){
+	      const el = input;
+	      if(!el) return null;
+	      const key = String(el.dataset.receiveLineKey || '').trim();
+	      const field = String(el.dataset.receiveField || '').trim();
+	      if(!key || (field !== 'received' && field !== 'rejected')) return null;
+	      const line = getReceiveOrderLineByKey(key);
+	      if(!line || line.disabled) return null;
+	      const raw = String(el.value || '');
+	      const numeric = Number(raw);
+	      const invalid = raw !== '' && !Number.isFinite(numeric);
+	      const negative = Number.isFinite(numeric) && numeric < 0;
+	      let next = Number.isFinite(numeric) ? numeric : 0;
+	      if(next < 0) next = 0;
+	      if(field === 'received') line.qty_received = next;
+	      else line.qty_rejected = next;
+	      if(opts.format){
+	        el.value = formatQty(next);
+	      }
+	      if(opts.showError){
+	        const msgEl = $('receiveOrderMsg');
+	        if(negative){
+	          setReceiveOrderMessage('Quantities must be 0 or higher.');
+	        }else if(invalid){
+	          setReceiveOrderMessage('Enter a valid quantity.');
+	        }else if(msgEl){
+	          const existing = String(msgEl.textContent || '').trim();
+	          if(existing === 'Quantities must be 0 or higher.' || existing === 'Enter a valid quantity.'){
+	            setReceiveOrderMessage('');
+	          }
+	        }
+	      }
+	      updateReceiveLineDom(line);
+	      updateReceiveOrderWarning();
+	      return line;
+	    }
+	    function updateReceiveOrderWarning(){
+	      const ro = state._receiveOrder;
+	      if(!ro){
+	        setReceiveOrderWarning('');
+	        return;
+	      }
+	      const overCount = ro.lines.filter(l => !l.disabled && receiveLineHasOverage(l)).length;
+	      setReceiveOrderWarning(
+	        overCount
+	          ? `${overCount} line${overCount === 1 ? '' : 's'} exceed remaining quantities. Over-receipt is allowed but will be flagged.`
+	          : ''
+	      );
+	    }
+	    function computeReceiveTotals(lines){
+	      const totals = { ordered:0, received:0, remaining:0 };
+	      for(const line of lines){
+	        totals.ordered += Number(line.ordered_qty || 0);
+	        totals.received += Number(line.prev_received || 0);
+	        totals.remaining += Number(line.remaining_qty || 0);
+	      }
+	      return totals;
+	    }
+	    async function sbFetchPurchaseOrderById(poId){
+	      const id = String(poId || '').trim();
+	      if(!id) throw new Error('Invalid purchase order');
+	      const baseSelect = 'id,po_number,status,order_date,expected_date,received_date,notes,vendor_id,created_at';
+	      const { data, error } = await SB.client
+	        .from('purchase_orders')
+	        .select(`${baseSelect},vendor:vendors(name)`)
+	        .eq('id', id)
+	        .single();
+	      if(error){
+	        if(isMissingRelationError(error)){
+	          const fallback = await SB.client
+	            .from('purchase_orders')
+	            .select(baseSelect)
+	            .eq('id', id)
+	            .single();
+	          if(fallback.error) throw fallback.error;
+	          return normalizePurchaseOrderRow(fallback.data);
+	        }
+	        throw error;
+	      }
+	      return normalizePurchaseOrderRow(data);
+	    }
+	    async function sbFetchReceiptDataForPo(poId){
+	      const id = String(poId || '').trim();
+	      if(!id) return { receipts: [], receiptLines: [] };
+	      const { data: receipts, error } = await SB.client
+	        .from('receipts')
+	        .select('id,status,received_at,created_at,received_by')
+	        .eq('purchase_order_id', id)
+	        .order('created_at', { ascending:false });
+	      if(error) throw error;
+	      const receiptIds = (receipts || []).map(r => r && r.id).filter(Boolean);
+	      if(!receiptIds.length){
+	        return { receipts: Array.isArray(receipts) ? receipts : [], receiptLines: [] };
+	      }
+	      const { data: lines, error: lineError } = await SB.client
+	        .from('receipt_lines')
+	        .select('id,receipt_id,item_id,qty_received,qty_rejected,created_at')
+	        .in('receipt_id', receiptIds);
+	      if(lineError) throw lineError;
+	      return {
+	        receipts: Array.isArray(receipts) ? receipts : [],
+	        receiptLines: Array.isArray(lines) ? lines : [],
+	      };
+	    }
+	    function buildReceiveOrderState(po, poLines, receipts, receiptLines){
+	      const normalizedLines = normalizePurchaseOrderLines(poLines || []);
+	      const lineByItemId = new Map();
+	      normalizedLines.forEach(line => {
+	        if(line.item_id) lineByItemId.set(line.item_id, line);
+	      });
+
+	      const normalizedReceiptLines = (Array.isArray(receiptLines) ? receiptLines : []).map((line) => ({
+	        id: String(line && line.id ? line.id : '').trim(),
+	        receipt_id: String(line && line.receipt_id ? line.receipt_id : '').trim(),
+	        item_id: String(line && line.item_id ? line.item_id : '').trim(),
+	        qty_received: toQty(line && line.qty_received, 0),
+	        qty_rejected: toQty(line && line.qty_rejected, 0),
+	        created_at: line && line.created_at ? line.created_at : null,
+	      }));
+
+	      const draftReceipts = (receipts || []).filter(r => String(r && r.status ? r.status : '').trim() === 'draft');
+	      const draftReceipt = draftReceipts
+	        .slice()
+	        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))[0] || null;
+	      const draftReceiptId = draftReceipt && draftReceipt.id ? String(draftReceipt.id) : '';
+
+	      const draftLineMap = new Map();
+	      if(draftReceiptId){
+	        normalizedReceiptLines
+	          .filter(l => l.receipt_id === draftReceiptId)
+	          .forEach(l => { if(l.item_id) draftLineMap.set(l.item_id, l); });
+	      }
+
+	      const completedReceiptIds = new Set(
+	        (receipts || [])
+	          .filter(r => String(r && r.status ? r.status : '').trim() === 'completed')
+	          .map(r => String(r && r.id ? r.id : '').trim())
+	          .filter(Boolean)
+	      );
+	      const receivedByItem = new Map();
+	      for(const line of normalizedReceiptLines){
+	        if(!completedReceiptIds.has(line.receipt_id)) continue;
+	        if(!line.item_id) continue;
+	        const prev = receivedByItem.get(line.item_id) || 0;
+	        receivedByItem.set(line.item_id, prev + toQty(line.qty_received, 0));
+	      }
+
+	      const lines = normalizedLines.map((line, idx) => {
+	        const key = line.id || line.item_id || `line-${idx}`;
+	        const ordered = toQty(line.quantity_ordered, 0);
+	        const prevReceived = receivedByItem.get(line.item_id) || 0;
+	        const remaining = ordered - prevReceived;
+	        const draftLine = line.item_id ? draftLineMap.get(line.item_id) : null;
+	        const qtyReceived = draftLine ? toQty(draftLine.qty_received, 0) : Math.max(remaining, 0);
+	        const qtyRejected = draftLine ? toQty(draftLine.qty_rejected, 0) : 0;
+	        return {
+	          ...line,
+	          key,
+	          ordered_qty: ordered,
+	          prev_received: prevReceived,
+	          remaining_qty: remaining,
+	          qty_received: qtyReceived,
+	          qty_rejected: qtyRejected,
+	          disabled: !line.item_id,
+	        };
+	      });
+
+	      const receiptLinesByReceipt = new Map();
+	      for(const line of normalizedReceiptLines){
+	        const receiptId = String(line.receipt_id || '').trim();
+	        if(!receiptId) continue;
+	        if(!receiptLinesByReceipt.has(receiptId)) receiptLinesByReceipt.set(receiptId, []);
+	        const poLine = lineByItemId.get(line.item_id);
+	        receiptLinesByReceipt.get(receiptId).push({
+	          ...line,
+	          item_name: poLine ? poLine.item_name : '',
+	          item_sku: poLine ? poLine.item_sku : '',
+	        });
+	      }
+
+	      return {
+	        po,
+	        lines,
+	        receipts: Array.isArray(receipts) ? receipts : [],
+	        receiptLines: normalizedReceiptLines,
+	        receiptLinesByReceipt,
+	        draftReceiptId,
+	        draftReceiptsCount: draftReceipts.length,
+	      };
+	    }
+	    function renderReceiveOrderModal(){
+	      const ro = state._receiveOrder;
+	      const meta = $('receiveOrderMeta');
+	      const summary = $('receiveOrderSummary');
+	      const linesWrap = $('receiveOrderLines');
+	      const receiptsWrap = $('receiveOrderReceipts');
+	      if(!meta || !summary || !linesWrap || !receiptsWrap) return;
+
+	      if(!ro || ro.loading){
+	        if(meta) meta.innerHTML = '';
+	        if(summary) summary.innerHTML = '';
+	        if(linesWrap) linesWrap.innerHTML = `<div class="muted">Loading receipt details…</div>`;
+	        if(receiptsWrap) receiptsWrap.innerHTML = '';
+	        return;
+	      }
+
+	      const po = ro.po || {};
+	      const poNumber = String(po.po_number || '').trim();
+	      const supplier = String(po.vendor_name || (po.vendor && po.vendor.name) || po.vendor_id || '').trim() || 'Unknown';
+	      const status = formatStateToken(po.status || '');
+
+	      meta.innerHTML =
+	        `<div class="receive-order-card">`+
+	          `<div class="label">Purchase Order</div>`+
+	          `<div class="value">${escapeHtml(poNumber || String(po.id || '').trim() || '—')}</div>`+
+	        `</div>`+
+	        `<div class="receive-order-card">`+
+	          `<div class="label">Supplier</div>`+
+	          `<div class="value">${escapeHtml(supplier)}</div>`+
+	        `</div>`+
+	        `<div class="receive-order-card">`+
+	          `<div class="label">Status</div>`+
+	          `<div class="value">${escapeHtml(status || '—')}</div>`+
+	        `</div>`;
+
+	      const totals = computeReceiveTotals(ro.lines || []);
+	      summary.innerHTML =
+	        `<div class="receive-order-card">`+
+	          `<div class="label">Ordered Qty</div>`+
+	          `<div class="value">${formatQty(totals.ordered)}</div>`+
+	        `</div>`+
+	        `<div class="receive-order-card">`+
+	          `<div class="label">Previously Received</div>`+
+	          `<div class="value">${formatQty(totals.received)}</div>`+
+	        `</div>`+
+	        `<div class="receive-order-card">`+
+	          `<div class="label">Remaining Qty</div>`+
+	          `<div class="value">${formatQty(totals.remaining)}</div>`+
+	        `</div>`;
+
+	      if(!ro.lines || !ro.lines.length){
+	        linesWrap.innerHTML = `<div class="order-empty">No line items found.</div>`;
+	      }else{
+	        linesWrap.innerHTML = ro.lines.map(line => {
+	          const name = line.item_name || '(Unnamed item)';
+	          const sku = line.item_sku || '';
+	          const remaining = formatQty(line.remaining_qty);
+	          const disabled = line.disabled;
+	          const receivedVal = formatQty(line.qty_received);
+	          const rejectedVal = formatQty(line.qty_rejected);
+	          return (
+	            `<div class="receive-line${disabled ? ' disabled' : ''}" data-receive-line-key="${escapeHtmlAttr(line.key)}">`+
+	              `<div class="receive-line-header">`+
+	                `<div>`+
+	                  `<div class="receive-line-title">${escapeHtml(name)}</div>`+
+	                  (sku ? `<div class="receive-line-sku">SKU: ${escapeHtml(sku)}</div>` : '')+
+	                `</div>`+
+	                `<div class="receive-line-stats">`+
+	                  `<div>Ordered: ${formatQty(line.ordered_qty)}</div>`+
+	                  `<div>Previously received: ${formatQty(line.prev_received)}</div>`+
+	                  `<div>Remaining: ${remaining}</div>`+
+	                `</div>`+
+	              `</div>`+
+	              `<div class="receive-line-inputs">`+
+	                `<div>`+
+	                  `<label>Qty Received</label>`+
+	                  `<input type="number" inputmode="decimal" step="0.01" min="0" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="received" value="${escapeHtmlAttr(receivedVal)}"${disabled ? ' disabled' : ''}>`+
+	                `</div>`+
+	                `<div>`+
+	                  `<label>Qty Rejected</label>`+
+	                  `<input type="number" inputmode="decimal" step="0.01" min="0" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="rejected" value="${escapeHtmlAttr(rejectedVal)}"${disabled ? ' disabled' : ''}>`+
+	                `</div>`+
+	              `</div>`+
+	              `<div class="receive-line-warning" data-receive-line-warning></div>`+
+	              (disabled ? `<div class="receive-line-note">Item mapping missing. This line cannot be received.</div>` : '')+
+	            `</div>`
+	          );
+	        }).join('');
+	        ro.lines.forEach(updateReceiveLineDom);
+	      }
+
+	      const visibleReceipts = (ro.receipts || []).filter(r => String(r && r.status ? r.status : '').trim() !== 'draft');
+	      const draftCount = ro.draftReceiptsCount || 0;
+	      if(!visibleReceipts.length){
+	        receiptsWrap.innerHTML = `<div class="muted">No completed receipts yet.</div>`;
+	      }else{
+	        receiptsWrap.innerHTML =
+	          `<div class="muted" style="letter-spacing:.08em;text-transform:uppercase;font-weight:800;">Previous Receipts</div>`+
+	          visibleReceipts.map(r => {
+	            const receiptId = String(r && r.id ? r.id : '').trim();
+	            const statusText = formatStateToken(r && r.status ? r.status : '');
+	            const when = r && (r.received_at || r.created_at) ? formatEasternDateTime(r.received_at || r.created_at) : '';
+	            const lines = ro.receiptLinesByReceipt && ro.receiptLinesByReceipt.get(receiptId) ? ro.receiptLinesByReceipt.get(receiptId) : [];
+	            const totalReceived = lines.reduce((sum, l) => sum + toQty(l.qty_received, 0), 0);
+	            const totalRejected = lines.reduce((sum, l) => sum + toQty(l.qty_rejected, 0), 0);
+	            const canVoid = (String(r && r.status ? r.status : '').trim() === 'completed') && canReceivingVoid();
+	            return (
+	              `<div class="receive-receipt">`+
+	                `<div class="receive-receipt-header">`+
+	                  `<div>`+
+	                    `<div class="receive-receipt-title">Receipt ${escapeHtml(shortId(receiptId) || receiptId)}</div>`+
+	                    `<div class="receive-receipt-meta">${escapeHtml(statusText || '')}${when ? ` • ${escapeHtml(when)}` : ''}</div>`+
+	                  `</div>`+
+	                  `<div>`+
+	                    (canVoid ? `<button class="btn small danger" type="button" data-void-receipt-id="${escapeHtmlAttr(receiptId)}">Void</button>` : '')+
+	                  `</div>`+
+	                `</div>`+
+	                `<div class="receive-receipt-meta">Received: ${formatQty(totalReceived)} • Rejected: ${formatQty(totalRejected)}</div>`+
+	                `<div class="receive-receipt-lines">`+
+	                  (lines.length ? lines.map(line => {
+	                    const itemName = line.item_name || line.item_id || 'Item';
+	                    const sku = line.item_sku ? ` (${line.item_sku})` : '';
+	                    return (
+	                      `<div class="receive-receipt-line">`+
+	                        `<div>${escapeHtml(itemName)}${escapeHtml(sku)}</div>`+
+	                        `<span>+${formatQty(line.qty_received)}</span>`+
+	                        `<span>−${formatQty(line.qty_rejected)}</span>`+
+	                      `</div>`
+	                    );
+	                  }).join('') : `<div class="muted">No lines.</div>`) +
+	                `</div>`+
+	              `</div>`
+	            );
+	          }).join('');
+	      }
+
+	      if(draftCount > 1){
+	        setReceiveOrderMessage('Multiple draft receipts detected. The most recent draft is loaded.');
+	      }else if(ro.draftReceiptId){
+	        setReceiveOrderMessage('Draft receipt loaded. Save or complete to apply changes.');
+	      }else{
+	        setReceiveOrderMessage('');
+	      }
+
+	      updateReceiveOrderWarning();
+	      const saveBtn = $('btnReceiveOrderSave');
+	      const completeBtn = $('btnReceiveOrderComplete');
+	      const cancelBtn = $('btnReceiveOrderCancel');
+	      const canSave = ro.draftReceiptId ? canReceivingEdit() : (canReceivingCreate() && canReceivingEdit());
+	      if(saveBtn) saveBtn.disabled = !canSave;
+	      if(completeBtn) completeBtn.disabled = !canReceivingApprove();
+	      if(cancelBtn) cancelBtn.disabled = false;
+	    }
+	    async function refreshReceiveOrderModal(poId){
+	      const id = String(poId || '').trim();
+	      if(!id) return;
+	      const existing = state._receiveOrder && state._receiveOrder.po ? state._receiveOrder.po : null;
+	      const poRow = existing && String(existing.id || '').trim() === id ? existing : (getOrderHistoryRowById(id) || await sbFetchPurchaseOrderById(id));
+	      let lineMap = state._orderHistoryLinesByPo && state._orderHistoryLinesByPo.get ? state._orderHistoryLinesByPo : new Map();
+	      let poLines = lineMap.get(id) || null;
+	      if(!poLines){
+	        const fetched = await sbFetchPurchaseOrderLinesByPoIds([id]);
+	        poLines = fetched.get(id) || [];
+	      }
+	      const { receipts, receiptLines } = await sbFetchReceiptDataForPo(id);
+	      state._receiveOrder = buildReceiveOrderState(poRow, poLines, receipts, receiptLines);
+	      renderReceiveOrderModal();
+	    }
+	    async function ensureDraftReceiptId(receiveState){
+	      if(receiveState.draftReceiptId) return receiveState.draftReceiptId;
+	      const { data, error } = await SB.client.rpc('create_receipt', {
+	        p_company_id: SB.companyId,
+	        p_purchase_order_id: receiveState.po && receiveState.po.id ? receiveState.po.id : receiveState.poId
+	      });
+	      if(error) throw error;
+	      if(data && data.success === false){
+	        throw new Error(data.error || 'Failed to create receipt');
+	      }
+	      const receiptId = data && data.receipt_id ? String(data.receipt_id).trim() : '';
+	      if(!receiptId) throw new Error('Failed to create receipt');
+	      receiveState.draftReceiptId = receiptId;
+	      return receiptId;
+	    }
+	    async function saveReceiptLines(receiveState){
+	      const lines = receiveState.lines || [];
+	      const hasAny = lines.some(l => !l.disabled && (toQty(l.qty_received, 0) > 0 || toQty(l.qty_rejected, 0) > 0));
+	      if(!hasAny) throw new Error('Enter at least one received or rejected quantity.');
+	      const receiptId = await ensureDraftReceiptId(receiveState);
+	      for(const line of lines){
+	        if(line.disabled) continue;
+	        const { data, error } = await SB.client.rpc('upsert_receipt_line', {
+	          p_receipt_id: receiptId,
+	          p_item_id: line.item_id,
+	          p_qty_received: toQty(line.qty_received, 0),
+	          p_qty_rejected: toQty(line.qty_rejected, 0),
+	        });
+	        if(error) throw error;
+	        if(data && data.success === false){
+	          throw new Error(data.error || 'Failed to save receipt line');
+	        }
+	      }
+	      return receiptId;
+	    }
+	    async function handleSaveReceiptDraft(){
+	      const ro = state._receiveOrder;
+	      if(!ro) return;
+	      if(!canReceivingEdit() || (!ro.draftReceiptId && !canReceivingCreate())){
+	        toast('Receipt draft permission required');
+	        return;
+	      }
+	      const btn = $('btnReceiveOrderSave');
+	      const prior = btn ? btn.textContent : '';
+	      if(btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
+	      try{
+	        await saveReceiptLines(ro);
+	        toast('Draft saved');
+	        setReceiveOrderMessage('Draft saved.');
+	      }catch(e){
+	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to save draft');
+	      }finally{
+	        if(btn){ btn.disabled = false; btn.textContent = prior || 'Save Draft'; }
+	      }
+	    }
+	    async function handleCompleteReceipt(){
+	      const ro = state._receiveOrder;
+	      if(!ro) return;
+	      if(!canReceivingApprove()){
+	        toast('Complete receipt permission required');
+	        return;
+	      }
+	      const ok = await openConfirmModal(
+	        'Complete receipt?',
+	        'Inventory is updated only when the receipt is completed.',
+	        { okText:'Complete', cancelText:'Cancel' }
+	      );
+	      if(!ok) return;
+
+	      const btn = $('btnReceiveOrderComplete');
+	      const prior = btn ? btn.textContent : '';
+	      if(btn){ btn.disabled = true; btn.textContent = 'Completing…'; }
+	      try{
+	        const receiptId = await saveReceiptLines(ro);
+	        const { data, error } = await SB.client.rpc('complete_receipt', { p_receipt_id: receiptId });
+	        if(error) throw error;
+	        if(data && data.success === false){
+	          throw new Error(data.error || 'Failed to complete receipt');
+	        }
+	        toast('Receipt completed');
+	        setReceiveOrderMessage('Receipt completed. Inventory updated on completion.');
+	        await refreshReceiveOrderModal(ro.po && ro.po.id ? ro.po.id : ro.poId);
+	      }catch(e){
+	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to complete receipt');
+	      }finally{
+	        if(btn){ btn.disabled = false; btn.textContent = prior || 'Complete Receipt'; }
+	      }
+	    }
+	    async function handleVoidReceipt(receiptId, btnEl){
+	      const id = String(receiptId || '').trim();
+	      if(!id) return;
+	      if(!canReceivingVoid()){
+	        toast('Void receipt permission required');
+	        return;
+	      }
+	      const ok = await openConfirmModal(
+	        'Void receipt?',
+	        'Voiding reverses inventory adjustments for this receipt.',
+	        { okText:'Void', cancelText:'Cancel' }
+	      );
+	      if(!ok) return;
+	      const btn = btnEl || null;
+	      const prior = btn ? btn.textContent : '';
+	      if(btn){
+	        btn.disabled = true;
+	        btn.textContent = 'Voiding…';
+	      }
+	      try{
+	        const { data, error } = await SB.client.rpc('void_receipt', { p_receipt_id: id });
+	        if(error) throw error;
+	        if(data && data.success === false){
+	          throw new Error(data.error || 'Failed to void receipt');
+	        }
+	        toast('Receipt voided');
+	        const ro = state._receiveOrder;
+	        if(ro) await refreshReceiveOrderModal(ro.po && ro.po.id ? ro.po.id : ro.poId);
+	      }catch(e){
+	        toast(e && e.message ? e.message : 'Failed to void receipt');
+	      }finally{
+	        if(btn && btn.isConnected){
+	          btn.disabled = false;
+	          btn.textContent = prior || 'Void';
+	        }
+	      }
+	    }
+	    function closeReceiveOrderModal(){
+	      state._receiveOrder = null;
+	      setReceiveOrderMessage('');
+	      setReceiveOrderWarning('');
+	      show('receiveOrderModal', false);
+	    }
+	    async function openReceiveOrderModal(orderId){
 	      const id = String(orderId || '').trim();
 	      if(!id) return;
 	      if(!SB.ready){ toast('Supabase not configured'); return; }
 	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
 	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
-	      if(!canOrdersEdit()){ toast('Receive not allowed'); return; }
-	      if(SB.ordersHasReceipt === false){
-	        showOrderReceivingSetupHelp();
-	        return;
+	      if(!canReceiveOrders()){ toast('Receiving access required'); return; }
+
+	      setReceiveOrderMessage('');
+	      setReceiveOrderWarning('');
+	      state._receiveOrder = { poId: id, po: getOrderHistoryRowById(id), lines: [], receipts: [], receiptLines: [], receiptLinesByReceipt: new Map(), draftReceiptId:'', draftReceiptsCount:0, loading:true };
+	      show('receiveOrderModal', true);
+	      renderReceiveOrderModal();
+	      try{
+	        await refreshReceiveOrderModal(id);
+	      }catch(e){
+	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt data');
+	        renderReceiveOrderModal();
 	      }
+	    }
 
-	      const row = getOrderHistoryRowById(id);
-	      if(!row){ toast('Order not found'); return; }
-
-	      const isUndo = isOrderCurrentlyReceived(row);
-	      const subject = orderSubjectFromRow(row);
-	      const receivingAt = String(row.receiving_at || '').trim();
-	      const receivedAt = String(row.received_at || '').trim();
-	      const resumable = !isUndo && !!receivingAt && !receivedAt && row.receiving_snapshot;
-
-	      const ok = isUndo
-	        ? (await openConfirmModal('Undo receive?', 'Revert inventory changes from this received order when safe (skips conflicts).', { okText:'Undo', cancelText:'Cancel' }))
-	        : (await openConfirmModal(resumable ? 'Resume receiving?' : 'Receive order?', 'Add this order’s quantities to inventory (skips conflicts).', { okText: resumable ? 'Resume' : 'Receive', cancelText:'Cancel' }));
-	      if(!ok) return;
-
-	      const priorTitle = btnEl ? btnEl.getAttribute('title') : '';
+	    async function handleOrderReceiptButtonClick(orderId, btnEl){
+	      const id = String(orderId || '').trim();
+	      if(!id) return;
 	      if(btnEl){
 	        btnEl.disabled = true;
-	        btnEl.setAttribute('title', isUndo ? 'Undoing…' : 'Receiving…');
 	      }
-
 	      try{
-	        if(isUndo){
-	          const receivedSnapshot = (row && typeof row.received_snapshot === 'object' && row.received_snapshot) ? row.received_snapshot : null;
-	          if(!receivedSnapshot){ toast('Nothing to undo'); return; }
-	          toast('Undoing receive…');
-	          const { undone, skipped } = await undoReceivedSnapshot(id, receivedSnapshot);
-	          const { title, body, copy } = buildReceiptSummary({ subject, applied: undone, skipped, mode:'undo' });
-	          openMsgModal(title, body, copy);
-	          toast('Undo complete');
-	        }else{
-	          toast(resumable ? 'Resuming receive…' : 'Receiving…');
-	          let planned = (resumable && typeof row.receiving_snapshot === 'object') ? row.receiving_snapshot : null;
-	          if(!planned){
-	            planned = await buildReceivingSnapshotForOrder(row);
-	            if(!planned.lines.length && !(planned.skipped && planned.skipped.length)){
-	              toast('No line items to receive');
-	              return;
-	            }
-	            const patch = {
-	              receiving_at: planned.planned_at,
-	              receiving_by: planned.planned_by,
-	              receiving_snapshot: planned,
-	            };
-	            await sbUpdateOrder(id, patch);
-	            patchOrderHistoryRow(id, patch);
-	          }
-	          const { applied, skipped } = await applyReceivingSnapshot(id, planned);
-	          const { title, body, copy } = buildReceiptSummary({ subject, applied, skipped, mode:'receive' });
-	          openMsgModal(title, body, copy);
-	          toast('Receive complete');
-	        }
-	      }catch(e){
-	        toast((e && e.message) ? e.message : 'Receive failed');
+	        await openReceiveOrderModal(id);
 	      }finally{
 	        if(btnEl){
 	          btnEl.disabled = false;
-	          btnEl.setAttribute('title', priorTitle || '');
 	        }
 	      }
 	    }
@@ -13145,27 +14538,19 @@ function emptyStateHtml(){
         det.dataset.orderId = String(o.id || '');
 
 	        const subject = escapeHtml(orderSubjectFromRow(o));
-        const created = escapeHtml(formatEasternDateTime(o.created_at || ''));
-        const to = escapeHtml(String(o.to_email||''));
-        const replyTo = String(o.reply_to_email||'').trim();
-        const contact = String(o.contact_name||'').trim();
+        const orderDate = formatDateShort(o.order_date || o.created_at || '');
+        const expectedDate = formatDateShort(o.expected_date || '');
+        const receivedDate = formatDateShort(o.received_date || '');
+        const statusLabel = formatStateToken(o.status || '');
+        const supplier = String(o.vendor_name || (o.vendor && o.vendor.name) || o.vendor_id || '').trim();
         const notes = String(o.notes||'').trim();
-        const companyPo = String(o.company_po_number || '').trim();
-        const internalPo = String(o.internal_po_number || '').trim();
-        const shippingSnap = normalizeShippingSnapshot(o.shipping_address_snapshot) || null;
-        const shippingLines = shippingSnap ? [shippingSnap.label, shippingSnap.address].filter(Boolean) : [];
-        const items = normalizeOrderLineItems(o.line_items);
 
         const orderId = String(o.id || '');
         const receiptMeta = orderNonEmpty(orderReceiptMetaText(o));
-        const canReceipt = (SB.ordersHasReceipt !== false) && canOrdersEdit();
-        const canRemove = canOrdersDelete();
+        const canReceipt = canReceiveOrders();
         const isReceived = isOrderCurrentlyReceived(o);
-        const isReceiving = canReceipt && !!String(o.receiving_at || '').trim() && !String(o.received_at || '').trim();
         det.classList.toggle('order-received', isReceived);
-        const receiveBtnTitle = !canReceipt
-          ? 'Enable order receiving (run Supabase SQL setup)'
-          : (isReceived ? 'Undo receive' : (isReceiving ? 'Resume receiving' : 'Receive into inventory'));
+        const receiveBtnTitle = canReceipt ? 'Receive Order' : 'Receiving not allowed';
         const receiveBtnClass = 'btn-icon-receive';
         const receiveBtnIcon =
           `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
@@ -13177,15 +14562,7 @@ function emptyStateHtml(){
         const receiptBtn =
           `<button class="${receiveBtnClass}" data-receive-order-id="${escapeHtml(orderId)}" aria-disabled="${canReceipt ? 'false' : 'true'}" aria-label="${escapeHtml(receiveBtnTitle)}" title="${escapeHtml(receiveBtnTitle)}"${canReceipt ? '' : ' disabled'}>`+
             receiveBtnIcon+
-          `</button>`;
-        const trayDeleteBtn =
-          `<button type="button" class="history-tray-btn history-tray-btn--delete" data-delete-order-id="${escapeHtml(orderId)}" tabindex="-1" aria-label="Delete order" title="Delete order"${canRemove ? '' : ' disabled aria-disabled="true"'}>`+
-            `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
-              `<polyline points="3 6 5 6 21 6"></polyline>`+
-              `<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>`+
-              `<line x1="10" y1="11" x2="10" y2="17"></line>`+
-              `<line x1="14" y1="11" x2="14" y2="17"></line>`+
-            `</svg>`+
+            `<span class="btn-icon-receive-text">Receive Order</span>`+
           `</button>`;
         const trayReceiveBtn =
           `<button type="button" class="history-tray-btn history-tray-btn--receive" data-receive-order-id="${escapeHtml(orderId)}" tabindex="-1" aria-disabled="${canReceipt ? 'false' : 'true'}" aria-label="${escapeHtml(receiveBtnTitle)}" title="${escapeHtml(receiveBtnTitle)}"${canReceipt ? '' : ' disabled'}>`+
@@ -13197,65 +14574,55 @@ function emptyStateHtml(){
             `</svg>`+
           `</button>`;
 
+        const lineMap = state._orderHistoryLinesByPo || new Map();
+        const items = normalizePurchaseOrderLines(lineMap.get(orderId) || []);
         const itemsTable = items.length ? (
           `<table class="history-table">`+
             `<thead>`+
               `<tr>`+
-                `<th>Part #</th>`+
-                `<th>Description</th>`+
-                `<th style="text-align:right">Qty</th>`+
+                `<th>Item</th>`+
+                `<th>SKU</th>`+
+                `<th style="text-align:right">Ordered</th>`+
+                `<th style="text-align:right">Received</th>`+
+                `<th style="text-align:right">Remaining</th>`+
               `</tr>`+
             `</thead>`+
             `<tbody>`+
               items.map(it =>
                 `<tr>`+
-                  `<td>${escapeHtml(it.part)}</td>`+
-                  `<td>${escapeHtml(it.desc)}</td>`+
-                  `<td class="qty">${it.qty}</td>`+
+                  `<td>${escapeHtml(it.item_name || '(Unnamed item)')}</td>`+
+                  `<td>${escapeHtml(it.item_sku)}</td>`+
+                  `<td class="qty">${formatQty(it.quantity_ordered)}</td>`+
+                  `<td class="qty">${formatQty(it.quantity_received)}</td>`+
+                  `<td class="qty">${formatQty(it.quantity_ordered - it.quantity_received)}</td>`+
                 `</tr>`
               ).join('')+
             `</tbody>`+
           `</table>`
         ) : `<div class="order-empty" style="margin-top:10px;">(No line items)</div>`;
 
-        const forwardBlock =
-          `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">`+
-            `<div class="muted" style="margin-bottom:8px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;">Forward</div>`+
-            `<div class="order-recipient">`+
-              `<input data-forward-email-id="${orderId}" type="email" placeholder="recipient@example.com" autocomplete="email" inputmode="email" />`+
-              `<button class="btn small" type="button" data-forward-send-id="${orderId}" disabled>Forward</button>`+
-            `</div>`+
-            `<div class="order-suggest" data-forward-suggest-id="${orderId}" aria-label="Email suggestions"></div>`+
-          `</div>`;
-
         det.innerHTML =
           `<summary>`+
             `<div class="history-tray" aria-hidden="true">`+
-              trayDeleteBtn+
               trayReceiveBtn+
             `</div>`+
             `<div class="history-header">`+
               `<div class="history-title">${subject}</div>`+
               `<div class="history-actions">`+
                 receiptBtn+
-                `<button class="btn-icon-danger" data-delete-order-id="${orderId}" aria-label="Delete order" title="Delete order"${canRemove ? '' : ' disabled aria-disabled="true"'}>`+
-                  `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`+
-                `</button>`+
               `</div>`+
             `</div>`+
-            `<div class="history-meta">${created}${to ? ` • To: ${to}` : ''}${receiptMeta ? ` • ${escapeHtml(receiptMeta)}` : ''}</div>`+
+            `<div class="history-meta">${orderDate ? escapeHtml(orderDate) : ''}${receiptMeta ? ` • ${escapeHtml(receiptMeta)}` : ''}</div>`+
           `</summary>`+
           `<div class="history-body">`+
             `<div class="history-kv">`+
-              (replyTo ? `<div><span class="muted">Reply-To:</span> ${escapeHtml(replyTo)}</div>` : '')+
-              (contact ? `<div><span class="muted">Contact:</span> ${escapeHtml(contact)}</div>` : '')+
-              (companyPo ? `<div><span class="muted">Company PO:</span> ${escapeHtml(companyPo)}</div>` : '')+
-              (internalPo ? `<div><span class="muted">Internal PO:</span> ${escapeHtml(internalPo)}</div>` : '')+
-              (shippingLines.length ? `<div><span class="muted">Shipping Address:</span><div class="history-address">${shippingLines.map(l => escapeHtml(l)).join('<br>')}</div></div>` : '')+
+              (supplier ? `<div><span class="muted">Supplier:</span> ${escapeHtml(supplier)}</div>` : '')+
+              (statusLabel ? `<div><span class="muted">Status:</span> ${escapeHtml(statusLabel)}</div>` : '')+
+              (expectedDate ? `<div><span class="muted">Expected:</span> ${escapeHtml(expectedDate)}</div>` : '')+
+              (receivedDate ? `<div><span class="muted">Received:</span> ${escapeHtml(receivedDate)}</div>` : '')+
               (notes ? `<div><span class="muted">Notes:</span> ${escapeHtml(notes)}</div>` : '')+
             `</div>`+
             itemsTable +
-            forwardBlock+
           `</div>`;
 
 	        wrap.appendChild(det);
@@ -13264,20 +14631,19 @@ function emptyStateHtml(){
 	    function orderHistorySearchText(orderRow){
 	      const o = orderRow || {};
 	      const createdAt = String(o.created_at || '').trim();
-	      const createdEastern = String(formatEasternDateTime(createdAt || '') || '').trim();
+	      const orderDate = String(formatDateShort(o.order_date || '') || '').trim();
+	      const expectedDate = String(formatDateShort(o.expected_date || '') || '').trim();
+	      const receivedDate = String(formatDateShort(o.received_date || '') || '').trim();
 	      const subject = orderSubjectFromRow(o);
-	      const to = String(o.to_email || '').trim();
-	      const replyTo = String(o.reply_to_email || '').trim();
-	      const contact = String(o.contact_name || '').trim();
 	      const notes = String(o.notes || '').trim();
 	      const id = String(o.id || '').trim();
-	      const companyPo = String(o.company_po_number || '').trim();
-	      const internalPo = String(o.internal_po_number || '').trim();
-	      const shippingSnap = normalizeShippingSnapshot(o.shipping_address_snapshot) || null;
-	      const shippingText = shippingSnap ? [shippingSnap.label, shippingSnap.address].filter(Boolean).join(' ') : '';
-	      const items = normalizeOrderLineItems(o.line_items);
-	      const itemText = items.map(it => `${it.part} ${it.desc} ${toInt(it.qty,0)}`).join(' ');
-	      return `${id} ${createdAt} ${createdEastern} ${to} ${replyTo} ${subject} ${contact} ${notes} ${companyPo} ${internalPo} ${shippingText} ${itemText}`.toLowerCase();
+	      const poNumber = String(o.po_number || '').trim();
+	      const status = String(o.status || '').trim();
+	      const vendor = String(o.vendor_name || (o.vendor && o.vendor.name) || o.vendor_id || '').trim();
+        const lineMap = state._orderHistoryLinesByPo || new Map();
+        const items = normalizePurchaseOrderLines(lineMap.get(id) || []);
+        const itemText = items.map(it => `${it.item_name} ${it.item_sku} ${formatQty(it.quantity_ordered)}`).join(' ');
+	      return `${id} ${poNumber} ${status} ${orderDate} ${expectedDate} ${receivedDate} ${createdAt} ${subject} ${vendor} ${notes} ${itemText}`.toLowerCase();
 	    }
 	    function renderOrderHistoryFiltered(){
 	      const rows = Array.isArray(state._orderHistoryRows) ? state._orderHistoryRows : [];
@@ -13451,10 +14817,14 @@ function emptyStateHtml(){
 	        const rows = await sbFetchOrders(60);
 	        state._orderHistoryRows = Array.isArray(rows) ? rows : [];
 	        state._orderHistoryById = new Map((rows||[]).map(r => [String(r && r.id ? r.id : ''), r]).filter(x=>x[0]));
+          state._orderHistoryLinesByPo = await sbFetchPurchaseOrderLinesByPoIds(
+            (rows || []).map(r => r && r.id)
+          );
 	        renderOrderHistoryFiltered();
 	      }catch(e){
 	        state._orderHistoryById = new Map();
 	        state._orderHistoryRows = [];
+          state._orderHistoryLinesByPo = new Map();
 	        const msg = e && e.message ? e.message : 'Failed to load history';
 	        if(wrap) wrap.innerHTML = `<div class="order-empty">${escapeHtml(msg)}</div>`;
 	      }finally{
@@ -13699,7 +15069,7 @@ function emptyStateHtml(){
         const shippingLines = formatShippingSnapshotLines(getOrderShippingSnapshot(ord));
         shippingPreview.innerHTML = shippingLines.length
           ? shippingLines.map(l => escapeHtml(l)).join('<br>')
-          : '<span class="muted">No shipping address selected.</span>';
+          : '<span class="muted">No shipping location selected.</span>';
       }
       const replyEl = $('orderReplyToNote');
       if(replyEl){
@@ -13747,7 +15117,7 @@ function emptyStateHtml(){
 
       renderOrderResults();
       renderOrderLines();
-      try{ await loadShippingAddresses(); }catch(e){}
+      try{ await loadOrderShippingOptions(); }catch(e){}
       renderOrderPreview();
       try{ updateOrderSearchClearBtn(); }catch(e){}
 
@@ -13938,6 +15308,35 @@ function emptyStateHtml(){
 	    if(btnOrderHistoryDownload) btnOrderHistoryDownload.addEventListener('click', downloadOrderHistoryCsv);
 	    const btnOrderHistoryRefresh = $('btnOrderHistoryRefresh');
 	    if(btnOrderHistoryRefresh) btnOrderHistoryRefresh.addEventListener('click', refreshOrderHistory);
+	    const btnReceiveOrderClose = $('btnReceiveOrderClose');
+	    if(btnReceiveOrderClose) btnReceiveOrderClose.addEventListener('click', closeReceiveOrderModal);
+	    const btnReceiveOrderCancel = $('btnReceiveOrderCancel');
+	    if(btnReceiveOrderCancel) btnReceiveOrderCancel.addEventListener('click', closeReceiveOrderModal);
+	    const btnReceiveOrderSave = $('btnReceiveOrderSave');
+	    if(btnReceiveOrderSave) btnReceiveOrderSave.addEventListener('click', handleSaveReceiptDraft);
+	    const btnReceiveOrderComplete = $('btnReceiveOrderComplete');
+	    if(btnReceiveOrderComplete) btnReceiveOrderComplete.addEventListener('click', handleCompleteReceipt);
+	    const receiveOrderLines = $('receiveOrderLines');
+	    if(receiveOrderLines){
+	      receiveOrderLines.addEventListener('input', (e)=>{
+	        const inp = e.target.closest('input[data-receive-line-key]');
+	        if(!inp) return;
+	        updateReceiveLineFromInput(inp, { format:false });
+	      });
+	      receiveOrderLines.addEventListener('change', (e)=>{
+	        const inp = e.target.closest('input[data-receive-line-key]');
+	        if(!inp) return;
+	        updateReceiveLineFromInput(inp, { format:true, showError:true });
+	      });
+	    }
+	    const receiveOrderReceipts = $('receiveOrderReceipts');
+	    if(receiveOrderReceipts) receiveOrderReceipts.addEventListener('click', (e)=>{
+	      const btn = e.target.closest('button[data-void-receipt-id]');
+	      if(!btn) return;
+	      const id = String(btn.dataset.voidReceiptId || '').trim();
+	      if(!id) return;
+	      void handleVoidReceipt(id, btn);
+	    });
 
     const btnShippingAddressClose = $('btnShippingAddressClose');
     if(btnShippingAddressClose) btnShippingAddressClose.addEventListener('click', closeShippingAddressModal);
@@ -13980,6 +15379,70 @@ function emptyStateHtml(){
           toast('Shipping address deleted');
         }catch(e){
           toast(e && e.message ? e.message : 'Delete failed');
+        }
+      }
+    });
+    const btnCompanyLocationsClose = $('btnCompanyLocationsClose');
+    if(btnCompanyLocationsClose) btnCompanyLocationsClose.addEventListener('click', closeCompanyLocationsModal);
+    const btnCompanyLocationNew = $('btnCompanyLocationNew');
+    if(btnCompanyLocationNew) btnCompanyLocationNew.addEventListener('click', ()=>{
+      if(!canManageCompanyLocations()){
+        toast('Location permissions required');
+        return;
+      }
+      clearCompanyLocationForm();
+      openCompanyLocationEditor();
+    });
+    const btnCompanyLocationSave = $('btnCompanyLocationSave');
+    if(btnCompanyLocationSave) btnCompanyLocationSave.addEventListener('click', saveCompanyLocation);
+    const btnCompanyLocationCancel = $('btnCompanyLocationCancel');
+    if(btnCompanyLocationCancel) btnCompanyLocationCancel.addEventListener('click', closeCompanyLocationEditor);
+    const btnCompanyLocationEditorClose = $('btnCompanyLocationEditorClose');
+    if(btnCompanyLocationEditorClose) btnCompanyLocationEditorClose.addEventListener('click', closeCompanyLocationEditor);
+    const companyLocationsList = $('companyLocationsList');
+    if(companyLocationsList) companyLocationsList.addEventListener('click', async (e)=>{
+      const editBtn = e.target.closest('[data-location-edit]');
+      if(editBtn){
+        const id = String(editBtn.getAttribute('data-location-edit') || '').trim();
+        if(!id) return;
+        openCompanyLocationEditor(id);
+        return;
+      }
+      const defaultBtn = e.target.closest('[data-location-default]');
+      if(defaultBtn){
+        const id = String(defaultBtn.getAttribute('data-location-default') || '').trim();
+        const type = String(defaultBtn.getAttribute('data-default-type') || '').trim();
+        if(!id || !type) return;
+        const prior = defaultBtn.textContent;
+        defaultBtn.disabled = true;
+        defaultBtn.textContent = 'Saving...';
+        setCompanyLocationsMessage('');
+        try{
+          await setDefaultCompanyLocation(id, type);
+          toast('Default updated');
+        }catch(err){
+          setCompanyLocationsMessage(err && err.message ? err.message : 'Default update failed');
+        }finally{
+          defaultBtn.disabled = false;
+          defaultBtn.textContent = prior || 'Set Default';
+        }
+        return;
+      }
+      const archiveBtn = e.target.closest('[data-location-archive]');
+      if(archiveBtn){
+        const id = String(archiveBtn.getAttribute('data-location-archive') || '').trim();
+        if(!id) return;
+        const prior = archiveBtn.textContent;
+        archiveBtn.disabled = true;
+        archiveBtn.textContent = 'Archiving...';
+        setCompanyLocationsMessage('');
+        try{
+          await archiveCompanyLocation(id);
+        }catch(err){
+          setCompanyLocationsMessage(err && err.message ? err.message : 'Archive failed');
+        }finally{
+          archiveBtn.disabled = false;
+          archiveBtn.textContent = prior || 'Archive';
         }
       }
     });
@@ -14127,14 +15590,17 @@ function emptyStateHtml(){
 	      const ord = orderState();
 	      const selected = String(orderShippingAddress.value || '').trim();
 	      ord.shippingAddressId = selected;
-	      const row = state._shippingAddressById && typeof state._shippingAddressById.get === 'function'
-	        ? state._shippingAddressById.get(selected)
-	        : null;
+	      const row = (state._orderShippingById && typeof state._orderShippingById.get === 'function'
+	        ? state._orderShippingById.get(selected)
+	        : null)
+	        || (state._shippingAddressById && typeof state._shippingAddressById.get === 'function'
+	          ? state._shippingAddressById.get(selected)
+	          : null);
 	      ord.shippingAddressSnapshot = row ? { label: row.label, address: row.address } : null;
 	      renderOrderPreview();
 	    });
 	    const btnOrderShippingManage = $('btnOrderShippingManage');
-	    if(btnOrderShippingManage) btnOrderShippingManage.addEventListener('click', openShippingAddressModal);
+	    if(btnOrderShippingManage) btnOrderShippingManage.addEventListener('click', openCompanyLocationsModal);
     const orderNotes = $('orderNotes');
     if(orderNotes) orderNotes.addEventListener('input', ()=>{
       const ord = orderState();
@@ -14418,14 +15884,11 @@ function emptyStateHtml(){
 	          nextX = clampNum(_histGesture.startSwipeX + dx, -MAX_PX, MAX_PX);
 	          _histGesture.closingFromDetent = false;
 	        }
+	        nextX = Math.min(0, nextX);
 	        _histGesture.swipeX = nextX;
+	        _histGesture.side = 'right';
 
-	        let side = _histGesture.side;
-	        if(Math.abs(nextX) > 6) side = (nextX < 0) ? 'right' : 'left';
-	        else if(!side) side = (dx < 0) ? 'right' : 'left';
-	        _histGesture.side = side || 'left';
-
-	        prepareHistoryTrayForItem(det, _histGesture.side);
+	        prepareHistoryTrayForItem(det, 'right');
 	        det.classList.add('swiping');
 	        setRowSwipeX(det, nextX);
 	      }, { passive:false });
@@ -14453,7 +15916,7 @@ function emptyStateHtml(){
 	          det.classList.remove('swiping');
 	          const finalX = Number.isFinite(swipeX) ? swipeX : getRowSwipeX(det);
 	          const ax = Math.abs(finalX);
-	          const side = (finalX < 0) ? 'right' : 'left'; // tray side
+	          const side = 'right';
 
 	          if(closingFromDetent){
 	            closeHistoryTrayElastic(det);
@@ -14476,12 +15939,6 @@ function emptyStateHtml(){
 	          if(shouldCommitReceive){
 	            closeHistoryTray();
 	            void handleOrderReceiptButtonClick(id, null);
-	            return;
-	          }
-	          const shouldCommitDelete = (side === 'left') && (ax >= COMMIT_PX);
-	          if(shouldCommitDelete){
-	            closeHistoryTray();
-	            void deleteOrderFromHistory(id, null);
 	            return;
 	          }
 
@@ -14991,11 +16448,14 @@ function emptyStateHtml(){
 	  } else if (id === 'msgModal') {
 	    const btn = document.getElementById('btnMsgOk');
 	    if (btn) setTimeout(() => btn.focus(), 0);
-	  } else if (id === 'confirmModal') {
+  } else if (id === 'confirmModal') {
     const btn = document.getElementById('btnConfirmCancel');
     if (btn) setTimeout(() => btn.focus(), 0);
   } else if (id === 'profileModal') {
     const inp = document.getElementById('profilePhone');
+    if (inp) setTimeout(() => inp.focus(), 0);
+  } else if (id === 'companyLocationEditorModal') {
+    const inp = document.getElementById('companyLocationName');
     if (inp) setTimeout(() => inp.focus(), 0);
   } else if (id === 'advancedCompanyModal') {
     const inp = document.getElementById('advancedCompanySearch');
