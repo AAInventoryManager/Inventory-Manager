@@ -1,5 +1,5 @@
 // Supabase Edge Function: accept-invite
-// Creates an auth user for a valid invitation and returns the email for sign-in.
+// Creates an auth user for a valid company invite and accepts the invite.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
@@ -42,12 +42,12 @@ serve(async (req) => {
 
   try {
     const body = (await req.json()) as Record<string, unknown>;
-    const token = String(body?.token || "").trim();
+    const inviteId = String(body?.invite_id || body?.inviteId || body?.token || "").trim();
     const password = String(body?.password || "");
 
-    if (!token) {
+    if (!inviteId) {
       return new Response(
-        JSON.stringify({ ok: false, error: "Invite token is required" }),
+        JSON.stringify({ ok: false, error: "Invite id is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -62,9 +62,9 @@ serve(async (req) => {
     const supabase = getServiceClient();
 
     const { data: invite, error: inviteError } = await supabase
-      .from("invitations")
-      .select("id,email,company_id,role,expires_at,accepted_at")
-      .eq("token", token)
+      .from("company_invites")
+      .select("id,email,company_id,role,expires_at,status")
+      .eq("id", inviteId)
       .maybeSingle();
 
     if (inviteError) {
@@ -81,9 +81,9 @@ serve(async (req) => {
       );
     }
 
-    if (invite.accepted_at) {
+    if (invite.status !== "pending") {
       return new Response(
-        JSON.stringify({ ok: false, error: "Invitation already accepted" }),
+        JSON.stringify({ ok: false, error: "Invitation is not pending" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -128,8 +128,29 @@ serve(async (req) => {
       );
     }
 
+    const { data: acceptData, error: acceptError } = await supabase.rpc("accept_company_invite", {
+      p_invite_id: inviteId,
+    });
+    if (acceptError) {
+      return new Response(
+        JSON.stringify({ ok: false, error: acceptError.message || "Failed to accept invite", email }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    if (acceptData && acceptData.success === false) {
+      return new Response(
+        JSON.stringify({ ok: false, error: acceptData.error || "Failed to accept invite", email }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     return new Response(
-      JSON.stringify({ ok: true, email }),
+      JSON.stringify({
+        ok: true,
+        email,
+        company_id: acceptData?.company_id || invite.company_id,
+        role: acceptData?.role || invite.role,
+      }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {

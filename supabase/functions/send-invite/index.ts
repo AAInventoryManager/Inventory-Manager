@@ -1,5 +1,5 @@
 // Supabase Edge Function: send-invite
-// Sends invitation emails via Mailtrap using invite_user RPC
+// Sends invitation emails via Mailtrap using the company_invites lifecycle RPCs.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
@@ -11,7 +11,7 @@ const corsHeaders = {
 };
 
 type AuthResult =
-  | { ok: true; supabase: SupabaseClient; companyId: string; userEmail: string }
+  | { ok: true; supabase: SupabaseClient; companyId: string | null; userEmail: string }
   | { ok: false; status: number; error: string };
 
 function getSupabaseClient(token: string) {
@@ -32,7 +32,11 @@ function getSupabaseClient(token: string) {
   });
 }
 
-async function authorizeRequest(req: Request, body: Record<string, unknown>): Promise<AuthResult> {
+async function authorizeRequest(
+  req: Request,
+  body: Record<string, unknown>,
+  requireCompanyId: boolean
+): Promise<AuthResult> {
   const authHeader = req.headers.get("Authorization") || "";
   if (!authHeader) {
     return { ok: false, status: 401, error: "Missing Authorization header" };
@@ -52,15 +56,15 @@ async function authorizeRequest(req: Request, body: Record<string, unknown>): Pr
   }
   const userEmail = String(userData.user.email || "").trim();
 
-  let companyId = String(body?.company_id || body?.companyId || "").trim();
-  if (!companyId) {
+  let companyId: string | null = String(body?.company_id || body?.companyId || "").trim() || null;
+  if (!companyId && requireCompanyId) {
     const { data, error } = await supabase.rpc("get_user_company_id");
     if (error) {
       return { ok: false, status: 400, error: "Missing company_id" };
     }
-    companyId = String(data || "").trim();
+    companyId = String(data || "").trim() || null;
   }
-  if (!companyId) {
+  if (requireCompanyId && !companyId) {
     return { ok: false, status: 400, error: "Missing company_id" };
   }
 
@@ -140,6 +144,45 @@ function isPermissionError(message: string): boolean {
   return msg.includes("permission") || msg.includes("feature not available") || msg.includes("plan");
 }
 
+function resolveInviteAppUrl(req: Request, body: Record<string, unknown>): string {
+  const explicit = String(body?.app_url || body?.appUrl || "").trim();
+  if (explicit) return explicit;
+  const origin = req.headers.get("origin");
+  if (origin) return origin;
+  const envUrl =
+    Deno.env.get("INVITE_APP_URL") ||
+    Deno.env.get("APP_URL") ||
+    Deno.env.get("SITE_URL") ||
+    "";
+  return String(envUrl || "").trim();
+}
+
+function buildInviteUrl(appUrl: string, inviteId: string): string {
+  if (!appUrl) return "";
+  try {
+    const url = new URL(appUrl);
+    url.searchParams.set("invite", inviteId);
+    return url.toString();
+  } catch {
+    const clean = appUrl.replace(/\?.*$/, "").replace(/\/+$/, "");
+    return clean ? `${clean}?invite=${inviteId}` : "";
+  }
+}
+
+async function ensureInviteTierAccess(supabase: SupabaseClient, companyId: string) {
+  const { data: tierAllowed, error: tierError } = await supabase.rpc("has_tier_access", {
+    p_company_id: companyId,
+    p_required_tier: "business",
+  });
+  if (tierError) {
+    return { ok: false, status: 500, error: "Failed to check tier" };
+  }
+  if (!tierAllowed) {
+    return { ok: false, status: 403, error: "Feature not available for current plan" };
+  }
+  return { ok: true };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
@@ -154,8 +197,9 @@ serve(async (req) => {
 
   try {
     const body = (await req.json()) as Record<string, unknown>;
-
-    const auth = await authorizeRequest(req, body);
+    const inviteIdInput = String(body?.invite_id || body?.inviteId || "").trim();
+    const requireCompanyId = !inviteIdInput;
+    const auth = await authorizeRequest(req, body, requireCompanyId);
     if (!auth.ok) {
       return new Response(
         JSON.stringify({ ok: false, error: auth.error }),
@@ -163,55 +207,186 @@ serve(async (req) => {
       );
     }
 
-    const email = String(body?.email || body?.to || body?.toEmail || "").trim();
-    const role = String(body?.role || "member").trim() || "member";
-
-    if (!looksLikeEmail(email)) {
-      return new Response(
-        JSON.stringify({ ok: false, error: "Invalid recipient email" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!looksLikeEmail(auth.userEmail)) {
+    const replyTo = auth.userEmail;
+    if (!looksLikeEmail(replyTo)) {
       return new Response(
         JSON.stringify({ ok: false, error: "Invalid reply-to email" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    if (!['admin', 'member', 'viewer'].includes(role)) {
-      return new Response(
-        JSON.stringify({ ok: false, error: "Invalid role" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    let inviteId = inviteIdInput;
+    let email = "";
+    let role = "";
+    let expiresAt = "";
+    let companyId = auth.companyId ? String(auth.companyId).trim() : "";
+    let resendCount: number | null = null;
+    let lastSentAt: string | null = null;
+
+    if (inviteId) {
+      const { data: inviteRow, error: inviteError } = await auth.supabase
+        .from("company_invites")
+        .select("id,email,role,company_id,expires_at,status")
+        .eq("id", inviteId)
+        .maybeSingle();
+
+      if (inviteError) {
+        return new Response(
+          JSON.stringify({ ok: false, error: "Failed to load invite" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (!inviteRow) {
+        return new Response(
+          JSON.stringify({ ok: false, error: "Invite not found" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (inviteRow.status !== "pending") {
+        return new Response(
+          JSON.stringify({ ok: false, error: "Invite is not pending" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const expiresAtValue = inviteRow.expires_at ? new Date(inviteRow.expires_at) : null;
+      if (expiresAtValue && expiresAtValue <= new Date()) {
+        return new Response(
+          JSON.stringify({ ok: false, error: "Invite has expired" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      companyId = String(inviteRow.company_id || "").trim();
+      if (!companyId) {
+        return new Response(
+          JSON.stringify({ ok: false, error: "Invite company missing" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const tierCheck = await ensureInviteTierAccess(auth.supabase, companyId);
+      if (!tierCheck.ok) {
+        return new Response(
+          JSON.stringify({ ok: false, error: tierCheck.error }),
+          { status: tierCheck.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const { data: resendData, error: resendError } = await auth.supabase.rpc("resend_company_invite", {
+        p_invite_id: inviteId,
+      });
+      if (resendError) {
+        return new Response(
+          JSON.stringify({ ok: false, error: resendError.message || "Resend failed" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (resendData && resendData.success === false) {
+        const msg = resendData.error || "Resend failed";
+        const status = isPermissionError(msg) ? 403 : 400;
+        return new Response(
+          JSON.stringify({ ok: false, error: msg }),
+          { status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      resendCount = typeof resendData?.resend_count === "number" ? resendData.resend_count : null;
+      lastSentAt = resendData?.last_sent_at ? String(resendData.last_sent_at) : null;
+      email = String(inviteRow.email || "").trim();
+      role = String(inviteRow.role || "member").trim() || "member";
+      expiresAt = inviteRow.expires_at ? String(inviteRow.expires_at) : "";
+    } else {
+      email = String(body?.email || body?.to || body?.toEmail || "").trim();
+      role = String(body?.role || "member").trim() || "member";
+      if (!companyId) {
+        return new Response(
+          JSON.stringify({ ok: false, error: "Missing company_id" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (!looksLikeEmail(email)) {
+        return new Response(
+          JSON.stringify({ ok: false, error: "Invalid recipient email" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (!["admin", "member", "viewer"].includes(role)) {
+        return new Response(
+          JSON.stringify({ ok: false, error: "Invalid role" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const tierCheck = await ensureInviteTierAccess(auth.supabase, companyId);
+      if (!tierCheck.ok) {
+        return new Response(
+          JSON.stringify({ ok: false, error: tierCheck.error }),
+          { status: tierCheck.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const expiresAtValue = String(body?.expires_at || "").trim();
+      const expiresAtDate = expiresAtValue ? new Date(expiresAtValue) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      const { data: inviteData, error: inviteError } = await auth.supabase.rpc("send_company_invite", {
+        p_company_id: companyId,
+        p_email: email,
+        p_role: role,
+        p_expires_at: expiresAtDate.toISOString(),
+      });
+
+      if (inviteError) {
+        return new Response(
+          JSON.stringify({ ok: false, error: inviteError.message || "Invite failed" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (inviteData && inviteData.success === false) {
+        const msg = inviteData.error || "Invite failed";
+        const status = isPermissionError(msg) ? 403 : 400;
+        return new Response(
+          JSON.stringify({ ok: false, error: msg }),
+          { status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      inviteId = inviteData?.invite_id ? String(inviteData.invite_id).trim() : "";
+      expiresAt = inviteData?.expires_at ? String(inviteData.expires_at) : expiresAtDate.toISOString();
     }
 
-    const { data: inviteData, error: inviteError } = await auth.supabase.rpc("invite_user", {
-      p_company_id: auth.companyId,
-      p_email: email,
-      p_role: role,
-    });
-
-    if (inviteError) {
+    if (!inviteId) {
       return new Response(
-        JSON.stringify({ ok: false, error: inviteError.message || "Invite failed" }),
+        JSON.stringify({ ok: false, error: "Invite id missing" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    if (inviteData && inviteData.success === false) {
-      const msg = inviteData.error || "Invite failed";
-      const status = isPermissionError(msg) ? 403 : 400;
+    if (!email || !looksLikeEmail(email)) {
       return new Response(
-        JSON.stringify({ ok: false, error: msg, invite_url: inviteData.invite_url || "" }),
-        { status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ ok: false, error: "Invalid recipient email" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const inviteUrl = inviteData?.invite_url ? String(inviteData.invite_url).trim() : "";
-    const companyName = inviteData?.company_name ? String(inviteData.company_name).trim() : "";
+    const { data: company, error: companyError } = await auth.supabase
+      .from("companies")
+      .select("name")
+      .eq("id", companyId)
+      .maybeSingle();
+    if (companyError) {
+      return new Response(
+        JSON.stringify({ ok: false, error: "Failed to load company" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
+    const companyName = String(company?.name || "").trim();
+    const appUrl = resolveInviteAppUrl(req, body);
+    const inviteUrl = buildInviteUrl(appUrl, inviteId);
     if (!inviteUrl) {
       return new Response(
         JSON.stringify({ ok: false, error: "Invite URL missing" }),
@@ -250,17 +425,33 @@ serve(async (req) => {
     }
 
     try {
-      await sendViaMailtrap({ to: email, subject, text, html, replyTo: auth.userEmail });
+      await sendViaMailtrap({ to: email, subject, text, html, replyTo });
     } catch (e) {
       const message = e instanceof Error ? e.message : "Email send failed";
       return new Response(
-        JSON.stringify({ ok: false, error: message, invite_url: inviteUrl }),
+        JSON.stringify({
+          ok: false,
+          error: message,
+          invite_url: inviteUrl,
+          invite_id: inviteId,
+          expires_at: expiresAt || null,
+          resend_count: resendCount,
+          last_sent_at: lastSentAt,
+        }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     return new Response(
-      JSON.stringify({ ok: true, sent: true, invite_url: inviteUrl }),
+      JSON.stringify({
+        ok: true,
+        sent: true,
+        invite_url: inviteUrl,
+        invite_id: inviteId,
+        expires_at: expiresAt || null,
+        resend_count: resendCount,
+        last_sent_at: lastSentAt,
+      }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {

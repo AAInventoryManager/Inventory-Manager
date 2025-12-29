@@ -2327,6 +2327,35 @@
     .user-mgmt-action{display:flex;align-items:center;gap:6px}
     .user-mgmt-action-btn{display:inline-flex;align-items:center;gap:6px}
     .user-mgmt-icon{width:16px;height:16px;flex-shrink:0}
+    .pending-invites-section{margin-top:14px}
+    .pending-invites-header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+    .pending-invites-header h3{margin:0;font-size:14px}
+    .pending-invites-table-wrap{margin-top:8px;overflow:auto;border:1px solid var(--border);border-radius:10px}
+    .pending-invites-table{min-width:860px;margin:0}
+    .pending-invites-table th,.pending-invites-table td{white-space:nowrap}
+    .pending-invites-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+    .invite-status{display:inline-flex;align-items:center;gap:6px;font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:0.08em}
+    .invite-status.pending{color:#34d399}
+    .invite-status.expired{color:#fca5a5}
+    .invite-row-expired{opacity:0.7}
+    .provisioning-section{margin-top:12px;display:flex;flex-direction:column;gap:12px}
+    .provisioning-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--card)}
+    .provisioning-card h3{margin:0;font-size:14px}
+    .provisioning-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:8px}
+    .provisioning-header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+    .provisioning-table-wrap{margin-top:8px;overflow:auto;border:1px solid var(--border);border-radius:10px}
+    .provisioning-table{min-width:720px;margin:0}
+    .provisioning-note{font-size:12px;color:var(--muted);margin-top:6px}
+    .provisioning-warning{margin-top:8px;padding:8px 10px;border:1px solid #b45309;border-radius:10px;background:rgba(245,158,11,0.08);color:#fbbf24;font-size:12px}
+    .provisioning-summary{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+    .provisioning-summary-item{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+    .provisioning-summary-label{font-weight:600}
+    .provisioning-status{font-size:11px;text-transform:uppercase;letter-spacing:0.08em}
+    .provisioning-status.ok{color:#34d399}
+    .provisioning-status.warn{color:#fbbf24}
+    .provisioning-status.fail{color:#fca5a5}
+    .provisioning-users-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .provisioning-field-toggle{display:flex;align-items:center;gap:8px}
     .snapshots-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
     .snapshot-card{
       border:1px solid var(--border);
@@ -2437,6 +2466,10 @@
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               <span>Advanced Company Switcher</span>
             </button>
+            <button class="menu-item" id="openProvisioningDashboard">
+              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-3V4a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v3H4"></path><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 12h8"></path><path d="M8 16h5"></path></svg>
+              <span>Companies</span>
+            </button>
             <button class="menu-item" id="openDiagnostics">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
               <span>Diagnostics</span>
@@ -2452,6 +2485,10 @@
             <button class="menu-item" id="openUserMgmt">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
               <span>Manage Users</span>
+            </button>
+            <button class="menu-item" id="openSubscriptionManager">
+              <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+              <span>Subscription Manager</span>
             </button>
             <button class="menu-item" id="openRoleManager">
               <svg class="menu-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
@@ -3192,10 +3229,6 @@
             <svg class="user-mgmt-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="17" y1="11" x2="23" y2="11"></line></svg>
             Add User
           </button>
-          <button class="btn" id="btnUserMgmtTier" type="button">
-            <svg class="user-mgmt-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-            Update Tier
-          </button>
           <button class="btn" id="btnUserMgmtRefresh" type="button">Refresh</button>
           <button class="btn" id="btnUserMgmtClose" type="button">Close</button>
         </div>
@@ -3207,6 +3240,15 @@
         </div>
       </div>
       <div id="userMgmtList" class="user-mgmt-list" aria-live="polite"></div>
+      <div id="pendingInvitesSection" class="pending-invites-section">
+        <div class="section-divider"></div>
+        <div class="pending-invites-header">
+          <h3>Pending Invites</h3>
+          <button class="btn small" id="btnPendingInvitesRefresh" type="button">Refresh Invites</button>
+        </div>
+        <div id="pendingInvitesList" class="pending-invites-list" aria-live="polite"></div>
+        <div id="pendingInvitesMsg" class="muted" style="margin-top:8px;"></div>
+      </div>
       <div id="userMgmtMsg" class="muted" style="margin-top:8px;"></div>
     </div>
   </div>
@@ -3396,9 +3438,24 @@
 	        </div>
 	        <div id="roleRequestMsg" class="muted" style="margin-top:4px;"></div>
 	      </div>
+      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
+        <button class="btn" id="btnSignOut">Sign Out</button>
+        <button class="btn" id="btnProfileClose">Close</button>
+      </div>
+      <div id="profileMsg" class="muted" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- Subscription Manager modal -->
+  <div id="subscriptionManagerModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;">Subscription Manager</h2>
+        <button class="btn" id="btnSubscriptionManagerClose" type="button">Close</button>
+      </div>
       <div class="section-divider" id="tierOverrideDivider"></div>
       <div class="tier-admin-section" id="tierOverrideSection">
-        <div class="role-request-title">Company Tier</div>
+        <div class="role-request-title">Subscription</div>
         <div class="role-request-meta" id="tierOverrideCompany"></div>
         <div class="tier-admin-grid">
           <div class="tier-admin-card">
@@ -3418,27 +3475,22 @@
             <div class="tier-admin-value" id="tierOverrideExpiresValue">—</div>
           </div>
         </div>
-        <label class="muted" for="tierBaseSelect">Set Base Tier</label>
+        <label class="muted" for="tierBaseSelect">Change Base Subscription</label>
         <select id="tierBaseSelect" aria-label="Select base subscription tier"></select>
         <div class="tier-admin-actions">
           <button class="btn" id="btnTierBaseSave" type="button">Save Base Tier</button>
         </div>
         <div class="section-divider" style="margin:12px 0;"></div>
-        <label class="muted" for="tierOverrideTierSelect">Grant Override</label>
+        <label class="muted" for="tierOverrideTierSelect">Grant Temporary Access</label>
         <select id="tierOverrideTierSelect" aria-label="Select override tier"></select>
-        <label class="muted" for="tierOverrideEndsAt">Override Ends At (optional)</label>
+        <label class="muted" for="tierOverrideEndsAt">Access Ends At (optional)</label>
         <input id="tierOverrideEndsAt" type="datetime-local" />
         <div class="tier-admin-actions">
-          <button class="btn" id="btnTierOverrideGrant" type="button">Grant Override</button>
+          <button class="btn" id="btnTierOverrideGrant" type="button">Grant Temporary Access</button>
           <button class="btn" id="btnTierOverrideRevoke" type="button">Revoke Override</button>
         </div>
         <div id="tierOverrideMsg" class="muted" style="margin-top:4px;"></div>
       </div>
-      <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
-        <button class="btn" id="btnSignOut">Sign Out</button>
-        <button class="btn" id="btnProfileClose">Close</button>
-      </div>
-      <div id="profileMsg" class="muted" style="margin-top:10px;"></div>
     </div>
   </div>
 
@@ -3472,6 +3524,146 @@
       <div class="toolbar" style="margin-top:10px;justify-content:flex-end;">
         <button class="btn" id="advancedCompanyClose" type="button">Close</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Company provisioning dashboard (super user only) -->
+  <div id="provisioningModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;font-size:16px;">Company Provisioning</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn primary" id="btnProvisioningRun" type="button">Provision Company</button>
+          <button class="btn" id="btnProvisioningClose" type="button">Close</button>
+        </div>
+      </div>
+      <div class="muted" style="margin-top:6px;">Super-user only. Each step is explicit and recorded server-side.</div>
+      <div class="provisioning-section">
+        <div class="provisioning-card">
+          <div class="provisioning-header">
+            <h3>Company Creation</h3>
+          </div>
+          <div class="provisioning-grid">
+            <div>
+              <label class="muted" for="provisioningCompanyName">Company Name</label>
+              <input id="provisioningCompanyName" type="text" placeholder="New Company" />
+            </div>
+            <div>
+              <label class="muted" for="provisioningCompanySlug">Slug</label>
+              <input id="provisioningCompanySlug" type="text" placeholder="new-company" />
+              <div class="provisioning-note">Auto-generated from name; edit if needed.</div>
+            </div>
+            <div>
+              <label class="muted" for="provisioningOnboardingState">Onboarding State</label>
+              <input id="provisioningOnboardingState" type="text" value="SUBSCRIPTION_ACTIVE" />
+            </div>
+            <div>
+              <label class="muted" for="provisioningBillingMode">Billing Mode</label>
+              <select id="provisioningBillingMode">
+                <option value="manual" selected>manual</option>
+                <option value="trial">trial</option>
+                <option value="enterprise">enterprise</option>
+              </select>
+              <div class="provisioning-note">Display-only for now; stored only if supported.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="provisioning-card">
+          <div class="provisioning-header">
+            <h3>Initial User Assignment (optional)</h3>
+            <button class="btn small" id="btnProvisioningAddUser" type="button">Add User</button>
+          </div>
+          <div id="provisioningUsersList" aria-live="polite"></div>
+          <div class="provisioning-note">Attach existing users from the dropdown or send invites for new users.</div>
+        </div>
+
+        <div class="provisioning-card">
+          <div class="provisioning-header">
+            <h3>Subscription / Tier Setup</h3>
+          </div>
+          <div class="provisioning-grid">
+            <div>
+              <label class="muted" for="provisioningBaseTier">Base Subscription Tier</label>
+              <select id="provisioningBaseTier">
+                <option value="starter" selected>starter</option>
+                <option value="professional">professional</option>
+                <option value="business">business</option>
+                <option value="enterprise">enterprise</option>
+              </select>
+            </div>
+            <div>
+              <div class="provisioning-field-toggle" style="margin-top:18px;">
+                <label class="toggle-switch">
+                  <input id="provisioningTrialToggle" type="checkbox" />
+                  <span class="toggle-slider"></span>
+                </label>
+                <label for="provisioningTrialToggle" class="muted" style="font-size:13px;cursor:pointer;">Grant trial override</label>
+              </div>
+            </div>
+          </div>
+          <div id="provisioningTrialFields" style="display:none;">
+            <div class="provisioning-grid">
+              <div>
+                <label class="muted" for="provisioningTrialTier">Trial Override Tier</label>
+                <select id="provisioningTrialTier">
+                  <option value="professional">professional</option>
+                  <option value="business" selected>business</option>
+                  <option value="enterprise">enterprise</option>
+                </select>
+              </div>
+              <div>
+                <label class="muted" for="provisioningTrialDays">Trial Length (days)</label>
+                <input id="provisioningTrialDays" type="number" min="1" step="1" inputmode="numeric" value="14" />
+              </div>
+            </div>
+            <div class="provisioning-note">Trial override is time-limited and auditable.</div>
+          </div>
+        </div>
+
+        <div class="provisioning-card">
+          <div class="provisioning-header">
+            <h3>Inventory Seeding (optional)</h3>
+            <button class="btn small" id="btnProvisioningRefreshCompanies" type="button">Refresh Companies</button>
+          </div>
+          <div class="provisioning-field-toggle" style="margin-top:8px;">
+            <label class="toggle-switch">
+              <input id="provisioningSeedToggle" type="checkbox" />
+              <span class="toggle-slider"></span>
+            </label>
+            <label for="provisioningSeedToggle" class="muted" style="font-size:13px;cursor:pointer;">Seed inventory from existing company</label>
+          </div>
+          <div id="provisioningSeedFields" style="display:none;">
+            <div class="provisioning-grid">
+              <div>
+                <label class="muted" for="provisioningSeedSource">Source Company</label>
+                <select id="provisioningSeedSource"></select>
+              </div>
+              <div>
+                <label class="muted" for="provisioningSeedDedupe">Dedupe Key</label>
+                <select id="provisioningSeedDedupe">
+                  <option value="sku" selected>sku</option>
+                  <option value="name">name</option>
+                </select>
+              </div>
+              <div>
+                <label class="muted" for="provisioningSeedMode">Mode</label>
+                <input id="provisioningSeedMode" type="text" value="items_only" readonly />
+              </div>
+            </div>
+            <div class="provisioning-warning">Warning: Seeding copies item definitions across companies. This action is explicit and auditable.</div>
+          </div>
+        </div>
+
+        <div class="provisioning-card">
+          <div class="provisioning-header">
+            <h3>Finalize</h3>
+            <button class="btn small" id="btnProvisioningReset" type="button">Reset Form</button>
+          </div>
+          <div id="provisioningSummary" class="provisioning-summary" aria-live="polite"></div>
+        </div>
+      </div>
+      <div id="provisioningMsg" class="muted" style="margin-top:8px;"></div>
     </div>
   </div>
 
@@ -3613,6 +3805,8 @@
       _auditActionFilter:'',
       _auditSearch:'',
       _userMgmtRows:[],
+      _pendingInvites:[],
+      _pendingInviteBusy:{},
       _snapshots:[],
       _snapshotPreview:null,
       _metrics:null,
@@ -3623,6 +3817,13 @@
       _tierDetails:null,
       _tierDetailsCompanyId:null,
       _advancedCompanies:[],
+      _provisioningUsers:[],
+      _provisioningCompanies:[],
+      _provisioningExistingUsers:[],
+      _provisioningExistingUsersLoading:false,
+      _provisioningExistingUsersError:'',
+      _provisioningBusy:false,
+      _provisioningResult:null,
       _advancedSearch:'',
       _advancedType:'production',
       _defaultCompanyId:null,
@@ -4046,12 +4247,16 @@
       renderInviteUi();
       renderRoleRequestUi();
       renderAdvancedCompanySwitcherButton();
+      renderProvisioningDashboardButton();
       renderDiagnosticsButton();
+      renderSubscriptionManagerButton();
       renderRoleRequestsAdminButton();
       renderRoleManagerButton();
       renderUserMgmtButton();
       renderUserMgmtControls();
       renderUserMgmtList();
+      renderPendingInvitesSection();
+      renderPendingInvitesList();
       renderTierAdminSection();
       applyPermissionUI();
       render();
@@ -4795,13 +5000,6 @@
         addBtn.disabled = !allowInvite;
         addBtn.setAttribute('aria-disabled', allowInvite ? 'false' : 'true');
       }
-      const tierBtn = $('btnUserMgmtTier');
-      if(tierBtn){
-        const allowTier = !!(SB.session && isEffectiveSuperUser());
-        tierBtn.style.display = allowTier ? '' : 'none';
-        tierBtn.disabled = !allowTier;
-        tierBtn.setAttribute('aria-disabled', allowTier ? 'false' : 'true');
-      }
     }
     function renderAdvancedCompanySwitcherButton(){
       const btn = $('openAdvancedCompanySwitcher');
@@ -4811,8 +5009,24 @@
       btn.disabled = !allow;
       btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
     }
+    function renderProvisioningDashboardButton(){
+      const btn = $('openProvisioningDashboard');
+      if(!btn) return;
+      const allow = !!(SB.session && isEffectiveSuperUser());
+      btn.style.display = allow ? '' : 'none';
+      btn.disabled = !allow;
+      btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
+    }
     function renderDiagnosticsButton(){
       const btn = $('openDiagnostics');
+      if(!btn) return;
+      const allow = !!(SB.session && isEffectiveSuperUser());
+      btn.style.display = allow ? '' : 'none';
+      btn.disabled = !allow;
+      btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
+    }
+    function renderSubscriptionManagerButton(){
+      const btn = $('openSubscriptionManager');
       if(!btn) return;
       const allow = !!(SB.session && isEffectiveSuperUser());
       btn.style.display = allow ? '' : 'none';
@@ -4855,6 +5069,7 @@
       _userMgmtCompanyId = desired || '';
       if(_userMgmtCompanyId) select.value = _userMgmtCompanyId;
       select.disabled = rows.length <= 1;
+      renderPendingInvitesSection();
     }
     function getUserMgmtCompanyId(){
       if(isEffectiveSuperUser()){
@@ -4927,6 +5142,169 @@
         );
       }).join('');
     }
+    function setPendingInvitesMessage(msg){
+      const el = $('pendingInvitesMsg'); if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function canAccessPendingInvites(){
+      if(!SB.session) return false;
+      if(isEffectiveSuperUser()) return true;
+      const role = getEffectiveRole();
+      if(role !== 'admin') return false;
+      return canAccessInvites();
+    }
+    function renderPendingInvitesSection(){
+      const section = $('pendingInvitesSection');
+      if(!section) return;
+      const allow = !!(SB.session && canAccessPendingInvites());
+      section.style.display = allow ? '' : 'none';
+    }
+    function isInviteExpired(invite){
+      const status = String(invite && invite.status ? invite.status : '').trim().toLowerCase();
+      if(status === 'expired') return true;
+      const expiresAt = invite && invite.expires_at ? new Date(invite.expires_at).getTime() : NaN;
+      if(Number.isFinite(expiresAt) && expiresAt <= Date.now()) return true;
+      return false;
+    }
+    function renderPendingInvitesList(){
+      const list = $('pendingInvitesList');
+      if(!list) return;
+      const rows = Array.isArray(state._pendingInvites) ? state._pendingInvites : [];
+      if(!rows.length){
+        list.innerHTML = `<div class="trash-empty">No pending invites.</div>`;
+        return;
+      }
+      const busyMap = state._pendingInviteBusy || {};
+      const allowActions = canAccessPendingInvites();
+      const header = (
+        `<thead><tr>`+
+          `<th>Email</th>`+
+          `<th>Role</th>`+
+          `<th>Sent At</th>`+
+          `<th>Last Sent At</th>`+
+          `<th>Expires At</th>`+
+          `<th>Status</th>`+
+          `<th>Resends</th>`+
+          `<th>Actions</th>`+
+        `</tr></thead>`
+      );
+      const body = rows.map(row => {
+        const id = String(row.id || '').trim();
+        const email = String(row.email || '').trim();
+        const role = String(row.role || '').trim();
+        const sentAt = row.sent_at ? formatEasternDateTime(row.sent_at) : '—';
+        const lastSentAt = row.last_sent_at ? formatEasternDateTime(row.last_sent_at) : '—';
+        const expiresAt = row.expires_at ? formatEasternDateTime(row.expires_at) : '—';
+        const resendCount = Number.isFinite(row.resend_count) ? row.resend_count : toInt(row.resend_count, 0);
+        const expired = isInviteExpired(row);
+        const status = expired ? 'expired' : 'pending';
+        const busy = id ? String(busyMap[id] || '') : '';
+        const isResendBusy = busy === 'resend';
+        const isRevokeBusy = busy === 'revoke';
+        const resendDisabled = !allowActions || expired || isResendBusy || isRevokeBusy;
+        const revokeDisabled = !allowActions || isRevokeBusy || isResendBusy;
+        const resendLabel = isResendBusy ? 'Resending…' : 'Resend Invite';
+        const revokeLabel = isRevokeBusy ? 'Revoking…' : 'Revoke Invite';
+        return (
+          `<tr class="${expired ? 'invite-row-expired' : ''}">`+
+            `<td>${escapeHtml(email || '—')}</td>`+
+            `<td>${escapeHtml(role || 'member')}</td>`+
+            `<td>${escapeHtml(sentAt)}</td>`+
+            `<td>${escapeHtml(lastSentAt)}</td>`+
+            `<td>${escapeHtml(expiresAt)}</td>`+
+            `<td><span class="invite-status ${status}">${escapeHtml(status)}</span></td>`+
+            `<td>${escapeHtml(String(resendCount))}</td>`+
+            `<td>`+
+              `<div class="pending-invites-actions">`+
+                `<button class="btn small" data-invite-resend-id="${escapeHtmlAttr(id)}"${resendDisabled ? ' disabled aria-disabled="true"' : ''}>${escapeHtml(resendLabel)}</button>`+
+                `<button class="btn small danger" data-invite-revoke-id="${escapeHtmlAttr(id)}" data-invite-email="${escapeHtmlAttr(email)}"${revokeDisabled ? ' disabled aria-disabled="true"' : ''}>${escapeHtml(revokeLabel)}</button>`+
+              `</div>`+
+            `</td>`+
+          `</tr>`
+        );
+      }).join('');
+      list.innerHTML = (
+        `<div class="pending-invites-table-wrap">`+
+          `<table class="metrics-table pending-invites-table">${header}<tbody>${body}</tbody></table>`+
+        `</div>`
+      );
+    }
+    async function refreshPendingInvites(){
+      const list = $('pendingInvitesList');
+      if(list) list.innerHTML = `<div class="muted">Loading…</div>`;
+      setPendingInvitesMessage('');
+      try{
+        if(!SB.ready || !SB.session || !SB.client) return;
+        if(!canAccessPendingInvites()){
+          state._pendingInvites = [];
+          renderPendingInvitesList();
+          return;
+        }
+        const companyId = getUserMgmtCompanyId();
+        if(!companyId) throw new Error('No company selected');
+        const { data, error } = await SB.client
+          .from('company_invites')
+          .select('id,email,role,sent_at,last_sent_at,expires_at,status,resend_count')
+          .eq('company_id', companyId)
+          .order('sent_at', { ascending: false });
+        if(error) throw error;
+        state._pendingInvites = Array.isArray(data) ? data : [];
+        renderPendingInvitesList();
+      }catch(e){
+        state._pendingInvites = [];
+        const msg = e && e.message ? e.message : 'Failed to load invites';
+        if(list) list.innerHTML = `<div class="trash-empty">${escapeHtml(msg)}</div>`;
+      }
+    }
+    async function sbResendCompanyInvite(inviteId){
+      if(!SB.ready || !SB.session || !SB.client) throw Error('Not authorized');
+      if(!canAccessPendingInvites()) throw Error('Permission denied');
+      const id = String(inviteId || '').trim();
+      if(!id) throw Error('Invite required');
+      const apiUrl = getInviteSendUrl();
+      const headers = { 'content-type': 'application/json' };
+      const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
+      const sbKey = (typeof window.SB_ANON === 'string') ? window.SB_ANON.trim() : '';
+      if(sbUrl && apiUrl.startsWith(sbUrl) && sbKey){
+        headers['apikey'] = sbKey;
+        if(SB.session && SB.session.access_token){
+          headers['Authorization'] = `Bearer ${SB.session.access_token}`;
+        }
+      }
+      const baseUrl = `${window.location.origin}${window.location.pathname}`.replace(/\?[^#]*$/, '');
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ invite_id: id, app_url: baseUrl }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if(!res.ok){
+        const err = data && data.error ? data.error : 'Resend failed';
+        const error = new Error(err);
+        error.details = data;
+        throw error;
+      }
+      if(data && data.ok === false) throw new Error(data.error || 'Resend failed');
+      return data || null;
+    }
+    async function sbRevokeCompanyInvite(inviteId){
+      if(!SB.ready || !SB.session || !SB.client) throw Error('Not authorized');
+      if(!canAccessPendingInvites()) throw Error('Permission denied');
+      const companyId = getUserMgmtCompanyId();
+      if(!companyId) throw Error('No company selected');
+      const id = String(inviteId || '').trim();
+      if(!id) throw Error('Invite required');
+      const { error } = await SB.client
+        .from('company_invites')
+        .delete()
+        .eq('id', id)
+        .eq('company_id', companyId);
+      if(error) throw error;
+    }
+    async function refreshUserMgmtAll(){
+      await refreshUserMgmt();
+      await refreshPendingInvites();
+    }
     async function refreshUserMgmt(){
       const list = $('userMgmtList');
       if(list) list.innerHTML = `<div class="muted">Loading…</div>`;
@@ -4972,8 +5350,9 @@
       if(!canMembersView()){ toast('Permission denied'); return; }
       renderUserMgmtControls();
       renderUserMgmtHeaderActions();
+      renderPendingInvitesSection();
       show('userMgmtModal', true);
-      await refreshUserMgmt();
+      await refreshUserMgmtAll();
     }
     function closeUserMgmtModal(){
       show('userMgmtModal', false);
@@ -4985,6 +5364,17 @@
       show('userMgmtModal', false);
       renderInviteUi();
       show('inviteModal', true);
+    }
+    function openSubscriptionManagerModal(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!isEffectiveSuperUser()){ toast('Super user access required'); return; }
+      if(!SB.companyId){ toast('Select a company first.'); return; }
+      renderTierAdminSection();
+      show('subscriptionManagerModal', true);
+    }
+    function closeSubscriptionManagerModal(){
+      show('subscriptionManagerModal', false);
     }
     async function openTierOverrideFromUserMgmt(){
       if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
@@ -5313,7 +5703,9 @@
       setProfileMessage(note);
       renderCompanySwitcher();
       renderAdvancedCompanySwitcherButton();
+      renderProvisioningDashboardButton();
       renderDiagnosticsButton();
+      renderSubscriptionManagerButton();
       renderInviteUi();
       renderRoleRequestUi();
       renderRoleRequestsAdminButton();
@@ -5528,6 +5920,697 @@
         renderAdvancedCompanyActions();
         renderCompanyEnvBadge();
       }
+    }
+    function setProvisioningMessage(msg){
+      const el = $('provisioningMsg');
+      if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function slugifyCompanyName(value){
+      return String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+    function isValidCompanySlug(value){
+      const slug = String(value || '').trim();
+      if(slug.length < 2) return false;
+      return /^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(slug);
+    }
+    function renderProvisioningUsersList(){
+      const list = $('provisioningUsersList');
+      if(!list) return;
+      const rows = Array.isArray(state._provisioningUsers) ? state._provisioningUsers : [];
+      const busy = !!state._provisioningBusy;
+      const existingUsers = Array.isArray(state._provisioningExistingUsers) ? state._provisioningExistingUsers : [];
+      const existingUsersLoading = !!state._provisioningExistingUsersLoading;
+      const existingUsersError = String(state._provisioningExistingUsersError || '');
+      const needsExistingUsers = rows.some(row => String(row.mode || '') === 'attach');
+      if(needsExistingUsers && !existingUsersLoading && !existingUsers.length && !existingUsersError){
+        void loadProvisioningExistingUsers();
+      }
+      if(!rows.length){
+        list.innerHTML = `<div class="trash-empty">No users queued.</div>`;
+        return;
+      }
+      const roleOptions = [
+        { value: 'admin', label: 'admin' },
+        { value: 'member', label: 'manager' },
+        { value: 'viewer', label: 'viewer' },
+      ];
+      const modeOptions = [
+        { value: 'attach', label: 'Attach existing' },
+        { value: 'invite', label: 'Send invite' },
+      ];
+      const header = (
+        `<thead><tr>`+
+          `<th>Action</th>`+
+          `<th>Email</th>`+
+          `<th>Role</th>`+
+          `<th>Action</th>`+
+        `</tr></thead>`
+      );
+      const buildAttachSelect = (id, email) => {
+        const normalizedEmail = String(email || '').trim().toLowerCase();
+        const options = [];
+        if(existingUsersLoading){
+          options.push(`<option value="">Loading users...</option>`);
+        }else if(existingUsers.length){
+          options.push(`<option value="">Select a user</option>`);
+          existingUsers.forEach(user => {
+            const userEmail = String(user.email || '').trim();
+            if(!userEmail) return;
+            const fullName = String(user.full_name || '').trim();
+            const label = (fullName && fullName !== userEmail) ? `${fullName} - ${userEmail}` : userEmail;
+            const selected = normalizedEmail && userEmail.toLowerCase() === normalizedEmail;
+            options.push(`<option value="${escapeHtmlAttr(userEmail)}"${selected ? ' selected' : ''}>${escapeHtml(label)}</option>`);
+          });
+        }else{
+          const emptyLabel = existingUsersError ? 'Unable to load users' : 'No users available';
+          options.push(`<option value="">${escapeHtml(emptyLabel)}</option>`);
+        }
+        const disabled = busy || existingUsersLoading || !existingUsers.length;
+        return (
+          `<select data-provisioning-user-id="${escapeHtmlAttr(id)}" data-provisioning-user-field="email"${disabled ? ' disabled aria-disabled="true"' : ''}>`+
+            options.join('')+
+          `</select>`
+        );
+      };
+      const body = rows.map(row => {
+        const id = String(row.id || '').trim();
+        const email = String(row.email || '');
+        const mode = String(row.mode || 'invite');
+        const role = String(row.role || 'member');
+        const modeSelect = `<select data-provisioning-user-id="${escapeHtmlAttr(id)}" data-provisioning-user-field="mode"${busy ? ' disabled aria-disabled="true"' : ''}>`+
+          modeOptions.map(opt => `<option value="${escapeHtmlAttr(opt.value)}"${opt.value === mode ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`).join('')+
+        `</select>`;
+        const roleSelect = `<select data-provisioning-user-id="${escapeHtmlAttr(id)}" data-provisioning-user-field="role"${busy ? ' disabled aria-disabled="true"' : ''}>`+
+          roleOptions.map(opt => `<option value="${escapeHtmlAttr(opt.value)}"${opt.value === role ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`).join('')+
+        `</select>`;
+        const emailCell = mode === 'attach'
+          ? buildAttachSelect(id, email)
+          : `<input type="email" placeholder="user@example.com" value="${escapeHtmlAttr(email)}" data-provisioning-user-id="${escapeHtmlAttr(id)}" data-provisioning-user-field="email"${busy ? ' disabled aria-disabled="true"' : ''} />`;
+        return (
+          `<tr>`+
+            `<td>${modeSelect}</td>`+
+            `<td>${emailCell}</td>`+
+            `<td>${roleSelect}</td>`+
+            `<td><button class="btn small danger" data-provisioning-user-remove="${escapeHtmlAttr(id)}"${busy ? ' disabled aria-disabled="true"' : ''}>Remove</button></td>`+
+          `</tr>`
+        );
+      }).join('');
+      const errorNote = (existingUsersError && needsExistingUsers)
+        ? `<div class="provisioning-note">${escapeHtml(existingUsersError)}</div>`
+        : '';
+      list.innerHTML = (
+        `<div class="provisioning-table-wrap">`+
+          `<table class="metrics-table provisioning-table">${header}<tbody>${body}</tbody></table>`+
+        `</div>`+
+        errorNote
+      );
+    }
+    function renderProvisioningSummary(){
+      const summary = $('provisioningSummary');
+      if(!summary) return;
+      const result = state._provisioningResult;
+      if(!result){
+        summary.innerHTML = `<div class="muted">No provisioning run yet.</div>`;
+        return;
+      }
+      const items = [];
+      if(result.company && result.company.id){
+        const name = escapeHtml(result.company.name || 'Company');
+        const slug = escapeHtml(result.company.slug || '');
+        items.push(
+          `<div class="provisioning-summary-item">`+
+            `<div><span class="provisioning-summary-label">Company</span> · ${name}${slug ? ` (${slug})` : ''}</div>`+
+            `<div class="provisioning-status ok">created</div>`+
+          `</div>`
+        );
+      }else{
+        const err = escapeHtml(result.company && result.company.error ? result.company.error : 'Failed');
+        items.push(
+          `<div class="provisioning-summary-item">`+
+            `<div><span class="provisioning-summary-label">Company</span> · ${err}</div>`+
+            `<div class="provisioning-status fail">failed</div>`+
+          `</div>`
+        );
+      }
+      if(result.settings){
+        const onboarding = escapeHtml(String(result.settings.onboarding_state || ''));
+        const billing = escapeHtml(String(result.settings.billing_mode || ''));
+        const detail = [onboarding && `Onboarding: ${onboarding}`, billing && `Billing: ${billing}`].filter(Boolean).join(' · ');
+        if(detail){
+          items.push(
+            `<div class="provisioning-summary-item">`+
+              `<div><span class="provisioning-summary-label">Settings</span> · ${detail}</div>`+
+              `<div class="provisioning-status ${result.settings.success ? 'ok' : 'warn'}">${result.settings.success ? 'saved' : 'note'}</div>`+
+            `</div>`
+          );
+          if(result.settings.error){
+            items.push(`<div class="provisioning-note">${escapeHtml(result.settings.error)}</div>`);
+          }
+        }
+      }
+      const userResults = Array.isArray(result.users) ? result.users : [];
+      if(userResults.length){
+        const attachCount = userResults.filter(u => u.action === 'attach' && u.success).length;
+        const inviteCount = userResults.filter(u => u.action === 'invite' && u.success).length;
+        const failures = userResults.filter(u => !u.success);
+        const statusClass = failures.length ? 'warn' : 'ok';
+        const detail = `Attached ${attachCount} · Invited ${inviteCount}`;
+        items.push(
+          `<div class="provisioning-summary-item">`+
+            `<div><span class="provisioning-summary-label">Users</span> · ${escapeHtml(detail)}</div>`+
+            `<div class="provisioning-status ${statusClass}">${failures.length ? 'partial' : 'ok'}</div>`+
+          `</div>`
+        );
+        if(failures.length){
+          const failureLines = failures.map(f => `${escapeHtml(f.email || 'user')}: ${escapeHtml(f.error || 'failed')}`).join('<br />');
+          items.push(`<div class="provisioning-note">${failureLines}</div>`);
+        }
+      }else{
+        items.push(
+          `<div class="provisioning-summary-item">`+
+            `<div><span class="provisioning-summary-label">Users</span> · None</div>`+
+            `<div class="provisioning-status warn">skipped</div>`+
+          `</div>`
+        );
+      }
+      if(result.tier){
+        const tierLabel = escapeHtml(String(result.tier.base || ''));
+        const tierStatus = result.tier.success ? 'ok' : (result.tier.error ? 'fail' : 'warn');
+        const tierText = result.tier.success ? 'set' : (result.tier.error ? 'failed' : 'skipped');
+        items.push(
+          `<div class="provisioning-summary-item">`+
+            `<div><span class="provisioning-summary-label">Base Tier</span> · ${tierLabel || 'n/a'}</div>`+
+            `<div class="provisioning-status ${tierStatus}">${tierText}</div>`+
+          `</div>`
+        );
+        if(result.tier.error){
+          items.push(`<div class="provisioning-note">${escapeHtml(result.tier.error)}</div>`);
+        }
+      }
+      if(result.override){
+        const overrideLabel = escapeHtml(String(result.override.tier || ''));
+        const overrideStatus = result.override.success ? 'ok' : (result.override.error ? 'fail' : 'warn');
+        const overrideText = result.override.success ? 'granted' : (result.override.error ? 'failed' : 'skipped');
+        const endLabel = result.override.ends_at ? formatEasternDateTime(result.override.ends_at) : '';
+        const detail = overrideLabel ? `${overrideLabel}${endLabel ? ` · ends ${escapeHtml(endLabel)}` : ''}` : 'n/a';
+        items.push(
+          `<div class="provisioning-summary-item">`+
+            `<div><span class="provisioning-summary-label">Trial Override</span> · ${detail}</div>`+
+            `<div class="provisioning-status ${overrideStatus}">${overrideText}</div>`+
+          `</div>`
+        );
+        if(result.override.error){
+          items.push(`<div class="provisioning-note">${escapeHtml(result.override.error)}</div>`);
+        }
+      }
+      if(result.seeding){
+        const seedStatus = result.seeding.success ? 'ok' : (result.seeding.error ? (result.seeding.warning ? 'warn' : 'fail') : 'warn');
+        const seedText = result.seeding.success ? 'seeded' : (result.seeding.error ? (result.seeding.warning ? 'skipped' : 'failed') : 'skipped');
+        const seedDetail = result.seeding.source_name ? `${escapeHtml(result.seeding.source_name)} · ${escapeHtml(result.seeding.dedupe_key || '')}` : 'n/a';
+        const count = Number.isFinite(result.seeding.items_copied_count) ? result.seeding.items_copied_count : null;
+        const countText = count !== null ? ` · ${count} copied` : '';
+        items.push(
+          `<div class="provisioning-summary-item">`+
+            `<div><span class="provisioning-summary-label">Inventory Seeding</span> · ${seedDetail}${countText}</div>`+
+            `<div class="provisioning-status ${seedStatus}">${seedText}</div>`+
+          `</div>`
+        );
+        if(result.seeding.error){
+          items.push(`<div class="provisioning-note">${escapeHtml(result.seeding.error)}</div>`);
+        }
+      }
+      if(result.company && result.company.id){
+        items.push(
+          `<div class="provisioning-users-actions">`+
+            `<button class="btn" data-provisioning-open-id="${escapeHtmlAttr(result.company.id)}" data-provisioning-open-name="${escapeHtmlAttr(result.company.name || '')}" data-provisioning-open-slug="${escapeHtmlAttr(result.company.slug || '')}">Open Company</button>`+
+          `</div>`
+        );
+      }
+      summary.innerHTML = items.join('');
+    }
+    function renderProvisioningTrialFields(){
+      const toggle = $('provisioningTrialToggle');
+      const fields = $('provisioningTrialFields');
+      if(!toggle || !fields) return;
+      fields.style.display = toggle.checked ? '' : 'none';
+    }
+    function renderProvisioningSeedFields(){
+      const toggle = $('provisioningSeedToggle');
+      const fields = $('provisioningSeedFields');
+      if(!toggle || !fields) return;
+      fields.style.display = toggle.checked ? '' : 'none';
+    }
+    function renderProvisioningCompanies(){
+      const select = $('provisioningSeedSource');
+      if(!select) return;
+      const rows = Array.isArray(state._provisioningCompanies) ? state._provisioningCompanies : [];
+      const current = String(select.value || '').trim();
+      select.innerHTML = '';
+      if(!rows.length){
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'No companies available';
+        select.appendChild(opt);
+        select.disabled = true;
+        return;
+      }
+      rows.forEach(row => {
+        const id = String(row.company_id || row.id || '').trim();
+        if(!id) return;
+        const name = String(row.company_name || row.company_slug || row.company_id || '').trim() || id;
+        const type = normalizeCompanyType(row.company_type);
+        const label = type ? `${name} (${formatCompanyTypeLabel(type)})` : name;
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = label;
+        select.appendChild(opt);
+      });
+      const next = rows.some(r => String(r.company_id || r.id) === current) ? current : String(rows[0].company_id || rows[0].id || '');
+      if(next) select.value = next;
+      select.disabled = rows.length <= 1;
+    }
+    async function loadProvisioningExistingUsers(){
+      if(!SB.ready || !SB.session || !SB.client) return;
+      if(!isEffectiveSuperUser()){
+        state._provisioningExistingUsersError = 'Super user access required.';
+        state._provisioningExistingUsers = [];
+        renderProvisioningUsersList();
+        return;
+      }
+      if(state._provisioningExistingUsersLoading) return;
+      state._provisioningExistingUsersLoading = true;
+      state._provisioningExistingUsersError = '';
+      renderProvisioningUsersList();
+      try{
+        const { data, error } = await SB.client.rpc('get_all_users');
+        if(error) throw error;
+        const rows = Array.isArray(data) ? data : [];
+        const seen = new Set();
+        const users = [];
+        rows.forEach(row => {
+          const email = String(row.email || '').trim();
+          if(!email) return;
+          const key = String(row.user_id || email).toLowerCase();
+          if(seen.has(key)) return;
+          seen.add(key);
+          users.push({
+            user_id: row.user_id || null,
+            email,
+            full_name: String(row.full_name || '').trim()
+          });
+        });
+        users.sort((a, b) => a.email.localeCompare(b.email));
+        state._provisioningExistingUsers = users;
+      }catch(e){
+        console.warn('Provisioning users load failed:', e);
+        state._provisioningExistingUsers = [];
+        state._provisioningExistingUsersError = 'Unable to load existing users.';
+      }finally{
+        state._provisioningExistingUsersLoading = false;
+        renderProvisioningUsersList();
+      }
+    }
+    async function loadProvisioningCompanies(){
+      if(!SB.ready || !SB.session || !SB.client) return;
+      if(!isEffectiveSuperUser()){
+        setProvisioningMessage('Super user access required.');
+        return;
+      }
+      setProvisioningMessage('Loading companies...');
+      try{
+        const { data, error } = await SB.client.rpc('get_company_switcher_companies', {
+          p_search: null,
+          p_company_type: null,
+          p_limit: 200
+        });
+        if(error) throw error;
+        state._provisioningCompanies = Array.isArray(data) ? data : [];
+        renderProvisioningCompanies();
+        setProvisioningMessage('');
+      }catch(e){
+        console.warn('Provisioning companies load failed:', e);
+        state._provisioningCompanies = [];
+        renderProvisioningCompanies();
+        setProvisioningMessage('Failed to load companies.');
+      }
+    }
+    function resetProvisioningForm(){
+      state._provisioningUsers = [];
+      state._provisioningResult = null;
+      state._provisioningBusy = false;
+      state._provisioningExistingUsersError = '';
+      const nameInput = $('provisioningCompanyName');
+      const slugInput = $('provisioningCompanySlug');
+      const onboardingInput = $('provisioningOnboardingState');
+      const billingSelect = $('provisioningBillingMode');
+      const baseTier = $('provisioningBaseTier');
+      const trialToggle = $('provisioningTrialToggle');
+      const trialTier = $('provisioningTrialTier');
+      const trialDays = $('provisioningTrialDays');
+      const seedToggle = $('provisioningSeedToggle');
+      if(nameInput) nameInput.value = '';
+      if(slugInput){
+        slugInput.value = '';
+        slugInput.dataset.manual = '';
+      }
+      if(onboardingInput) onboardingInput.value = 'SUBSCRIPTION_ACTIVE';
+      if(billingSelect) billingSelect.value = 'manual';
+      if(baseTier) baseTier.value = 'starter';
+      if(trialToggle) trialToggle.checked = false;
+      if(trialTier) trialTier.value = 'business';
+      if(trialDays) trialDays.value = '14';
+      if(seedToggle) seedToggle.checked = false;
+      renderProvisioningTrialFields();
+      renderProvisioningSeedFields();
+      renderProvisioningUsersList();
+      renderProvisioningSummary();
+      setProvisioningMessage('');
+    }
+    async function openProvisioningModal(){
+      if(!SB.ready || !SB.client){
+        toast('Supabase not configured.');
+        return;
+      }
+      if(!SB.session || !isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return;
+      }
+      show('provisioningModal', true);
+      renderProvisioningUsersList();
+      renderProvisioningSummary();
+      renderProvisioningTrialFields();
+      renderProvisioningSeedFields();
+      if(!Array.isArray(state._provisioningCompanies) || !state._provisioningCompanies.length){
+        await loadProvisioningCompanies();
+      }else{
+        renderProvisioningCompanies();
+      }
+      if(!Array.isArray(state._provisioningExistingUsers) || !state._provisioningExistingUsers.length){
+        state._provisioningExistingUsersError = '';
+        void loadProvisioningExistingUsers();
+      }
+    }
+    function closeProvisioningModal(){
+      show('provisioningModal', false);
+    }
+    async function runProvisioning(){
+      if(!SB.ready || !SB.client){
+        setProvisioningMessage('Supabase not configured.');
+        return;
+      }
+      if(!SB.session || !isEffectiveSuperUser()){
+        setProvisioningMessage('Super user access required.');
+        return;
+      }
+      if(state._provisioningBusy) return;
+      const nameInput = $('provisioningCompanyName');
+      const slugInput = $('provisioningCompanySlug');
+      const onboardingInput = $('provisioningOnboardingState');
+      const billingSelect = $('provisioningBillingMode');
+      const baseTier = $('provisioningBaseTier');
+      const trialToggle = $('provisioningTrialToggle');
+      const trialTier = $('provisioningTrialTier');
+      const trialDays = $('provisioningTrialDays');
+      const seedToggle = $('provisioningSeedToggle');
+      const seedSource = $('provisioningSeedSource');
+      const seedDedupe = $('provisioningSeedDedupe');
+
+      const companyName = String(nameInput ? nameInput.value : '').trim();
+      if(!companyName){
+        setProvisioningMessage('Company name is required.');
+        return;
+      }
+      let slug = String(slugInput ? slugInput.value : '').trim();
+      if(!slug) slug = slugifyCompanyName(companyName);
+      if(!slug){
+        setProvisioningMessage('Company slug is required.');
+        return;
+      }
+      if(!isValidCompanySlug(slug)){
+        setProvisioningMessage('Slug must be at least 2 characters and contain only lowercase letters, numbers, and hyphens.');
+        return;
+      }
+      if(slugInput) slugInput.value = slug;
+
+      const btn = $('btnProvisioningRun');
+      state._provisioningBusy = true;
+      renderProvisioningUsersList();
+      if(btn){
+        btn.disabled = true;
+        btn.setAttribute('aria-disabled', 'true');
+        btn.textContent = 'Provisioning...';
+      }
+      setProvisioningMessage('');
+      state._provisioningResult = null;
+      renderProvisioningSummary();
+
+      const result = {
+        company: null,
+        settings: null,
+        users: [],
+        tier: null,
+        override: null,
+        seeding: null,
+      };
+
+      try{
+        const { data, error } = await SB.client.rpc('create_company', { p_name: companyName, p_slug: slug });
+        if(error) throw error;
+        if(data && data.success === false){
+          throw new Error(data.error || 'Company creation failed');
+        }
+        const companyId = String((data && data.company_id) || '').trim();
+        if(!companyId) throw new Error('Company id missing');
+        result.company = { id: companyId, name: companyName, slug };
+        if(Array.isArray(SB.companies)){
+          const existingIdx = SB.companies.findIndex(row => String(row.company_id) === companyId);
+          const newRow = {
+            company_id: companyId,
+            company_name: companyName,
+            company_slug: slug,
+            my_role: 'super_user',
+            is_super_user: true,
+            company_type: 'production',
+          };
+          if(existingIdx >= 0){
+            SB.companies[existingIdx] = { ...SB.companies[existingIdx], ...newRow };
+          }else{
+            SB.companies = [newRow, ...SB.companies];
+          }
+          renderCompanySwitcher();
+        }
+        const onboardingState = String(onboardingInput ? onboardingInput.value : '').trim();
+        const billingMode = String(billingSelect ? billingSelect.value : '').trim();
+        result.settings = { onboarding_state: onboardingState, billing_mode: billingMode, success: false };
+        if(onboardingState || billingMode){
+          try{
+            const { data: companyRow, error: companyErr } = await SB.client
+              .from('companies')
+              .select('settings')
+              .eq('id', companyId)
+              .single();
+            if(companyErr) throw companyErr;
+            const settings = (companyRow && companyRow.settings && typeof companyRow.settings === 'object' && !Array.isArray(companyRow.settings))
+              ? companyRow.settings
+              : {};
+            const nextSettings = { ...settings };
+            if(onboardingState) nextSettings.onboarding_state = onboardingState;
+            if(Object.prototype.hasOwnProperty.call(settings, 'billing_mode') && billingMode){
+              nextSettings.billing_mode = billingMode;
+            }
+            if(JSON.stringify(nextSettings) !== JSON.stringify(settings)){
+              const { error: updateErr } = await SB.client
+                .from('companies')
+                .update({ settings: nextSettings, updated_at: new Date().toISOString() })
+                .eq('id', companyId);
+              if(updateErr) throw updateErr;
+              result.settings.success = true;
+            }else{
+              result.settings.success = true;
+            }
+          }catch(e){
+            result.settings.error = e && e.message ? e.message : 'Settings update failed';
+          }
+        }
+      }catch(e){
+        result.company = { name: companyName, slug, error: e && e.message ? e.message : 'Company creation failed' };
+        state._provisioningResult = result;
+        renderProvisioningSummary();
+        setProvisioningMessage(result.company.error);
+        if(btn){
+          btn.disabled = false;
+          btn.setAttribute('aria-disabled', 'false');
+          btn.textContent = 'Provision Company';
+        }
+        state._provisioningBusy = false;
+        renderProvisioningUsersList();
+        return;
+      }
+
+      const targetCompanyId = result.company.id;
+      const actorId = SB.user ? SB.user.id : null;
+      const baseTierValue = String(baseTier ? baseTier.value : '').trim();
+      if(baseTierValue){
+        try{
+          const { data: tierData, error: tierErr } = await SB.client.rpc('set_company_base_tier', {
+            p_company_id: targetCompanyId,
+            p_new_base_tier: baseTierValue
+          });
+          if(tierErr) throw tierErr;
+          if(tierData && tierData.success === false){
+            throw new Error(tierData.error || 'Base tier update failed');
+          }
+          result.tier = { base: baseTierValue, success: true };
+        }catch(err){
+          result.tier = { base: baseTierValue, success: false, error: err && err.message ? err.message : 'Base tier update failed' };
+        }
+      }else{
+        result.tier = { base: '', success: false };
+      }
+
+      if(trialToggle && trialToggle.checked){
+        const overrideTier = String(trialTier ? trialTier.value : '').trim();
+        const daysRaw = String(trialDays ? trialDays.value : '').trim();
+        const days = Number(daysRaw);
+        if(!overrideTier){
+          result.override = { tier: '', success: false, error: 'Override tier required' };
+        }else if(!Number.isFinite(days) || days <= 0){
+          result.override = { tier: overrideTier, success: false, error: 'Trial length must be greater than 0' };
+        }else{
+          const endsAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+          try{
+            const { data: overrideData, error: overrideErr } = await SB.client.rpc('grant_company_tier_override', {
+              p_company_id: targetCompanyId,
+              p_override_tier: overrideTier,
+              p_ends_at: endsAt
+            });
+            if(overrideErr) throw overrideErr;
+            if(overrideData && overrideData.success === false){
+              throw new Error(overrideData.error || 'Override failed');
+            }
+            result.override = { tier: overrideTier, ends_at: endsAt, success: true };
+          }catch(err){
+            result.override = { tier: overrideTier, ends_at: endsAt, success: false, error: err && err.message ? err.message : 'Override failed' };
+          }
+        }
+      }else{
+        result.override = { success: false };
+      }
+
+      const userRows = Array.isArray(state._provisioningUsers) ? state._provisioningUsers : [];
+      for(const row of userRows){
+        const email = String(row.email || '').trim();
+        const role = String(row.role || 'member').trim();
+        const mode = String(row.mode || 'invite').trim();
+        if(!email){
+          result.users.push({ action: mode, email, role, success: false, error: 'Email required' });
+          continue;
+        }
+        try{
+          if(mode === 'attach'){
+            const { data: profile, error: profileErr } = await SB.client
+              .from('profiles')
+              .select('user_id,email')
+              .ilike('email', email)
+              .maybeSingle();
+            if(profileErr) throw profileErr;
+            if(!profile || !profile.user_id) throw new Error('User not found');
+            const { error: insertErr } = await SB.client
+              .from('company_members')
+              .insert({
+                company_id: targetCompanyId,
+                user_id: profile.user_id,
+                role,
+                invited_by: actorId,
+                assigned_admin_id: actorId,
+                is_super_user: false,
+              });
+            if(insertErr) throw insertErr;
+            result.users.push({ action: mode, email, role, success: true });
+          }else{
+            const inviteResult = await sbInviteUser(email, role, targetCompanyId, { skipChecks: true });
+            if(inviteResult && inviteResult.ok === false){
+              throw new Error(inviteResult.error || 'Invite failed');
+            }
+            result.users.push({ action: mode, email, role, success: true });
+          }
+        }catch(err){
+          const msg = err && err.message ? err.message : 'User update failed';
+          result.users.push({ action: mode, email, role, success: false, error: msg });
+        }
+      }
+
+      if(seedToggle && seedToggle.checked){
+        const sourceId = String(seedSource ? seedSource.value : '').trim();
+        const dedupeKey = String(seedDedupe ? seedDedupe.value : '').trim() || 'sku';
+        const sourceRow = (Array.isArray(state._provisioningCompanies) ? state._provisioningCompanies : [])
+          .find(r => String(r.company_id || r.id) === sourceId);
+        const sourceName = sourceRow ? String(sourceRow.company_name || sourceRow.company_slug || sourceRow.company_id || '') : '';
+        if(!sourceId){
+          result.seeding = { success: false, error: 'Select a source company' };
+        }else{
+          try{
+            const { data: seedData, error: seedErr } = await SB.client.rpc('seed_company_inventory', {
+              p_source_company_id: sourceId,
+              p_target_company_id: targetCompanyId,
+              p_mode: 'items_only',
+              p_dedupe_key: dedupeKey || 'sku'
+            });
+            if(seedErr) throw seedErr;
+            if(seedData && seedData.success === false){
+              const errText = seedData.error || 'Seeding failed';
+              result.seeding = {
+                success: false,
+                warning: errText.toLowerCase().includes('already seeded'),
+                error: errText,
+                source_name: sourceName,
+                dedupe_key: dedupeKey
+              };
+            }else{
+              result.seeding = {
+                success: true,
+                items_copied_count: seedData && typeof seedData.items_copied_count === 'number'
+                  ? seedData.items_copied_count
+                  : 0,
+                source_name: sourceName,
+                dedupe_key: dedupeKey
+              };
+            }
+          }catch(err){
+            result.seeding = {
+              success: false,
+              error: err && err.message ? err.message : 'Seeding failed',
+              source_name: sourceName,
+              dedupe_key: dedupeKey
+            };
+          }
+        }
+      }else{
+        result.seeding = { success: false };
+      }
+
+      state._provisioningResult = result;
+      renderProvisioningSummary();
+      const hasIssues = Boolean(
+        (result.settings && result.settings.error) ||
+        (Array.isArray(result.users) && result.users.some(u => !u.success)) ||
+        (result.tier && result.tier.error) ||
+        (result.override && result.override.error) ||
+        (result.seeding && result.seeding.error && !result.seeding.warning)
+      );
+      setProvisioningMessage(hasIssues ? 'Provisioning completed with issues.' : 'Provisioning complete.');
+      if(btn){
+        btn.disabled = false;
+        btn.setAttribute('aria-disabled', 'false');
+        btn.textContent = 'Provision Company';
+      }
+      state._provisioningBusy = false;
+      renderProvisioningUsersList();
     }
     function setDiagnosticsMessage(msg){
       const el = $('diagSimMsg');
@@ -6108,7 +7191,7 @@
 	    function storeInviteTokenFromUrl(){
 	      try{
 	        const params = new URLSearchParams(window.location.search);
-	        const token = params.get('invite');
+	        const token = params.get('invite') || params.get('invite_id');
 	        if(!token) return '';
 	        localStorage.setItem('inv.pendingInvite', token);
 	        window.history.replaceState({}, '', window.location.pathname);
@@ -6122,7 +7205,7 @@
 	      const token = localStorage.getItem('inv.pendingInvite');
 	      if(!token) return false;
 	      try{
-	        const { data, error } = await SB.client.rpc('accept_invitation', { invitation_token: token });
+	        const { data, error } = await SB.client.rpc('accept_company_invite', { p_invite_id: token });
 	        if(error) throw error;
 	        if(data && data.success){
 	          localStorage.removeItem('inv.pendingInvite');
@@ -6185,15 +7268,17 @@
       const sbKey = (typeof window.SB_ANON === 'string') ? window.SB_ANON.trim() : '';
       if(sbUrl && apiUrl.startsWith(sbUrl) && sbKey){
         headers['apikey'] = sbKey;
+        headers['Authorization'] = `Bearer ${SB.session && SB.session.access_token ? SB.session.access_token : sbKey}`;
       }
       const res = await fetch(apiUrl, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ token, password: pw }),
+        body: JSON.stringify({ invite_id: token, password: pw }),
       });
       const data = await res.json().catch(() => ({}));
       if(!res.ok){
-        return { ok: false, error: data && data.error ? data.error : 'Invite setup failed', code: data?.code, email: data?.email };
+        const errText = data && (data.error || data.message) ? String(data.error || data.message) : 'Invite setup failed';
+        return { ok: false, error: errText, code: data?.code, email: data?.email };
       }
       return data || { ok: true };
     }
@@ -6204,38 +7289,35 @@
       if(sbUrl) return `${sbUrl}/functions/v1/send-invite`;
       return '/functions/v1/send-invite';
     }
-    async function sbInviteUser(email, role, companyId){
+    async function sbInviteUser(email, role, companyId, opts = {}){
       if(!SB.ready || !SB.client) throw Error('Not authorized');
-      if(!hasTier('business')) throw Error('Invites require Business tier');
+      const options = (opts && typeof opts === 'object') ? opts : {};
       const targetCompanyId = String(companyId || '').trim() || (SB.companyId ? String(SB.companyId) : '');
       if(!targetCompanyId) throw Error('Company not selected');
-      if(!canInvite()) throw Error('Permission denied');
+      const currentCompanyId = SB.companyId ? String(SB.companyId) : '';
+      const enforceChecks = options.skipChecks !== true && (!currentCompanyId || targetCompanyId === currentCompanyId);
+      if(enforceChecks && !hasTier('business')) throw Error('Invites require Business tier');
+      if(enforceChecks && !canInvite()) throw Error('Permission denied');
       const cleanEmail = String(email || '').trim();
       if(!cleanEmail) throw Error('Email required');
       const cleanRole = String(role || 'member').trim() || 'member';
-      const payload = {
-        company_id: targetCompanyId,
-        email: cleanEmail,
-        role: cleanRole,
-      };
-      const { data: sessionData, error: sessionError } = await SB.client.auth.getSession();
-      if(sessionError) throw sessionError;
-      let session = sessionData && sessionData.session ? sessionData.session : null;
-      const now = Math.floor(Date.now() / 1000);
-      if(session && session.expires_at && session.expires_at <= now){
-        const { data: refreshData, error: refreshError } = await SB.client.auth.refreshSession();
-        if(refreshError) throw refreshError;
-        session = refreshData && refreshData.session ? refreshData.session : session;
-      }
-      if(!session || !session.access_token) throw Error('Not authorized');
       const apiUrl = getInviteSendUrl();
       const headers = { 'content-type': 'application/json' };
       const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
       const sbKey = (typeof window.SB_ANON === 'string') ? window.SB_ANON.trim() : '';
       if(sbUrl && apiUrl.startsWith(sbUrl) && sbKey){
         headers['apikey'] = sbKey;
-        headers['Authorization'] = `Bearer ${session.access_token}`;
+        if(SB.session && SB.session.access_token){
+          headers['Authorization'] = `Bearer ${SB.session.access_token}`;
+        }
       }
+      const baseUrl = `${window.location.origin}${window.location.pathname}`.replace(/\?[^#]*$/, '');
+      const payload = {
+        email: cleanEmail,
+        role: cleanRole,
+        company_id: targetCompanyId,
+        app_url: baseUrl,
+      };
       const res = await fetch(apiUrl, {
         method: 'POST',
         headers,
@@ -6246,10 +7328,26 @@
         return {
           ok: false,
           error: data && data.error ? data.error : 'Invite failed',
-          invite_url: data && data.invite_url ? data.invite_url : ''
+          invite_url: data && data.invite_url ? data.invite_url : '',
+          invite_id: data && data.invite_id ? data.invite_id : '',
+          expires_at: data && data.expires_at ? data.expires_at : null,
         };
       }
-      return data || { ok: true };
+      if(data && data.ok === false){
+        return {
+          ok: false,
+          error: data.error || 'Invite failed',
+          invite_url: data.invite_url || '',
+          invite_id: data.invite_id || '',
+          expires_at: data.expires_at || null,
+        };
+      }
+      return {
+        ok: true,
+        invite_url: data && data.invite_url ? data.invite_url : '',
+        invite_id: data && data.invite_id ? data.invite_id : '',
+        expires_at: data && data.expires_at ? data.expires_at : null,
+      };
 	    }
 	    function resetCompanyScopedState(){
 	      state.items = [];
@@ -6276,6 +7374,8 @@
       state._shippingAddressById = new Map();
       state._shippingAddressEditing = null;
       state._userMgmtRows = [];
+      state._pendingInvites = [];
+      state._pendingInviteBusy = {};
       state._snapshots = [];
       state._snapshotPreview = null;
       state._metrics = null;
@@ -6510,19 +7610,24 @@
         updateStatusBar();
         renderCompanySwitcher();
         renderAdvancedCompanySwitcherButton();
+        renderProvisioningDashboardButton();
         renderDiagnosticsButton();
+        renderSubscriptionManagerButton();
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
         renderRoleManagerButton();
         renderUserMgmtButton();
+        renderPendingInvitesSection();
         return false;
       }
       if(!SB.companyId){
         updateStatusBar();
         renderCompanySwitcher();
         renderAdvancedCompanySwitcherButton();
+        renderProvisioningDashboardButton();
         renderDiagnosticsButton();
+        renderSubscriptionManagerButton();
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
@@ -6537,7 +7642,9 @@
         updateStatusBar();
         renderCompanySwitcher();
         renderAdvancedCompanySwitcherButton();
+        renderProvisioningDashboardButton();
         renderDiagnosticsButton();
+        renderSubscriptionManagerButton();
         renderInviteUi();
         renderRoleRequestUi();
         renderRoleRequestsAdminButton();
@@ -6549,12 +7656,15 @@
       updateStatusBar();
       renderCompanySwitcher();
       renderAdvancedCompanySwitcherButton();
+      renderProvisioningDashboardButton();
       renderDiagnosticsButton();
+      renderSubscriptionManagerButton();
       renderInviteUi();
       renderRoleRequestUi();
       renderRoleRequestsAdminButton();
       renderRoleManagerButton();
       renderUserMgmtButton();
+      renderPendingInvitesSection();
       return SB.authorized;
     }
     async function sbHandleSession(session){
@@ -6580,9 +7690,18 @@
         const inviteToken = storeInviteTokenFromUrl() || getPendingInviteToken();
         state.items = [];
         state._userMgmtRows = [];
+        state._pendingInvites = [];
+        state._pendingInviteBusy = {};
         state._snapshots = [];
         state._snapshotPreview = null;
         state._metrics = null;
+        state._provisioningUsers = [];
+        state._provisioningCompanies = [];
+        state._provisioningExistingUsers = [];
+        state._provisioningExistingUsersLoading = false;
+        state._provisioningExistingUsersError = '';
+        state._provisioningBusy = false;
+        state._provisioningResult = null;
         state._roleConfigs = {};
         state._roleChanges = {};
         state._impersonationRole = 'super_user';
@@ -6599,6 +7718,8 @@
         }
         applyPermissionUI();
         renderCompanySwitcher();
+        renderProvisioningDashboardButton();
+        renderSubscriptionManagerButton();
         renderInviteUi();
         renderRoleManagerButton();
         renderUserMgmtButton();
@@ -6640,6 +7761,7 @@
       const profileCompanySelect = $('profileCompanySelect');
       const profileRoleTestingSelect = $('profileRoleTestingSelect');
       const advancedCompanyBtn = $('openAdvancedCompanySwitcher');
+      const provisioningBtn = $('openProvisioningDashboard');
       const diagnosticsBtn = $('openDiagnostics');
 
       function toggleProfileDropdown(open){
@@ -6697,6 +7819,13 @@
         advancedCompanyBtn.addEventListener('click', ()=>{
           toggleProfileDropdown(false);
           void openAdvancedCompanySwitcher();
+        });
+      }
+      if(provisioningBtn && !provisioningBtn._wired){
+        provisioningBtn._wired = true;
+        provisioningBtn.addEventListener('click', ()=>{
+          toggleProfileDropdown(false);
+          void openProvisioningModal();
         });
       }
       if(diagnosticsBtn && !diagnosticsBtn._wired){
@@ -6797,6 +7926,7 @@
         if(result && result.ok){
           const email = String(result.email || '').trim();
           if(!email) throw new Error('Invite email missing');
+          try{ localStorage.removeItem('inv.pendingInvite'); }catch(e){}
           setInviteAcceptMessage('Account created. Signing you in...');
           await sbSignIn(email, password);
           closeInviteAcceptModal();
@@ -7046,6 +8176,106 @@
       await loadAdvancedCompanies();
     });
 
+    const btnProvisioningClose = $('btnProvisioningClose');
+    if(btnProvisioningClose) btnProvisioningClose.addEventListener('click', closeProvisioningModal);
+    const btnProvisioningRun = $('btnProvisioningRun');
+    if(btnProvisioningRun) btnProvisioningRun.addEventListener('click', async ()=>{
+      await runProvisioning();
+    });
+    const btnProvisioningReset = $('btnProvisioningReset');
+    if(btnProvisioningReset) btnProvisioningReset.addEventListener('click', resetProvisioningForm);
+    const btnProvisioningAddUser = $('btnProvisioningAddUser');
+    if(btnProvisioningAddUser) btnProvisioningAddUser.addEventListener('click', ()=>{
+      state._provisioningUsers = Array.isArray(state._provisioningUsers) ? state._provisioningUsers : [];
+      state._provisioningUsers.push({ id: randomUUID(), mode: 'invite', email: '', role: 'member' });
+      renderProvisioningUsersList();
+    });
+    const btnProvisioningRefreshCompanies = $('btnProvisioningRefreshCompanies');
+    if(btnProvisioningRefreshCompanies) btnProvisioningRefreshCompanies.addEventListener('click', async ()=>{
+      await loadProvisioningCompanies();
+    });
+    const provisioningTrialToggle = $('provisioningTrialToggle');
+    if(provisioningTrialToggle) provisioningTrialToggle.addEventListener('change', renderProvisioningTrialFields);
+    const provisioningSeedToggle = $('provisioningSeedToggle');
+    if(provisioningSeedToggle) provisioningSeedToggle.addEventListener('change', ()=>{
+      renderProvisioningSeedFields();
+      if(provisioningSeedToggle.checked){
+        void loadProvisioningCompanies();
+      }
+    });
+    const provisioningName = $('provisioningCompanyName');
+    const provisioningSlug = $('provisioningCompanySlug');
+    if(provisioningName) provisioningName.addEventListener('input', ()=>{
+      if(!provisioningSlug) return;
+      if(provisioningSlug.dataset.manual === 'true') return;
+      provisioningSlug.value = slugifyCompanyName(provisioningName.value);
+      provisioningSlug.dataset.manual = 'false';
+    });
+    if(provisioningSlug) provisioningSlug.addEventListener('input', ()=>{
+      provisioningSlug.dataset.manual = 'true';
+    });
+    const provisioningUsersList = $('provisioningUsersList');
+    if(provisioningUsersList) provisioningUsersList.addEventListener('change', (e)=>{
+      const target = e.target;
+      if(!target) return;
+      const field = target.getAttribute && target.getAttribute('data-provisioning-user-field');
+      const id = target.getAttribute && target.getAttribute('data-provisioning-user-id');
+      if(!field || !id) return;
+      const rows = Array.isArray(state._provisioningUsers) ? state._provisioningUsers : [];
+      const idx = rows.findIndex(r => String(r.id) === String(id));
+      if(idx < 0) return;
+      const value = target.value;
+      if(field === 'mode'){
+        const existingUsers = Array.isArray(state._provisioningExistingUsers) ? state._provisioningExistingUsers : [];
+        const currentEmail = String(rows[idx].email || '');
+        let nextEmail = currentEmail;
+        if(value === 'attach'){
+          const normalized = currentEmail.trim().toLowerCase();
+          const match = normalized && existingUsers.some(u => String(u.email || '').trim().toLowerCase() === normalized);
+          if(!match) nextEmail = '';
+        }
+        rows[idx] = { ...rows[idx], mode: value, email: nextEmail };
+        state._provisioningUsers = rows;
+        renderProvisioningUsersList();
+        return;
+      }
+      rows[idx] = { ...rows[idx], [field]: value };
+      state._provisioningUsers = rows;
+    });
+    if(provisioningUsersList) provisioningUsersList.addEventListener('click', (e)=>{
+      const btn = e.target.closest('[data-provisioning-user-remove]');
+      if(!btn) return;
+      const id = String(btn.getAttribute('data-provisioning-user-remove') || '').trim();
+      if(!id) return;
+      state._provisioningUsers = (Array.isArray(state._provisioningUsers) ? state._provisioningUsers : []).filter(r => String(r.id) !== id);
+      renderProvisioningUsersList();
+    });
+    const provisioningSummary = $('provisioningSummary');
+    if(provisioningSummary) provisioningSummary.addEventListener('click', async (e)=>{
+      const btn = e.target.closest('[data-provisioning-open-id]');
+      if(!btn) return;
+      const companyId = String(btn.getAttribute('data-provisioning-open-id') || '').trim();
+      if(!companyId) return;
+      const companyName = String(btn.getAttribute('data-provisioning-open-name') || '').trim();
+      const companySlug = String(btn.getAttribute('data-provisioning-open-slug') || '').trim();
+      const companyRow = {
+        company_id: companyId,
+        company_name: companyName || null,
+        company_slug: companySlug || null,
+        company_type: 'production',
+      };
+      const ok = await sbSwitchCompany(companyId, {
+        persist: false,
+        audit: true,
+        source: 'provisioning',
+        companyRow,
+      });
+      if(ok){
+        toast(`Switched to ${companyName || 'company'}`);
+        show('provisioningModal', false);
+      }
+    });
+
     const diagApply = $('diagApply');
     if(diagApply) diagApply.addEventListener('click', async ()=>{
       await applyDiagnosticsSimulation();
@@ -7091,15 +8321,17 @@
       try{
         const data = await sbInviteUser(email, role, companyId);
         if(data && data.ok){
-          setInviteMessage(`Invite sent to ${String(email || '').trim()}.`);
+          const expiry = data && data.expires_at ? formatEasternDateTime(data.expires_at) : '';
+          const suffix = expiry ? ` Expires ${expiry}.` : '';
+          if(data.invite_url) showInviteLink(data.invite_url);
+          setInviteMessage(`Invite email sent to ${String(email || '').trim()}.${suffix}`);
+          await refreshPendingInvites();
         }else{
           const msg = data && data.error ? String(data.error) : 'Invite failed';
-          const url = data && data.invite_url ? String(data.invite_url) : '';
-          if(url){
-            showInviteLink(url);
-            setInviteMessage('Invite created but email failed. Copy the link to send manually.');
-          }else{
-            setInviteMessage(msg);
+          if(data && data.invite_url) showInviteLink(data.invite_url);
+          setInviteMessage(msg);
+          if(data && (data.invite_id || data.invite_url)){
+            await refreshPendingInvites();
           }
         }
       }catch(e){
@@ -7157,6 +8389,18 @@
           .then(() => renderRoleRequestUi())
           .catch(()=>{});
       }
+    });
+
+    const openSubscriptionManager = $('openSubscriptionManager');
+    if(openSubscriptionManager) openSubscriptionManager.addEventListener('click', ()=>{
+      const profileDropdown = $('profileDropdown');
+      if(profileDropdown){
+        profileDropdown.classList.remove('open');
+        profileDropdown.style.display = '';
+        profileDropdown.setAttribute('aria-hidden', 'true');
+      }
+      $('profileBtn')?.setAttribute('aria-expanded', 'false');
+      openSubscriptionManagerModal();
     });
 
     const openInviteModal = $('openInviteModal');
@@ -7270,18 +8514,20 @@
 
     const btnUserMgmtClose = $('btnUserMgmtClose');
     if(btnUserMgmtClose) btnUserMgmtClose.addEventListener('click', closeUserMgmtModal);
+    const btnSubscriptionManagerClose = $('btnSubscriptionManagerClose');
+    if(btnSubscriptionManagerClose) btnSubscriptionManagerClose.addEventListener('click', closeSubscriptionManagerModal);
     const btnUserMgmtRefresh = $('btnUserMgmtRefresh');
-    if(btnUserMgmtRefresh) btnUserMgmtRefresh.addEventListener('click', refreshUserMgmt);
+    if(btnUserMgmtRefresh) btnUserMgmtRefresh.addEventListener('click', refreshUserMgmtAll);
     const btnUserMgmtAdd = $('btnUserMgmtAdd');
     if(btnUserMgmtAdd) btnUserMgmtAdd.addEventListener('click', openInviteFromUserMgmt);
-    const btnUserMgmtTier = $('btnUserMgmtTier');
-    if(btnUserMgmtTier) btnUserMgmtTier.addEventListener('click', openTierOverrideFromUserMgmt);
+    const btnPendingInvitesRefresh = $('btnPendingInvitesRefresh');
+    if(btnPendingInvitesRefresh) btnPendingInvitesRefresh.addEventListener('click', refreshPendingInvites);
     const userMgmtCompany = $('userMgmtCompany');
     if(userMgmtCompany && !userMgmtCompany._wired){
       userMgmtCompany._wired = true;
       userMgmtCompany.addEventListener('change', async (e)=>{
         _userMgmtCompanyId = e && e.target ? e.target.value : '';
-        await refreshUserMgmt();
+        await refreshUserMgmtAll();
       });
     }
     const userMgmtList = $('userMgmtList');
@@ -7330,6 +8576,65 @@
         await refreshUserMgmt();
       }catch(err){
         toast(err && err.message ? err.message : 'Remove failed');
+      }
+    });
+    const pendingInvitesList = $('pendingInvitesList');
+    if(pendingInvitesList) pendingInvitesList.addEventListener('click', async (e)=>{
+      const resendBtn = e.target.closest('[data-invite-resend-id]');
+      const revokeBtn = e.target.closest('[data-invite-revoke-id]');
+      if(resendBtn){
+        if(resendBtn.disabled) return;
+        const inviteId = String(resendBtn.getAttribute('data-invite-resend-id') || '').trim();
+        if(!inviteId) return;
+        state._pendingInviteBusy = state._pendingInviteBusy || {};
+        state._pendingInviteBusy[inviteId] = 'resend';
+        renderPendingInvitesList();
+        try{
+          const data = await sbResendCompanyInvite(inviteId);
+          const idx = (state._pendingInvites || []).findIndex(row => String(row.id) === inviteId);
+          if(idx >= 0){
+            const current = state._pendingInvites[idx];
+            const nextResend = (data && typeof data.resend_count === 'number') ? data.resend_count : (toInt(current.resend_count, 0) + 1);
+            const nextLastSent = data && data.last_sent_at ? data.last_sent_at : new Date().toISOString();
+            state._pendingInvites[idx] = { ...current, resend_count: nextResend, last_sent_at: nextLastSent };
+            renderPendingInvitesList();
+          }
+          toast('Invite resent');
+        }catch(err){
+          toast(err && err.message ? err.message : 'Resend failed');
+        }finally{
+          delete state._pendingInviteBusy[inviteId];
+          await refreshPendingInvites();
+        }
+        return;
+      }
+      if(revokeBtn){
+        if(revokeBtn.disabled) return;
+        const inviteId = String(revokeBtn.getAttribute('data-invite-revoke-id') || '').trim();
+        if(!inviteId) return;
+        const email = String(revokeBtn.getAttribute('data-invite-email') || 'this invite');
+        const ok = await openConfirmModal(
+          `Revoke invite for ${email}?`,
+          'This will delete the invite.',
+          { okText:'Revoke', cancelText:'Cancel' }
+        );
+        if(!ok) return;
+        state._pendingInviteBusy = state._pendingInviteBusy || {};
+        state._pendingInviteBusy[inviteId] = 'revoke';
+        const prev = Array.isArray(state._pendingInvites) ? state._pendingInvites.slice() : [];
+        state._pendingInvites = prev.filter(row => String(row.id) !== inviteId);
+        renderPendingInvitesList();
+        try{
+          await sbRevokeCompanyInvite(inviteId);
+          toast('Invite revoked');
+        }catch(err){
+          state._pendingInvites = prev;
+          renderPendingInvitesList();
+          toast(err && err.message ? err.message : 'Revoke failed');
+        }finally{
+          delete state._pendingInviteBusy[inviteId];
+          await refreshPendingInvites();
+        }
       }
     });
 
@@ -10375,9 +11680,14 @@ function emptyStateHtml(){
 	      return name;
 	    }
 	    function generateInternalPoNumber(){
-	      const seed = Math.random().toString(36).slice(2, 8).toUpperCase();
-	      const stamp = new Date().toISOString().slice(2,10).replace(/-/g, '');
-	      return `PO-${stamp}-${seed}`;
+	      const digits = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+	      const letters = 'ABCDEFGHJKMNPQRSTVWXYZ';
+	      let suffix = '';
+	      for(let i = 0; i < 4; i++){
+	        const idx = Math.floor(Math.random() * letters.length);
+	        suffix += letters.charAt(idx);
+	      }
+	      return `${digits}-${suffix}`;
 	    }
 	    function ensureOrderIdentifiers(ord){
 	      if(!ord) return;
