@@ -288,7 +288,8 @@ describe('RPC: invite lifecycle', () => {
 
     const { data: expiredCount, error: expiredError } = await adminClient.rpc('expire_company_invites');
     expect(expiredError).toBeNull();
-    expect(expiredCount).toBe(2);
+    // RPC expires ALL pending invites globally, so count may include leftovers from other runs
+    expect(expiredCount).toBeGreaterThanOrEqual(2);
 
     const { data: events, error: eventsError } = await adminClient
       .from('invite_events')
@@ -299,8 +300,18 @@ describe('RPC: invite lifecycle', () => {
     if (eventsError) throw eventsError;
     expect((events || []).length).toBe(2);
 
+    // Verify our specific invites are now expired
+    const { data: inviteStatuses, error: statusError } = await adminClient
+      .from('company_invites')
+      .select('status')
+      .eq('company_id', companyId)
+      .in('email', [emailA.toLowerCase(), emailB.toLowerCase()]);
+    if (statusError) throw statusError;
+    expect(inviteStatuses?.every(i => i.status === 'expired')).toBe(true);
+
     const { data: expiredAgain, error: expiredAgainError } = await adminClient.rpc('expire_company_invites');
     expect(expiredAgainError).toBeNull();
+    // No new pending invites should be expired on second run
     expect(expiredAgain).toBe(0);
   });
 });
