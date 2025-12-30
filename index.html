@@ -32,13 +32,8 @@
     };
     const overrideUrl = readLocalConfig('inv.sb_url');
     const overrideAnon = readLocalConfig('inv.sb_anon');
-    const isLocalHost = ['127.0.0.1','localhost'].includes(window.location.hostname);
-    const defaultUrl = isLocalHost
-      ? 'http://127.0.0.1:54321'
-      : 'https://entmbaxeylglposptsuy.supabase.co';
-    const defaultAnon = isLocalHost
-      ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
-      : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudG1iYXhleWxnbHBvc3B0c3V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MTQ2NjEsImV4cCI6MjA3MjQ5MDY2MX0.vDTzhL0Q-iDZShWu2hcaYOavPLltY31OThXj-ohBjAc';
+    const defaultUrl = 'https://entmbaxeylglposptsuy.supabase.co';
+    const defaultAnon = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudG1iYXhleWxnbHBvc3B0c3V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MTQ2NjEsImV4cCI6MjA3MjQ5MDY2MX0.vDTzhL0Q-iDZShWu2hcaYOavPLltY31OThXj-ohBjAc';
     window.SB_URL  = overrideUrl || window.SB_URL || defaultUrl;
     window.SB_ANON = overrideAnon || window.SB_ANON || defaultAnon;
   </script>
