@@ -815,8 +815,39 @@
 	      gap:8px;
 	      font-size:13px;
 	      color:#e2e8f0;
+	      padding:6px 8px;
+	      border-radius:8px;
+	      border:1px solid transparent;
+	      transition:background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
 	    }
 	    .column-option input{ width:16px; height:16px; }
+	    .column-option.drag-over{
+	      border-color:#1f3c57;
+	      background:#0e1824;
+	    }
+	    .column-option.dragging{
+	      opacity:0.6;
+	      background:#0e1824;
+	    }
+	    .drag-handle{
+	      width:20px;
+	      height:20px;
+	      display:inline-flex;
+	      align-items:center;
+	      justify-content:center;
+	      font-size:14px;
+	      color:#7c8aa0;
+	      border-radius:6px;
+	      border:1px solid var(--border);
+	      background:#0d131b;
+	      cursor:grab;
+	      user-select:none;
+	    }
+	    .drag-handle:active{ cursor:grabbing; }
+	    .drag-handle.disabled{
+	      opacity:0.4;
+	      cursor:not-allowed;
+	    }
 	    .column-builder-actions{
 	      display:flex;
 	      gap:8px;
@@ -4775,59 +4806,92 @@
     }
     const INVENTORY_COLUMNS_KEY = 'tableColumns:inventory_list';
     const INVENTORY_ANCHOR_KEY = 'item';
-    const INVENTORY_ACTIONS_KEY = 'actions';
+    const INVENTORY_ACTIONS_DEF = {
+      key:'actions',
+      label:'Actions',
+      dataCol:'actions',
+      sortable:false,
+      align:'right',
+      thClass:'actions',
+      colWidth:'96px'
+    };
     const INVENTORY_COLUMN_DEFS = [
-      { key:'item', label:'Item', lock:true, defaultVisible:true, dataCol:'name', sortable:true, align:'left' },
-      { key:'sku', label:'SKU', lock:false, defaultVisible:true, dataCol:'sku', sortable:true, align:'left', colWidth:'140px' },
-      { key:'on_hand', label:'On Hand', lock:false, defaultVisible:true, dataCol:'qty', sortable:true, align:'center', thClass:'qty', colWidth:'130px' },
-      { key:'available', label:'Available', lock:false, defaultVisible:true, dataCol:'available', sortable:false, align:'center', colWidth:'120px' },
-      { key:'reorder_point', label:'Reorder Point', lock:false, defaultVisible:true, dataCol:'reorderPoint', sortable:false, align:'center', colWidth:'140px' },
-      { key:'actions', label:'Actions', lock:false, defaultVisible:true, dataCol:'actions', sortable:false, align:'right', thClass:'actions', colWidth:'96px' },
-      { key:'description', label:'Description', lock:false, defaultVisible:false, dataCol:'desc', sortable:true, align:'left', colId:'col-desc' },
-      { key:'reserved', label:'Reserved', lock:false, defaultVisible:false, dataCol:'reserved', sortable:false, align:'center', colWidth:'120px' },
-      { key:'reorder_qty', label:'Reorder Qty', lock:false, defaultVisible:false, dataCol:'reorderQty', sortable:false, align:'center', colWidth:'120px' },
-      { key:'location', label:'Location', lock:false, defaultVisible:false, dataCol:'location', sortable:false, align:'left', colWidth:'160px' },
-      { key:'category', label:'Category', lock:false, defaultVisible:false, dataCol:'category', sortable:false, align:'left', colWidth:'160px' },
-      { key:'last_updated', label:'Last Updated', lock:false, defaultVisible:false, dataCol:'updatedAt', sortable:true, align:'left', colWidth:'170px' }
+      { key:'item', label:'Item', lock:true, defaultVisible:true, dataCol:'name', sortable:true, align:'left', optional:false },
+      { key:'sku', label:'SKU', lock:false, defaultVisible:true, dataCol:'sku', sortable:true, align:'left', colWidth:'140px', optional:false },
+      { key:'on_hand', label:'On Hand', lock:false, defaultVisible:true, dataCol:'qty', sortable:true, align:'center', thClass:'qty', colWidth:'130px', optional:false },
+      { key:'available', label:'Available', lock:false, defaultVisible:true, dataCol:'available', sortable:false, align:'center', colWidth:'120px', optional:false },
+      { key:'reorder_point', label:'Reorder Point', lock:false, defaultVisible:true, dataCol:'reorderPoint', sortable:false, align:'center', colWidth:'140px', optional:false },
+      { key:'description', label:'Description', lock:false, defaultVisible:false, dataCol:'desc', sortable:true, align:'left', colId:'col-desc', optional:true },
+      { key:'reserved', label:'Reserved', lock:false, defaultVisible:false, dataCol:'reserved', sortable:false, align:'center', colWidth:'120px', optional:true },
+      { key:'reorder_qty', label:'Reorder Qty', lock:false, defaultVisible:false, dataCol:'reorderQty', sortable:false, align:'center', colWidth:'120px', optional:true },
+      { key:'location', label:'Location', lock:false, defaultVisible:false, dataCol:'location', sortable:false, align:'left', colWidth:'160px', optional:true },
+      { key:'category', label:'Category', lock:false, defaultVisible:false, dataCol:'category', sortable:false, align:'left', colWidth:'160px', optional:true },
+      { key:'last_updated', label:'Last Updated', lock:false, defaultVisible:false, dataCol:'updatedAt', sortable:true, align:'left', colWidth:'170px', optional:true }
     ];
     const INVENTORY_COLUMN_MAP = new Map(INVENTORY_COLUMN_DEFS.map(def => [def.key, def]));
-    let _inventoryVisibleSig = '';
-    let _inventoryVisibleKeys = null;
+    const INVENTORY_DEFAULT_ORDER = INVENTORY_COLUMN_DEFS.map(def => def.key);
+    const INVENTORY_DEFAULT_VISIBLE = INVENTORY_COLUMN_DEFS.filter(def => def.defaultVisible).map(def => def.key);
+    let _inventoryColumnSig = '';
+    let _inventoryColumnConfig = null;
 
-    function defaultInventoryVisibleKeys(){
-      const keys = INVENTORY_COLUMN_DEFS.filter(def => def.defaultVisible).map(def => def.key);
-      return normalizeInventoryVisibleKeys(keys);
+    function defaultInventoryOrder(){
+      return INVENTORY_DEFAULT_ORDER.slice();
     }
-    function normalizeInventoryVisibleKeys(keys){
-      const valid = new Set(INVENTORY_COLUMN_DEFS.map(def => def.key));
-      const raw = Array.isArray(keys) ? keys : [];
+    function defaultInventoryVisibleKeys(){
+      return INVENTORY_DEFAULT_VISIBLE.slice();
+    }
+    function normalizeInventoryOrder(order){
+      if(!Array.isArray(order) || !order.includes(INVENTORY_ANCHOR_KEY)) return defaultInventoryOrder();
+      const valid = new Set(INVENTORY_DEFAULT_ORDER);
       const seen = new Set();
-      const ordered = [];
-      for(const key of raw){
-        if(!valid.has(key) || seen.has(key) || key === INVENTORY_ACTIONS_KEY) continue;
+      const cleaned = [];
+      for(const key of order){
+        if(!valid.has(key) || seen.has(key)) continue;
+        if(key === INVENTORY_ANCHOR_KEY) continue;
         seen.add(key);
-        ordered.push(key);
+        cleaned.push(key);
       }
-      if(!ordered.includes(INVENTORY_ANCHOR_KEY)) ordered.unshift(INVENTORY_ANCHOR_KEY);
-      if(raw.includes(INVENTORY_ACTIONS_KEY)) ordered.push(INVENTORY_ACTIONS_KEY);
+      const ordered = [INVENTORY_ANCHOR_KEY, ...cleaned];
+      for(const key of INVENTORY_DEFAULT_ORDER){
+        if(!ordered.includes(key)) ordered.push(key);
+      }
       return ordered;
     }
-    function loadInventoryVisibleKeys(){
+    function normalizeInventoryVisible(visible, order){
+      const valid = new Set(INVENTORY_DEFAULT_ORDER);
+      if(!Array.isArray(visible)) return defaultInventoryVisibleKeys();
+      const cleaned = [];
+      const seen = new Set();
+      for(const key of visible){
+        if(!valid.has(key) || seen.has(key)) continue;
+        seen.add(key);
+        cleaned.push(key);
+      }
+      if(!cleaned.includes(INVENTORY_ANCHOR_KEY)) cleaned.unshift(INVENTORY_ANCHOR_KEY);
+      return cleaned;
+    }
+    function loadInventoryColumnConfig(){
       const raw = localStorage.getItem(INVENTORY_COLUMNS_KEY);
-      if(!raw) return defaultInventoryVisibleKeys();
+      if(!raw){
+        return { order: defaultInventoryOrder(), visible: defaultInventoryVisibleKeys() };
+      }
       try{
         const parsed = JSON.parse(raw);
-        if(!parsed || !Array.isArray(parsed.visible)) return defaultInventoryVisibleKeys();
-        return normalizeInventoryVisibleKeys(parsed.visible);
+        const hasOrder = parsed && Array.isArray(parsed.order);
+        const hasVisible = parsed && Array.isArray(parsed.visible);
+        const order = hasOrder ? normalizeInventoryOrder(parsed.order) : defaultInventoryOrder();
+        const visible = hasVisible ? normalizeInventoryVisible(parsed.visible, order) : defaultInventoryVisibleKeys();
+        return { order, visible };
       }catch(e){
-        return defaultInventoryVisibleKeys();
+        return { order: defaultInventoryOrder(), visible: defaultInventoryVisibleKeys() };
       }
     }
-    function saveInventoryVisibleKeys(keys){
-      const visible = normalizeInventoryVisibleKeys(keys);
-      localStorage.setItem(INVENTORY_COLUMNS_KEY, JSON.stringify({ visible }));
-      _inventoryVisibleSig = '';
-      _inventoryVisibleKeys = null;
+    function saveInventoryColumnConfig(config){
+      const order = normalizeInventoryOrder(config && config.order ? config.order : defaultInventoryOrder());
+      const visible = normalizeInventoryVisible(config && config.visible ? config.visible : defaultInventoryVisibleKeys(), order);
+      localStorage.setItem(INVENTORY_COLUMNS_KEY, JSON.stringify({ order, visible }));
+      _inventoryColumnSig = '';
+      _inventoryColumnConfig = null;
     }
     if (!IMUtils.toKey) IMUtils.toKey = toKey;
     if (!IMUtils.toInt) IMUtils.toInt = toInt;
@@ -10672,18 +10736,26 @@
         });
       });
     }
-    function renderInventoryTableShell(keys){
+    function renderInventoryTableShell(config){
       const table = $('invTable');
       const colgroup = $('invTableColgroup');
       const thead = $('invTableHead');
       if(!table || !colgroup || !thead) return;
-      const defs = (keys || []).map(key => INVENTORY_COLUMN_MAP.get(key)).filter(Boolean);
+      const order = (config && Array.isArray(config.order)) ? config.order : defaultInventoryOrder();
+      const visible = (config && Array.isArray(config.visible)) ? config.visible : defaultInventoryVisibleKeys();
+      const visibleSet = new Set(visible);
+      const defs = order.filter(key => visibleSet.has(key)).map(key => INVENTORY_COLUMN_MAP.get(key)).filter(Boolean);
       const colHtml = ['<col style="width:42px">'];
       defs.forEach(def=>{
         const idAttr = def.colId ? ` id="${escapeHtmlAttr(def.colId)}"` : '';
         const widthAttr = def.colWidth ? ` style="width:${escapeHtmlAttr(def.colWidth)}"` : '';
         colHtml.push(`<col${idAttr}${widthAttr}>`);
       });
+      if(INVENTORY_ACTIONS_DEF && INVENTORY_ACTIONS_DEF.colWidth){
+        colHtml.push(`<col style="width:${escapeHtmlAttr(INVENTORY_ACTIONS_DEF.colWidth)}">`);
+      }else{
+        colHtml.push('<col>');
+      }
       colgroup.innerHTML = colHtml.join('');
       const thHtml = [];
       thHtml.push('<th class="sel"><input type="checkbox" id="chkAll" aria-label="Select all"></th>');
@@ -10698,34 +10770,48 @@
         const sortSpan = def.sortable ? ' <span class="sort-ind"></span>' : '';
         thHtml.push(`<th scope="col"${cls} data-col="${dataCol}">${escapeHtml(def.label)}${sortSpan}</th>`);
       });
+      thHtml.push(`<th scope="col" class="actions" data-col="${escapeHtmlAttr(INVENTORY_ACTIONS_DEF.dataCol)}">${escapeHtml(INVENTORY_ACTIONS_DEF.label)}</th>`);
       thead.innerHTML = `<tr>${thHtml.join('')}</tr>`;
       bindInventorySortHandlers();
     }
-    function renderColumnBuilderList(keys){
+    function renderColumnBuilderList(config){
       const list = $('columnBuilderList');
       if(!list) return;
-      const visible = new Set((keys || loadInventoryVisibleKeys()).map(k => String(k)));
-      list.innerHTML = INVENTORY_COLUMN_DEFS.map(def=>{
+      const order = (config && Array.isArray(config.order)) ? config.order : defaultInventoryOrder();
+      const visible = new Set((config && Array.isArray(config.visible)) ? config.visible : defaultInventoryVisibleKeys());
+      list.innerHTML = order.map(key => INVENTORY_COLUMN_MAP.get(key)).filter(Boolean).map(def=>{
         const checked = visible.has(def.key) ? ' checked' : '';
         const disabled = def.lock ? ' disabled' : '';
+        const draggable = def.optional ? 'true' : 'false';
+        const handle = def.optional
+          ? `<span class="drag-handle" role="button" aria-label="Reorder ${escapeHtmlAttr(def.label)}" draggable="true" data-drag-key="${escapeHtmlAttr(def.key)}">⋮⋮</span>`
+          : `<span class="drag-handle disabled" aria-hidden="true">⋮⋮</span>`;
         return (
-          `<label class="column-option">`+
+          `<div class="column-option${def.optional ? ' is-draggable' : ''}" data-col-key="${escapeHtmlAttr(def.key)}" data-draggable="${draggable}">`+
+            `${handle}`+
             `<input type="checkbox" data-col-key="${escapeHtmlAttr(def.key)}"${checked}${disabled}>`+
             `<span>${escapeHtml(def.label)}</span>`+
-          `</label>`
+          `</div>`
         );
       }).join('');
     }
-    function getInventoryVisibleColumnDefs(){
-      const keys = loadInventoryVisibleKeys();
-      const sig = keys.join('|');
-      if(sig !== _inventoryVisibleSig){
-        _inventoryVisibleSig = sig;
-        _inventoryVisibleKeys = keys.slice();
-        renderInventoryTableShell(keys);
-        renderColumnBuilderList(keys);
+    function getInventoryColumnConfig(){
+      const config = loadInventoryColumnConfig();
+      const orderSig = Array.isArray(config.order) ? config.order.join('|') : '';
+      const visibleSig = Array.isArray(config.visible) ? config.visible.join('|') : '';
+      const sig = `${orderSig}::${visibleSig}`;
+      if(sig !== _inventoryColumnSig){
+        _inventoryColumnSig = sig;
+        _inventoryColumnConfig = { order: config.order.slice(), visible: config.visible.slice() };
+        renderInventoryTableShell(config);
+        renderColumnBuilderList(config);
       }
-      return keys.map(key => INVENTORY_COLUMN_MAP.get(key)).filter(Boolean);
+      return config;
+    }
+    function getInventoryVisibleColumnDefs(){
+      const config = getInventoryColumnConfig();
+      const visibleSet = new Set(config.visible || []);
+      return (config.order || []).filter(key => visibleSet.has(key)).map(key => INVENTORY_COLUMN_MAP.get(key)).filter(Boolean);
     }
     function formatInventoryDate(value){
       const t = Date.parse(String(value || ''));
@@ -11258,26 +11344,26 @@ function adjustTitleSize(){
 				  if(def.key === 'last_updated'){
 				    return '<td data-col="updatedAt">'+renderTextCell(formatInventoryDate(it.updatedAt))+'</td>';
 				  }
-				  if(def.key === 'actions'){
-				    return (
-				      '<td class="actions" data-col="actions"><div class="actions-wrap">'+
-				        '<button class="'+ctx.orderBtnClass+'" data-id="'+ctx.id+'" aria-label="'+ctx.orderBtnLabel+'" title="'+ctx.orderBtnLabel+'" aria-pressed="'+(ctx.inOrder ? 'true' : 'false')+'"'+ctx.orderBtnDisabled+'>'+
-				          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
-				            '<circle cx="9" cy="20" r="1"></circle>'+
-				            '<circle cx="18" cy="20" r="1"></circle>'+
-				            '<path d="M3 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L21 8H7"></path>'+
-				          '</svg>'+
-				        '</button>'+
-				        '<button class="row-delete-btn" data-id="'+ctx.id+'" aria-label="Delete item" title="Delete item"'+ctx.deleteBtnDisabled+'>'+
-				          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
-				            '<polyline points="3 6 5 6 21 6"></polyline>'+
-				            '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>'+
-				          '</svg>'+
-				        '</button>'+
-				      '</div></td>'
-				    );
-				  }
 				  return '';
+				}
+				function buildInventoryActionsCell(ctx){
+				  return (
+				    '<td class="actions" data-col="actions"><div class="actions-wrap">'+
+				      '<button class="'+ctx.orderBtnClass+'" data-id="'+ctx.id+'" aria-label="'+ctx.orderBtnLabel+'" title="'+ctx.orderBtnLabel+'" aria-pressed="'+(ctx.inOrder ? 'true' : 'false')+'"'+ctx.orderBtnDisabled+'>'+
+				        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+				          '<circle cx="9" cy="20" r="1"></circle>'+
+				          '<circle cx="18" cy="20" r="1"></circle>'+
+				          '<path d="M3 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L21 8H7"></path>'+
+				        '</svg>'+
+				      '</button>'+
+				      '<button class="row-delete-btn" data-id="'+ctx.id+'" aria-label="Delete item" title="Delete item"'+ctx.deleteBtnDisabled+'>'+
+				        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+				          '<polyline points="3 6 5 6 21 6"></polyline>'+
+				          '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>'+
+				        '</svg>'+
+				      '</button>'+
+				    '</div></td>'
+				  );
 				}
 				function buildRowHTML(it, visibleDefs){
 				  const rawId = String(it && it.id ? it.id : '');
@@ -11308,6 +11394,7 @@ function adjustTitleSize(){
 			  for(const def of defs){
 			    html += buildInventoryColumnCell(def, ctx);
 			  }
+			  html += buildInventoryActionsCell(ctx);
 			  return html;
 			}
 // Insert a row into the table in sorted position by name
@@ -11414,8 +11501,10 @@ function emptyStateHtml(){
 	  const hasRows = tb.querySelector('tr[data-id]') !== null;
 	  const existingEmpty = tb.querySelector('tr[data-empty="1"]');
 	  if(!hasRows && !existingEmpty){
+	    const visibleDefs = getInventoryVisibleColumnDefs();
+	    const colCount = (visibleDefs.length || 0) + 2;
 	    const tr=document.createElement('tr'); tr.setAttribute('data-empty','1');
-	    tr.innerHTML = '<td colspan="4" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
+	    tr.innerHTML = '<td colspan="'+colCount+'" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
 	    tb.appendChild(tr);
 	  } else if(hasRows && existingEmpty){
 	    existingEmpty.remove();
@@ -11484,7 +11573,7 @@ function emptyStateHtml(){
 		      setTotalsMetric('totalLowStock', 'lowStock', lowStock);
 		      if(items.length===0){
 	      const tr=document.createElement('tr');
-	      const colCount = (visibleDefs.length || 0) + 1;
+	      const colCount = (visibleDefs.length || 0) + 2;
 	      tr.innerHTML = '<td colspan="'+colCount+'" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
 	      tbody.appendChild(tr);
       return;
@@ -11510,7 +11599,7 @@ function emptyStateHtml(){
 	      if(!btn || !panel || !list) return;
 
 	      const open = ()=>{
-	        renderColumnBuilderList();
+	        getInventoryColumnConfig();
 	        panel.classList.add('open');
 	        panel.setAttribute('aria-hidden', 'false');
 	        btn.setAttribute('aria-expanded', 'true');
@@ -11541,27 +11630,133 @@ function emptyStateHtml(){
 	        resetBtn._wired = true;
 	        resetBtn.addEventListener('click', (e)=>{
 	          e.preventDefault();
-	          const defaults = defaultInventoryVisibleKeys();
-	          saveInventoryVisibleKeys(defaults);
-	          renderColumnBuilderList(defaults);
+	          saveInventoryColumnConfig({ order: defaultInventoryOrder(), visible: defaultInventoryVisibleKeys() });
+	          getInventoryColumnConfig();
 	          renderTable();
 	        });
 	      }
 	      if(!list._wired){
 	        list._wired = true;
+	        const dragState = list._dragState || { key:null, overEl:null };
+	        list._dragState = dragState;
+
+	        const clearDragStyles = ()=>{
+	          const over = list.querySelector('.column-option.drag-over');
+	          if(over) over.classList.remove('drag-over');
+	          const dragging = list.querySelector('.column-option.dragging');
+	          if(dragging) dragging.classList.remove('dragging');
+	          dragState.overEl = null;
+	        };
+	        const capturePositions = ()=>{
+	          const map = new Map();
+	          list.querySelectorAll('.column-option').forEach(el=>{
+	            map.set(el.dataset.colKey, el.getBoundingClientRect());
+	          });
+	          return map;
+	        };
+	        const animateReorder = (firstRects)=>{
+	          requestAnimationFrame(()=>{
+	            list.querySelectorAll('.column-option').forEach(el=>{
+	              const first = firstRects.get(el.dataset.colKey);
+	              if(!first) return;
+	              const last = el.getBoundingClientRect();
+	              const deltaY = first.top - last.top;
+	              if(Math.abs(deltaY) < 1) return;
+	              el.style.transform = `translateY(${deltaY}px)`;
+	              el.style.transition = 'transform 0s';
+	              requestAnimationFrame(()=>{
+	                el.style.transition = '';
+	                el.style.transform = '';
+	              });
+	            });
+	          });
+	        };
+
 	        list.addEventListener('change', (e)=>{
 	          const target = e.target;
 	          if(!target || !target.matches || !target.matches('input[type="checkbox"][data-col-key]')) return;
 	          const key = target.getAttribute('data-col-key');
 	          if(!key) return;
-	          const current = new Set(loadInventoryVisibleKeys());
-	          if(target.checked) current.add(key); else current.delete(key);
-	          current.add(INVENTORY_ANCHOR_KEY);
-	          const ordered = INVENTORY_COLUMN_DEFS.filter(def => current.has(def.key)).map(def => def.key);
-	          const next = normalizeInventoryVisibleKeys(ordered);
-	          saveInventoryVisibleKeys(next);
-	          renderColumnBuilderList(next);
+	          const config = loadInventoryColumnConfig();
+	          const visible = new Set(config.visible || []);
+	          if(target.checked) visible.add(key); else visible.delete(key);
+	          visible.add(INVENTORY_ANCHOR_KEY);
+	          const next = {
+	            order: config.order,
+	            visible: normalizeInventoryVisible(Array.from(visible), config.order)
+	          };
+	          saveInventoryColumnConfig(next);
+	          getInventoryColumnConfig();
 	          renderTable();
+	        });
+	        list.addEventListener('dragstart', (e)=>{
+	          const handle = e.target && e.target.closest ? e.target.closest('.drag-handle') : null;
+	          if(!handle || handle.classList.contains('disabled')) return;
+	          const key = handle.getAttribute('data-drag-key');
+	          if(!key) return;
+	          const def = INVENTORY_COLUMN_MAP.get(key);
+	          if(!def || !def.optional) return;
+	          dragState.key = key;
+	          const row = handle.closest('.column-option');
+	          if(row) row.classList.add('dragging');
+	          if(e.dataTransfer){
+	            e.dataTransfer.effectAllowed = 'move';
+	            try{ e.dataTransfer.setData('text/plain', key); }catch(err){}
+	          }
+	        });
+	        list.addEventListener('dragover', (e)=>{
+	          if(!dragState.key) return;
+	          const row = e.target && e.target.closest ? e.target.closest('.column-option') : null;
+	          if(!row) return;
+	          const targetKey = row.getAttribute('data-col-key');
+	          if(!targetKey || targetKey === dragState.key) return;
+	          e.preventDefault();
+	          if(dragState.overEl && dragState.overEl !== row) dragState.overEl.classList.remove('drag-over');
+	          dragState.overEl = row;
+	          row.classList.add('drag-over');
+	          if(e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+	        });
+	        list.addEventListener('dragleave', (e)=>{
+	          const row = e.target && e.target.closest ? e.target.closest('.column-option') : null;
+	          if(row && dragState.overEl === row){
+	            row.classList.remove('drag-over');
+	            dragState.overEl = null;
+	          }
+	        });
+	        list.addEventListener('drop', (e)=>{
+	          if(!dragState.key) return;
+	          const row = e.target && e.target.closest ? e.target.closest('.column-option') : null;
+	          if(!row) return;
+	          const targetKey = row.getAttribute('data-col-key');
+	          if(!targetKey || targetKey === dragState.key) return;
+	          e.preventDefault();
+	          const firstRects = capturePositions();
+	          const config = loadInventoryColumnConfig();
+	          const order = normalizeInventoryOrder(config.order);
+	          const fromIndex = order.indexOf(dragState.key);
+	          const toIndex = order.indexOf(targetKey);
+	          if(fromIndex === -1 || toIndex === -1){
+	            clearDragStyles();
+	            dragState.key = null;
+	            return;
+	          }
+	          const rect = row.getBoundingClientRect();
+	          const after = e.clientY > rect.top + rect.height / 2;
+	          let insertIndex = after ? toIndex + 1 : toIndex;
+	          order.splice(fromIndex, 1);
+	          if(insertIndex === 0) insertIndex = 1;
+	          if(fromIndex < insertIndex) insertIndex -= 1;
+	          order.splice(insertIndex, 0, dragState.key);
+	          saveInventoryColumnConfig({ order, visible: config.visible });
+	          getInventoryColumnConfig();
+	          renderTable();
+	          animateReorder(firstRects);
+	          clearDragStyles();
+	          dragState.key = null;
+	        });
+	        list.addEventListener('dragend', ()=>{
+	          clearDragStyles();
+	          dragState.key = null;
 	        });
 	      }
 
