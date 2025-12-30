@@ -354,6 +354,50 @@ describe('RPC: company locations', () => {
     expect(String(archived?.error || '')).toMatch(/referenced/i);
   });
 
+  it('allows updating and restoring archived locations', async () => {
+    const loc = await createLocation(adminAuth, companyId, {
+      ...baseLocationInput(`Archived ${uniqueSuffix}`),
+      locationType: 'yard'
+    });
+
+    const { data: archived, error: archiveError } = await adminAuth.rpc('archive_company_location', {
+      p_location_id: loc
+    });
+    expect(archiveError).toBeNull();
+    expect(archived?.success).toBe(true);
+
+    const updatedName = `Updated ${uniqueSuffix}`;
+    const payload = baseLocationInput(updatedName);
+    const { data: updated, error: updateError } = await adminAuth.rpc('update_company_location', {
+      p_location_id: loc,
+      p_name: payload.name,
+      p_location_type: payload.locationType,
+      p_address_line1: payload.addressLine1,
+      p_address_line2: payload.addressLine2,
+      p_city: payload.city,
+      p_state_region: payload.stateRegion,
+      p_postal_code: payload.postalCode,
+      p_country_code: payload.countryCode
+    });
+    expect(updateError).toBeNull();
+    expect(updated?.success).toBe(true);
+
+    const { data: restored, error: restoreError } = await adminAuth.rpc('restore_company_location', {
+      p_location_id: loc
+    });
+    expect(restoreError).toBeNull();
+    expect(restored?.success).toBe(true);
+
+    const { data: row, error: rowError } = await adminClient
+      .from('company_locations')
+      .select('name,is_active')
+      .eq('id', loc)
+      .single();
+    if (rowError) throw rowError;
+    expect(row?.name).toBe(updatedName);
+    expect(row?.is_active).toBe(true);
+  });
+
   it('rejects unauthorized callers', async () => {
     const payload = baseLocationInput(`Unauthorized ${uniqueSuffix}`);
     const { data, error } = await viewerAuth.rpc('create_company_location', {

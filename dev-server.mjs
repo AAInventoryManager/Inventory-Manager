@@ -306,6 +306,14 @@ async function main() {
         if (served) return;
       }
 
+      // SPA fallback for client-side routes (no file extension, not API).
+      if ((req.method === 'GET' || req.method === 'HEAD')
+        && !pathname.startsWith('/api/')
+        && path.extname(pathname) === '') {
+        const served = await serveStatic(req, res, '/index.html');
+        if (served) return;
+      }
+
       json(res, 404, { ok: false, error: 'Not found' });
     } catch (e) {
       json(res, 500, { ok: false, error: e?.message || 'Server error' });

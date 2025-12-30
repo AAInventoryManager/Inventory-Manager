@@ -10,18 +10,37 @@
   <link rel="icon" href="./assets/modulus/favicon/favicon.ico?v=2" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800&display=swap" rel="stylesheet">
   <title>Inventory Manager by Modulus Software, LLC</title>
 
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 
+  <!-- Google Places Autocomplete -->
+  <script data-google-places="true" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5LXJ43CBBfA5d-zAl03NBXwMVML2FMA8&libraries=places&callback=initGooglePlaces&v=weekly&loading=async" defer></script>
+
   <!-- Optional: set your Supabase URL and anon key here -->
   <script>
     // Supabase project credentials (safe to expose anon public key in client)
-    window.SB_URL  = window.SB_URL || "https://entmbaxeylglposptsuy.supabase.co";
-    window.SB_ANON = window.SB_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudG1iYXhleWxnbHBvc3B0c3V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MTQ2NjEsImV4cCI6MjA3MjQ5MDY2MX0.vDTzhL0Q-iDZShWu2hcaYOavPLltY31OThXj-ohBjAc";
+    const readLocalConfig = (key) => {
+      try{
+        return String(localStorage.getItem(key) || '').trim();
+      }catch(e){
+        return '';
+      }
+    };
+    const overrideUrl = readLocalConfig('inv.sb_url');
+    const overrideAnon = readLocalConfig('inv.sb_anon');
+    const isLocalHost = ['127.0.0.1','localhost'].includes(window.location.hostname);
+    const defaultUrl = isLocalHost
+      ? 'http://127.0.0.1:54321'
+      : 'https://entmbaxeylglposptsuy.supabase.co';
+    const defaultAnon = isLocalHost
+      ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
+      : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudG1iYXhleWxnbHBvc3B0c3V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MTQ2NjEsImV4cCI6MjA3MjQ5MDY2MX0.vDTzhL0Q-iDZShWu2hcaYOavPLltY31OThXj-ohBjAc';
+    window.SB_URL  = overrideUrl || window.SB_URL || defaultUrl;
+    window.SB_ANON = overrideAnon || window.SB_ANON || defaultAnon;
   </script>
 
   <script>
@@ -150,9 +169,19 @@
 	    #invTable thead th:last-child::after{ display:none; }
 	    /* Table header alignment + contrast */
     #invTable thead th[data-col="name"],
-    #invTable thead th[data-col="desc"]{
+    #invTable thead th[data-col="desc"],
+    #invTable thead th[data-col="sku"],
+    #invTable thead th[data-col="location"],
+    #invTable thead th[data-col="category"],
+    #invTable thead th[data-col="updatedAt"]{
       text-align:left;
     }
+    #invTable thead th.num,
+    #invTable tbody td.num{
+      text-align:center;
+      font-variant-numeric:tabular-nums;
+    }
+    #invTable tbody td[data-col="updatedAt"]{ font-size:12px; color:var(--muted); }
 	    #invTable tbody td[data-col="name"] .cell-val{ font-weight:900; }
 	    #invTable tbody td[data-col="desc"] .cell-val{ color:var(--muted); }
     th.sortable{ cursor:pointer; user-select:none }
@@ -758,6 +787,47 @@
 	    .inv-controls{ display:flex; align-items:center; justify-content:center; gap:10px; width:100%; flex-wrap:nowrap; }
 	    .input-wrap{ position:relative; width:100%; max-width:480px; }
 	    .sort-wrap{ display:none; }
+	    .columns-wrap{ position:relative; flex:0 0 auto; }
+	    .column-builder{
+	      position:absolute;
+	      right:0;
+	      top:calc(100% + 10px);
+	      min-width:240px;
+	      max-width:320px;
+	      background:#0d141d;
+	      border:1px solid var(--border);
+	      border-radius:12px;
+	      padding:12px;
+	      box-shadow:0 18px 40px rgba(0,0,0,0.4);
+	      z-index:140;
+	      display:none;
+	    }
+	    .column-builder.open{ display:block; }
+	    .column-builder-title{ font-weight:800; font-size:13px; letter-spacing:0.02em; }
+	    .column-builder-subtitle{ color:var(--muted); font-size:12px; margin-top:4px; }
+	    .column-builder-list{
+	      display:flex;
+	      flex-direction:column;
+	      gap:8px;
+	      margin-top:10px;
+	      max-height:280px;
+	      overflow:auto;
+	      padding-right:4px;
+	    }
+	    .column-option{
+	      display:flex;
+	      align-items:center;
+	      gap:8px;
+	      font-size:13px;
+	      color:#e2e8f0;
+	    }
+	    .column-option input{ width:16px; height:16px; }
+	    .column-builder-actions{
+	      display:flex;
+	      gap:8px;
+	      justify-content:flex-end;
+	      margin-top:12px;
+	    }
 	    .clear-input-btn{
 	      position:absolute;
 	      right:8px;
@@ -787,9 +857,11 @@
 	      background:#0d131b;color:#eaeff7;font-size:16px
 	    }
 	    @media (max-width: 768px){
-	      .inv-controls{ gap:8px; }
+	      .inv-controls{ gap:8px; flex-wrap:wrap; justify-content:space-between; }
 	      .inv-controls .input-wrap{ flex:1 1 auto; max-width:none; }
 	      .sort-wrap{ display:block; flex:0 0 auto; width:160px; }
+	      .columns-wrap{ flex:0 0 auto; }
+	      .column-builder{ left:0; right:auto; width:min(320px, 92vw); }
 	      #mobileSort{ padding:12px; border-radius:10px; }
 	    }
     td.editing{padding:6px}
@@ -2487,6 +2559,24 @@
     .shipping-address-default{display:flex;align-items:center;gap:12px}
     .company-locations-list{margin-top:12px}
     .company-locations-table{min-width:860px}
+    .company-location-name-row{display:flex;align-items:center;gap:8px;justify-content:space-between}
+    .company-location-name{font-weight:700;flex:1;min-width:0}
+    .company-location-edit-btn{
+      border:1px solid var(--border);
+      background:#0f1622;
+      color:var(--fg);
+      border-radius:8px;
+      width:32px;
+      height:32px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      cursor:pointer;
+    }
+    .company-location-edit-btn:hover{background:#141f2f}
+    .company-location-edit-btn:disabled{opacity:.55;cursor:not-allowed}
+    .company-location-edit-btn svg{width:16px;height:16px}
     .company-location-address{white-space:pre-line;color:var(--muted)}
     .company-location-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .company-location-status{
@@ -2522,6 +2612,40 @@
     .company-location-form .field{display:flex;flex-direction:column;gap:6px}
     .company-location-form .field.full{grid-column:1 / -1}
     .company-location-defaults{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
+
+    /* Google Places Autocomplete Styling */
+    .pac-container{background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.4);font-family:inherit;z-index:10001;margin-top:4px}
+    .pac-item{padding:10px 14px;color:var(--fg);cursor:pointer;border-top:1px solid var(--border);font-size:13px}
+    .pac-item:first-child{border-top:none}
+    .pac-item:hover,.pac-item-selected{background:var(--border)}
+    .pac-icon{display:none}
+    .pac-item-query{color:var(--accent);font-weight:600}
+    .pac-matched{font-weight:700}
+    gmp-place-autocomplete{display:block}
+    gmp-place-autocomplete input{
+      width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);
+      background:#0d131b;color:#fff;font-size:16px
+    }
+    gmp-place-autocomplete::part(prediction-list){
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:8px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.4);
+      margin-top:4px
+    }
+    gmp-place-autocomplete::part(prediction-item){
+      padding:10px 14px;
+      color:var(--fg);
+      cursor:pointer;
+      border-top:1px solid var(--border);
+      font-size:13px
+    }
+    gmp-place-autocomplete::part(prediction-item):first-child{border-top:none}
+    gmp-place-autocomplete::part(prediction-item-selected){background:var(--border)}
+    gmp-place-autocomplete::part(prediction-item-icon){display:none}
+    gmp-place-autocomplete::part(prediction-item-main-text){color:var(--accent);font-weight:600}
+    gmp-place-autocomplete::part(prediction-item-match){font-weight:700}
+
     .user-mgmt-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .user-mgmt-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
     .user-mgmt-card{
@@ -2641,6 +2765,315 @@
       color:var(--muted);
     }
     .menu-icon-svg{flex-shrink:0}
+
+    /* ========== Modernized Onboarding Wizard Theme ========== */
+    :root {
+      --wiz-bg: #09090b;
+      --wiz-bg-elevated: #18181b;
+      --wiz-accent: #00e5ff;
+      --wiz-secondary: #a855f7;
+      --wiz-text: #fafafa;
+      --wiz-muted: #71717a;
+      --wiz-border: #27272a;
+      --wiz-gradient: linear-gradient(135deg, #00e5ff 0%, #a855f7 100%);
+    }
+
+    body.onboarding-route {
+      background: var(--wiz-bg);
+      min-height: 100vh;
+    }
+    body.onboarding-route::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse at center, rgba(0,229,255,0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body.onboarding-route #appMain{display:none}
+    body.onboarding-route .site-footer{display:none}
+    body.onboarding-route header{display:none}
+
+    .onboarding-view{
+      display:none;
+      max-width:720px;
+      margin:0 auto;
+      padding:40px 20px;
+      position:relative;
+      z-index:1;
+      font-family:'Outfit',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    }
+    .onboarding-view.active{display:block;animation:wizFadeIn 0.4s ease}
+
+    @keyframes wizFadeIn {
+      from{opacity:0;transform:translateY(12px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .onboarding-card{
+      background: var(--wiz-bg-elevated);
+      border-radius:20px;
+      padding:32px;
+      position:relative;
+      border:1px solid transparent;
+      background-clip:padding-box;
+    }
+    .onboarding-card::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      border-radius:20px;
+      padding:1px;
+      background:var(--wiz-gradient);
+      -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite:xor;
+      mask-composite:exclude;
+      pointer-events:none;
+    }
+
+    .onboarding-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:24px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    .onboarding-eyebrow{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:var(--wiz-accent);
+      font-weight:600;
+    }
+    .onboarding-title{
+      margin:8px 0 4px;
+      font-size:28px;
+      font-weight:700;
+      color:var(--wiz-text);
+      letter-spacing:-0.02em;
+    }
+    .onboarding-plan{
+      font-size:13px;
+      color:var(--wiz-muted);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .onboarding-plan::before {
+      content:'';
+      display:inline-block;
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:var(--wiz-secondary);
+    }
+
+    .onboarding-progress{min-width:220px;flex:1}
+    .onboarding-progress-bar{
+      height:8px;
+      border-radius:999px;
+      background:var(--wiz-border);
+      overflow:hidden;
+      box-shadow:inset 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .onboarding-progress-fill{
+      height:100%;
+      width:0;
+      background:var(--wiz-gradient);
+      transition:width 0.4s cubic-bezier(0.4,0,0.2,1);
+      box-shadow:0 0 12px rgba(0,229,255,0.5);
+    }
+    .onboarding-progress-steps{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .onboarding-progress-step{
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.1em;
+      font-weight:600;
+      color:var(--wiz-muted);
+      border:1px solid var(--wiz-border);
+      border-radius:999px;
+      padding:6px 12px;
+      transition:all 0.2s ease;
+    }
+    .onboarding-progress-step.active{
+      color:var(--wiz-accent);
+      border-color:var(--wiz-accent);
+      background:rgba(0,229,255,0.1);
+      box-shadow:0 0 8px rgba(0,229,255,0.3);
+    }
+    .onboarding-progress-step.complete{
+      color:#34d399;
+      border-color:#34d399;
+      background:rgba(52,211,153,0.1);
+    }
+
+    .onboarding-step{display:none;margin-top:24px}
+    .onboarding-step.active{display:block;animation:wizFadeIn 0.3s ease}
+
+    .onboarding-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:16px;
+      margin-top:16px;
+    }
+
+    /* Form styling for onboarding */
+    #onboardingMain label{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:var(--wiz-muted);
+      font-weight:600;
+      margin-bottom:6px;
+      display:block;
+    }
+    #onboardingMain input,
+    #onboardingMain select,
+    #onboardingMain textarea{
+      width:100%;
+      padding:12px 14px;
+      background:var(--wiz-bg);
+      border:1px solid var(--wiz-border);
+      border-radius:10px;
+      color:var(--wiz-text);
+      font-size:15px;
+      font-family:inherit;
+      transition:border-color 0.2s, box-shadow 0.2s;
+    }
+    #onboardingMain input:focus,
+    #onboardingMain select:focus,
+    #onboardingMain textarea:focus{
+      outline:none;
+      border-color:var(--wiz-accent);
+      box-shadow:0 0 0 3px rgba(0,229,255,0.15);
+    }
+    #onboardingMain input::placeholder{color:var(--wiz-muted)}
+
+    .onboarding-actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      margin-top:24px;
+    }
+    .onboarding-inline-actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+    .onboarding-locations-summary{
+      margin-top:14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .onboarding-location-card{
+      border:1px solid var(--wiz-border);
+      background:var(--wiz-bg);
+      border-radius:12px;
+      padding:12px;
+    }
+    .onboarding-location-name{font-weight:700;color:var(--wiz-text)}
+    .onboarding-location-address{
+      margin-top:6px;
+      color:var(--wiz-muted);
+      font-size:12px;
+      line-height:1.4;
+    }
+    .onboarding-location-meta{
+      margin-top:6px;
+      color:var(--wiz-muted);
+      font-size:12px;
+    }
+
+    /* Modernized buttons for onboarding */
+    #onboardingMain .btn{
+      padding:12px 24px;
+      border-radius:999px;
+      font-weight:600;
+      font-size:14px;
+      letter-spacing:.02em;
+      transition:all 0.2s ease;
+      font-family:inherit;
+    }
+    #onboardingMain .btn.primary{
+      background:var(--wiz-gradient);
+      border:none;
+      color:#000;
+      box-shadow:0 4px 14px rgba(0,229,255,0.3);
+    }
+    #onboardingMain .btn.primary:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 20px rgba(0,229,255,0.4);
+    }
+    #onboardingMain .btn.primary:active{
+      transform:translateY(0);
+    }
+    #onboardingMain .btn:not(.primary){
+      background:transparent;
+      border:1px solid var(--wiz-border);
+      color:var(--wiz-text);
+    }
+    #onboardingMain .btn:not(.primary):hover{
+      border-color:var(--wiz-muted);
+      background:rgba(255,255,255,0.03);
+    }
+
+    .onboarding-message{
+      font-size:13px;
+      color:var(--wiz-muted);
+      margin-top:8px;
+    }
+
+    .onboarding-gate{
+      border:1px dashed var(--wiz-border);
+      border-radius:16px;
+      padding:20px;
+      margin-top:20px;
+      background:rgba(0,0,0,0.2);
+    }
+    .onboarding-gate-title{
+      font-weight:700;
+      margin-bottom:8px;
+      color:var(--wiz-text);
+    }
+    .onboarding-note{
+      font-size:13px;
+      color:var(--wiz-muted);
+      margin-top:8px;
+    }
+
+    /* Wizard brand logo */
+    .onboarding-brand{
+      text-align:center;
+      margin-bottom:32px;
+    }
+    .onboarding-brand-logo{
+      font-family:'Outfit',sans-serif;
+      font-size:32px;
+      font-weight:800;
+      letter-spacing:-0.03em;
+      background:var(--wiz-gradient);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    .onboarding-brand-tagline{
+      font-size:13px;
+      color:var(--wiz-muted);
+      margin-top:4px;
+    }
 </style>
 </head>
 <body>
@@ -2794,7 +3227,158 @@
     </div>
   </header>
 
-  <main>
+  <main id="onboardingMain" class="onboarding-view" aria-live="polite">
+    <div class="onboarding-brand">
+      <div class="onboarding-brand-logo">modulus</div>
+      <div class="onboarding-brand-tagline">Inventory Manager</div>
+    </div>
+    <section class="card onboarding-card">
+      <div class="onboarding-header">
+        <div>
+          <div class="onboarding-eyebrow" id="onboardingEyebrow">Company Onboarding</div>
+          <div class="onboarding-title" id="onboardingTitle">Set up your workspace</div>
+          <div class="onboarding-plan" id="onboardingPlanSummary" style="display:none;"></div>
+          <div class="onboarding-note" id="onboardingNote">You can complete setup later.</div>
+        </div>
+        <div class="onboarding-progress" aria-label="Onboarding progress">
+          <div class="onboarding-progress-bar">
+            <div class="onboarding-progress-fill" id="onboardingProgressFill"></div>
+          </div>
+          <div class="onboarding-progress-steps" id="onboardingProgressSteps">
+            <div class="onboarding-progress-step" data-onboarding-progress="1">Company Profile</div>
+            <div class="onboarding-progress-step" data-onboarding-progress="2">Locations</div>
+            <div class="onboarding-progress-step" data-onboarding-progress="3">Invite Users</div>
+            <div class="onboarding-progress-step" data-onboarding-progress="4">Finish</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="onboardingGate" class="onboarding-gate" style="display:none;">
+        <div class="onboarding-gate-title" id="onboardingGateTitle"></div>
+        <div class="muted" id="onboardingGateMessage"></div>
+        <div class="onboarding-actions">
+          <button class="btn primary" id="onboardingGatePrimary" type="button">Continue</button>
+          <button class="btn" id="onboardingGateSecondary" type="button" style="display:none;">Continue</button>
+        </div>
+      </div>
+
+      <div id="onboardingWizard">
+        <!-- Step 0: Create Account (for new signups) -->
+        <div class="onboarding-step" id="onboardingStepAccount" data-onboarding-step="account">
+          <h2 style="margin:0;font-size:16px;">Create Your Account</h2>
+          <div class="muted" style="margin-top:6px;">Get started with your free account.</div>
+          <form id="onboardingAccountForm">
+            <div class="onboarding-grid">
+              <div>
+                <label class="muted" for="signupEmail">Email address</label>
+                <input id="signupEmail" type="email" placeholder="you@company.com" autocomplete="email" inputmode="email" required />
+              </div>
+              <div>
+                <label class="muted" for="signupPassword">Password</label>
+                <input id="signupPassword" type="password" placeholder="At least 8 characters" autocomplete="new-password" required />
+              </div>
+              <div>
+                <label class="muted" for="signupPasswordConfirm">Confirm password</label>
+                <input id="signupPasswordConfirm" type="password" placeholder="Confirm password" autocomplete="new-password" required />
+              </div>
+            </div>
+            <div class="onboarding-terms" style="margin-top:12px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--wiz-muted);">
+                <input type="checkbox" id="signupTerms" required style="width:auto;" />
+                I agree to the <a href="/terms" target="_blank" style="color:var(--wiz-accent);">Terms of Service</a>
+              </label>
+            </div>
+            <div class="onboarding-actions">
+              <div id="signupAccountMsg" class="onboarding-message" style="margin-right:auto;"></div>
+              <button class="btn" id="btnSignupHaveAccount" type="button">Already have an account?</button>
+              <button class="btn primary" id="btnSignupSubmit" type="submit">Create Account</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Step 1: Name Your Company (for new signups) -->
+        <div class="onboarding-step" id="onboardingStepCompany" data-onboarding-step="company">
+          <h2 style="margin:0;font-size:16px;">Name Your Company</h2>
+          <div class="muted" style="margin-top:6px;">This will be your workspace in the Inventory Manager.</div>
+          <form id="onboardingCompanyForm">
+            <div class="onboarding-grid">
+              <div style="grid-column: 1 / -1;">
+                <label class="muted" for="signupCompanyName">Company name</label>
+                <input id="signupCompanyName" type="text" placeholder="Acme Corporation" autocomplete="organization" required />
+              </div>
+            </div>
+            <div class="onboarding-actions">
+              <div id="signupCompanyMsg" class="onboarding-message" style="margin-right:auto;"></div>
+              <button class="btn primary" id="btnCompanySubmit" type="submit">Continue</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="onboarding-step" id="onboardingStepProfile" data-onboarding-step="profile">
+          <h2 style="margin:0;font-size:16px;">Company Profile</h2>
+          <div class="muted" style="margin-top:6px;">Tell us the basics so we can personalize your setup.</div>
+          <form id="onboardingProfileForm">
+            <div class="onboarding-grid">
+              <div>
+                <label class="muted" for="onboardingCompanyName">Company name</label>
+                <input id="onboardingCompanyName" type="text" placeholder="Acme Co." autocomplete="organization" />
+              </div>
+              <div>
+                <label class="muted" for="onboardingContactEmail">Primary contact email</label>
+                <input id="onboardingContactEmail" type="email" placeholder="ops@acme.co" autocomplete="email" inputmode="email" />
+              </div>
+              <div>
+                <label class="muted" for="onboardingTimezone">Timezone</label>
+                <select id="onboardingTimezone">
+                  <option value="">Select timezone...</option>
+                </select>
+              </div>
+            </div>
+            <div class="onboarding-actions">
+              <div id="onboardingProfileMsg" class="onboarding-message" style="margin-right:auto;"></div>
+              <button class="btn primary" id="btnOnboardingProfileSave" type="submit">Continue</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="onboarding-step" id="onboardingStepLocations" data-onboarding-step="locations">
+          <h2 style="margin:0;font-size:16px;">Locations</h2>
+          <div class="muted" style="margin-top:6px;">Add at least one active location to receive inventory.</div>
+          <div class="onboarding-inline-actions">
+            <button class="btn" id="btnOnboardingManageLocations" type="button">Manage Locations</button>
+            <button class="btn primary" id="btnOnboardingLocationsContinue" type="button">Continue</button>
+          </div>
+          <div id="onboardingLocationsStatus" class="onboarding-message"></div>
+          <div id="onboardingLocationsSummary" class="onboarding-locations-summary"></div>
+          <div id="onboardingLocationsMsg" class="onboarding-message"></div>
+        </div>
+
+        <div class="onboarding-step" id="onboardingStepInvites" data-onboarding-step="invites">
+          <h2 style="margin:0;font-size:16px;">Invite Users</h2>
+          <div class="muted" style="margin-top:6px;">Invite teammates now, or skip and return later.</div>
+          <div class="onboarding-inline-actions">
+            <button class="btn" id="btnOnboardingInviteOpen" type="button">Send Invite</button>
+            <button class="btn" id="btnOnboardingInvitesRefresh" type="button">Refresh Invites</button>
+            <button class="btn" id="btnOnboardingInvitesSkip" type="button">Skip for now</button>
+            <button class="btn primary" id="btnOnboardingInvitesContinue" type="button">Continue</button>
+          </div>
+          <div id="onboardingInvitesMsg" class="onboarding-message"></div>
+          <div id="onboardingPendingInvitesSlot"></div>
+        </div>
+
+        <div class="onboarding-step" id="onboardingStepFinish" data-onboarding-step="finish">
+          <h2 style="margin:0;font-size:16px;">Finish</h2>
+          <div class="muted" style="margin-top:6px;">Your company is ready. You can adjust settings anytime.</div>
+          <div class="onboarding-inline-actions">
+            <button class="btn primary" id="btnOnboardingFinish" type="button">Go to Dashboard</button>
+          </div>
+          <div id="onboardingFinishMsg" class="onboarding-message"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <main id="appMain">
     <section class="card">
 	      <div class="toolbar" role="toolbar" aria-label="Inventory actions" style="justify-content:center;">
 	        <input type="file" id="fileImport" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.docx,.doc,.pdf" style="display:none" />
@@ -2820,6 +3404,18 @@
 	              <option value="updatedAt:asc">Last Modified (Oldest)</option>
 	            </select>
 	          </div>
+	          <div class="columns-wrap">
+	            <button class="btn" id="btnColumnBuilder" type="button" aria-haspopup="dialog" aria-expanded="false">Columns</button>
+	            <div class="column-builder" id="columnBuilder" role="dialog" aria-label="Column chooser" aria-hidden="true">
+	              <div class="column-builder-title">Columns</div>
+	              <div class="column-builder-subtitle">Choose which columns are visible</div>
+	              <div class="column-builder-list" id="columnBuilderList"></div>
+	              <div class="column-builder-actions">
+	                <button class="btn small" id="btnColumnsReset" type="button">Reset to defaults</button>
+	                <button class="btn" id="btnColumnsClose" type="button">Close</button>
+	              </div>
+	            </div>
+	          </div>
 	        </div>
 	      </div>
 
@@ -2840,25 +3436,11 @@
 
 	      <div class="scroll" id="tableWrap">
 	        <table id="invTable" role="grid" aria-label="Inventory table">
-		          <colgroup>
-		            <col style="width:42px">
-		            <col id="col-name">
-		            <col id="col-desc">
-		            <col id="col-qty" style="width:130px">
-		            <col id="col-actions" style="width:96px">
-		          </colgroup>
-          <thead>
-            <tr>
-              <th class="sel"><input type="checkbox" id="chkAll" aria-label="Select all"></th>
-              <th scope="col" class="sortable" data-col="name" aria-sort="ascending">Item <span class="sort-ind"></span></th>
-              <th scope="col" class="sortable" data-col="desc">Description <span class="sort-ind"></span></th>
-              <th scope="col" class="qty sortable" data-col="qty">Qty <span class="sort-ind"></span></th>
-              <th scope="col" class="actions"></th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+	          <colgroup id="invTableColgroup"></colgroup>
+	          <thead id="invTableHead"></thead>
+	          <tbody></tbody>
+	        </table>
+	      </div>
       <div class="muted" style="margin-top:8px">
         <span id="editHint">Tap any cell to edit inline; <kbd>Enter</kbd> saves, <kbd>Esc</kbd> cancels.</span>
       </div>
@@ -3191,7 +3773,7 @@
         </div>
         <div class="field full">
           <label class="muted" for="companyLocationAddress1">Address Line 1</label>
-          <input id="companyLocationAddress1" type="text" placeholder="123 Main St" />
+          <input id="companyLocationAddress1" type="text" placeholder="123 Main St" autocomplete="off" />
         </div>
         <div class="field full">
           <label class="muted" for="companyLocationAddress2">Address Line 2</label>
@@ -3563,14 +4145,16 @@
         </div>
       </div>
       <div id="userMgmtList" class="user-mgmt-list" aria-live="polite"></div>
-      <div id="pendingInvitesSection" class="pending-invites-section">
-        <div class="section-divider"></div>
-        <div class="pending-invites-header">
-          <h3>Pending Invites</h3>
-          <button class="btn small" id="btnPendingInvitesRefresh" type="button">Refresh Invites</button>
+      <div id="pendingInvitesMount">
+        <div id="pendingInvitesSection" class="pending-invites-section">
+          <div class="section-divider"></div>
+          <div class="pending-invites-header">
+            <h3>Pending Invites</h3>
+            <button class="btn small" id="btnPendingInvitesRefresh" type="button">Refresh Invites</button>
+          </div>
+          <div id="pendingInvitesList" class="pending-invites-list" aria-live="polite"></div>
+          <div id="pendingInvitesMsg" class="muted" style="margin-top:8px;"></div>
         </div>
-        <div id="pendingInvitesList" class="pending-invites-list" aria-live="polite"></div>
-        <div id="pendingInvitesMsg" class="muted" style="margin-top:8px;"></div>
       </div>
       <div id="userMgmtMsg" class="muted" style="margin-top:8px;"></div>
     </div>
@@ -4159,7 +4743,17 @@
       _defaultCompanyId:null,
       _diagRole:'',
       _diagTier:'',
-      _diagPermissions:null
+      _diagPermissions:null,
+      _onboardingState:null,
+      _onboardingStep:null,
+      _onboardingLoading:false,
+      _onboardingPlan:null,
+      _onboardingSource:null,
+      _onboardingError:'',
+      _signupError:'',
+      _onboardingAllowSuper:false,
+      _onboardingGatePrimary:null,
+      _onboardingGateSecondary:null
     };
     const APP_VERSION = '2.0.0';
 
@@ -4183,6 +4777,62 @@
       if(Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
       const fixed = n.toFixed(2);
       return fixed.replace(/\.00$/, '').replace(/(\.\d)0$/, '$1');
+    }
+    const INVENTORY_COLUMNS_KEY = 'tableColumns:inventory_list';
+    const INVENTORY_ANCHOR_KEY = 'item';
+    const INVENTORY_ACTIONS_KEY = 'actions';
+    const INVENTORY_COLUMN_DEFS = [
+      { key:'item', label:'Item', lock:true, defaultVisible:true, dataCol:'name', sortable:true, align:'left' },
+      { key:'sku', label:'SKU', lock:false, defaultVisible:true, dataCol:'sku', sortable:true, align:'left', colWidth:'140px' },
+      { key:'on_hand', label:'On Hand', lock:false, defaultVisible:true, dataCol:'qty', sortable:true, align:'center', thClass:'qty', colWidth:'130px' },
+      { key:'available', label:'Available', lock:false, defaultVisible:true, dataCol:'available', sortable:false, align:'center', colWidth:'120px' },
+      { key:'reorder_point', label:'Reorder Point', lock:false, defaultVisible:true, dataCol:'reorderPoint', sortable:false, align:'center', colWidth:'140px' },
+      { key:'actions', label:'Actions', lock:false, defaultVisible:true, dataCol:'actions', sortable:false, align:'right', thClass:'actions', colWidth:'96px' },
+      { key:'description', label:'Description', lock:false, defaultVisible:false, dataCol:'desc', sortable:true, align:'left', colId:'col-desc' },
+      { key:'reserved', label:'Reserved', lock:false, defaultVisible:false, dataCol:'reserved', sortable:false, align:'center', colWidth:'120px' },
+      { key:'reorder_qty', label:'Reorder Qty', lock:false, defaultVisible:false, dataCol:'reorderQty', sortable:false, align:'center', colWidth:'120px' },
+      { key:'location', label:'Location', lock:false, defaultVisible:false, dataCol:'location', sortable:false, align:'left', colWidth:'160px' },
+      { key:'category', label:'Category', lock:false, defaultVisible:false, dataCol:'category', sortable:false, align:'left', colWidth:'160px' },
+      { key:'last_updated', label:'Last Updated', lock:false, defaultVisible:false, dataCol:'updatedAt', sortable:true, align:'left', colWidth:'170px' }
+    ];
+    const INVENTORY_COLUMN_MAP = new Map(INVENTORY_COLUMN_DEFS.map(def => [def.key, def]));
+    let _inventoryVisibleSig = '';
+    let _inventoryVisibleKeys = null;
+
+    function defaultInventoryVisibleKeys(){
+      const keys = INVENTORY_COLUMN_DEFS.filter(def => def.defaultVisible).map(def => def.key);
+      return normalizeInventoryVisibleKeys(keys);
+    }
+    function normalizeInventoryVisibleKeys(keys){
+      const valid = new Set(INVENTORY_COLUMN_DEFS.map(def => def.key));
+      const raw = Array.isArray(keys) ? keys : [];
+      const seen = new Set();
+      const ordered = [];
+      for(const key of raw){
+        if(!valid.has(key) || seen.has(key) || key === INVENTORY_ACTIONS_KEY) continue;
+        seen.add(key);
+        ordered.push(key);
+      }
+      if(!ordered.includes(INVENTORY_ANCHOR_KEY)) ordered.unshift(INVENTORY_ANCHOR_KEY);
+      if(raw.includes(INVENTORY_ACTIONS_KEY)) ordered.push(INVENTORY_ACTIONS_KEY);
+      return ordered;
+    }
+    function loadInventoryVisibleKeys(){
+      const raw = localStorage.getItem(INVENTORY_COLUMNS_KEY);
+      if(!raw) return defaultInventoryVisibleKeys();
+      try{
+        const parsed = JSON.parse(raw);
+        if(!parsed || !Array.isArray(parsed.visible)) return defaultInventoryVisibleKeys();
+        return normalizeInventoryVisibleKeys(parsed.visible);
+      }catch(e){
+        return defaultInventoryVisibleKeys();
+      }
+    }
+    function saveInventoryVisibleKeys(keys){
+      const visible = normalizeInventoryVisibleKeys(keys);
+      localStorage.setItem(INVENTORY_COLUMNS_KEY, JSON.stringify({ visible }));
+      _inventoryVisibleSig = '';
+      _inventoryVisibleKeys = null;
     }
     if (!IMUtils.toKey) IMUtils.toKey = toKey;
     if (!IMUtils.toInt) IMUtils.toInt = toInt;
@@ -4235,6 +4885,557 @@
     const COMPANY_STORAGE_PREFIX = 'inv.company.v1';
     let _inviteCompanyId = '';
     let _userMgmtCompanyId = '';
+    let _onboardingCompanyId = '';
+    let _signupMode = false;      // True when in self-service signup flow
+    let _signupPlan = '';         // Plan from URL parameter (starter, professional, business)
+
+    // ========================
+    // Self-Service Signup Flow
+    // ========================
+    function isSignupMode() {
+      return _signupMode && isOnboardingRoute();
+    }
+
+    function setSignupMessage(msg, isError = false) {
+      const el = $('signupAccountMsg');
+      if (!el) return;
+      el.textContent = String(msg || '');
+      el.style.color = isError ? '#f87171' : 'var(--wiz-muted)';
+    }
+
+    function setCompanyMessage(msg, isError = false) {
+      const el = $('signupCompanyMsg');
+      if (!el) return;
+      el.textContent = String(msg || '');
+      el.style.color = isError ? '#f87171' : 'var(--wiz-muted)';
+    }
+
+    async function handleSignupSubmit(e) {
+      if (e) e.preventDefault();
+      const email = String($('signupEmail')?.value || '').trim();
+      const password = String($('signupPassword')?.value || '');
+      const confirm = String($('signupPasswordConfirm')?.value || '');
+      const terms = $('signupTerms')?.checked;
+
+      setSignupMessage('');
+
+      // Validation
+      if (!email) {
+        setSignupMessage('Email address is required.', true);
+        return;
+      }
+      if (!email.includes('@') || !email.includes('.')) {
+        setSignupMessage('Please enter a valid email address.', true);
+        return;
+      }
+      if (!password) {
+        setSignupMessage('Password is required.', true);
+        return;
+      }
+      if (password.length < 8) {
+        setSignupMessage('Password must be at least 8 characters.', true);
+        return;
+      }
+      if (password !== confirm) {
+        setSignupMessage('Passwords do not match.', true);
+        return;
+      }
+      if (!terms) {
+        setSignupMessage('Please accept the Terms of Service.', true);
+        return;
+      }
+
+      const btn = $('btnSignupSubmit');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Creating account...';
+      }
+
+      try {
+        const { data, error } = await SB.client.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { signup_plan: _signupPlan || 'starter' }
+          }
+        });
+
+        if (error) throw error;
+
+        if (data?.user) {
+          // Refresh session
+          const { data: sessionData } = await SB.client.auth.getSession();
+          if (sessionData?.session) {
+            SB.session = sessionData.session;
+            SB.user = sessionData.session.user;
+          }
+          // Move to company creation step
+          renderOnboardingStep('company');
+          renderSignupProgress(2); // Step 2 of 6
+        } else {
+          setSignupMessage('Check your email to confirm your account.', false);
+        }
+      } catch (err) {
+        console.error('Signup error:', err);
+        const msg = err?.message || 'Signup failed. Please try again.';
+        setSignupMessage(msg, true);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Create Account';
+        }
+      }
+    }
+
+    async function handleCompanyCreate(e) {
+      if (e) e.preventDefault();
+      const name = String($('signupCompanyName')?.value || '').trim();
+
+      setCompanyMessage('');
+
+      if (!name) {
+        setCompanyMessage('Company name is required.', true);
+        return;
+      }
+      if (name.length < 2) {
+        setCompanyMessage('Company name must be at least 2 characters.', true);
+        return;
+      }
+
+      const btn = $('btnCompanySubmit');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Creating company...';
+      }
+
+      try {
+        // Generate slug from name
+        const slug = name.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
+
+        const { data, error } = await SB.client.rpc('create_company_for_signup', {
+          p_name: name,
+          p_slug: slug,
+          p_plan: _signupPlan || 'starter'
+        });
+
+        if (error) throw error;
+
+        if (data?.success) {
+          // Update SB state
+          SB.companyId = data.company_id;
+          SB.company = {
+            id: data.company_id,
+            name: data.company_name,
+            slug: data.company_slug
+          };
+          SB.companyTier = data.tier;
+          _onboardingCompanyId = data.company_id;
+
+          // Refresh companies list
+          await sbLoadCompanies();
+
+          // Exit signup mode and continue normal onboarding
+          _signupMode = false;
+
+          // Fetch onboarding state and continue
+          state._onboardingState = await fetchOnboardingState();
+          const stepIndex = getOnboardingStepFromState(state._onboardingState);
+          const stepId = stepIndex === 1 ? 'profile' : stepIndex === 2 ? 'locations' : stepIndex === 3 ? 'invites' : 'finish';
+          state._onboardingStep = stepId;
+
+          // Render normal 4-step progress
+          renderOnboardingProgress(stepIndex);
+          renderOnboardingStep(stepId);
+
+          // Pre-fill profile with signup email
+          if (stepId === 'profile') {
+            const profile = await loadOnboardingCompanyProfile();
+            applyOnboardingProfileToForm(profile);
+            // Also set contact email to signup email if empty
+            const contactEmail = $('onboardingContactEmail');
+            if (contactEmail && !contactEmail.value && SB.user?.email) {
+              contactEmail.value = SB.user.email;
+            }
+          }
+        } else {
+          throw new Error(data?.error || 'Company creation failed');
+        }
+      } catch (err) {
+        console.error('Company creation error:', err);
+        const msg = err?.message || 'Failed to create company. Please try again.';
+        if(/company_members_user_id_fkey|auth\\.users/i.test(msg) || /foreign key constraint/i.test(msg)){
+          state._signupError = 'Your local database was reset. Please create your account again.';
+          await sbSignOut();
+          return;
+        }
+        setCompanyMessage(msg, true);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Continue';
+        }
+      }
+    }
+
+    function renderSignupProgress(step) {
+      // For signup flow, we show 6 steps
+      const steps = [
+        { num: 1, label: 'Account' },
+        { num: 2, label: 'Company' },
+        { num: 3, label: 'Profile' },
+        { num: 4, label: 'Locations' },
+        { num: 5, label: 'Team' },
+        { num: 6, label: 'Finish' }
+      ];
+
+      const container = $('onboardingProgressSteps');
+      if (!container) return;
+
+      container.innerHTML = steps.map(s => {
+        const isComplete = step > s.num;
+        const isActive = step === s.num;
+        const cls = isComplete ? 'complete' : isActive ? 'active' : '';
+        return `<div class="onboarding-progress-step ${cls}" data-onboarding-progress="${s.num}">${s.label}</div>`;
+      }).join('');
+
+      const fill = $('onboardingProgressFill');
+      if (fill) {
+        const percent = Math.round(((step - 1) / (steps.length - 1)) * 100);
+        fill.style.width = `${percent}%`;
+      }
+
+      // Update header text for signup flow
+      const eyebrow = $('onboardingEyebrow');
+      const title = $('onboardingTitle');
+      const note = $('onboardingNote');
+
+      if (step === 1) {
+        if (eyebrow) eyebrow.textContent = 'Get Started';
+        if (title) title.textContent = 'Create your account';
+        if (note) note.textContent = _signupPlan ? `Selected plan: ${_signupPlan.charAt(0).toUpperCase() + _signupPlan.slice(1)}` : '';
+      } else if (step === 2) {
+        if (eyebrow) eyebrow.textContent = 'Almost there';
+        if (title) title.textContent = 'Name your company';
+        if (note) note.textContent = 'This will be your workspace name.';
+      } else {
+        // Reset to default for profile+ steps
+        if (eyebrow) eyebrow.textContent = 'Company Onboarding';
+        if (title) title.textContent = 'Set up your workspace';
+        if (note) note.textContent = 'You can complete setup later.';
+      }
+    }
+
+    function showSignInFromSignup() {
+      // User clicked "Already have an account?" - show sign in modal
+      show('authModal', true);
+    }
+
+    // ========================
+    // Google Places Autocomplete (PlaceAutocompleteElement)
+    // ========================
+    let _googlePlacesReady = false;
+    let _placesLibraryPromise = null;
+    const _autocompleteInstances = new Map();
+
+    function hasPlaceAutocomplete(){
+      return !!(window.google && google.maps && google.maps.places && google.maps.places.PlaceAutocompleteElement);
+    }
+
+    function safePlaceField(place, key){
+      if(!place) return undefined;
+      try{
+        return place[key];
+      }catch(e){
+        return undefined;
+      }
+    }
+
+    async function loadPlacesLibrary(){
+      if(_placesLibraryPromise) return _placesLibraryPromise;
+      if(window.google && google.maps && typeof google.maps.importLibrary === 'function'){
+        _placesLibraryPromise = google.maps.importLibrary('places').catch(()=>null);
+      }else{
+        _placesLibraryPromise = Promise.resolve(null);
+      }
+      return _placesLibraryPromise;
+    }
+
+    async function initGooglePlaces() {
+      await loadPlacesLibrary();
+      _googlePlacesReady = hasPlaceAutocomplete();
+      initAllAddressAutocomplete();
+    }
+    window.initGooglePlaces = initGooglePlaces;
+
+    function ensureGooglePlacesLoaded(retries = 10){
+      if(_googlePlacesReady && hasPlaceAutocomplete()){
+        return Promise.resolve(true);
+      }
+      if(hasPlaceAutocomplete()){
+        _googlePlacesReady = true;
+        initAllAddressAutocomplete();
+        return Promise.resolve(true);
+      }
+      return new Promise((resolve)=>{
+        let remaining = Math.max(0, retries);
+        const timer = setInterval(()=>{
+          if(hasPlaceAutocomplete()){
+            clearInterval(timer);
+            _googlePlacesReady = true;
+            initAllAddressAutocomplete();
+            resolve(true);
+            return;
+          }
+          if(window.google && google.maps && typeof google.maps.importLibrary === 'function'){
+            void loadPlacesLibrary();
+          }
+          remaining -= 1;
+          if(remaining <= 0){
+            clearInterval(timer);
+            resolve(false);
+          }
+        }, 200);
+      });
+    }
+
+    function initAllAddressAutocomplete() {
+      if(!_googlePlacesReady) return;
+      initAddressAutocomplete('companyLocationAddress1', {
+        address1: 'companyLocationAddress1',
+        address2: 'companyLocationAddress2',
+        city: 'companyLocationCity',
+        state: 'companyLocationState',
+        postal: 'companyLocationPostal',
+        country: 'companyLocationCountry'
+      });
+    }
+
+    function isPlaceAutocompleteHost(el){
+      return !!(el && String(el.tagName || '').toLowerCase() === 'gmp-place-autocomplete');
+    }
+
+    function getAutocompleteInputElement(inputId){
+      const el = $(inputId);
+      if(!el) return null;
+      if(isPlaceAutocompleteHost(el)){
+        return el.inputElement || null;
+      }
+      return el;
+    }
+
+    function getInputValueById(inputId){
+      const el = $(inputId);
+      if(!el) return '';
+      if(isPlaceAutocompleteHost(el)){
+        if(el.inputElement && el.inputElement.value) return String(el.inputElement.value || '');
+        if(el._imLastValue) return String(el._imLastValue || '');
+        try{
+          if(typeof el.value !== 'undefined') return String(el.value || '');
+        }catch(e){}
+        return '';
+      }
+      const input = getAutocompleteInputElement(inputId);
+      return input ? String(input.value || '') : '';
+    }
+
+    function setInputValueById(inputId, value){
+      const el = $(inputId);
+      const next = String(value || '');
+      if(!el) return;
+      if(isPlaceAutocompleteHost(el)){
+        if(el.inputElement) el.inputElement.value = next;
+        el._imLastValue = next;
+        try{
+          if(typeof el.value !== 'undefined') el.value = next;
+        }catch(e){}
+        return;
+      }
+      const input = getAutocompleteInputElement(inputId);
+      if(input) input.value = next;
+    }
+
+    function initAddressAutocomplete(inputId, fieldMapping, force = false) {
+      const host = $(inputId);
+      if(!host || !hasPlaceAutocomplete()) return;
+      if(_autocompleteInstances.has(inputId)){
+        if(!force) return;
+        destroyAddressAutocomplete(inputId);
+      }
+
+      let placeElement = host;
+      let placeholder = '';
+      let className = '';
+      let inlineStyle = '';
+      let currentValue = '';
+
+      if(isPlaceAutocompleteHost(host)){
+        placeElement = host;
+        placeholder = host.dataset.placeholder || '';
+        className = host.dataset.inputClass || '';
+        currentValue = getInputValueById(inputId);
+      }else{
+        currentValue = String(host.value || '');
+        placeholder = String(host.getAttribute('placeholder') || '');
+        className = String(host.getAttribute('class') || '');
+        inlineStyle = String(host.getAttribute('style') || '');
+
+        placeElement = new google.maps.places.PlaceAutocompleteElement();
+        placeElement.id = inputId;
+        if(className) placeElement.setAttribute('class', className);
+        if(inlineStyle) placeElement.setAttribute('style', inlineStyle);
+        if(placeholder) placeElement.dataset.placeholder = placeholder;
+        if(className) placeElement.dataset.inputClass = className;
+
+        if(host.parentNode) host.parentNode.replaceChild(placeElement, host);
+      }
+
+      if(!placeElement.types) placeElement.types = ['address'];
+
+      const wireInput = () => {
+        const inputEl = getAutocompleteInputElement(inputId);
+        if(!inputEl || inputEl._imPlacesWired) return;
+        inputEl._imPlacesWired = true;
+        if(className) inputEl.className = className;
+        inputEl.type = 'text';
+        if(placeholder) inputEl.placeholder = placeholder;
+        inputEl.autocomplete = 'off';
+        inputEl.spellcheck = false;
+        if(currentValue) inputEl.value = currentValue;
+        placeElement._imLastValue = inputEl.value || currentValue || '';
+        inputEl.addEventListener('input', ()=>{
+          placeElement._imLastValue = inputEl.value || '';
+        });
+      };
+      wireInput();
+      setTimeout(wireInput, 0);
+
+      const handleSelect = async (event)=>{
+        const place = event && event.place ? event.place : null;
+        if(!place) return;
+        const inputFallback = getInputValueById(inputId);
+        let formattedAddress = safePlaceField(place, 'formattedAddress') || inputFallback || '';
+        let components = safePlaceField(place, 'addressComponents') || [];
+
+        if(typeof place.fetchFields === 'function' && (!Array.isArray(components) || components.length === 0 || !formattedAddress)){
+          try{
+            await place.fetchFields({ fields: ['addressComponents','formattedAddress'] });
+          }catch(e){}
+        }
+
+        formattedAddress = safePlaceField(place, 'formattedAddress') || formattedAddress || inputFallback || '';
+        components = safePlaceField(place, 'addressComponents') || components || [];
+        populateAddressFields(components, fieldMapping, formattedAddress);
+
+        const nextValue = getInputValueById(inputId) || formattedAddress || inputFallback || '';
+        if(nextValue && !getInputValueById(inputId)){
+          setInputValueById(inputId, nextValue);
+        }
+        placeElement._imLastValue = nextValue;
+      };
+
+      placeElement.addEventListener('gmp-select', handleSelect);
+      _autocompleteInstances.set(inputId, { element: placeElement, handler: handleSelect });
+    }
+
+    function populateAddressFields(components, mapping, formattedAddress) {
+      const hasComponents = Array.isArray(components) && components.length > 0;
+      if(!hasComponents){
+        if(formattedAddress){
+          const parts = formattedAddress.split(',').map(s => s.trim()).filter(Boolean);
+          if(mapping.address1 && parts[0]) setInputValueById(mapping.address1, parts[0]);
+          if(mapping.city && parts[1]) setInputValueById(mapping.city, parts[1]);
+          if(parts[2]){
+            const statePostal = parts[2].split(' ').filter(Boolean);
+            if(mapping.state && statePostal[0]) setInputValueById(mapping.state, statePostal[0]);
+            if(mapping.postal && statePostal.length > 1) setInputValueById(mapping.postal, statePostal.slice(1).join(' '));
+          }
+          if(mapping.country && parts[3]){
+            const el = $(mapping.country);
+            if(el && el.tagName === 'SELECT'){
+              const option = Array.from(el.options).find(
+                opt => opt.value === parts[3] || opt.textContent === parts[3]
+              );
+              if(option) el.value = option.value;
+            }else{
+              setInputValueById(mapping.country, parts[3]);
+            }
+          }
+        }
+        return;
+      }
+
+      const fields = ['address2', 'city', 'state', 'postal', 'country'];
+      fields.forEach(f => {
+        const fieldId = mapping[f];
+        if(fieldId) setInputValueById(fieldId, '');
+      });
+
+      let streetNumber = '';
+      let route = '';
+
+      components.forEach(component => {
+        const types = Array.isArray(component.types) ? component.types : [];
+        const longName = component.longText || component.long_name || component.name || '';
+        const shortName = component.shortText || component.short_name || longName;
+
+        if(types.includes('street_number')){
+          streetNumber = longName;
+        } else if(types.includes('route')){
+          route = longName;
+        } else if(types.includes('subpremise')){
+          if(mapping.address2) setInputValueById(mapping.address2, longName);
+        } else if(types.includes('locality') || types.includes('postal_town') || types.includes('sublocality_level_1')){
+          if(mapping.city){
+            const existing = getInputValueById(mapping.city);
+            if(!existing) setInputValueById(mapping.city, longName);
+          }
+        } else if(types.includes('administrative_area_level_1')){
+          if(mapping.state) setInputValueById(mapping.state, shortName);
+        } else if(types.includes('postal_code')){
+          if(mapping.postal) setInputValueById(mapping.postal, longName);
+        } else if(types.includes('country')){
+          if(mapping.country){
+            const el = $(mapping.country);
+            if(el && el.tagName === 'SELECT'){
+              const option = Array.from(el.options).find(
+                opt => opt.value === shortName || opt.textContent === longName
+              );
+              if(option) el.value = option.value;
+            }else{
+              setInputValueById(mapping.country, shortName);
+            }
+          }
+        }
+      });
+
+      if(mapping.address1){
+        const streetAddress = [streetNumber, route].filter(Boolean).join(' ');
+        if(streetAddress){
+          setInputValueById(mapping.address1, streetAddress);
+        } else if(formattedAddress){
+          setInputValueById(mapping.address1, formattedAddress);
+        }
+      }
+    }
+
+    function destroyAddressAutocomplete(inputId) {
+      const instance = _autocompleteInstances.get(inputId);
+      if(instance && instance.element && instance.handler){
+        instance.element.removeEventListener('gmp-select', instance.handler);
+      }
+      _autocompleteInstances.delete(inputId);
+    }
+
+    function getSystemTimezone() {
+      try {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone;
+      } catch (e) {
+        return 'America/Chicago';
+      }
+    }
+
     const PERMISSIONS = {
       ITEMS_VIEW: 'items:view',
       ITEMS_CREATE: 'items:create',
@@ -7511,7 +8712,18 @@
       if(companyRow) companyRow.style.display = superUser ? '' : 'none';
       let selectedCompanyId = SB.companyId ? String(SB.companyId) : '';
       if(superUser && companySelect){
-        const rows = Array.isArray(SB.companies) ? SB.companies : [];
+        let rows = Array.isArray(SB.companies) ? SB.companies.slice() : [];
+        // During onboarding, ensure the onboarding company is in the list
+        if(_onboardingCompanyId && !rows.some(r => String(r.company_id) === _onboardingCompanyId)){
+          // Add onboarding company from SB.company if available
+          if(SB.company && String(SB.company.id || SB.company.company_id || '') === _onboardingCompanyId){
+            rows.unshift({
+              company_id: _onboardingCompanyId,
+              company_name: SB.company.name || SB.company.company_name || 'Onboarding Company',
+              company_slug: SB.company.slug || SB.company.company_slug || ''
+            });
+          }
+        }
         companySelect.innerHTML = '';
         if(!rows.length){
           const opt = document.createElement('option');
@@ -7530,7 +8742,10 @@
             opt.textContent = name;
             companySelect.appendChild(opt);
           });
-          if(_inviteCompanyId && rows.some(r => String(r.company_id) === _inviteCompanyId)){
+          // During onboarding, default to the onboarding company
+          if(isOnboardingRoute() && _onboardingCompanyId && rows.some(r => String(r.company_id) === _onboardingCompanyId)){
+            selectedCompanyId = _onboardingCompanyId;
+          }else if(_inviteCompanyId && rows.some(r => String(r.company_id) === _inviteCompanyId)){
             selectedCompanyId = _inviteCompanyId;
           }else if(!selectedCompanyId || !rows.some(r => String(r.company_id) === selectedCompanyId)){
             selectedCompanyId = String(rows[0].company_id || '');
@@ -7836,8 +9051,8 @@
       resetImpersonationState('company_switch');
 	      SB.authorized = !!(SB.permissions && hasPermission(PERMISSIONS.ITEMS_VIEW));
 	      updateStatusBar();
-	      renderProfileUi();
-	      applyPermissionUI();
+      renderProfileUi();
+      applyPermissionUI();
       if(audit && SB.client){
         try{
           await SB.client.rpc('log_company_switch', {
@@ -7851,8 +9066,11 @@
           console.warn('Company switch audit failed:', e);
         }
       }
-	      if(!SB.authorized) return true;
-	      await checkServerHealth();
+      if(isOnboardingRoute()){
+        await handleOnboardingRoute();
+      }
+      if(!SB.authorized) return true;
+      await checkServerHealth();
 	      if(isOnline()){
 	        await sbLoadSnapshot();
 	        sbStartRealtime();
@@ -8104,7 +9322,9 @@
         if(inviteToken){
           show('authModal', false);
           openInviteAcceptModal();
-        }else{
+        }else if(!isOnboardingRoute()){
+          // Only show auth modal if NOT on onboarding route
+          // Onboarding route handles its own signup flow
           show('authModal', true);
         }
         applyPermissionUI();
@@ -8114,6 +9334,7 @@
         renderInviteUi();
         renderRoleManagerButton();
         renderUserMgmtButton();
+        await handleOnboardingRoute();
         return;
       }
 
@@ -8126,6 +9347,7 @@
       try{ await sbLoadMyRoleRequest(); }catch(e){}
       renderProfileUi();
       applyPermissionUI();
+      await handleOnboardingRoute();
 
       if(!SB.authorized){
         state.items = [];
@@ -8711,18 +9933,21 @@
       btnInviteSend.setAttribute('aria-disabled', 'true');
       try{
         const data = await sbInviteUser(email, role, companyId);
+        const createdInvite = !!(data && (data.ok || data.invite_id || data.invite_url));
         if(data && data.ok){
           const expiry = data && data.expires_at ? formatEasternDateTime(data.expires_at) : '';
           const suffix = expiry ? ` Expires ${expiry}.` : '';
           if(data.invite_url) showInviteLink(data.invite_url);
           setInviteMessage(`Invite email sent to ${String(email || '').trim()}.${suffix}`);
           await refreshPendingInvites();
+          if(createdInvite) await maybeAdvanceOnboardingAfterInvite();
         }else{
           const msg = data && data.error ? String(data.error) : 'Invite failed';
           if(data && data.invite_url) showInviteLink(data.invite_url);
           setInviteMessage(msg);
           if(data && (data.invite_id || data.invite_url)){
             await refreshPendingInvites();
+            if(createdInvite) await maybeAdvanceOnboardingAfterInvite();
           }
         }
       }catch(e){
@@ -9102,7 +10327,7 @@
 		    async function sbLoadSnapshot(){
 		      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return;
 		      let data = null;
-		      const baseSel = 'id,name,description,quantity,updated_at,deleted_at';
+		      const baseSel = 'id,name,description,quantity,sku,category_id,location_id,reorder_point,reorder_quantity,updated_at,deleted_at';
 		
 		      function buildSel(){
 		        let sel = baseSel;
@@ -9160,6 +10385,11 @@
 		        name:r.name||'',
 		        desc:r.description||'',
 		        qty:toInt(r.quantity,0),
+		        sku: r.sku || '',
+		        categoryId: String(r.category_id || '').trim(),
+		        locationId: String(r.location_id || '').trim(),
+		        reorderPoint: (r && Object.prototype.hasOwnProperty.call(r,'reorder_point') && r.reorder_point !== null && typeof r.reorder_point !== 'undefined') ? toInt(r.reorder_point,0) : null,
+		        reorderQty: (r && Object.prototype.hasOwnProperty.call(r,'reorder_quantity') && r.reorder_quantity !== null && typeof r.reorder_quantity !== 'undefined') ? toInt(r.reorder_quantity,0) : null,
 		        lowStockQty: (r && Object.prototype.hasOwnProperty.call(r,'low_stock_qty') && r.low_stock_qty !== null) ? toInt(r.low_stock_qty,0) : null,
 		        reorderEnabled: (r && Object.prototype.hasOwnProperty.call(r,'reorder_enabled')) ? !!r.reorder_enabled : true,
 		        updatedAt:r.updated_at||null
@@ -9182,6 +10412,11 @@
 		              name:row.name,
 		              desc:row.description||'',
 		              qty:toInt(row.quantity,0),
+		              sku: row.sku || '',
+		              categoryId: String(row.category_id || '').trim(),
+		              locationId: String(row.location_id || '').trim(),
+		              reorderPoint: (row && Object.prototype.hasOwnProperty.call(row,'reorder_point') && row.reorder_point !== null && typeof row.reorder_point !== 'undefined') ? toInt(row.reorder_point,0) : null,
+		              reorderQty: (row && Object.prototype.hasOwnProperty.call(row,'reorder_quantity') && row.reorder_quantity !== null && typeof row.reorder_quantity !== 'undefined') ? toInt(row.reorder_quantity,0) : null,
 		              lowStockQty: (row && Object.prototype.hasOwnProperty.call(row,'low_stock_qty') && row.low_stock_qty !== null) ? toInt(row.low_stock_qty,0) : null,
 		              reorderEnabled: (row && Object.prototype.hasOwnProperty.call(row,'reorder_enabled')) ? !!row.reorder_enabled : true,
 		              updatedAt:row.updated_at
@@ -9197,6 +10432,15 @@
 		              it.name=row.name;
 		              it.desc=row.description||'';
 		              it.qty=toInt(row.quantity,0);
+		              if(Object.prototype.hasOwnProperty.call(row,'sku')) it.sku = row.sku || '';
+		              if(Object.prototype.hasOwnProperty.call(row,'category_id')) it.categoryId = String(row.category_id || '').trim();
+		              if(Object.prototype.hasOwnProperty.call(row,'location_id')) it.locationId = String(row.location_id || '').trim();
+		              if(Object.prototype.hasOwnProperty.call(row,'reorder_point')){
+		                it.reorderPoint = (row.reorder_point === null || typeof row.reorder_point === 'undefined') ? null : toInt(row.reorder_point,0);
+		              }
+		              if(Object.prototype.hasOwnProperty.call(row,'reorder_quantity')){
+		                it.reorderQty = (row.reorder_quantity === null || typeof row.reorder_quantity === 'undefined') ? null : toInt(row.reorder_quantity,0);
+		              }
 		              if(Object.prototype.hasOwnProperty.call(row,'low_stock_qty')){
 		                it.lowStockQty = (row.low_stock_qty === null) ? null : toInt(row.low_stock_qty,0);
 		              }
@@ -9415,6 +10659,109 @@
     function escapeHtml(s){ return String(s).replace(/[&<>]/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
     function escapeHtmlAttr(s){
       return String(s).replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function bindInventorySortHandlers(){
+      document.querySelectorAll('#invTable thead th.sortable').forEach(th=>{
+        if(th.dataset.sortBound === '1') return;
+        th.dataset.sortBound = '1';
+        th.addEventListener('click', ()=>{
+          const col = th.getAttribute('data-col'); if(!col) return;
+          const srt = getSort();
+          if(srt.col === col){
+            state._sort = { col, dir: srt.dir === 'asc' ? 'desc' : 'asc' };
+          } else {
+            state._sort = { col, dir: 'asc' };
+          }
+          renderTable();
+          save();
+        });
+      });
+    }
+    function renderInventoryTableShell(keys){
+      const table = $('invTable');
+      const colgroup = $('invTableColgroup');
+      const thead = $('invTableHead');
+      if(!table || !colgroup || !thead) return;
+      const defs = (keys || []).map(key => INVENTORY_COLUMN_MAP.get(key)).filter(Boolean);
+      const colHtml = ['<col style="width:42px">'];
+      defs.forEach(def=>{
+        const idAttr = def.colId ? ` id="${escapeHtmlAttr(def.colId)}"` : '';
+        const widthAttr = def.colWidth ? ` style="width:${escapeHtmlAttr(def.colWidth)}"` : '';
+        colHtml.push(`<col${idAttr}${widthAttr}>`);
+      });
+      colgroup.innerHTML = colHtml.join('');
+      const thHtml = [];
+      thHtml.push('<th class="sel"><input type="checkbox" id="chkAll" aria-label="Select all"></th>');
+      defs.forEach(def=>{
+        const classes = [];
+        if(def.sortable) classes.push('sortable');
+        if(def.thClass) classes.push(def.thClass);
+        if(def.align === 'center') classes.push('num');
+        if(def.key === 'actions') classes.push('actions');
+        const cls = classes.length ? ` class="${classes.join(' ')}"` : '';
+        const dataCol = escapeHtmlAttr(def.dataCol || def.key);
+        const sortSpan = def.sortable ? ' <span class="sort-ind"></span>' : '';
+        thHtml.push(`<th scope="col"${cls} data-col="${dataCol}">${escapeHtml(def.label)}${sortSpan}</th>`);
+      });
+      thead.innerHTML = `<tr>${thHtml.join('')}</tr>`;
+      bindInventorySortHandlers();
+    }
+    function renderColumnBuilderList(keys){
+      const list = $('columnBuilderList');
+      if(!list) return;
+      const visible = new Set((keys || loadInventoryVisibleKeys()).map(k => String(k)));
+      list.innerHTML = INVENTORY_COLUMN_DEFS.map(def=>{
+        const checked = visible.has(def.key) ? ' checked' : '';
+        const disabled = def.lock ? ' disabled' : '';
+        return (
+          `<label class="column-option">`+
+            `<input type="checkbox" data-col-key="${escapeHtmlAttr(def.key)}"${checked}${disabled}>`+
+            `<span>${escapeHtml(def.label)}</span>`+
+          `</label>`
+        );
+      }).join('');
+    }
+    function getInventoryVisibleColumnDefs(){
+      const keys = loadInventoryVisibleKeys();
+      const sig = keys.join('|');
+      if(sig !== _inventoryVisibleSig){
+        _inventoryVisibleSig = sig;
+        _inventoryVisibleKeys = keys.slice();
+        renderInventoryTableShell(keys);
+        renderColumnBuilderList(keys);
+      }
+      return keys.map(key => INVENTORY_COLUMN_MAP.get(key)).filter(Boolean);
+    }
+    function formatInventoryDate(value){
+      const t = Date.parse(String(value || ''));
+      if(!Number.isFinite(t)) return '';
+      return new Date(t).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+    }
+    function renderTextCell(value){
+      const txt = String(value ?? '').trim();
+      const inner = txt ? escapeHtml(txt) : '<span class="muted">—</span>';
+      return `<span class="cell-val">${inner}</span>`;
+    }
+    function renderNumberCell(value){
+      const inner = (value === null || typeof value === 'undefined' || value === '')
+        ? '<span class="muted">—</span>'
+        : escapeHtml(formatQty(value));
+      return `<span class="cell-val">${inner}</span>`;
+    }
+    function getInventoryReservedQty(item){
+      if(!item || !Object.prototype.hasOwnProperty.call(item, 'reserved')) return null;
+      const v = Number(item.reserved);
+      return Number.isFinite(v) ? v : null;
+    }
+    function getInventoryReorderPoint(item){
+      if(!item) return null;
+      if(Object.prototype.hasOwnProperty.call(item, 'reorderPoint') && item.reorderPoint !== null && typeof item.reorderPoint !== 'undefined'){
+        return item.reorderPoint;
+      }
+      if(Object.prototype.hasOwnProperty.call(item, 'lowStockQty') && item.lowStockQty !== null && typeof item.lowStockQty !== 'undefined'){
+        return item.lowStockQty;
+      }
+      return null;
     }
     function render(){
       renderTable();
@@ -9860,7 +11207,84 @@ function adjustTitleSize(){
 		    '</div>'
 		  );
 		}
-				function buildRowHTML(it){
+				function buildInventoryColumnCell(def, ctx){
+				  const it = ctx.item;
+				  if(def.key === 'item'){
+				    return (
+				      '<td data-col="name">'+
+				        '<div class="card-leds" aria-hidden="true">'+
+				          '<span class="'+ctx.lowstockLedClass+'"></span>'+
+				        '</div>'+
+				        '<div class="card-tray" aria-hidden="true" data-kind="actions">'+
+				          (ctx.canEdit ? (
+				            '<button type="button" class="card-tray-btn" data-tray-action="edit" tabindex="-1" aria-label="Edit item" title="Edit item">'+
+				              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+				                '<path d="M12 20h9"></path>'+
+				                '<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>'+
+				              '</svg>'+
+				            '</button>'
+				          ) : '')+
+				        '</div>'+
+				        '<span class="cell-val">'+escapeHtml(it.name||'')+'</span>'+
+				      '</td>'
+				    );
+				  }
+				  if(def.key === 'description'){
+				    return '<td data-col="desc">'+renderTextCell(it.desc||'')+'</td>';
+				  }
+				  if(def.key === 'sku'){
+				    return '<td data-col="sku">'+renderTextCell(it.sku||'')+'</td>';
+				  }
+				  if(def.key === 'on_hand'){
+				    return '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>';
+				  }
+				  if(def.key === 'available'){
+				    const reserved = getInventoryReservedQty(it);
+				    const available = toInt(it.qty,0) - (reserved || 0);
+				    return '<td data-col="available" class="num">'+renderNumberCell(available)+'</td>';
+				  }
+				  if(def.key === 'reorder_point'){
+				    const rp = getInventoryReorderPoint(it);
+				    return '<td data-col="reorderPoint" class="num">'+renderNumberCell(rp)+'</td>';
+				  }
+				  if(def.key === 'reserved'){
+				    const reserved = getInventoryReservedQty(it);
+				    return '<td data-col="reserved" class="num">'+renderNumberCell(reserved)+'</td>';
+				  }
+				  if(def.key === 'reorder_qty'){
+				    return '<td data-col="reorderQty" class="num">'+renderNumberCell(it.reorderQty)+'</td>';
+				  }
+				  if(def.key === 'location'){
+				    return '<td data-col="location">'+renderTextCell(it.locationId||'')+'</td>';
+				  }
+				  if(def.key === 'category'){
+				    return '<td data-col="category">'+renderTextCell(it.categoryId||'')+'</td>';
+				  }
+				  if(def.key === 'last_updated'){
+				    return '<td data-col="updatedAt">'+renderTextCell(formatInventoryDate(it.updatedAt))+'</td>';
+				  }
+				  if(def.key === 'actions'){
+				    return (
+				      '<td class="actions" data-col="actions"><div class="actions-wrap">'+
+				        '<button class="'+ctx.orderBtnClass+'" data-id="'+ctx.id+'" aria-label="'+ctx.orderBtnLabel+'" title="'+ctx.orderBtnLabel+'" aria-pressed="'+(ctx.inOrder ? 'true' : 'false')+'"'+ctx.orderBtnDisabled+'>'+
+				          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+				            '<circle cx="9" cy="20" r="1"></circle>'+
+				            '<circle cx="18" cy="20" r="1"></circle>'+
+				            '<path d="M3 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L21 8H7"></path>'+
+				          '</svg>'+
+				        '</button>'+
+				        '<button class="row-delete-btn" data-id="'+ctx.id+'" aria-label="Delete item" title="Delete item"'+ctx.deleteBtnDisabled+'>'+
+				          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+				            '<polyline points="3 6 5 6 21 6"></polyline>'+
+				            '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>'+
+				          '</svg>'+
+				        '</button>'+
+				      '</div></td>'
+				    );
+				  }
+				  return '';
+				}
+				function buildRowHTML(it, visibleDefs){
 				  const rawId = String(it && it.id ? it.id : '');
 				  const id = escapeHtmlAttr(rawId);
 				  const allowSelect = canItemsCreate() || canItemsEdit() || canItemsDelete();
@@ -9883,42 +11307,13 @@ function adjustTitleSize(){
 			  const orderBtnLabel = inOrder ? 'Remove from order' : 'Add to order';
 			  const orderBtnDisabled = canOrder ? '' : ' disabled aria-disabled="true"';
 			  const deleteBtnDisabled = canRemove ? '' : ' disabled aria-disabled="true"';
-			  return (
-			    '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+id+'"'+(allowSelect ? '' : ' disabled')+'></td>'+
-				    '<td data-col="name">'+
-				      '<div class="card-leds" aria-hidden="true">'+
-				        '<span class="'+lowstockLedClass+'"></span>'+
-					      '</div>'+
-					      '<div class="card-tray" aria-hidden="true" data-kind="actions">'+
-				        (canEdit ? (
-				          '<button type="button" class="card-tray-btn" data-tray-action="edit" tabindex="-1" aria-label="Edit item" title="Edit item">'+
-				            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
-				              '<path d="M12 20h9"></path>'+
-				              '<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>'+
-				            '</svg>'+
-				          '</button>'
-				        ) : '')+
-			      '</div>'+
-			      '<span class="cell-val">'+escapeHtml(it.name||'')+'</span>'+
-			    '</td>'+
-				    '<td data-col="desc"><span class="cell-val">'+escapeHtml(it.desc||'')+'</span></td>'+
-					    '<td data-col="qty" class="qty">'+qtyCellHTML(it)+'</td>'+
-					    '<td class="actions"><div class="actions-wrap">'+
-				      '<button class="'+orderBtnClass+'" data-id="'+id+'" aria-label="'+orderBtnLabel+'" title="'+orderBtnLabel+'" aria-pressed="'+(inOrder ? 'true' : 'false')+'"'+orderBtnDisabled+'>'+
-				        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
-				          '<circle cx="9" cy="20" r="1"></circle>'+
-				          '<circle cx="18" cy="20" r="1"></circle>'+
-				          '<path d="M3 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L21 8H7"></path>'+
-				        '</svg>'+
-				      '</button>'+
-				      '<button class="row-delete-btn" data-id="'+id+'" aria-label="Delete item" title="Delete item"'+deleteBtnDisabled+'>'+
-			        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
-			          '<polyline points="3 6 5 6 21 6"></polyline>'+
-			          '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>'+
-		        '</svg>'+
-			      '</button>'+
-			    '</div></td>'
-			  );
+			  const defs = Array.isArray(visibleDefs) ? visibleDefs : getInventoryVisibleColumnDefs();
+			  const ctx = { item: it, id, canEdit, inOrder, lowstockLedClass, orderBtnClass, orderBtnLabel, orderBtnDisabled, deleteBtnDisabled };
+			  let html = '<td class="sel"><input type="checkbox" class="rowChk" data-id="'+id+'"'+(allowSelect ? '' : ' disabled')+'></td>';
+			  for(const def of defs){
+			    html += buildInventoryColumnCell(def, ctx);
+			  }
+			  return html;
 			}
 // Insert a row into the table in sorted position by name
 function insertRowSorted(it){
@@ -10068,9 +11463,10 @@ function emptyStateHtml(){
 	  const vLow = getTotalsValue('totalLowStock'); if(vLow !== null) setTotalsMetric('totalLowStock','lowStock', vLow);
 	  const vQty = getTotalsValue('totalQty'); if(vQty !== null) setTotalsMetric('totalQty','qty', vQty);
 	}
-		    function renderTable(){
-		      try{ closeMobileTray(); }catch(e){}
-		      applySortIndicators();
+	    function renderTable(){
+	      try{ closeMobileTray(); }catch(e){}
+	      const visibleDefs = getInventoryVisibleColumnDefs();
+	      applySortIndicators();
 		      const tbody=$('#invTable').querySelector('tbody'); tbody.innerHTML='';
 		      const term=(state._filter||'').trim().toLowerCase();
 
@@ -10093,7 +11489,8 @@ function emptyStateHtml(){
 		      setTotalsMetric('totalLowStock', 'lowStock', lowStock);
 		      if(items.length===0){
 	      const tr=document.createElement('tr');
-	      tr.innerHTML = '<td colspan="5" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
+	      const colCount = (visibleDefs.length || 0) + 1;
+	      tr.innerHTML = '<td colspan="'+colCount+'" style="padding:16px;text-align:center;color:var(--muted)">'+emptyStateHtml()+'</td>';
 	      tbody.appendChild(tr);
       return;
       }
@@ -10102,19 +11499,99 @@ function emptyStateHtml(){
 				        const inOrder = (()=> { try{ const ord = orderState(); return !!(ord && Array.isArray(ord.lines) && it.id && ord.lines.some(l => l && l.id === it.id)); }catch(e){ return false; } })();
 				        if(inOrder) tr.classList.add('order-selected');
 				        if(_expandedCardId && String(it.id) === String(_expandedCardId)) tr.classList.add('card-expanded');
-				        tr.innerHTML = buildRowHTML(it);
+				        tr.innerHTML = buildRowHTML(it, visibleDefs);
 				        tbody.appendChild(tr);
 				      }
 	      enableInlineEditing();
 	      try{ requestAnimationFrame(()=>{ adjustDescColumnWidth(); adjustTitleSize(); }); }catch(e){}
 	    }
 
+	    function initColumnBuilder(){
+	      const btn = $('btnColumnBuilder');
+	      const panel = $('columnBuilder');
+	      const list = $('columnBuilderList');
+	      const resetBtn = $('btnColumnsReset');
+	      const closeBtn = $('btnColumnsClose');
+	      if(!btn || !panel || !list) return;
+
+	      const open = ()=>{
+	        renderColumnBuilderList();
+	        panel.classList.add('open');
+	        panel.setAttribute('aria-hidden', 'false');
+	        btn.setAttribute('aria-expanded', 'true');
+	      };
+	      const close = ()=>{
+	        panel.classList.remove('open');
+	        panel.setAttribute('aria-hidden', 'true');
+	        btn.setAttribute('aria-expanded', 'false');
+	      };
+
+	      if(!btn._wired){
+	        btn._wired = true;
+	        btn.addEventListener('click', (e)=>{
+	          e.preventDefault();
+	          e.stopPropagation();
+	          if(panel.classList.contains('open')) close();
+	          else open();
+	        });
+	      }
+	      if(closeBtn && !closeBtn._wired){
+	        closeBtn._wired = true;
+	        closeBtn.addEventListener('click', (e)=>{
+	          e.preventDefault();
+	          close();
+	        });
+	      }
+	      if(resetBtn && !resetBtn._wired){
+	        resetBtn._wired = true;
+	        resetBtn.addEventListener('click', (e)=>{
+	          e.preventDefault();
+	          const defaults = defaultInventoryVisibleKeys();
+	          saveInventoryVisibleKeys(defaults);
+	          renderColumnBuilderList(defaults);
+	          renderTable();
+	        });
+	      }
+	      if(!list._wired){
+	        list._wired = true;
+	        list.addEventListener('change', (e)=>{
+	          const target = e.target;
+	          if(!target || !target.matches || !target.matches('input[type="checkbox"][data-col-key]')) return;
+	          const key = target.getAttribute('data-col-key');
+	          if(!key) return;
+	          const current = new Set(loadInventoryVisibleKeys());
+	          if(target.checked) current.add(key); else current.delete(key);
+	          current.add(INVENTORY_ANCHOR_KEY);
+	          const ordered = INVENTORY_COLUMN_DEFS.filter(def => current.has(def.key)).map(def => def.key);
+	          const next = normalizeInventoryVisibleKeys(ordered);
+	          saveInventoryVisibleKeys(next);
+	          renderColumnBuilderList(next);
+	          renderTable();
+	        });
+	      }
+
+	      if(!initColumnBuilder._wired){
+	        initColumnBuilder._wired = true;
+	        document.addEventListener('click', (e)=>{
+	          if(!panel.classList.contains('open')) return;
+	          if(panel.contains(e.target) || btn.contains(e.target)) return;
+	          close();
+	        });
+	        document.addEventListener('keydown', (e)=>{
+	          if(e.key === 'Escape') close();
+	        });
+	      }
+	    }
+
     function enableInlineEditing(){
       if(isMobileUx()) return;
       if(!canUpdate()) return;
       const tbody=$('#invTable').querySelector('tbody');
+      const editableCols = new Set(['name','desc','qty']);
       tbody.querySelectorAll('td').forEach(td=>{
         if(td.classList.contains('sel')) return; // skip checkbox column
+        const col = td.getAttribute('data-col');
+        if(!editableCols.has(col)) return;
         td.addEventListener('click', (e)=> startCellEdit(td, e));
         td.addEventListener('dblclick', (e)=> startCellEdit(td, e));
       });
@@ -12884,9 +14361,14 @@ function emptyStateHtml(){
                   shipDefault ? `<span class="company-location-badge ship">Ship-To</span>` : '',
                   receiveDefault ? `<span class="company-location-badge receive">Receive-At</span>` : ''
                 ].filter(Boolean).join('');
-                const disableActions = !canManage || !active;
-                const editBtn = active
-                  ? `<button class="btn small" type="button" data-location-edit="${escapeHtmlAttr(id)}"${disableActions ? ' disabled aria-disabled=\"true\"' : ''}>Edit</button>`
+                const disableActions = !canManage;
+                const editIcon = canManage
+                  ? `<button class="company-location-edit-btn" type="button" data-location-edit="${escapeHtmlAttr(id)}"${disableActions ? ' disabled aria-disabled=\"true\"' : ''} title="Edit location" aria-label="Edit location">`+
+                      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+                        `<path d="M12 20h9"></path>`+
+                        `<path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>`+
+                      `</svg>`+
+                    `</button>`
                   : `<span class="muted">Read-only</span>`;
                 const defaultShipBtn = active
                   ? `<button class="btn small" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="ship_to"${disableActions || shipDefault ? ' disabled aria-disabled=\"true\"' : ''}>Set Ship-To</button>`
@@ -12897,10 +14379,16 @@ function emptyStateHtml(){
                 const archiveBtn = active
                   ? `<button class="btn small danger" type="button" data-location-archive="${escapeHtmlAttr(id)}"${disableActions ? ' disabled aria-disabled=\"true\"' : ''}>Archive</button>`
                   : '';
+                const restoreBtn = !active
+                  ? `<button class="btn small" type="button" data-location-restore="${escapeHtmlAttr(id)}"${disableActions ? ' disabled aria-disabled=\"true\"' : ''}>Restore</button>`
+                  : '';
                 return (
                   `<tr data-location-id="${escapeHtmlAttr(id)}">`+
                     `<td>`+
-                      `<div style="font-weight:700;">${escapeHtml(name)}</div>`+
+                      `<div class="company-location-name-row">`+
+                        `<div class="company-location-name">${escapeHtml(name)}</div>`+
+                        `${editIcon}`+
+                      `</div>`+
                       `<div class="muted" style="font-size:12px;">ID: ${escapeHtml(id.slice(0,8))}</div>`+
                     `</td>`+
                     `<td>${escapeHtml(type || 'Other')}</td>`+
@@ -12909,10 +14397,10 @@ function emptyStateHtml(){
                     `<td><div class="company-location-badges">${badges || '<span class=\"muted\">None</span>'}</div></td>`+
                     `<td>`+
                       `<div class="company-location-actions">`+
-                        editBtn+
                         defaultShipBtn+
                         defaultReceiveBtn+
                         archiveBtn+
+                        restoreBtn+
                       `</div>`+
                     `</td>`+
                   `</tr>`
@@ -12959,7 +14447,7 @@ function emptyStateHtml(){
       state._companyLocationEditing = null;
       const name = $('companyLocationName'); if(name) name.value = '';
       const type = $('companyLocationType'); if(type) type.value = 'warehouse';
-      const addr1 = $('companyLocationAddress1'); if(addr1) addr1.value = '';
+      setInputValueById('companyLocationAddress1', '');
       const addr2 = $('companyLocationAddress2'); if(addr2) addr2.value = '';
       const city = $('companyLocationCity'); if(city) city.value = '';
       const region = $('companyLocationState'); if(region) region.value = '';
@@ -12978,30 +14466,46 @@ function emptyStateHtml(){
           : null;
         if(!row) return;
         state._companyLocationEditing = id;
-        const title = $('companyLocationEditorTitle'); if(title) title.textContent = 'Edit Location';
+        const title = $('companyLocationEditorTitle'); if(title) title.textContent = row.is_active ? 'Edit Location' : 'Edit Location (Archived)';
         const name = $('companyLocationName'); if(name) name.value = row.name || '';
         const type = $('companyLocationType'); if(type) type.value = row.location_type || 'warehouse';
-        const addr1 = $('companyLocationAddress1'); if(addr1) addr1.value = row.address_line1 || '';
+        setInputValueById('companyLocationAddress1', row.address_line1 || '');
         const addr2 = $('companyLocationAddress2'); if(addr2) addr2.value = row.address_line2 || '';
         const city = $('companyLocationCity'); if(city) city.value = row.city || '';
         const region = $('companyLocationState'); if(region) region.value = row.state_region || '';
         const postal = $('companyLocationPostal'); if(postal) postal.value = row.postal_code || '';
         renderCompanyLocationCountryOptions(row.country_code || 'US');
+        const isArchived = !row.is_active;
         const ship = $('companyLocationDefaultShipTo');
         if(ship){
           ship.checked = !!row.is_default_ship_to;
-          ship.disabled = !!row.is_default_ship_to;
+          ship.disabled = isArchived || !!row.is_default_ship_to;
         }
         const receive = $('companyLocationDefaultReceiveAt');
         if(receive){
           receive.checked = !!row.is_default_receive_at;
-          receive.disabled = !!row.is_default_receive_at;
+          receive.disabled = isArchived || !!row.is_default_receive_at;
         }
-        setCompanyLocationEditorMessage('');
+        setCompanyLocationEditorMessage(isArchived ? 'Archived locations can be edited, but must be restored before use.' : '');
       }else{
         clearCompanyLocationForm();
       }
       show('companyLocationEditorModal', true);
+      // Initialize Google Places autocomplete after modal is visible
+      void ensureGooglePlacesLoaded().then((ok)=>{
+        if(!ok) {
+          console.warn('[Places] Google Places not available');
+          return;
+        }
+        initAddressAutocomplete('companyLocationAddress1', {
+          address1: 'companyLocationAddress1',
+          address2: 'companyLocationAddress2',
+          city: 'companyLocationCity',
+          state: 'companyLocationState',
+          postal: 'companyLocationPostal',
+          country: 'companyLocationCountry'
+        }, true);
+      });
     }
     function closeCompanyLocationEditor(){
       show('companyLocationEditorModal', false);
@@ -13030,14 +14534,34 @@ function emptyStateHtml(){
         }
       }
     }
-    function closeCompanyLocationsModal(){
+    async function closeCompanyLocationsModal(){
       show('companyLocationsModal', false);
+      const isOnboardingLocations = isOnboardingRoute() && (
+        state._onboardingStep === 'locations' ||
+        !!document.querySelector('[data-onboarding-step="locations"].active')
+      );
+      if(!isOnboardingLocations) return;
+      let rows = [];
+      try{
+        rows = await sbFetchCompanyLocations();
+      }catch(e){}
+      renderOnboardingLocationsStatus(rows);
+      const activeCount = Array.isArray(rows) ? rows.filter(r => r && r.is_active).length : 0;
+      if(activeCount < 1) return;
+      setOnboardingMessage('onboardingLocationsMsg', '');
+      try{
+        await advanceOnboardingState('LOCATIONS_CONFIGURED');
+      }catch(e){
+        setOnboardingMessage('onboardingLocationsMsg', e && e.message ? e.message : 'Unable to advance onboarding.');
+        return;
+      }
+      setTimeout(()=>{ void handleOnboardingRoute(); }, 500);
     }
     function companyLocationFormPayload(){
       return {
         name: String($('companyLocationName')?.value || '').trim(),
         locationType: String($('companyLocationType')?.value || '').trim(),
-        addressLine1: String($('companyLocationAddress1')?.value || '').trim(),
+        addressLine1: String(getInputValueById('companyLocationAddress1') || '').trim(),
         addressLine2: String($('companyLocationAddress2')?.value || '').trim(),
         city: String($('companyLocationCity')?.value || '').trim(),
         stateRegion: String($('companyLocationState')?.value || '').trim(),
@@ -13093,7 +14617,8 @@ function emptyStateHtml(){
           const row = state._companyLocationById && typeof state._companyLocationById.get === 'function'
             ? state._companyLocationById.get(locationId)
             : null;
-          if(payload.setDefaultShipTo && row && !row.is_default_ship_to){
+          const isActive = row ? !!row.is_active : true;
+          if(isActive && payload.setDefaultShipTo && row && !row.is_default_ship_to){
             const { data: defData, error: defError } = await SB.client.rpc('set_default_location', {
               p_location_id: locationId,
               p_default_type: 'ship_to'
@@ -13103,7 +14628,7 @@ function emptyStateHtml(){
               throw new Error(defData.error || 'Failed to set default ship-to');
             }
           }
-          if(payload.setDefaultReceiveAt && row && !row.is_default_receive_at){
+          if(isActive && payload.setDefaultReceiveAt && row && !row.is_default_receive_at){
             const { data: defData, error: defError } = await SB.client.rpc('set_default_location', {
               p_location_id: locationId,
               p_default_type: 'receive_at'
@@ -13136,6 +14661,13 @@ function emptyStateHtml(){
         closeCompanyLocationEditor();
         clearCompanyLocationForm();
         toast('Location saved');
+        const isOnboardingLocations = isOnboardingRoute() && (
+          state._onboardingStep === 'locations' ||
+          !!document.querySelector('[data-onboarding-step="locations"].active')
+        );
+        if(isOnboardingLocations){
+          void closeCompanyLocationsModal();
+        }
       }catch(e){
         setCompanyLocationEditorMessage(e && e.message ? e.message : 'Save failed');
       }finally{
@@ -13180,6 +14712,21 @@ function emptyStateHtml(){
       }
       await loadCompanyLocations();
       toast('Location archived');
+    }
+    async function restoreCompanyLocation(locationId){
+      const id = String(locationId || '').trim();
+      if(!id) return;
+      if(!canManageCompanyLocations()){
+        toast('Location permissions required');
+        return;
+      }
+      const { data, error } = await SB.client.rpc('restore_company_location', { p_location_id: id });
+      if(error) throw error;
+      if(data && data.success === false){
+        throw new Error(data.error || 'Restore failed');
+      }
+      await loadCompanyLocations();
+      toast('Location restored');
     }
 
     async function sbFetchOrderRecipientSuggestions(prefix){
@@ -15383,7 +16930,9 @@ function emptyStateHtml(){
       }
     });
     const btnCompanyLocationsClose = $('btnCompanyLocationsClose');
-    if(btnCompanyLocationsClose) btnCompanyLocationsClose.addEventListener('click', closeCompanyLocationsModal);
+    if(btnCompanyLocationsClose) btnCompanyLocationsClose.addEventListener('click', ()=>{
+      void closeCompanyLocationsModal();
+    });
     const btnCompanyLocationNew = $('btnCompanyLocationNew');
     if(btnCompanyLocationNew) btnCompanyLocationNew.addEventListener('click', ()=>{
       if(!canManageCompanyLocations()){
@@ -15443,6 +16992,24 @@ function emptyStateHtml(){
         }finally{
           archiveBtn.disabled = false;
           archiveBtn.textContent = prior || 'Archive';
+        }
+        return;
+      }
+      const restoreBtn = e.target.closest('[data-location-restore]');
+      if(restoreBtn){
+        const id = String(restoreBtn.getAttribute('data-location-restore') || '').trim();
+        if(!id) return;
+        const prior = restoreBtn.textContent;
+        restoreBtn.disabled = true;
+        restoreBtn.textContent = 'Restoring...';
+        setCompanyLocationsMessage('');
+        try{
+          await restoreCompanyLocation(id);
+        }catch(err){
+          setCompanyLocationsMessage(err && err.message ? err.message : 'Restore failed');
+        }finally{
+          restoreBtn.disabled = false;
+          restoreBtn.textContent = prior || 'Restore';
         }
       }
     });
@@ -16705,9 +18272,758 @@ function emptyStateHtml(){
       closeQtyPicker();
     }
 
+    // ========================
+    // Onboarding UI
+    // ========================
+    const ONBOARDING_INTENT_KEY = 'inv.onboarding.intent';
+    const ONBOARDING_PLANS = ['starter','professional','business','enterprise'];
+    const ONBOARDING_STATES = [
+      'UNINITIALIZED',
+      'SUBSCRIPTION_ACTIVE',
+      'COMPANY_PROFILE_COMPLETE',
+      'LOCATIONS_CONFIGURED',
+      'USERS_INVITED',
+      'ONBOARDING_COMPLETE'
+    ];
+    function isOnboardingRoute(){
+      const path = String(window.location.pathname || '');
+      return /\/onboarding\/?$/.test(path);
+    }
+    function getAppHomeUrl(){
+      const path = String(window.location.pathname || '/');
+      const base = path.replace(/\/onboarding\/?$/, '/') || '/';
+      return `${window.location.origin}${base}`;
+    }
+    function redirectToAppHome(){
+      _onboardingCompanyId = '';
+      window.location.href = getAppHomeUrl();
+    }
+    function normalizeOnboardingPlan(value){
+      const plan = String(value || '').trim().toLowerCase();
+      return ONBOARDING_PLANS.includes(plan) ? plan : '';
+    }
+    function storeOnboardingIntentFromUrl(){
+      if(!isOnboardingRoute()) return;
+      try{
+        const params = new URLSearchParams(window.location.search);
+        const plan = normalizeOnboardingPlan(params.get('plan'));
+        const source = String(params.get('source') || '').trim();
+        if(!plan && !source) return;
+        const payload = { plan, source, ts: Date.now() };
+        sessionStorage.setItem(ONBOARDING_INTENT_KEY, JSON.stringify(payload));
+      }catch(e){}
+    }
+    function readOnboardingIntent(){
+      try{
+        const raw = sessionStorage.getItem(ONBOARDING_INTENT_KEY);
+        if(!raw) return { plan:'', source:'' };
+        const data = JSON.parse(raw);
+        return {
+          plan: normalizeOnboardingPlan(data && data.plan ? data.plan : ''),
+          source: String(data && data.source ? data.source : '').trim()
+        };
+      }catch(e){
+        return { plan:'', source:'' };
+      }
+    }
+    function loadOnboardingIntent(){
+      const intent = readOnboardingIntent();
+      state._onboardingPlan = intent.plan;
+      state._onboardingSource = intent.source;
+    }
+    function renderOnboardingPlanSummary(){
+      const el = $('onboardingPlanSummary');
+      if(!el) return;
+      const plan = normalizeOnboardingPlan(state._onboardingPlan);
+      const source = String(state._onboardingSource || '').trim();
+      if(!plan){
+        el.textContent = '';
+        el.style.display = 'none';
+        return;
+      }
+      const label = formatTierLabel(plan);
+      const sourceLabel = source ? ` · Source: ${source}` : '';
+      el.textContent = `Plan: ${label}${sourceLabel}`;
+      el.style.display = '';
+    }
+    function setOnboardingRouteActive(active){
+      const main = $('onboardingMain');
+      if(main) main.classList.toggle('active', active);
+      document.body.classList.toggle('onboarding-route', active);
+      if(!active) restorePendingInvitesToUserMgmt();
+    }
+    function setOnboardingGate(config){
+      const gate = $('onboardingGate');
+      const wizard = $('onboardingWizard');
+      if(!gate) return;
+      const showGate = !!(config && config.show !== false);
+      gate.style.display = showGate ? '' : 'none';
+      if(wizard) wizard.style.display = showGate ? 'none' : '';
+      if(!showGate){
+        state._onboardingGatePrimary = null;
+        state._onboardingGateSecondary = null;
+        return;
+      }
+      const title = $('onboardingGateTitle');
+      const message = $('onboardingGateMessage');
+      const primary = $('onboardingGatePrimary');
+      const secondary = $('onboardingGateSecondary');
+      if(title) title.textContent = String(config && config.title ? config.title : '');
+      if(message) message.textContent = String(config && config.message ? config.message : '');
+      if(primary){
+        const label = config && config.primaryLabel ? String(config.primaryLabel) : 'Continue';
+        primary.textContent = label;
+        primary.style.display = '';
+      }
+      if(secondary){
+        const label = config && config.secondaryLabel ? String(config.secondaryLabel) : '';
+        secondary.textContent = label;
+        secondary.style.display = label ? '' : 'none';
+      }
+      state._onboardingGatePrimary = config && typeof config.primaryAction === 'function' ? config.primaryAction : null;
+      state._onboardingGateSecondary = config && typeof config.secondaryAction === 'function' ? config.secondaryAction : null;
+    }
+    function normalizeOnboardingState(value){
+      const stateValue = String(value || '').trim().toUpperCase();
+      return ONBOARDING_STATES.includes(stateValue) ? stateValue : 'UNINITIALIZED';
+    }
+    function getOnboardingStepFromState(value){
+      const stateValue = normalizeOnboardingState(value);
+      if(stateValue === 'COMPANY_PROFILE_COMPLETE') return 2;
+      if(stateValue === 'LOCATIONS_CONFIGURED') return 3;
+      if(stateValue === 'USERS_INVITED') return 4;
+      if(stateValue === 'ONBOARDING_COMPLETE') return 5;
+      return 1;
+    }
+    function renderOnboardingProgress(stepIndex){
+      const fill = $('onboardingProgressFill');
+      const total = 4;
+      const safeStep = Math.min(Math.max(stepIndex, 1), total);
+      if(fill){
+        const pct = Math.round((safeStep / total) * 100);
+        fill.style.width = `${pct}%`;
+      }
+      document.querySelectorAll('[data-onboarding-progress]').forEach(el=>{
+        const idx = Number(el.getAttribute('data-onboarding-progress') || '0');
+        el.classList.toggle('active', idx === safeStep);
+        el.classList.toggle('complete', idx < safeStep);
+      });
+    }
+    function renderOnboardingStep(stepId){
+      document.querySelectorAll('.onboarding-step').forEach(el=>{
+        const match = String(el.getAttribute('data-onboarding-step') || '') === stepId;
+        el.classList.toggle('active', match);
+      });
+    }
+    function setOnboardingMessage(id, msg){
+      const el = $(id);
+      if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function renderOnboardingTimezoneOptions(){
+      const select = $('onboardingTimezone');
+      if(!select || select._filled) return;
+
+      // US timezones with friendly labels (prioritized)
+      const usTimezones = [
+        { value: 'America/New_York', label: 'Eastern (New York)' },
+        { value: 'America/Chicago', label: 'Central (Chicago)' },
+        { value: 'America/Denver', label: 'Mountain (Denver)' },
+        { value: 'America/Phoenix', label: 'Mountain - Arizona (Phoenix)' },
+        { value: 'America/Los_Angeles', label: 'Pacific (Los Angeles)' },
+        { value: 'America/Anchorage', label: 'Alaska (Anchorage)' },
+        { value: 'Pacific/Honolulu', label: 'Hawaii (Honolulu)' }
+      ];
+
+      // Get all IANA timezones
+      let allZones = [];
+      try {
+        if(typeof Intl !== 'undefined' && typeof Intl.supportedValuesOf === 'function'){
+          allZones = Intl.supportedValuesOf('timeZone');
+        }
+      } catch(e){}
+
+      // Group timezones by region
+      const usValues = new Set(usTimezones.map(t => t.value));
+      const groups = {
+        'Canada': [],
+        'Mexico & Caribbean': [],
+        'Central & South America': [],
+        'Europe': [],
+        'Africa': [],
+        'Asia': [],
+        'Australia & Pacific': [],
+        'Other': []
+      };
+
+      allZones.forEach(zone => {
+        if(usValues.has(zone)) return; // Skip US zones already listed
+
+        if(zone.startsWith('America/') && (zone.includes('Toronto') || zone.includes('Vancouver') || zone.includes('Edmonton') || zone.includes('Winnipeg') || zone.includes('Halifax') || zone.includes('St_Johns') || zone.includes('Regina') || zone.includes('Whitehorse') || zone.includes('Yellowknife'))){
+          groups['Canada'].push(zone);
+        } else if(zone.startsWith('America/') && (zone.includes('Mexico') || zone.includes('Cancun') || zone.includes('Tijuana') || zone.includes('Merida') || zone.includes('Jamaica') || zone.includes('Puerto_Rico') || zone.includes('Havana') || zone.includes('Bahamas') || zone.includes('Santo_Domingo') || zone.includes('Barbados') || zone.includes('Martinique') || zone.includes('Nassau'))){
+          groups['Mexico & Caribbean'].push(zone);
+        } else if(zone.startsWith('America/') && !usValues.has(zone)){
+          groups['Central & South America'].push(zone);
+        } else if(zone.startsWith('Europe/')){
+          groups['Europe'].push(zone);
+        } else if(zone.startsWith('Africa/')){
+          groups['Africa'].push(zone);
+        } else if(zone.startsWith('Asia/') || zone.startsWith('Indian/')){
+          groups['Asia'].push(zone);
+        } else if(zone.startsWith('Australia/') || zone.startsWith('Pacific/')){
+          if(!usValues.has(zone)) groups['Australia & Pacific'].push(zone);
+        } else if(zone !== 'UTC' && !zone.startsWith('Etc/')){
+          groups['Other'].push(zone);
+        }
+      });
+
+      // Sort each group
+      Object.keys(groups).forEach(key => groups[key].sort());
+
+      // Build HTML
+      let html = '<option value="">Select timezone...</option>';
+
+      // US timezones first
+      html += '<optgroup label="United States">';
+      usTimezones.forEach(tz => {
+        html += `<option value="${escapeHtmlAttr(tz.value)}">${escapeHtml(tz.label)}</option>`;
+      });
+      html += '</optgroup>';
+
+      // Other groups
+      const groupOrder = ['Canada', 'Mexico & Caribbean', 'Central & South America', 'Europe', 'Africa', 'Asia', 'Australia & Pacific', 'Other'];
+      groupOrder.forEach(groupName => {
+        const zones = groups[groupName];
+        if(zones && zones.length > 0){
+          html += `<optgroup label="${escapeHtmlAttr(groupName)}">`;
+          zones.forEach(zone => {
+            // Extract city name for display
+            const parts = zone.split('/');
+            const city = parts[parts.length - 1].replace(/_/g, ' ');
+            html += `<option value="${escapeHtmlAttr(zone)}">${escapeHtml(city)}</option>`;
+          });
+          html += '</optgroup>';
+        }
+      });
+
+      // Add UTC option at the end
+      html += '<optgroup label="Universal"><option value="UTC">UTC</option></optgroup>';
+
+      select.innerHTML = html;
+      select._filled = true;
+    }
+    async function fetchOnboardingState(){
+      if(!SB.ready || !SB.session || !SB.client || !SB.companyId) throw new Error('Not authorized');
+      const { data, error } = await SB.client.rpc('get_onboarding_state', { p_company_id: SB.companyId });
+      if(error) throw error;
+      return normalizeOnboardingState(data);
+    }
+    async function loadOnboardingCompanyProfile(){
+      if(!SB.ready || !SB.session || !SB.client || !SB.companyId) throw new Error('Not authorized');
+      const { data, error } = await SB.client
+        .from('companies')
+        .select('name,settings')
+        .eq('id', SB.companyId)
+        .single();
+      if(error) throw error;
+      const settings =
+        data && data.settings && typeof data.settings === 'object' && !Array.isArray(data.settings)
+          ? data.settings
+          : {};
+      return { name: data && data.name ? data.name : '', settings };
+    }
+    function applyOnboardingProfileToForm(profile){
+      const name = $('onboardingCompanyName');
+      const email = $('onboardingContactEmail');
+      const timezone = $('onboardingTimezone');
+      if(name) name.value = profile && profile.name ? String(profile.name) : '';
+      if(email) email.value = profile && profile.settings ? String(profile.settings.primary_contact_email || '') : '';
+      // Populate timezone options first
+      renderOnboardingTimezoneOptions();
+      // Set timezone: use saved value, or auto-detect from system
+      if(timezone){
+        const savedTz = profile && profile.settings ? String(profile.settings.timezone || '') : '';
+        timezone.value = savedTz || getSystemTimezone();
+      }
+    }
+    async function updateCompanySettings(patch, nameOverride){
+      if(!SB.ready || !SB.session || !SB.client || !SB.companyId) throw new Error('Not authorized');
+      const payload = {
+        p_company_id: SB.companyId,
+        p_settings_patch: patch || {}
+      };
+      if(typeof nameOverride === 'string' && nameOverride.trim()){
+        payload.p_name = nameOverride.trim();
+      }
+      const { data, error } = await SB.client.rpc('update_company_settings', payload);
+      if(error) throw error;
+      const result = data && typeof data === 'object' ? data : {};
+      return {
+        settings: result.settings && typeof result.settings === 'object' ? result.settings : {},
+        name: result.name || (typeof nameOverride === 'string' ? nameOverride.trim() : '')
+      };
+    }
+    async function advanceOnboardingState(targetState){
+      if(!SB.ready || !SB.session || !SB.client || !SB.companyId) throw new Error('Not authorized');
+      const { data, error } = await SB.client.rpc('advance_onboarding_state', {
+        p_company_id: SB.companyId,
+        p_target_state: targetState
+      });
+      if(error) throw error;
+      return normalizeOnboardingState(data);
+    }
+    async function fetchActiveLocationCount(){
+      if(!SB.ready || !SB.session || !SB.client || !SB.companyId) throw new Error('Not authorized');
+      const { count, error } = await SB.client
+        .from('company_locations')
+        .select('id', { count:'exact', head:true })
+        .eq('company_id', SB.companyId)
+        .eq('is_active', true);
+      if(error) throw error;
+      return Number.isFinite(count) ? count : 0;
+    }
+    function renderOnboardingLocationsStatus(rows){
+      const status = $('onboardingLocationsStatus');
+      const summary = $('onboardingLocationsSummary');
+      if(!summary) return;
+      const list = Array.isArray(rows) ? rows.filter(r => r && r.is_active) : [];
+      if(!list.length){
+        if(status) status.textContent = '';
+        summary.innerHTML = '<div class="muted">No active locations yet.</div>';
+        return;
+      }
+      if(status){
+        status.textContent = `Active locations: ${list.length}`;
+      }
+      const primary = list[0];
+      const addressLines = formatLocationAddress(primary).split('\n').filter(Boolean);
+      const addressHtml = addressLines.map(line => `<div>${escapeHtml(line)}</div>`).join('');
+      const extraCount = list.length - 1;
+      const extra = extraCount > 0
+        ? `<div class="onboarding-location-meta">+${extraCount} more active location${extraCount > 1 ? 's' : ''}</div>`
+        : '';
+      summary.innerHTML =
+        `<div class="onboarding-location-card">`+
+          `<div class="onboarding-location-name">${escapeHtml(primary.name || 'Location')}</div>`+
+          `<div class="onboarding-location-address">${addressHtml}</div>`+
+          `${extra}`+
+        `</div>`;
+    }
+    function attachPendingInvitesToOnboarding(){
+      const slot = $('onboardingPendingInvitesSlot');
+      const section = $('pendingInvitesSection');
+      if(!slot || !section) return;
+      if(section.parentElement !== slot) slot.appendChild(section);
+      renderPendingInvitesSection();
+    }
+    function restorePendingInvitesToUserMgmt(){
+      const mount = $('pendingInvitesMount');
+      const section = $('pendingInvitesSection');
+      if(!mount || !section) return;
+      if(section.parentElement !== mount) mount.appendChild(section);
+    }
+    function renderOnboardingInviteNotice(){
+      const msg = $('onboardingInvitesMsg');
+      if(!msg) return;
+      if(!canAccessInvites()){
+        msg.textContent = 'Invites require Business tier and invite permissions. You can skip for now.';
+        return;
+      }
+      msg.textContent = '';
+    }
+    async function handleOnboardingProfileSubmit(){
+      const btn = $('btnOnboardingProfileSave');
+      const name = String($('onboardingCompanyName')?.value || '').trim();
+      const email = String($('onboardingContactEmail')?.value || '').trim();
+      const timezone = String($('onboardingTimezone')?.value || '').trim();
+      setOnboardingMessage('onboardingProfileMsg', '');
+      if(!name){
+        setOnboardingMessage('onboardingProfileMsg', 'Company name is required.');
+        return;
+      }
+      if(!email){
+        setOnboardingMessage('onboardingProfileMsg', 'Primary contact email is required.');
+        return;
+      }
+      if(!timezone){
+        setOnboardingMessage('onboardingProfileMsg', 'Timezone is required.');
+        return;
+      }
+      if(btn){
+        btn.disabled = true;
+        btn.setAttribute('aria-disabled', 'true');
+        btn.textContent = 'Saving...';
+      }
+      try{
+        const result = await updateCompanySettings({
+          primary_contact_email: email,
+          timezone
+        }, name);
+        if(SB.company){
+          SB.company.company_name = result.name;
+        }
+        if(Array.isArray(SB.companies)){
+          const idx = SB.companies.findIndex(row => String(row.company_id) === String(SB.companyId));
+          if(idx >= 0){
+            SB.companies[idx] = { ...SB.companies[idx], company_name: result.name };
+          }
+        }
+        renderCompanySwitcher();
+      }catch(e){
+        setOnboardingMessage('onboardingProfileMsg', e && e.message ? e.message : 'Failed to save profile.');
+        return;
+      }finally{
+        if(btn){
+          btn.disabled = false;
+          btn.setAttribute('aria-disabled', 'false');
+          btn.textContent = 'Continue';
+        }
+      }
+      try{
+        await advanceOnboardingState('COMPANY_PROFILE_COMPLETE');
+        await handleOnboardingRoute();
+      }catch(e){
+        setOnboardingMessage('onboardingProfileMsg', e && e.message ? e.message : 'Unable to advance onboarding.');
+      }
+    }
+    async function handleOnboardingLocationsContinue(){
+      const btn = $('btnOnboardingLocationsContinue');
+      setOnboardingMessage('onboardingLocationsMsg', '');
+      if(btn){
+        btn.disabled = true;
+        btn.setAttribute('aria-disabled', 'true');
+        btn.textContent = 'Checking...';
+      }
+      try{
+        const rows = await sbFetchCompanyLocations();
+        renderOnboardingLocationsStatus(rows);
+        const activeCount = Array.isArray(rows) ? rows.filter(r => r && r.is_active).length : 0;
+        if(activeCount < 1){
+          setOnboardingMessage('onboardingLocationsMsg', 'Add at least one active location to continue.');
+          return;
+        }
+        await advanceOnboardingState('LOCATIONS_CONFIGURED');
+        await handleOnboardingRoute();
+      }catch(e){
+        setOnboardingMessage('onboardingLocationsMsg', e && e.message ? e.message : 'Unable to advance onboarding.');
+      }finally{
+        if(btn){
+          btn.disabled = false;
+          btn.setAttribute('aria-disabled', 'false');
+          btn.textContent = 'Continue';
+        }
+      }
+    }
+    async function handleOnboardingInvitesSkip(){
+      const btn = $('btnOnboardingInvitesSkip');
+      setOnboardingMessage('onboardingInvitesMsg', '');
+      if(btn){
+        btn.disabled = true;
+        btn.setAttribute('aria-disabled', 'true');
+      }
+      try{
+        await updateCompanySettings({ onboarding_skip_invites: true });
+        await advanceOnboardingState('USERS_INVITED');
+        await handleOnboardingRoute();
+      }catch(e){
+        setOnboardingMessage('onboardingInvitesMsg', e && e.message ? e.message : 'Unable to skip invites.');
+      }finally{
+        if(btn){
+          btn.disabled = false;
+          btn.setAttribute('aria-disabled', 'false');
+        }
+      }
+    }
+    async function handleOnboardingInvitesContinue(){
+      const btn = $('btnOnboardingInvitesContinue');
+      setOnboardingMessage('onboardingInvitesMsg', '');
+      if(btn){
+        btn.disabled = true;
+        btn.setAttribute('aria-disabled', 'true');
+        btn.textContent = 'Saving...';
+      }
+      try{
+        await advanceOnboardingState('USERS_INVITED');
+        await handleOnboardingRoute();
+      }catch(e){
+        setOnboardingMessage('onboardingInvitesMsg', e && e.message ? e.message : 'Invite at least one user or skip for now.');
+      }finally{
+        if(btn){
+          btn.disabled = false;
+          btn.setAttribute('aria-disabled', 'false');
+          btn.textContent = 'Continue';
+        }
+      }
+    }
+    async function maybeAdvanceOnboardingAfterInvite(){
+      if(!isOnboardingRoute()) return;
+      if(getOnboardingStepFromState(state._onboardingState) !== 3) return;
+      try{
+        await advanceOnboardingState('USERS_INVITED');
+        await handleOnboardingRoute();
+      }catch(e){
+        setOnboardingMessage('onboardingInvitesMsg', e && e.message ? e.message : 'Unable to advance onboarding.');
+      }
+    }
+    async function handleOnboardingFinish(){
+      const btn = $('btnOnboardingFinish');
+      setOnboardingMessage('onboardingFinishMsg', '');
+      if(btn){
+        btn.disabled = true;
+        btn.setAttribute('aria-disabled', 'true');
+        btn.textContent = 'Finalizing...';
+      }
+      try{
+        await advanceOnboardingState('ONBOARDING_COMPLETE');
+        redirectToAppHome();
+      }catch(e){
+        setOnboardingMessage('onboardingFinishMsg', e && e.message ? e.message : 'Unable to finish onboarding.');
+      }finally{
+        if(btn){
+          btn.disabled = false;
+          btn.setAttribute('aria-disabled', 'false');
+          btn.textContent = 'Go to Dashboard';
+        }
+      }
+    }
+    function wireOnboardingEvents(){
+      const gatePrimary = $('onboardingGatePrimary');
+      if(gatePrimary && !gatePrimary._wired){
+        gatePrimary._wired = true;
+        gatePrimary.addEventListener('click', ()=>{
+          if(typeof state._onboardingGatePrimary === 'function') state._onboardingGatePrimary();
+        });
+      }
+      const gateSecondary = $('onboardingGateSecondary');
+      if(gateSecondary && !gateSecondary._wired){
+        gateSecondary._wired = true;
+        gateSecondary.addEventListener('click', ()=>{
+          if(typeof state._onboardingGateSecondary === 'function') state._onboardingGateSecondary();
+        });
+      }
+      // Signup form listeners
+      const signupForm = $('onboardingAccountForm');
+      if(signupForm && !signupForm._wired){
+        signupForm._wired = true;
+        signupForm.addEventListener('submit', (e)=>{
+          e.preventDefault();
+          void handleSignupSubmit(e);
+        });
+      }
+      const signupHaveAccount = $('btnSignupHaveAccount');
+      if(signupHaveAccount && !signupHaveAccount._wired){
+        signupHaveAccount._wired = true;
+        signupHaveAccount.addEventListener('click', ()=>{
+          showSignInFromSignup();
+        });
+      }
+      const companyForm = $('onboardingCompanyForm');
+      if(companyForm && !companyForm._wired){
+        companyForm._wired = true;
+        companyForm.addEventListener('submit', (e)=>{
+          e.preventDefault();
+          void handleCompanyCreate(e);
+        });
+      }
+      const profileForm = $('onboardingProfileForm');
+      if(profileForm && !profileForm._wired){
+        profileForm._wired = true;
+        profileForm.addEventListener('submit', (e)=>{
+          e.preventDefault();
+          void handleOnboardingProfileSubmit();
+        });
+      }
+      const locationsManage = $('btnOnboardingManageLocations');
+      if(locationsManage && !locationsManage._wired){
+        locationsManage._wired = true;
+        locationsManage.addEventListener('click', ()=>{
+          setOnboardingMessage('onboardingLocationsMsg', '');
+          if(!canAccessCompanyLocations()){
+            setOnboardingMessage('onboardingLocationsMsg', 'Ask an admin to manage locations for your company.');
+            return;
+          }
+          void openCompanyLocationsModal();
+        });
+      }
+      const locationsContinue = $('btnOnboardingLocationsContinue');
+      if(locationsContinue && !locationsContinue._wired){
+        locationsContinue._wired = true;
+        locationsContinue.addEventListener('click', ()=>{
+          void handleOnboardingLocationsContinue();
+        });
+      }
+      const inviteOpen = $('btnOnboardingInviteOpen');
+      if(inviteOpen && !inviteOpen._wired){
+        inviteOpen._wired = true;
+        inviteOpen.addEventListener('click', ()=>{
+          if(!canAccessInvites()){
+            setOnboardingMessage('onboardingInvitesMsg', 'Invites require Business tier and invite permissions. You can skip for now.');
+            return;
+          }
+          show('inviteModal', true);
+        });
+      }
+      const invitesRefresh = $('btnOnboardingInvitesRefresh');
+      if(invitesRefresh && !invitesRefresh._wired){
+        invitesRefresh._wired = true;
+        invitesRefresh.addEventListener('click', ()=>{
+          void refreshPendingInvites();
+        });
+      }
+      const invitesSkip = $('btnOnboardingInvitesSkip');
+      if(invitesSkip && !invitesSkip._wired){
+        invitesSkip._wired = true;
+        invitesSkip.addEventListener('click', ()=>{
+          void handleOnboardingInvitesSkip();
+        });
+      }
+      const invitesContinue = $('btnOnboardingInvitesContinue');
+      if(invitesContinue && !invitesContinue._wired){
+        invitesContinue._wired = true;
+        invitesContinue.addEventListener('click', ()=>{
+          void handleOnboardingInvitesContinue();
+        });
+      }
+      const finishBtn = $('btnOnboardingFinish');
+      if(finishBtn && !finishBtn._wired){
+        finishBtn._wired = true;
+        finishBtn.addEventListener('click', ()=>{
+          void handleOnboardingFinish();
+        });
+      }
+    }
+    async function handleOnboardingRoute(){
+      const active = isOnboardingRoute();
+      setOnboardingRouteActive(active);
+      if(!active) return false;
+      loadOnboardingIntent();
+      renderOnboardingPlanSummary();
+
+      if(!SB.ready){
+        setOnboardingGate({
+          title:'Supabase not configured',
+          message:'Connect Supabase to continue onboarding.',
+          primaryLabel:'Close',
+          primaryAction:()=>{ show('authModal', false); },
+          secondaryLabel:''
+        });
+        return true;
+      }
+
+      if(!SB.session){
+        // Self-service signup flow - show account creation step
+        _signupMode = true;
+        _signupPlan = state._onboardingIntent?.plan || '';
+        setOnboardingGate({ show: false });
+        renderOnboardingStep('account');
+        renderSignupProgress(1);
+        if(state._signupError){
+          setSignupMessage(state._signupError, true);
+          state._signupError = '';
+        }
+        return true;
+      }
+
+      if(isEffectiveSuperUser() && !state._onboardingAllowSuper){
+        setOnboardingGate({
+          title:'Super users can bypass onboarding',
+          message:'You can skip onboarding and go straight to the dashboard.',
+          primaryLabel:'Go to Dashboard',
+          primaryAction:()=>{ redirectToAppHome(); },
+          secondaryLabel:'Continue onboarding',
+          secondaryAction:()=>{ state._onboardingAllowSuper = true; void handleOnboardingRoute(); }
+        });
+        return true;
+      }
+
+      if(!SB.companyId){
+        // User has account but no company - show company creation step
+        _signupMode = true;
+        _signupPlan = state._onboardingIntent?.plan || '';
+        setOnboardingGate({ show: false });
+        renderOnboardingStep('company');
+        renderSignupProgress(2);
+        return true;
+      }
+
+      // Track onboarding company for invite dropdown
+      _onboardingCompanyId = String(SB.companyId);
+
+      setOnboardingGate({ show:false });
+      setOnboardingMessage('onboardingProfileMsg', '');
+      setOnboardingMessage('onboardingLocationsMsg', '');
+      setOnboardingMessage('onboardingInvitesMsg', '');
+      setOnboardingMessage('onboardingFinishMsg', '');
+
+      try{
+        state._onboardingState = await fetchOnboardingState();
+      }catch(e){
+        setOnboardingGate({
+          title:'Unable to load onboarding',
+          message:e && e.message ? e.message : 'Try again in a moment.',
+          primaryLabel:'Retry',
+          primaryAction:()=>{ void handleOnboardingRoute(); },
+          secondaryLabel:''
+        });
+        return true;
+      }
+
+      if(state._onboardingState === 'ONBOARDING_COMPLETE'){
+        redirectToAppHome();
+        return true;
+      }
+
+      const stepIndex = getOnboardingStepFromState(state._onboardingState);
+      const stepId = stepIndex === 1 ? 'profile' : stepIndex === 2 ? 'locations' : stepIndex === 3 ? 'invites' : 'finish';
+      state._onboardingStep = stepId;
+      renderOnboardingProgress(stepIndex);
+      renderOnboardingStep(stepId);
+
+      if(stepId === 'profile'){
+        try{
+          const profile = await loadOnboardingCompanyProfile();
+          applyOnboardingProfileToForm(profile);
+        }catch(e){
+          setOnboardingMessage('onboardingProfileMsg', e && e.message ? e.message : 'Unable to load profile.');
+        }
+      }
+
+      if(stepId === 'locations'){
+        try{
+          const rows = await sbFetchCompanyLocations();
+          renderOnboardingLocationsStatus(rows);
+          if(!canAccessCompanyLocations()){
+            setOnboardingMessage('onboardingLocationsMsg', 'Ask an admin to manage locations for your company.');
+          }
+        }catch(e){
+          setOnboardingMessage('onboardingLocationsMsg', e && e.message ? e.message : 'Unable to load locations.');
+        }
+      }
+
+      if(stepId === 'invites'){
+        attachPendingInvitesToOnboarding();
+        _userMgmtCompanyId = SB.companyId ? String(SB.companyId) : '';
+        renderOnboardingInviteNotice();
+        try{
+          await refreshPendingInvites();
+        }catch(e){}
+      }else{
+        restorePendingInvitesToUserMgmt();
+      }
+
+      return true;
+    }
+
     // Boot
       document.addEventListener('DOMContentLoaded', async ()=>{
       load(); render();
+      initColumnBuilder();
+      storeOnboardingIntentFromUrl();
+      loadOnboardingIntent();
+      renderOnboardingPlanSummary();
+      setOnboardingRouteActive(isOnboardingRoute());
+      wireOnboardingEvents();
       try{ setEditHint(); }catch(e){}
       try{ adjustTitleSize(); if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=> requestAnimationFrame(adjustTitleSize)); } }catch(e){}
       const fb=$('filterBox'); if(fb){
@@ -16824,19 +19140,7 @@ function emptyStateHtml(){
 	        });
 	      }
 
-	      document.querySelectorAll('#invTable thead th.sortable').forEach(th=>{
-	        th.addEventListener('click', ()=>{
-	          const col = th.getAttribute('data-col'); if(!col) return;
-	          const srt = getSort();
-	          if(srt.col === col){
-	            state._sort = { col, dir: srt.dir === 'asc' ? 'desc' : 'asc' };
-	          } else {
-	            state._sort = { col, dir: 'asc' };
-	          }
-	          renderTable();
-	          save();
-	        });
-	      });
+	      bindInventorySortHandlers();
 
 	      // Supabase init and health check
 	      try{
