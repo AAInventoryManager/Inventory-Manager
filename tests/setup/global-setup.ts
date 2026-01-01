@@ -64,18 +64,22 @@ export default async function globalSetup() {
     const companyId = companyIds[user.companyKey];
     const assignedAdminId = user.role === 'admin' ? userId : userIds[TEST_USERS.ADMIN] || userId;
 
-    await adminClient
+    const memberPayload = {
+      company_id: companyId,
+      user_id: userId,
+      role: user.role,
+      is_super_user: !!user.isSuperUser,
+      assigned_admin_id: assignedAdminId
+    };
+    const { error: cleanupError } = await adminClient
       .from('company_members')
-      .upsert(
-        {
-          company_id: companyId,
-          user_id: userId,
-          role: user.role,
-          is_super_user: !!user.isSuperUser,
-          assigned_admin_id: assignedAdminId
-        },
-        { onConflict: 'user_id' }
-      );
+      .delete()
+      .eq('user_id', userId);
+    if (cleanupError) throw cleanupError;
+    const { error: insertError } = await adminClient
+      .from('company_members')
+      .insert(memberPayload);
+    if (insertError) throw insertError;
   }
 
   for (const item of TEST_INVENTORY_ITEMS) {

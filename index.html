@@ -70,6 +70,8 @@
 .status.offline{color:#ffffff;background:#2a1212;border-color:#5a1c1c}
     h1{margin:0;text-align:left;font-family:'Barlow',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; font-weight:800; font-size:clamp(var(--title-min), 6vw, var(--title-max)); letter-spacing:1px}
     main{padding:12px;max-width:1100px;margin:0 auto}
+    #appMain{max-width:none;width:100%;margin:0}
+    #appMain > .card{width:100%}
     .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
     .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
     .toolbar .spacer{flex:1}
@@ -279,6 +281,7 @@
     }
     #invTable thead th.actions{
       text-align:right;
+      padding-right:14px;
     }
     #invTable thead th.align-left,
     #invTable tbody td.align-left{
@@ -302,7 +305,7 @@
     th.sorted-asc .sort-ind::before{ content:'\25B2'; opacity:1 }
     th.sorted-desc .sort-ind::before{ content:'\25BC'; opacity:1 }
     tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
-    td.actions{padding:8px 6px;text-align:right}
+    td.actions{padding:8px 14px 8px 6px;text-align:right}
     .actions-wrap{display:inline-flex;gap:8px;align-items:center;justify-content:flex-end}
     .inv-item-main{
       display:flex;
@@ -564,15 +567,16 @@
 				    }
 				    @media (hover: hover) and (pointer: fine){
 				      #invTable tbody tr[data-id]{
-				        transition: filter 160ms ease;
+				        transition: filter 160ms ease, background 160ms ease;
 				        transition-delay: 0ms;
 				        filter:none;
 				      }
 				      #invTable tbody tr[data-id]:hover{
 				        transition-delay: 200ms; /* avoids flicker while scrolling */
 				        filter:
-				          drop-shadow(0 0 16px rgba(135,245,255,0.24))
-				          drop-shadow(0 0 46px rgba(135,245,255,0.08));
+				          drop-shadow(0 0 8px rgba(59,130,246,0.40))
+				          drop-shadow(0 0 20px rgba(59,130,246,0.22));
+				        background: linear-gradient(90deg, rgba(59,130,246,0.08) 0%, rgba(59,130,246,0.04) 50%, transparent 100%);
 				      }
 				      #invTable tbody tr.order-selected{
 				        background:
@@ -639,8 +643,25 @@
 		        min-height:68px;
 		        height:auto;
 		        vertical-align:middle;
-		        border-bottom:1px solid var(--border);
+		        border-bottom:1px solid rgba(255,255,255,0.08);
 		        position:static;
+		        overflow:visible;
+		        background:rgba(10,12,18,0.82);
+		      }
+		      #invTable tbody tr[data-id]:nth-child(even) td{
+		        background:rgba(12,15,22,0.88);
+		      }
+		      #invTable tbody tr[data-id] td .cell-val{
+		        display:block;
+		        overflow:hidden;
+		        text-overflow:ellipsis;
+		        white-space:nowrap;
+		      }
+		      #invTable tbody tr[data-id] td[data-col="desc"] .cell-val{
+		        display:-webkit-box;
+		        -webkit-line-clamp:2;
+		        -webkit-box-orient:vertical;
+		        white-space:normal;
 		      }
 		      #invTable tbody tr[data-id] td[data-col="name"]{
 		        position:static; /* Allow tray to position relative to tr, not td */
@@ -2462,18 +2483,24 @@
       width:100%;
     }
     .job-row{
-      display:grid;
-      grid-template-columns:18px minmax(0,1fr) auto;
-      align-items:center;
-      gap:10px;
-      padding:8px 10px;
+      display:flex;
+      flex-direction:column;
+      gap:0;
       border:1px solid var(--border);
-      border-radius:10px;
+      border-radius:12px;
       background:rgba(13,18,24,0.65);
       width:100%;
       max-width:100%;
       min-width:0;
       box-sizing:border-box;
+    }
+    .job-card-header{
+      display:grid;
+      grid-template-columns:18px minmax(0,1fr) auto;
+      align-items:center;
+      gap:12px;
+      padding:10px 12px;
+      cursor:pointer;
     }
     .job-chevron{
       color:var(--muted);
@@ -2488,47 +2515,71 @@
       cursor:pointer;
       flex:0 0 auto;
     }
-    .job-row-main{
+    .job-chevron svg{ transition:transform 0.15s ease; }
+    .job-row[aria-expanded="true"] .job-chevron svg{ transform:rotate(90deg); }
+    .job-header-main{
       display:flex;
-      align-items:center;
-      gap:10px;
+      flex-direction:column;
+      gap:4px;
       min-width:0;
-      flex:1 1 auto;
-      overflow:hidden;
-      white-space:nowrap;
-      cursor:pointer;
     }
     .job-name{
       font-weight:800;
-      flex:1 1 auto;
       min-width:0;
       overflow:hidden;
       text-overflow:ellipsis;
+      white-space:nowrap;
     }
-    .job-row-meta{
+    .job-header-meta{
       display:flex;
       align-items:center;
-      gap:8px;
-      flex:0 1 auto;
+      gap:10px;
+      flex-wrap:wrap;
       min-width:0;
       color:var(--muted);
       font-size:12px;
-      overflow:hidden;
+    }
+    .job-status-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:600;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+      border:1px solid transparent;
       white-space:nowrap;
-      text-overflow:ellipsis;
+    }
+    .job-status-pill--approved{
+      color:var(--status-approved, #238636);
+      background:rgba(35,134,54,0.15);
+      border-color:rgba(35,134,54,0.3);
+    }
+    .job-status-pill--pending{
+      color:var(--status-pending, #9e6a03);
+      background:rgba(158,106,3,0.15);
+      border-color:rgba(158,106,3,0.3);
+    }
+    .job-status-pill--draft{
+      color:var(--status-draft, #6e7681);
+      background:rgba(110,118,129,0.15);
+      border-color:rgba(110,118,129,0.3);
     }
     .job-summary{
       display:inline-flex;
       align-items:center;
       gap:6px;
       min-width:0;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width:100%;
       white-space:nowrap;
     }
-    .job-summary-sep{
-      opacity:0.6;
+    .job-shortage{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      color:var(--alert-warning, #d29922);
+      font-weight:600;
     }
     .job-actions{
       display:flex;
@@ -2564,56 +2615,107 @@
     }
     @media (max-width: 720px){
       .job-row{ gap:8px; }
-      .job-row-meta .job-meta{ display:none; }
       .job-status{ padding:3px 8px; font-size:10px; }
       .job-summary{ font-size:11px; }
       .job-actions .icon-btn{ width:30px; height:30px; }
     }
     .job-detail{
-      margin:0 0 2px 18px;
-      padding:6px 10px 10px 10px;
-      border-left:1px dashed rgba(148,163,184,0.35);
+      margin:0;
+      padding:8px 12px 12px 12px;
+      border-top:1px solid rgba(148,163,184,0.2);
       overflow:hidden;
       width:100%;
       max-width:100%;
       box-sizing:border-box;
     }
-    .job-bom-lines{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      font-size:12px;
+    .job-items-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
     }
-    .job-bom-line{
-      display:grid;
-      grid-template-columns:minmax(0,1fr) 70px 80px 20px;
-      gap:8px;
-      align-items:center;
-      padding:4px 0;
-      border-bottom:1px dashed rgba(148,163,184,0.12);
+    .job-items-table th,
+    .job-items-table td{
+      padding:8px 6px;
+      border-bottom:1px solid rgba(148,163,184,0.2);
+      vertical-align:top;
     }
-    .job-bom-line:last-child{ border-bottom:none; }
-    .job-bom-item{
-      min-width:0;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-    .job-bom-meta{
+    .job-items-table th{
+      text-align:left;
       color:var(--muted);
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
       font-size:11px;
-      margin-left:6px;
     }
-    .job-bom-qty{
+    .job-items-table td.num{
       text-align:right;
       font-variant-numeric:tabular-nums;
       font-weight:700;
     }
-    .job-short-icon{
-      color:#fbbf24;
+    .job-item-name{
+      font-weight:700;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .job-item-sku{
+      font-size:11px;
+      color:var(--muted);
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .job-item-status{
       display:inline-flex;
       align-items:center;
-      justify-content:center;
+      gap:6px;
+      font-size:12px;
+      font-weight:600;
+      white-space:nowrap;
+    }
+    .job-item-status--fulfilled{ color:var(--alert-success, #3fb950); }
+    .job-item-status--shortage{ color:var(--alert-warning, #d29922); }
+    .job-item-status--out{ color:var(--alert-danger, #f85149); }
+    .job-items-summary{
+      display:flex;
+      justify-content:flex-end;
+      gap:16px;
+      padding-top:10px;
+      font-size:12px;
+      font-weight:700;
+      color:var(--muted);
+    }
+    .job-items-summary span{
+      display:inline-flex;
+      gap:6px;
+      align-items:center;
+    }
+    .job-items-summary .job-total-short{
+      color:var(--alert-warning, #d29922);
+    }
+    @media (max-width: 640px){
+      .job-items-table thead{ display:none; }
+      .job-items-table tr{
+        display:block;
+        padding:8px 0;
+      }
+      .job-items-table td{
+        display:flex;
+        justify-content:space-between;
+        gap:12px;
+        padding:4px 0;
+        border-bottom:none;
+      }
+      .job-items-table td::before{
+        content:attr(data-label);
+        color:var(--muted);
+        text-transform:uppercase;
+        letter-spacing:0.05em;
+        font-size:10px;
+        font-weight:600;
+      }
+      .job-items-table td.item-cell{
+        display:block;
+      }
+      .job-items-table td.item-cell::before{ display:none; }
     }
     .job-bom-table{
       width:100%;
@@ -3102,9 +3204,9 @@
       white-space:nowrap;
     }
     .env-badge.env-production{background:#22c55e;color:#072215;border-color:#1a8b42}
-    .env-badge.env-sandbox{background:#f59e0b;color:#2a1b00;border-color:#b27307}
-    .env-badge.env-test{background:#ef4444;color:#2b0c0c;border-color:#b91c1c}
-    .env-badge.env-system{background:#38bdf8;color:#04212c;border-color:#0ea5e9}
+    .env-badge.env-sandbox{background:#38bdf8;color:#04212c;border-color:#0ea5e9}
+    .env-badge.env-test{background:#a78bfa;color:#1f1245;border-color:#8b5cf6}
+    .env-badge.env-system{background:#64748b;color:#0f172a;border-color:#475569}
     .profile-env-badge{
       padding:3px 8px;
       border-radius:4px;
@@ -3222,9 +3324,227 @@
       font-size:12px;
       color:var(--muted);
     }
+    .manage-companies-modal .modal-header{
+      padding:16px 24px;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      background:rgba(18,24,32,0.7);
+      backdrop-filter: blur(10px);
+    }
+    .manage-companies-header-meta{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:4px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .manage-companies-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:3px 8px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      background:rgba(99,102,241,0.2);
+      color:#c7d2fe;
+      border:1px solid rgba(99,102,241,0.4);
+    }
+    .manage-companies-filters{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:flex-end;
+    }
+    .manage-companies-filters .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      flex:1 1 220px;
+    }
+    .manage-companies-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      justify-content:flex-end;
+      margin-top:10px;
+    }
+    .btn-outline-success{
+      background:transparent;
+      border:1px solid rgba(34,197,94,0.45);
+      color:#6ee7b7;
+      box-shadow:0 0 0 1px rgba(34,197,94,0.08) inset;
+    }
+    .btn-outline-success:hover{
+      background:rgba(34,197,94,0.12);
+      border-color:rgba(34,197,94,0.6);
+      color:#34d399;
+    }
+    .manage-companies-modal{
+      width:96vw;
+      max-width:min(1200px, 96vw);
+    }
+    @media (min-width: 1400px){
+      .manage-companies-modal{
+        max-width:1400px;
+      }
+    }
+    .manage-companies-results{
+      margin-top:10px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      max-height:340px;
+      overflow-y:auto;
+      overflow-x:hidden;
+      background:#121820;
+    }
+    .manage-companies-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      table-layout:fixed;
+    }
+    .manage-companies-table th,.manage-companies-table td{
+      text-align:left;
+      padding:10px 12px;
+      border-bottom:1px solid var(--border);
+      vertical-align:middle;
+      word-break:break-word;
+    }
+    .manage-companies-table th{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+      color:var(--muted);
+    }
+    .manage-companies-table .col-members,
+    .manage-companies-table .col-inventory{
+      text-align:center;
+    }
+    .manage-companies-table .inv-positive{
+      color:var(--action-primary);
+    }
+    .manage-companies-table tr.is-current{
+      background:rgba(88,166,255,0.05);
+    }
+    .manage-companies-table tr.is-current td:first-child{
+      border-left:3px solid var(--action-primary);
+    }
+    .manage-companies-name{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      font-weight:600;
+      min-width:0;
+    }
+    .manage-companies-name span{
+      min-width:0;
+    }
+    .manage-companies-current{
+      display:inline-flex;
+      align-items:center;
+      padding:2px 6px;
+      border-radius:8px;
+      font-size:10px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      background:rgba(88,166,255,0.2);
+      color:#93c5fd;
+    }
+    .company-id-copy{
+      margin-top:4px;
+      font-size:11px;
+      color:var(--muted);
+      background:transparent;
+      border:none;
+      padding:0;
+      cursor:pointer;
+    }
+    .company-id-copy:hover{ color:#cbd5f5; }
+    .manage-companies-row-actions{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+    }
+    .company-active-label{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .company-overflow{
+      position:relative;
+    }
+    .company-overflow-btn{
+      width:32px;
+      height:32px;
+    }
+    .company-overflow-menu{
+      position:absolute;
+      right:0;
+      top:36px;
+      min-width:190px;
+      background:#121820;
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;
+      padding:8px;
+      box-shadow:0 12px 30px rgba(0,0,0,0.35);
+      display:none;
+      z-index:20;
+    }
+    .company-overflow.open .company-overflow-menu{ display:block; }
+    .company-overflow-section{
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      color:var(--muted);
+      padding:6px 8px 4px;
+    }
+    .company-overflow-item{
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:8px 10px;
+      border-radius:10px;
+      background:transparent;
+      border:1px solid transparent;
+      color:#d1d5db;
+      font-size:13px;
+      cursor:pointer;
+      text-align:left;
+    }
+    .company-overflow-item:hover{
+      background:rgba(255,255,255,0.06);
+      color:#fff;
+    }
+    .company-overflow-item.danger{
+      color:var(--action-danger);
+    }
+    .company-overflow-item.danger:hover{
+      background:rgba(248,81,73,0.1);
+      color:var(--action-danger);
+    }
+    .manage-companies-hint{margin-top:6px;font-size:12px;color:var(--muted)}
+    @media (max-width: 768px){
+      .manage-companies-filters{flex-direction:column;align-items:stretch;}
+      .manage-companies-actions{justify-content:stretch;}
+      .manage-companies-actions .btn-primary,
+      .manage-companies-actions .btn-secondary,
+      .manage-companies-actions .btn-outline-success{
+        width:100%;
+      }
+      .manage-companies-table .col-members{display:none;}
+      .manage-companies-table th.col-members{display:none;}
+    }
     .advanced-switcher-controls{
-      display:grid;
-      grid-template-columns:2fr 1fr;
+      display:flex;
+      flex-wrap:wrap;
       gap:10px;
     }
     .advanced-switcher-controls .field{
@@ -3261,7 +3581,13 @@
     }
     .advanced-switcher-table th{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
     .advanced-switcher-id{font-size:11px;color:var(--muted);word-break:break-all}
-    .advanced-switcher-row-actions{display:flex;gap:6px}
+    .advanced-switcher-row-actions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .advanced-switcher-row-actions .btn-tertiary{white-space:nowrap;}
     .advanced-switcher-hint{margin-top:6px;font-size:12px;color:var(--muted)}
     #advancedCompanyModal.company-switcher-basic .advanced-switcher-controls,
     #advancedCompanyModal.company-switcher-basic .advanced-switcher-actions{
@@ -3985,7 +4311,7 @@
               <div class="profile-panel" role="tabpanel" id="profilePanelCompany" data-panel="company" aria-labelledby="profileTabCompany" tabindex="0">
                 <button class="profile-item" id="openCompanySwitcher" type="button">
                   <svg class="profile-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
-                  <span>Switch Company</span>
+                  <span>Change User Company</span>
                 </button>
                 <button class="profile-item" id="openCompanyLocations" type="button">
                   <svg class="profile-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 5-9 11-9 11S3 15 3 10a9 9 0 1 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
@@ -6427,9 +6753,9 @@
     </div>
   </div>
 
-  <!-- Advanced company switcher (super user only) -->
+  <!-- Manage companies (super user only) -->
   <div id="advancedCompanyModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal modal--md" role="dialog" aria-modal="true" aria-labelledby="advancedCompanyTitle">
+    <div class="modal modal--md manage-companies-modal" role="dialog" aria-modal="true" aria-labelledby="advancedCompanyTitle">
       <div class="modal-header">
         <div class="modal-title-wrap">
           <span class="modal-icon">
@@ -6440,8 +6766,11 @@
             </svg>
           </span>
           <div class="modal-title-text">
-            <h2 id="advancedCompanyTitle" class="modal-title">Advanced Company Switcher</h2>
-            <div class="modal-subtitle">Super-user only. Switching here does not change your default company.</div>
+            <h2 id="advancedCompanyTitle" class="modal-title">Manage Companies</h2>
+            <div class="modal-subtitle">Switching here is temporary and does not change the user's default company.</div>
+            <div class="manage-companies-header-meta">
+              <span class="manage-companies-badge">Super User</span>
+            </div>
           </div>
         </div>
         <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="advancedCompanyModal" aria-label="Close">
@@ -6452,9 +6781,9 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="form-section">
+        <div class="form-section filters-section">
           <div class="section-label">Filters</div>
-          <div class="advanced-switcher-controls">
+          <div class="manage-companies-filters advanced-switcher-controls">
             <div class="field">
               <label for="advancedCompanySearch">Search</label>
               <input id="advancedCompanySearch" type="text" placeholder="Company name or exact company ID" />
@@ -6463,27 +6792,129 @@
               <label for="advancedCompanyTypeFilter">Environment</label>
               <select id="advancedCompanyTypeFilter">
                 <option value="production" selected>Production</option>
-                <option value="sandbox">Sandbox</option>
+                <option value="sandbox">Development</option>
                 <option value="test">Test</option>
                 <option value="system">System</option>
                 <option value="">All</option>
               </select>
             </div>
           </div>
-          <div class="advanced-switcher-actions">
-            <button class="btn-secondary" id="advancedCompanySearchBtn" type="button">Search</button>
-            <button class="btn-secondary" id="advancedCompanyReturnBtn" type="button">Return to Production</button>
+          <div class="manage-companies-actions advanced-switcher-actions">
+            <button class="btn-primary" id="advancedCompanySearchBtn" type="button">Search</button>
+            <button class="btn-secondary" id="advancedCompanyProvisionBtn" type="button">New Company</button>
+            <button class="btn-secondary btn-outline-success" id="advancedCompanyReturnBtn" type="button">Return to Production</button>
           </div>
         </div>
-        <div class="form-section">
+        <div class="form-section results-section">
           <div class="section-label">Results</div>
-          <div id="advancedCompanyResults" class="advanced-switcher-results"></div>
-          <div id="advancedCompanyMsg" class="advanced-switcher-hint"></div>
+          <div id="advancedCompanyResults" class="manage-companies-results advanced-switcher-results"></div>
+          <div id="advancedCompanyMsg" class="manage-companies-hint advanced-switcher-hint"></div>
         </div>
       </div>
       <div class="modal-footer">
         <div class="footer-right">
           <button class="btn-secondary" id="advancedCompanyClose" type="button" data-modal-close="advancedCompanyModal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inventory seeding (super user only) -->
+  <div id="seedInventoryModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="seedInventoryTitle">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <path d="M3.27 6.96 12 12.01l8.73-5.05"></path>
+              <path d="M12 22.08V12"></path>
+            </svg>
+          </span>
+          <div class="modal-title-text">
+            <h2 id="seedInventoryTitle" class="modal-title">Seed Inventory</h2>
+            <div class="modal-subtitle">Copy items from another company into this workspace.</div>
+          </div>
+        </div>
+        <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="seedInventoryModal" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-section">
+          <div class="section-label">Target</div>
+          <label>Company</label>
+          <div id="seedInventoryTargetName" class="add-job-item"></div>
+          <div id="seedInventoryTargetId" class="advanced-switcher-id"></div>
+        </div>
+        <div class="form-section">
+          <div class="section-label">Source</div>
+          <label for="seedInventorySource">Source company</label>
+          <select id="seedInventorySource"></select>
+          <label for="seedInventoryDedupe">Dedupe key</label>
+          <select id="seedInventoryDedupe">
+            <option value="sku" selected>SKU</option>
+            <option value="name">Name</option>
+          </select>
+          <div class="muted">Seeding runs once per target company. Items are copied without quantities.</div>
+          <div id="seedInventoryMsg" class="muted" style="margin-top:6px;"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="footer-right">
+          <button class="btn-secondary" id="btnSeedInventoryCancel" type="button" data-modal-close="seedInventoryModal">Cancel</button>
+          <button class="btn-primary" id="btnSeedInventoryConfirm" type="button">Seed Inventory</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Company environment (super user only) -->
+  <div id="companyEnvironmentModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="companyEnvironmentTitle">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2l3 6 6 .9-4.5 4.3 1.1 6.3L12 16.8 6.4 19.5l1.1-6.3L3 8.9 9 8z"></path>
+            </svg>
+          </span>
+          <div class="modal-title-text">
+            <h2 id="companyEnvironmentTitle" class="modal-title">Set Environment</h2>
+            <div class="modal-subtitle">Test enables destructive actions. Production blocks them.</div>
+          </div>
+        </div>
+        <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="companyEnvironmentModal" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-section">
+          <div class="section-label">Target</div>
+          <label>Company</label>
+          <div id="companyEnvironmentTargetName" class="add-job-item"></div>
+          <div id="companyEnvironmentTargetId" class="advanced-switcher-id"></div>
+        </div>
+        <div class="form-section">
+          <div class="section-label">Environment</div>
+          <label for="companyEnvironmentSelect">Set environment</label>
+          <select id="companyEnvironmentSelect">
+            <option value="production">Production</option>
+            <option value="test">Test</option>
+          </select>
+          <div id="companyEnvironmentNote" class="muted" style="margin-top:6px;"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="footer-right">
+          <button class="btn-secondary" id="btnCompanyEnvironmentCancel" type="button" data-modal-close="companyEnvironmentModal">Cancel</button>
+          <button class="btn-primary" id="btnCompanyEnvironmentConfirm" type="button">Save Environment</button>
         </div>
       </div>
     </div>
@@ -6527,16 +6958,17 @@
             </div>
             <div>
               <label for="provisioningOnboardingState">Onboarding State</label>
-              <input id="provisioningOnboardingState" type="text" value="SUBSCRIPTION_ACTIVE" />
+              <input id="provisioningOnboardingState" type="text" value="UNINITIALIZED" readonly />
+              <div class="provisioning-note">Set automatically for new companies.</div>
             </div>
             <div>
-              <label for="provisioningBillingMode">Billing Mode</label>
-              <select id="provisioningBillingMode">
-                <option value="manual" selected>manual</option>
-                <option value="trial">trial</option>
-                <option value="enterprise">enterprise</option>
-              </select>
-              <div class="provisioning-note">Display-only for now; stored only if supported.</div>
+              <div class="provisioning-field-toggle" style="margin-top:18px;">
+                <label class="toggle-switch">
+                  <input id="provisioningIncludeActor" type="checkbox" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+                <label for="provisioningIncludeActor" class="muted" style="font-size:13px;cursor:pointer;">Add me as admin</label>
+              </div>
             </div>
           </div>
         </div>
@@ -6544,50 +6976,31 @@
         <div class="form-section">
           <div class="section-label">Initial User Assignment (optional)</div>
           <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;">
-            <div class="provisioning-note" style="margin-top:0;">Attach existing users or send invites for new users.</div>
+            <div class="provisioning-note" style="margin-top:0;">Attach existing users and assign roles.</div>
             <button class="btn-tertiary btn-sm" id="btnProvisioningAddUser" type="button">Add User</button>
           </div>
           <div id="provisioningUsersList" aria-live="polite"></div>
+          <div class="provisioning-warning">Cross-company memberships are allowed for test or super_user accounts.</div>
         </div>
 
         <div class="form-section">
-          <div class="section-label">Subscription / Tier Setup</div>
+          <div class="section-label">Subscription Tier (optional)</div>
           <div class="provisioning-grid">
             <div>
-              <label for="provisioningBaseTier">Base Subscription Tier</label>
-              <select id="provisioningBaseTier">
-                <option value="starter" selected>starter</option>
+              <label for="provisioningTierOverride">Subscription Tier Override</label>
+              <select id="provisioningTierOverride">
+                <option value="" selected>No override (starter)</option>
+                <option value="starter">starter</option>
                 <option value="professional">professional</option>
                 <option value="business">business</option>
                 <option value="enterprise">enterprise</option>
               </select>
+              <div class="provisioning-note">Overrides effective tier; base remains starter.</div>
             </div>
             <div>
-              <div class="provisioning-field-toggle" style="margin-top:18px;">
-                <label class="toggle-switch">
-                  <input id="provisioningTrialToggle" type="checkbox" />
-                  <span class="toggle-slider"></span>
-                </label>
-                <label for="provisioningTrialToggle" class="muted" style="font-size:13px;cursor:pointer;">Grant trial override</label>
-              </div>
+              <label for="provisioningTierEndsAt">Override Ends At (optional)</label>
+              <input id="provisioningTierEndsAt" type="datetime-local" />
             </div>
-          </div>
-          <div id="provisioningTrialFields" style="display:none;">
-            <div class="provisioning-grid">
-              <div>
-                <label for="provisioningTrialTier">Trial Override Tier</label>
-                <select id="provisioningTrialTier">
-                  <option value="professional">professional</option>
-                  <option value="business" selected>business</option>
-                  <option value="enterprise">enterprise</option>
-                </select>
-              </div>
-              <div>
-                <label for="provisioningTrialDays">Trial Length (days)</label>
-                <input id="provisioningTrialDays" type="number" min="1" step="1" inputmode="numeric" value="14" />
-              </div>
-            </div>
-            <div class="provisioning-note">Trial override is time-limited and auditable.</div>
           </div>
         </div>
 
@@ -6857,8 +7270,14 @@
       _jobReservedMap:new Map(),
       _addToJob:null,
       _addToJobBusy:false,
+      _seedInventory:null,
+      _seedInventoryBusy:false,
+      _companyEnvironment:null,
+      _companyEnvironmentBusy:false,
       _companySwitcherMode:'basic',
-      _profileTab:''
+      _profileTab:'',
+      _advancedInventoryCounts:{},
+      _companyOverflowOpenId:null
     };
     const APP_VERSION = '2.0.0';
     const PROFILE_TAB_STORAGE_KEY = 'profile.activeTab';
@@ -6956,6 +7375,12 @@
           '<path d="M16 10a4 4 0 0 1-8 0"></path>'+
           '<path class="order-check" d="m9 14 2 2 4-4"></path>'+
         '</svg>',
+      moreHorizontal:
+        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+          '<circle cx="12" cy="12" r="1"></circle>'+
+          '<circle cx="19" cy="12" r="1"></circle>'+
+          '<circle cx="5" cy="12" r="1"></circle>'+
+        '</svg>',
       package:
         '<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
           '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>'+
@@ -6991,8 +7416,8 @@
       type:'actions',
       locked:true,
       lock:true,
-      minWidth:120,
-      minCellWidth:120,
+      minWidth:192,
+      minCellWidth:192,
       dataCol:'actions',
       sortable:false,
       align:'right',
@@ -8131,9 +8556,18 @@
       SB.companyId = null;
       SB.company = null;
       if(!SB.ready || !SB.user) return null;
+      // First load with production only
       const { data, error } = await SB.client.rpc('get_my_companies', { p_include_non_production: false });
       if(error) throw error;
-      const rows = Array.isArray(data) ? data : [];
+      let rows = Array.isArray(data) ? data : [];
+      // If user is super user (any row has is_super_user=true), reload with all company types
+      const isSuperUserFromRows = rows.some(r => r.is_super_user === true);
+      if(isSuperUserFromRows && rows.length > 0){
+        const { data: allData, error: allError } = await SB.client.rpc('get_my_companies', { p_include_non_production: true });
+        if(!allError && Array.isArray(allData)){
+          rows = allData;
+        }
+      }
       SB.companies = rows;
       let selected = readSavedCompanyId();
       if(selected && !rows.some(r => String(r.company_id) === String(selected))) selected = null;
@@ -8337,7 +8771,7 @@
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-              <span>Advanced Company Switcher</span>
+              <span>Manage Companies</span>
             </button>
             <button class="profile-item" id="openDiagnostics" type="button">
               <svg class="profile-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -8401,12 +8835,16 @@
       modal.classList.toggle('company-switcher-basic', nextMode === 'basic');
       const title = $('advancedCompanyTitle');
       const subtitle = modal.querySelector('.modal-subtitle');
-      if(title) title.textContent = nextMode === 'basic' ? 'Switch Company' : 'Advanced Company Switcher';
+      if(title) title.textContent = nextMode === 'basic' ? 'Change User Company' : 'Manage Companies';
       if(subtitle){
         subtitle.textContent = nextMode === 'basic'
-          ? 'Choose the workspace you want to manage.'
-          : 'Super-user only. Switching here does not change your default company.';
+          ? 'Choose the workspace you want to access.'
+          : 'Switching here is temporary and does not change the user\'s default company.';
       }
+      const badge = modal.querySelector('.manage-companies-badge');
+      const meta = modal.querySelector('.manage-companies-header-meta');
+      if(badge) badge.style.display = nextMode === 'basic' ? 'none' : '';
+      if(meta) meta.style.display = nextMode === 'basic' ? 'none' : '';
     }
     function renderBasicCompanyResults(){
       const container = $('advancedCompanyResults');
@@ -10195,6 +10633,28 @@
       if(!el) return;
       el.textContent = String(msg || '');
     }
+    async function loadAdvancedInventoryCounts(companyIds){
+      const ids = Array.isArray(companyIds) ? companyIds.filter(Boolean) : [];
+      if(!ids.length){
+        state._advancedInventoryCounts = {};
+        return;
+      }
+      const { data, error } = await SB.client
+        .from('inventory_items')
+        .select('company_id, count:id')
+        .in('company_id', ids)
+        .is('deleted_at', null);
+      if(error) throw error;
+      const counts = {};
+      (Array.isArray(data) ? data : []).forEach(row => {
+        const id = String(row.company_id || '').trim();
+        if(!id) return;
+        const raw = row.count;
+        const val = Number.isFinite(Number(raw)) ? Number(raw) : 0;
+        counts[id] = val;
+      });
+      state._advancedInventoryCounts = counts;
+    }
     function getDefaultProductionCompanyId(){
       const rows = Array.isArray(SB.companies) ? SB.companies : [];
       const preferred = state._defaultCompanyId ? String(state._defaultCompanyId) : '';
@@ -10213,47 +10673,730 @@
       btn.disabled = !allow;
       btn.setAttribute('aria-disabled', allow ? 'false' : 'true');
     }
+    function getAdvancedCompanyRow(targetId){
+      const rows = Array.isArray(state._advancedCompanies) ? state._advancedCompanies : [];
+      const id = String(targetId || '').trim();
+      if(!id) return null;
+      return rows.find(r => String(r.company_id || '') === id) || null;
+    }
+    function formatCompanyIdShort(id){
+      const raw = String(id || '').trim();
+      if(raw.length <= 14) return raw;
+      return `${raw.slice(0,8)}...${raw.slice(-4)}`;
+    }
+    function closeCompanyOverflowMenus(){
+      document.querySelectorAll('.company-overflow.open').forEach(menu => {
+        menu.classList.remove('open');
+        const btn = menu.querySelector('[data-company-overflow]');
+        if(btn) btn.setAttribute('aria-expanded', 'false');
+      });
+      state._companyOverflowOpenId = null;
+    }
+    function toggleCompanyOverflowMenu(id, btn){
+      const targetId = String(id || '').trim();
+      if(!targetId) return;
+      const wrapper = document.querySelector(`.company-overflow[data-company-menu="${targetId}"]`);
+      if(!wrapper) return;
+      const isOpen = wrapper.classList.contains('open');
+      closeCompanyOverflowMenus();
+      if(isOpen) return;
+      wrapper.classList.add('open');
+      state._companyOverflowOpenId = targetId;
+      if(btn) btn.setAttribute('aria-expanded', 'true');
+      const first = wrapper.querySelector('.company-overflow-item');
+      if(first) first.focus();
+    }
+    function getSeedSourceCompanies(targetId){
+      const target = String(targetId || '').trim();
+      const map = new Map();
+      const addRow = (row) => {
+        if(!row) return;
+        const id = String(row.company_id || row.id || '').trim();
+        if(!id || id === target) return;
+        if(map.has(id)) return;
+        map.set(id, {
+          company_id: id,
+          company_name: String(row.company_name || row.company_slug || id || '').trim() || id,
+          company_type: normalizeCompanyType(row.company_type)
+        });
+      };
+      (Array.isArray(state._advancedCompanies) ? state._advancedCompanies : []).forEach(addRow);
+      (Array.isArray(SB.companies) ? SB.companies : []).forEach(addRow);
+      return Array.from(map.values());
+    }
+    function setCompanyEnvironmentMessage(msg){
+      if(!state._companyEnvironment) return;
+      state._companyEnvironment.message = String(msg || '');
+      renderCompanyEnvironmentModal();
+    }
+    function setCompanyEnvironmentBusy(isBusy){
+      state._companyEnvironmentBusy = !!isBusy;
+      const select = $('companyEnvironmentSelect');
+      const btn = $('btnCompanyEnvironmentConfirm');
+      const cancel = $('btnCompanyEnvironmentCancel');
+      if(select) select.disabled = !!isBusy;
+      if(btn){
+        btn.disabled = !!isBusy;
+        btn.setAttribute('data-loading', isBusy ? 'true' : 'false');
+      }
+      if(cancel) cancel.disabled = !!isBusy;
+    }
+    function renderCompanyEnvironmentModal(){
+      const data = state._companyEnvironment;
+      if(!data) return;
+      const nameEl = $('companyEnvironmentTargetName');
+      const idEl = $('companyEnvironmentTargetId');
+      const select = $('companyEnvironmentSelect');
+      const note = $('companyEnvironmentNote');
+      const busy = !!state._companyEnvironmentBusy;
+      if(nameEl) nameEl.textContent = data.targetName || 'Company';
+      if(idEl) idEl.textContent = data.targetId || '';
+      if(select){
+        select.value = data.nextType || data.currentType || 'production';
+        select.disabled = busy;
+      }
+      if(note){
+        const currentLabel = formatCompanyTypeLabel(data.currentType || 'production');
+        const nextLabel = formatCompanyTypeLabel(data.nextType || data.currentType || 'production');
+        const base = data.currentType === data.nextType
+          ? `Current: ${currentLabel}`
+          : `Current: ${currentLabel} \u2192 ${nextLabel}`;
+        note.textContent = data.message ? data.message : base;
+      }
+    }
+    function openCompanyEnvironmentModal(company, opts = {}){
+      if(!company) return;
+      if(!isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return;
+      }
+      const id = String(company.company_id || '').trim();
+      if(!id) return;
+      const currentType = normalizeCompanyType(company.company_type);
+      const requested = opts && opts.nextType ? normalizeCompanyType(opts.nextType) : currentType;
+      state._companyEnvironment = {
+        targetId: id,
+        targetName: String(company.company_name || company.company_slug || id || '').trim() || 'Company',
+        currentType,
+        nextType: requested,
+        message: ''
+      };
+      setCompanyEnvironmentBusy(false);
+      renderCompanyEnvironmentModal();
+      show('companyEnvironmentModal', true);
+    }
+    async function confirmCompanyEnvironment(){
+      if(!state._companyEnvironment) return;
+      if(!SB.ready || !SB.session || !SB.client){
+        toast('Supabase not configured');
+        return;
+      }
+      if(!isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return;
+      }
+      const data = state._companyEnvironment;
+      const targetId = String(data.targetId || '').trim();
+      const nextType = normalizeCompanyType(data.nextType || data.currentType);
+      if(!targetId) return;
+      if(nextType !== 'production' && nextType !== 'test'){
+        setCompanyEnvironmentMessage('Select a valid environment.');
+        return;
+      }
+      if(nextType === data.currentType){
+        show('companyEnvironmentModal', false);
+        return;
+      }
+      const confirmText = nextType === 'test'
+        ? 'This enables destructive actions for this company.'
+        : 'This blocks destructive actions for this company.';
+      const ok = await openConfirmModal(
+        `Switch to ${formatCompanyTypeLabel(nextType)}?`,
+        confirmText,
+        { okText: 'Confirm', cancelText: 'Cancel' }
+      );
+      if(!ok) return;
+      setCompanyEnvironmentBusy(true);
+      setCompanyEnvironmentMessage('');
+      try{
+        const { data: result, error } = await SB.client.rpc('set_company_environment', {
+          p_company_id: targetId,
+          p_environment: nextType
+        });
+        if(error) throw error;
+        if(result && result.success === false){
+          throw new Error(result.error || 'Update failed');
+        }
+        if(String(SB.companyId || '') === targetId && SB.company){
+          SB.company.company_type = nextType;
+          renderCompanyEnvBadge();
+        }
+        show('companyEnvironmentModal', false);
+        await loadAdvancedCompanies();
+        toast(`Environment set to ${formatCompanyTypeLabel(nextType)}`);
+      }catch(e){
+        setCompanyEnvironmentMessage(e && e.message ? e.message : 'Update failed');
+      }finally{
+        setCompanyEnvironmentBusy(false);
+      }
+    }
+    async function ensureCompanyTestEnvironment(company, actionLabel){
+      if(!company) return false;
+      const type = normalizeCompanyType(company.company_type);
+      if(type === 'test') return true;
+      const name = String(company.company_name || company.company_slug || company.company_id || '').trim() || 'Company';
+      const ok = await openConfirmModal(
+        'Test environment required',
+        `${actionLabel} is allowed only in Test. Switch ${name} to Test?`,
+        { okText: 'Switch to Test', cancelText: 'Cancel' }
+      );
+      if(ok){
+        openCompanyEnvironmentModal(company, { nextType: 'test' });
+      }
+      return false;
+    }
+    function setSeedInventoryMessage(msg){
+      const el = $('seedInventoryMsg');
+      if(!el) return;
+      el.textContent = String(msg || '');
+    }
+    function setSeedInventoryBusy(isBusy){
+      state._seedInventoryBusy = !!isBusy;
+      const select = $('seedInventorySource');
+      const dedupe = $('seedInventoryDedupe');
+      const btn = $('btnSeedInventoryConfirm');
+      const cancel = $('btnSeedInventoryCancel');
+      if(select) select.disabled = !!isBusy;
+      if(dedupe) dedupe.disabled = !!isBusy;
+      if(btn){
+        btn.disabled = !!isBusy;
+        btn.setAttribute('data-loading', isBusy ? 'true' : 'false');
+      }
+      if(cancel) cancel.disabled = !!isBusy;
+    }
+    function renderSeedInventoryModal(){
+      const data = state._seedInventory;
+      if(!data) return;
+      const nameEl = $('seedInventoryTargetName');
+      const idEl = $('seedInventoryTargetId');
+      const select = $('seedInventorySource');
+      const dedupe = $('seedInventoryDedupe');
+      const btn = $('btnSeedInventoryConfirm');
+      const busy = !!state._seedInventoryBusy;
+      const isTest = normalizeCompanyType(data.targetType) === 'test';
+      const targetName = data.targetName || 'Company';
+      const targetId = data.targetId || '';
+      if(nameEl) nameEl.textContent = targetName;
+      if(idEl) idEl.textContent = targetId;
+      if(select){
+        const sources = getSeedSourceCompanies(targetId);
+        const current = String(data.sourceId || '').trim();
+        select.innerHTML = '';
+        if(!sources.length){
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = 'No source companies available';
+          select.appendChild(opt);
+          select.disabled = true;
+          if(!state._seedInventoryBusy){
+            setSeedInventoryMessage('No source companies available. Run a search to load companies.');
+          }
+        }else{
+          sources.forEach(row => {
+            const label = row.company_type
+              ? `${row.company_name} (${formatCompanyTypeLabel(row.company_type)})`
+              : row.company_name;
+            const opt = document.createElement('option');
+            opt.value = row.company_id;
+            opt.textContent = label;
+            select.appendChild(opt);
+          });
+          select.disabled = false;
+          if(!state._seedInventoryBusy && !String($('seedInventoryMsg')?.textContent || '').trim()){
+            setSeedInventoryMessage('');
+          }
+          if(current && sources.some(r => r.company_id === current)){
+            select.value = current;
+          }else{
+            select.value = sources[0].company_id;
+            data.sourceId = select.value;
+          }
+        }
+        if(busy) select.disabled = true;
+      }
+      if(dedupe){
+        dedupe.value = data.dedupeKey || 'sku';
+        dedupe.disabled = busy;
+      }
+      if(btn){
+        const hasSource = select ? !!String(select.value || '').trim() : false;
+        btn.disabled = busy || !hasSource || !isTest;
+      }
+      if(!isTest && !state._seedInventoryBusy){
+        setSeedInventoryMessage('Target must be Test environment to seed inventory.');
+      }
+    }
+    async function openSeedInventoryModal(company){
+      if(!company) return;
+      if(!isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return;
+      }
+      if(!(await ensureCompanyTestEnvironment(company, 'Inventory seeding'))){
+        return;
+      }
+      const id = String(company.company_id || '').trim();
+      if(!id) return;
+      state._seedInventory = {
+        targetId: id,
+        targetName: String(company.company_name || company.company_slug || id || '').trim() || 'Company',
+        sourceId: '',
+        dedupeKey: 'sku',
+        targetType: normalizeCompanyType(company.company_type)
+      };
+      setSeedInventoryBusy(false);
+      setSeedInventoryMessage('');
+      renderSeedInventoryModal();
+      show('seedInventoryModal', true);
+    }
+    async function confirmSeedInventory(){
+      if(!state._seedInventory) return;
+      if(!SB.ready || !SB.session || !SB.client){
+        toast('Supabase not configured');
+        return;
+      }
+      if(!isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return;
+      }
+      const data = state._seedInventory;
+      const sourceSelect = $('seedInventorySource');
+      const dedupeSelect = $('seedInventoryDedupe');
+      const sourceId = String(sourceSelect ? sourceSelect.value : data.sourceId || '').trim();
+      const targetId = String(data.targetId || '').trim();
+      const dedupeKey = String(dedupeSelect ? dedupeSelect.value : data.dedupeKey || 'sku').trim() || 'sku';
+      if(normalizeCompanyType(data.targetType) !== 'test'){
+        setSeedInventoryMessage('Target must be Test environment to seed inventory.');
+        return;
+      }
+      if(!sourceId){
+        setSeedInventoryMessage('Select a source company.');
+        return;
+      }
+      if(sourceId === targetId){
+        setSeedInventoryMessage('Source and target must be different.');
+        return;
+      }
+      setSeedInventoryMessage('Seeding inventory...');
+      setSeedInventoryBusy(true);
+      try{
+        const { data: result, error } = await SB.client.rpc('seed_company_inventory', {
+          p_source_company_id: sourceId,
+          p_target_company_id: targetId,
+          p_mode: 'items_only',
+          p_dedupe_key: dedupeKey
+        });
+        if(error) throw error;
+        if(result && result.success === false){
+          const msg = String(result.error || 'Seed failed');
+          if(msg.toLowerCase().includes('already seeded')){
+            setSeedInventoryMessage('Target already seeded. Use "Reset Seed Lock" in Manage Companies to reseed.');
+            return;
+          }
+          throw new Error(msg);
+        }
+        const count = result && Number.isFinite(Number(result.items_copied_count))
+          ? Number(result.items_copied_count)
+          : null;
+        const countLabel = count !== null ? ` (${count} items)` : '';
+        toast(`Inventory seeded${countLabel}`);
+        show('seedInventoryModal', false);
+        await loadAdvancedCompanies();
+      }catch(e){
+        setSeedInventoryMessage(e && e.message ? e.message : 'Seed failed');
+      }finally{
+        setSeedInventoryBusy(false);
+      }
+    }
+    async function getCompanyInventoryCount(companyId){
+      const { count, error } = await SB.client
+        .from('inventory_items')
+        .select('id', { head:true, count:'exact' })
+        .eq('company_id', companyId)
+        .is('deleted_at', null);
+      if(error) throw error;
+      return Number.isFinite(count) ? count : 0;
+    }
+    async function getCompanyMemberCount(companyId, includeSuper = true){
+      let query = SB.client
+        .from('company_members')
+        .select('user_id', { head:true, count:'exact' })
+        .eq('company_id', companyId);
+      if(!includeSuper){
+        query = query.eq('is_super_user', false);
+      }
+      const { count, error } = await query;
+      if(error) throw error;
+      return Number.isFinite(count) ? count : 0;
+    }
+    async function deleteCompanyInventory(company){
+      if(!company) return;
+      if(!SB.ready || !SB.session || !SB.client){
+        toast('Supabase not configured');
+        return;
+      }
+      if(!isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return;
+      }
+      if(!(await ensureCompanyTestEnvironment(company, 'Delete inventory'))){
+        return;
+      }
+      const id = String(company.company_id || '').trim();
+      if(!id) return;
+      const name = String(company.company_name || company.company_slug || id || '').trim() || 'Company';
+      const ok = await openConfirmModal(
+        'Delete inventory?',
+        `Delete ALL inventory items for ${name}?`,
+        { okText:'Continue', cancelText:'Cancel' }
+      );
+      if(!ok) return;
+      let count = 0;
+      try{ count = await getCompanyInventoryCount(id); }catch(e){}
+      const ok2 = await openConfirmModal(
+        'Final confirmation',
+        `This will permanently delete ${count} items from ${name}.`,
+        { okText:'Delete Inventory', cancelText:'Cancel' }
+      );
+      if(!ok2) return;
+      try{
+        const { data, error } = await SB.client.rpc('delete_company_inventory', {
+          p_company_id: id
+        });
+        if(error) throw error;
+        if(data && data.success === false){
+          throw new Error(data.error || 'Delete failed');
+        }
+        const deletedCount = data && Number.isFinite(Number(data.deleted_count)) ? Number(data.deleted_count) : 0;
+        if(deletedCount === 0){
+          toast('No inventory items to delete.');
+        }else{
+          toast(`Deleted ${deletedCount} items`);
+        }
+        await loadAdvancedCompanies();
+      }catch(e){
+        toast(e && e.message ? e.message : 'Delete failed');
+      }
+    }
+    async function deleteCompanyUsers(company){
+      if(!company) return;
+      if(!SB.ready || !SB.session || !SB.client){
+        toast('Supabase not configured');
+        return;
+      }
+      if(!isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return;
+      }
+      if(!(await ensureCompanyTestEnvironment(company, 'Delete users'))){
+        return;
+      }
+      const id = String(company.company_id || '').trim();
+      if(!id) return;
+      const name = String(company.company_name || company.company_slug || id || '').trim() || 'Company';
+      const ok = await openConfirmModal(
+        'Remove users?',
+        `Remove all non-super users from ${name}?`,
+        { okText:'Continue', cancelText:'Cancel' }
+      );
+      if(!ok) return;
+      let count = 0;
+      try{ count = await getCompanyMemberCount(id, false); }catch(e){}
+      if(count === 0){
+        toast('No removable users found.');
+        return;
+      }
+      const ok2 = await openConfirmModal(
+        'Final confirmation',
+        `This will remove ${count} users from ${name}. Super users remain; user accounts are not deleted.`,
+        { okText:'Remove Users', cancelText:'Cancel' }
+      );
+      if(!ok2) return;
+      try{
+        const { data, error } = await SB.client.rpc('delete_company_users', {
+          p_company_id: id
+        });
+        if(error) throw error;
+        if(data && data.success === false){
+          throw new Error(data.error || 'Remove users failed');
+        }
+        const deletedCount = data && Number.isFinite(Number(data.deleted_count)) ? Number(data.deleted_count) : count;
+        toast(`Removed ${deletedCount} users`);
+        await loadAdvancedCompanies();
+      }catch(e){
+        toast(e && e.message ? e.message : 'Remove users failed');
+      }
+    }
+    async function deleteCompanyRecord(company){
+      if(!company) return;
+      if(!SB.ready || !SB.session || !SB.client){
+        toast('Supabase not configured');
+        return;
+      }
+      if(!isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return;
+      }
+      if(!(await ensureCompanyTestEnvironment(company, 'Delete company'))){
+        return;
+      }
+      const id = String(company.company_id || '').trim();
+      if(!id) return;
+      const name = String(company.company_name || company.company_slug || id || '').trim() || 'Company';
+      const ok = await openConfirmModal(
+        'Delete company?',
+        `Delete ${name} and its company record?`,
+        { okText:'Continue', cancelText:'Cancel' }
+      );
+      if(!ok) return;
+      let inventoryCount = 0;
+      let memberCount = 0;
+      try{ inventoryCount = await getCompanyInventoryCount(id); }catch(e){}
+      try{ memberCount = await getCompanyMemberCount(id, true); }catch(e){}
+      const ok2 = await openConfirmModal(
+        'Final confirmation',
+        `This will attempt to delete ${name}. Remaining: ${inventoryCount} items, ${memberCount} users.`,
+        { okText:'Delete Company', cancelText:'Cancel' }
+      );
+      if(!ok2) return;
+      try{
+        const { data, error } = await SB.client.rpc('delete_company_record', {
+          p_company_id: id
+        });
+        if(error) throw error;
+        if(data && data.success === false){
+          throw new Error(data.error || 'Delete failed');
+        }
+        state._advancedCompanies = (Array.isArray(state._advancedCompanies) ? state._advancedCompanies : [])
+          .filter(row => String(row.company_id || '') !== id);
+        renderAdvancedCompanyResults();
+        toast('Company deleted');
+        if(String(SB.companyId || '') === id){
+          const fallbackId = getDefaultProductionCompanyId();
+          if(fallbackId && fallbackId !== id){
+            await sbSwitchCompany(fallbackId, { persist:false, audit:true, source:'company_delete' });
+            renderAdvancedCompanyActions();
+          }
+        }
+      }catch(e){
+        toast(e && e.message ? e.message : 'Delete failed');
+      }
+    }
+    async function resetInventorySeedRun(company){
+      if(!company) return;
+      if(!SB.ready || !SB.session || !SB.client){
+        toast('Supabase not configured');
+        return;
+      }
+      if(!isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return;
+      }
+      if(!(await ensureCompanyTestEnvironment(company, 'Reset seed lock'))){
+        return;
+      }
+      const id = String(company.company_id || '').trim();
+      if(!id) return;
+      const name = String(company.company_name || company.company_slug || id || '').trim() || 'Company';
+      const ok = await openConfirmModal(
+        'Reset seed lock?',
+        `Allow ${name} to be seeded again?`,
+        { okText:'Continue', cancelText:'Cancel' }
+      );
+      if(!ok) return;
+      const ok2 = await openConfirmModal(
+        'Final confirmation',
+        `This will remove the seed lock for ${name}.`,
+        { okText:'Reset Seed Lock', cancelText:'Cancel' }
+      );
+      if(!ok2) return;
+      try{
+        const { data, error } = await SB.client.rpc('reset_inventory_seed_run', {
+          p_target_company_id: id
+        });
+        if(error) throw error;
+        if(data && data.success === false){
+          throw new Error(data.error || 'Reset failed');
+        }
+        toast('Seed lock reset');
+        await loadAdvancedCompanies();
+      }catch(e){
+        toast(e && e.message ? e.message : 'Reset failed');
+      }
+    }
     function renderAdvancedCompanyResults(){
       if(state._companySwitcherMode !== 'advanced') return;
       const container = $('advancedCompanyResults');
       if(!container) return;
+      closeCompanyOverflowMenus();
       const rows = Array.isArray(state._advancedCompanies) ? state._advancedCompanies : [];
       if(!rows.length){
         container.innerHTML = '<div class="trash-empty">No companies found.</div>';
         return;
       }
-      const header = '<thead><tr><th>Company</th><th>Environment</th><th>Members</th><th>Action</th></tr></thead>';
+      const counts = state._advancedInventoryCounts || {};
+      const header = (
+        '<thead><tr>' +
+          '<th>Company</th>' +
+          '<th>Environment</th>' +
+          '<th class="col-members">Members</th>' +
+          '<th class="col-inventory">Total Inventory</th>' +
+          '<th>Actions</th>' +
+        '</tr></thead>'
+      );
       const body = rows.map(row => {
         const name = String(row.company_name || row.company_slug || row.company_id || '').trim() || 'Company';
         const id = String(row.company_id || '').trim();
         const type = normalizeCompanyType(row.company_type);
         const badge = `<span class="env-badge env-${escapeHtmlAttr(type)}">${escapeHtml(formatCompanyTypeLabel(type))}</span>`;
         const members = Number.isFinite(Number(row.member_count)) ? String(row.member_count) : '0';
+        const shortId = formatCompanyIdShort(id);
+        const isCurrent = String(SB.companyId || '') === id;
+        const hasCount = Object.prototype.hasOwnProperty.call(counts, id);
+        let invCount = hasCount ? Number(counts[id]) : null;
+        if(invCount !== null && !Number.isFinite(invCount)) invCount = 0;
+        if(invCount === null && isCurrent && Array.isArray(state.items)){
+          invCount = state.items.length;
+        }
+        const invClass = invCount === null ? 'col-inventory muted' : (invCount > 0 ? 'col-inventory inv-positive' : 'col-inventory muted');
+        const invText = invCount === null ? '—' : String(invCount);
+        const switchBtn = isCurrent
+          ? `<span class="company-active-label">Active</span>`
+          : `<button class="btn-tertiary btn-sm" type="button" data-advanced-switch="${escapeHtmlAttr(id)}">Switch</button>`;
         return (
-          `<tr>` +
+          `<tr${isCurrent ? ' class="is-current"' : ''}>` +
             `<td>` +
-              `<div>${escapeHtml(name)}</div>` +
-              `<div class="advanced-switcher-id">${escapeHtml(id)}</div>` +
+              `<div class="manage-companies-name">` +
+                `<span>${escapeHtml(name)}</span>` +
+                `${isCurrent ? '<span class="manage-companies-current">Current</span>' : ''}` +
+              `</div>` +
+              `<button class="company-id-copy" type="button" data-copy-company-id="${escapeHtmlAttr(id)}" title="Click to copy" aria-label="Copy company ID">` +
+                `${escapeHtml(shortId)}` +
+              `</button>` +
             `</td>` +
             `<td>${badge}</td>` +
-            `<td>${escapeHtml(members)}</td>` +
-            `<td><div class="advanced-switcher-row-actions">` +
-              `<button class="btn-tertiary btn-sm" type="button" data-advanced-switch="${escapeHtmlAttr(id)}">Switch</button>` +
-            `</div></td>` +
+            `<td class="col-members">${escapeHtml(members)}</td>` +
+            `<td class="${invClass}">${escapeHtml(invText)}</td>` +
+            `<td>` +
+              `<div class="manage-companies-row-actions">` +
+                switchBtn +
+                `<div class="company-overflow" data-company-menu="${escapeHtmlAttr(id)}">` +
+                  `<button class="icon-btn icon-btn--default company-overflow-btn" type="button" data-company-overflow="${escapeHtmlAttr(id)}" aria-haspopup="menu" aria-expanded="false" aria-label="Open company actions">` +
+                    `${ICONS.moreHorizontal}` +
+                  `</button>` +
+                  `<div class="company-overflow-menu" role="menu" aria-label="Company actions">` +
+                    `<div class="company-overflow-section">Data Operations</div>` +
+                    `<button class="company-overflow-item" type="button" role="menuitem" data-advanced-seed="${escapeHtmlAttr(id)}">Seed Inventory</button>` +
+                    `<button class="company-overflow-item" type="button" role="menuitem" data-advanced-reset-seed="${escapeHtmlAttr(id)}">Reset Seed Lock</button>` +
+                    `<div class="company-overflow-section">Environment</div>` +
+                    `<button class="company-overflow-item" type="button" role="menuitem" data-advanced-set-env="${escapeHtmlAttr(id)}">Set Environment</button>` +
+                    `<div class="company-overflow-section">Danger Zone</div>` +
+                    `<button class="company-overflow-item danger" type="button" role="menuitem" data-advanced-delete-inventory="${escapeHtmlAttr(id)}">Delete Inventory</button>` +
+                    `<button class="company-overflow-item danger" type="button" role="menuitem" data-advanced-delete-users="${escapeHtmlAttr(id)}">Delete Users</button>` +
+                    `<button class="company-overflow-item danger" type="button" role="menuitem" data-advanced-delete-company="${escapeHtmlAttr(id)}">Delete Company</button>` +
+                  `</div>` +
+                `</div>` +
+              `</div>` +
+            `</td>` +
           `</tr>`
         );
       }).join('');
-      container.innerHTML = `<table class="advanced-switcher-table">${header}<tbody>${body}</tbody></table>`;
+      container.innerHTML = `<table class="manage-companies-table results-table advanced-switcher-table">${header}<tbody>${body}</tbody></table>`;
       if(!container._wired){
         container._wired = true;
         container.addEventListener('click', async (e)=>{
-          const btn = e.target.closest('[data-advanced-switch]');
-          if(!btn) return;
-          const targetId = String(btn.getAttribute('data-advanced-switch') || '').trim();
-          const row = (Array.isArray(state._advancedCompanies) ? state._advancedCompanies : [])
-            .find(r => String(r.company_id || '') === targetId);
-          if(!row) return;
-          await handleAdvancedCompanySwitch(row);
+          const copyBtn = e.target.closest('[data-copy-company-id]');
+          if(copyBtn){
+            const cid = String(copyBtn.getAttribute('data-copy-company-id') || '').trim();
+            if(cid){
+              try{
+                await navigator.clipboard.writeText(cid);
+                toast('Company ID copied to clipboard');
+              }catch(err){
+                toast('Copy failed');
+              }
+            }
+            return;
+          }
+          const overflowBtn = e.target.closest('[data-company-overflow]');
+          if(overflowBtn){
+            const menuId = String(overflowBtn.getAttribute('data-company-overflow') || '').trim();
+            toggleCompanyOverflowMenu(menuId, overflowBtn);
+            return;
+          }
+          const switchBtn = e.target.closest('[data-advanced-switch]');
+          if(switchBtn){
+            closeCompanyOverflowMenus();
+            const targetId = String(switchBtn.getAttribute('data-advanced-switch') || '').trim();
+            const row = getAdvancedCompanyRow(targetId);
+            if(!row) return;
+            await handleAdvancedCompanySwitch(row);
+            return;
+          }
+          const seedBtn = e.target.closest('[data-advanced-seed]');
+          if(seedBtn){
+            closeCompanyOverflowMenus();
+            const targetId = String(seedBtn.getAttribute('data-advanced-seed') || '').trim();
+            const row = getAdvancedCompanyRow(targetId);
+            if(!row) return;
+            await openSeedInventoryModal(row);
+            return;
+          }
+          const resetSeedBtn = e.target.closest('[data-advanced-reset-seed]');
+          if(resetSeedBtn){
+            closeCompanyOverflowMenus();
+            const targetId = String(resetSeedBtn.getAttribute('data-advanced-reset-seed') || '').trim();
+            const row = getAdvancedCompanyRow(targetId);
+            if(!row) return;
+            await resetInventorySeedRun(row);
+            return;
+          }
+          const setEnvBtn = e.target.closest('[data-advanced-set-env]');
+          if(setEnvBtn){
+            closeCompanyOverflowMenus();
+            const targetId = String(setEnvBtn.getAttribute('data-advanced-set-env') || '').trim();
+            const row = getAdvancedCompanyRow(targetId);
+            if(!row) return;
+            openCompanyEnvironmentModal(row);
+            return;
+          }
+          const deleteInventoryBtn = e.target.closest('[data-advanced-delete-inventory]');
+          if(deleteInventoryBtn){
+            closeCompanyOverflowMenus();
+            const targetId = String(deleteInventoryBtn.getAttribute('data-advanced-delete-inventory') || '').trim();
+            const row = getAdvancedCompanyRow(targetId);
+            if(!row) return;
+            await deleteCompanyInventory(row);
+            return;
+          }
+          const deleteUsersBtn = e.target.closest('[data-advanced-delete-users]');
+          if(deleteUsersBtn){
+            closeCompanyOverflowMenus();
+            const targetId = String(deleteUsersBtn.getAttribute('data-advanced-delete-users') || '').trim();
+            const row = getAdvancedCompanyRow(targetId);
+            if(!row) return;
+            await deleteCompanyUsers(row);
+            return;
+          }
+          const deleteCompanyBtn = e.target.closest('[data-advanced-delete-company]');
+          if(deleteCompanyBtn){
+            closeCompanyOverflowMenus();
+            const targetId = String(deleteCompanyBtn.getAttribute('data-advanced-delete-company') || '').trim();
+            const row = getAdvancedCompanyRow(targetId);
+            if(!row) return;
+            await deleteCompanyRecord(row);
+            return;
+          }
         });
       }
     }
@@ -10279,8 +11422,30 @@
         });
         if(error) throw error;
         state._advancedCompanies = Array.isArray(data) ? data : [];
+        const countsFromRpc = {};
+        state._advancedCompanies.forEach(row => {
+          const id = String(row && row.company_id ? row.company_id : '').trim();
+          if(!id) return;
+          if(row && Object.prototype.hasOwnProperty.call(row, 'inventory_count')){
+            const raw = Number(row.inventory_count);
+            countsFromRpc[id] = Number.isFinite(raw) ? raw : 0;
+          }
+        });
+        state._advancedInventoryCounts = countsFromRpc;
+        if(Object.keys(countsFromRpc).length === 0){
+          try{
+            const ids = state._advancedCompanies.map(row => String(row.company_id || '').trim()).filter(Boolean);
+            await loadAdvancedInventoryCounts(ids);
+          }catch(e){
+            console.warn('Inventory count query failed:', e);
+            state._advancedInventoryCounts = {};
+          }
+        }
         renderAdvancedCompanyResults();
         renderAdvancedCompanyActions();
+        if(state._seedInventory){
+          renderSeedInventoryModal();
+        }
         if(!state._advancedCompanies.length){
           setAdvancedCompanyMessage('No companies found.');
         }else{
@@ -10392,7 +11557,7 @@
       const existingUsers = Array.isArray(state._provisioningExistingUsers) ? state._provisioningExistingUsers : [];
       const existingUsersLoading = !!state._provisioningExistingUsersLoading;
       const existingUsersError = String(state._provisioningExistingUsersError || '');
-      const needsExistingUsers = rows.some(row => String(row.mode || '') === 'attach');
+      const needsExistingUsers = rows.length > 0;
       if(needsExistingUsers && !existingUsersLoading && !existingUsers.length && !existingUsersError){
         void loadProvisioningExistingUsers();
       }
@@ -10405,20 +11570,15 @@
         { value: 'member', label: 'manager' },
         { value: 'viewer', label: 'viewer' },
       ];
-      const modeOptions = [
-        { value: 'attach', label: 'Attach existing' },
-        { value: 'invite', label: 'Send invite' },
-      ];
       const header = (
         `<thead><tr>`+
-          `<th>Action</th>`+
-          `<th>Email</th>`+
+          `<th>User</th>`+
           `<th>Role</th>`+
           `<th>Action</th>`+
         `</tr></thead>`
       );
-      const buildAttachSelect = (id, email) => {
-        const normalizedEmail = String(email || '').trim().toLowerCase();
+      const buildUserSelect = (id, userId) => {
+        const normalizedId = String(userId || '').trim().toLowerCase();
         const options = [];
         if(existingUsersLoading){
           options.push(`<option value="">Loading users...</option>`);
@@ -10426,11 +11586,12 @@
           options.push(`<option value="">Select a user</option>`);
           existingUsers.forEach(user => {
             const userEmail = String(user.email || '').trim();
-            if(!userEmail) return;
+            const uid = String(user.user_id || '').trim();
+            if(!userEmail || !uid) return;
             const fullName = String(user.full_name || '').trim();
             const label = (fullName && fullName !== userEmail) ? `${fullName} - ${userEmail}` : userEmail;
-            const selected = normalizedEmail && userEmail.toLowerCase() === normalizedEmail;
-            options.push(`<option value="${escapeHtmlAttr(userEmail)}"${selected ? ' selected' : ''}>${escapeHtml(label)}</option>`);
+            const selected = normalizedId && uid.toLowerCase() === normalizedId;
+            options.push(`<option value="${escapeHtmlAttr(uid)}"${selected ? ' selected' : ''}>${escapeHtml(label)}</option>`);
           });
         }else{
           const emptyLabel = existingUsersError ? 'Unable to load users' : 'No users available';
@@ -10438,29 +11599,22 @@
         }
         const disabled = busy || existingUsersLoading || !existingUsers.length;
         return (
-          `<select data-provisioning-user-id="${escapeHtmlAttr(id)}" data-provisioning-user-field="email"${disabled ? ' disabled aria-disabled="true"' : ''}>`+
+          `<select data-provisioning-user-id="${escapeHtmlAttr(id)}" data-provisioning-user-field="user_id"${disabled ? ' disabled aria-disabled="true"' : ''}>`+
             options.join('')+
           `</select>`
         );
       };
       const body = rows.map(row => {
         const id = String(row.id || '').trim();
-        const email = String(row.email || '');
-        const mode = String(row.mode || 'invite');
+        const userId = String(row.user_id || '');
         const role = String(row.role || 'member');
-        const modeSelect = `<select data-provisioning-user-id="${escapeHtmlAttr(id)}" data-provisioning-user-field="mode"${busy ? ' disabled aria-disabled="true"' : ''}>`+
-          modeOptions.map(opt => `<option value="${escapeHtmlAttr(opt.value)}"${opt.value === mode ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`).join('')+
-        `</select>`;
         const roleSelect = `<select data-provisioning-user-id="${escapeHtmlAttr(id)}" data-provisioning-user-field="role"${busy ? ' disabled aria-disabled="true"' : ''}>`+
           roleOptions.map(opt => `<option value="${escapeHtmlAttr(opt.value)}"${opt.value === role ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`).join('')+
         `</select>`;
-        const emailCell = mode === 'attach'
-          ? buildAttachSelect(id, email)
-          : `<input type="email" placeholder="user@example.com" value="${escapeHtmlAttr(email)}" data-provisioning-user-id="${escapeHtmlAttr(id)}" data-provisioning-user-field="email"${busy ? ' disabled aria-disabled="true"' : ''} />`;
+        const userCell = buildUserSelect(id, userId);
         return (
           `<tr>`+
-            `<td>${modeSelect}</td>`+
-            `<td>${emailCell}</td>`+
+            `<td>${userCell}</td>`+
             `<td>${roleSelect}</td>`+
             `<td><button class="btn-tertiary btn-sm btn-danger" data-provisioning-user-remove="${escapeHtmlAttr(id)}"${busy ? ' disabled aria-disabled="true"' : ''}>Remove</button></td>`+
           `</tr>`
@@ -10503,38 +11657,20 @@
           `</div>`
         );
       }
-      if(result.settings){
-        const onboarding = escapeHtml(String(result.settings.onboarding_state || ''));
-        const billing = escapeHtml(String(result.settings.billing_mode || ''));
-        const detail = [onboarding && `Onboarding: ${onboarding}`, billing && `Billing: ${billing}`].filter(Boolean).join(' · ');
-        if(detail){
-          items.push(
-            `<div class="provisioning-summary-item">`+
-              `<div><span class="provisioning-summary-label">Settings</span> · ${detail}</div>`+
-              `<div class="provisioning-status ${result.settings.success ? 'ok' : 'warn'}">${result.settings.success ? 'saved' : 'note'}</div>`+
-            `</div>`
-          );
-          if(result.settings.error){
-            items.push(`<div class="provisioning-note">${escapeHtml(result.settings.error)}</div>`);
-          }
-        }
-      }
-      const userResults = Array.isArray(result.users) ? result.users : [];
-      if(userResults.length){
-        const attachCount = userResults.filter(u => u.action === 'attach' && u.success).length;
-        const inviteCount = userResults.filter(u => u.action === 'invite' && u.success).length;
-        const failures = userResults.filter(u => !u.success);
-        const statusClass = failures.length ? 'warn' : 'ok';
-        const detail = `Attached ${attachCount} · Invited ${inviteCount}`;
+      const userSummary = result.users && typeof result.users === 'object' ? result.users : null;
+      if(userSummary){
+        const count = Number.isFinite(userSummary.count) ? userSummary.count : 0;
+        const statusClass = userSummary.error ? 'warn' : 'ok';
+        const statusText = userSummary.error ? 'partial' : (count ? 'ok' : 'skipped');
+        const detail = count ? `Assigned ${count}` : 'None';
         items.push(
           `<div class="provisioning-summary-item">`+
             `<div><span class="provisioning-summary-label">Users</span> · ${escapeHtml(detail)}</div>`+
-            `<div class="provisioning-status ${statusClass}">${failures.length ? 'partial' : 'ok'}</div>`+
+            `<div class="provisioning-status ${statusClass}">${statusText}</div>`+
           `</div>`
         );
-        if(failures.length){
-          const failureLines = failures.map(f => `${escapeHtml(f.email || 'user')}: ${escapeHtml(f.error || 'failed')}`).join('<br />');
-          items.push(`<div class="provisioning-note">${failureLines}</div>`);
+        if(userSummary.error){
+          items.push(`<div class="provisioning-note">${escapeHtml(userSummary.error)}</div>`);
         }
       }else{
         items.push(
@@ -10545,33 +11681,19 @@
         );
       }
       if(result.tier){
-        const tierLabel = escapeHtml(String(result.tier.base || ''));
+        const tierLabel = escapeHtml(String(result.tier.tier || ''));
         const tierStatus = result.tier.success ? 'ok' : (result.tier.error ? 'fail' : 'warn');
-        const tierText = result.tier.success ? 'set' : (result.tier.error ? 'failed' : 'skipped');
+        const tierText = result.tier.success ? 'granted' : (result.tier.error ? 'failed' : 'skipped');
+        const endLabel = result.tier.ends_at ? formatEasternDateTime(result.tier.ends_at) : '';
+        const detail = tierLabel ? `${tierLabel}${endLabel ? ` · ends ${escapeHtml(endLabel)}` : ''}` : 'n/a';
         items.push(
           `<div class="provisioning-summary-item">`+
-            `<div><span class="provisioning-summary-label">Base Tier</span> · ${tierLabel || 'n/a'}</div>`+
+            `<div><span class="provisioning-summary-label">Subscription Tier</span> · ${detail}</div>`+
             `<div class="provisioning-status ${tierStatus}">${tierText}</div>`+
           `</div>`
         );
         if(result.tier.error){
           items.push(`<div class="provisioning-note">${escapeHtml(result.tier.error)}</div>`);
-        }
-      }
-      if(result.override){
-        const overrideLabel = escapeHtml(String(result.override.tier || ''));
-        const overrideStatus = result.override.success ? 'ok' : (result.override.error ? 'fail' : 'warn');
-        const overrideText = result.override.success ? 'granted' : (result.override.error ? 'failed' : 'skipped');
-        const endLabel = result.override.ends_at ? formatEasternDateTime(result.override.ends_at) : '';
-        const detail = overrideLabel ? `${overrideLabel}${endLabel ? ` · ends ${escapeHtml(endLabel)}` : ''}` : 'n/a';
-        items.push(
-          `<div class="provisioning-summary-item">`+
-            `<div><span class="provisioning-summary-label">Trial Override</span> · ${detail}</div>`+
-            `<div class="provisioning-status ${overrideStatus}">${overrideText}</div>`+
-          `</div>`
-        );
-        if(result.override.error){
-          items.push(`<div class="provisioning-note">${escapeHtml(result.override.error)}</div>`);
         }
       }
       if(result.seeding){
@@ -10598,12 +11720,6 @@
         );
       }
       summary.innerHTML = items.join('');
-    }
-    function renderProvisioningTrialFields(){
-      const toggle = $('provisioningTrialToggle');
-      const fields = $('provisioningTrialFields');
-      if(!toggle || !fields) return;
-      fields.style.display = toggle.checked ? '' : 'none';
     }
     function renderProvisioningSeedFields(){
       const toggle = $('provisioningSeedToggle');
@@ -10713,25 +11829,20 @@
       const nameInput = $('provisioningCompanyName');
       const slugInput = $('provisioningCompanySlug');
       const onboardingInput = $('provisioningOnboardingState');
-      const billingSelect = $('provisioningBillingMode');
-      const baseTier = $('provisioningBaseTier');
-      const trialToggle = $('provisioningTrialToggle');
-      const trialTier = $('provisioningTrialTier');
-      const trialDays = $('provisioningTrialDays');
+      const includeActor = $('provisioningIncludeActor');
+      const tierSelect = $('provisioningTierOverride');
+      const tierEndsAt = $('provisioningTierEndsAt');
       const seedToggle = $('provisioningSeedToggle');
       if(nameInput) nameInput.value = '';
       if(slugInput){
         slugInput.value = '';
         slugInput.dataset.manual = '';
       }
-      if(onboardingInput) onboardingInput.value = 'SUBSCRIPTION_ACTIVE';
-      if(billingSelect) billingSelect.value = 'manual';
-      if(baseTier) baseTier.value = 'starter';
-      if(trialToggle) trialToggle.checked = false;
-      if(trialTier) trialTier.value = 'business';
-      if(trialDays) trialDays.value = '14';
+      if(onboardingInput) onboardingInput.value = 'UNINITIALIZED';
+      if(includeActor) includeActor.checked = true;
+      if(tierSelect) tierSelect.value = '';
+      if(tierEndsAt) tierEndsAt.value = '';
       if(seedToggle) seedToggle.checked = false;
-      renderProvisioningTrialFields();
       renderProvisioningSeedFields();
       renderProvisioningUsersList();
       renderProvisioningSummary();
@@ -10749,7 +11860,6 @@
       show('provisioningModal', true);
       renderProvisioningUsersList();
       renderProvisioningSummary();
-      renderProvisioningTrialFields();
       renderProvisioningSeedFields();
       if(!Array.isArray(state._provisioningCompanies) || !state._provisioningCompanies.length){
         await loadProvisioningCompanies();
@@ -10776,12 +11886,9 @@
       if(state._provisioningBusy) return;
       const nameInput = $('provisioningCompanyName');
       const slugInput = $('provisioningCompanySlug');
-      const onboardingInput = $('provisioningOnboardingState');
-      const billingSelect = $('provisioningBillingMode');
-      const baseTier = $('provisioningBaseTier');
-      const trialToggle = $('provisioningTrialToggle');
-      const trialTier = $('provisioningTrialTier');
-      const trialDays = $('provisioningTrialDays');
+      const includeActor = $('provisioningIncludeActor');
+      const tierSelect = $('provisioningTierOverride');
+      const tierEndsAt = $('provisioningTierEndsAt');
       const seedToggle = $('provisioningSeedToggle');
       const seedSource = $('provisioningSeedSource');
       const seedDedupe = $('provisioningSeedDedupe');
@@ -10803,6 +11910,33 @@
       }
       if(slugInput) slugInput.value = slug;
 
+      const userRows = Array.isArray(state._provisioningUsers) ? state._provisioningUsers : [];
+      const assignments = [];
+      const seenUsers = new Set();
+      for(const row of userRows){
+        const userId = String(row.user_id || '').trim();
+        if(!userId){
+          setProvisioningMessage('Select a user for each assignment.');
+          return;
+        }
+        if(seenUsers.has(userId)){
+          setProvisioningMessage('Duplicate users selected.');
+          return;
+        }
+        seenUsers.add(userId);
+        assignments.push({
+          user_id: userId,
+          role: String(row.role || 'member').trim() || 'member'
+        });
+      }
+
+      const wantsSeed = !!(seedToggle && seedToggle.checked);
+      const sourceCompanyId = String(seedSource ? seedSource.value : '').trim();
+      if(wantsSeed && !sourceCompanyId){
+        setProvisioningMessage('Select a source company to seed inventory.');
+        return;
+      }
+
       const btn = $('btnProvisioningRun');
       state._provisioningBusy = true;
       renderProvisioningUsersList();
@@ -10817,28 +11951,53 @@
 
       const result = {
         company: null,
-        settings: null,
-        users: [],
+        users: null,
         tier: null,
-        override: null,
         seeding: null,
       };
 
       try{
-        const { data, error } = await SB.client.rpc('create_company', { p_name: companyName, p_slug: slug });
+        const tierValue = String(tierSelect ? tierSelect.value : '').trim();
+        const endsAtRaw = String(tierEndsAt ? tierEndsAt.value : '').trim();
+        let endsAt = null;
+        if(endsAtRaw){
+          const parsed = new Date(endsAtRaw);
+          if(Number.isNaN(parsed.getTime())){
+            setProvisioningMessage('Override end date is invalid.');
+            throw new Error('Invalid override end date');
+          }
+          endsAt = parsed.toISOString();
+        }
+        if(endsAt && !tierValue){
+          setProvisioningMessage('Select a subscription tier before setting an end date.');
+          throw new Error('Override tier required');
+        }
+        const payload = {
+          p_name: companyName,
+          p_slug: slug,
+          p_subscription_tier: tierValue || null,
+          p_subscription_tier_reason: 'Provisioning',
+          p_subscription_tier_ends_at: endsAt,
+          p_seed_inventory: wantsSeed,
+          p_source_company_id: wantsSeed ? sourceCompanyId : null,
+          p_seed_dedupe_key: String(seedDedupe ? seedDedupe.value : 'sku').trim() || 'sku',
+          p_user_assignments: assignments,
+          p_include_actor_as_admin: includeActor ? !!includeActor.checked : true
+        };
+        const { data, error } = await SB.client.rpc('provision_company', payload);
         if(error) throw error;
         if(data && data.success === false){
           throw new Error(data.error || 'Company creation failed');
         }
         const companyId = String((data && data.company_id) || '').trim();
         if(!companyId) throw new Error('Company id missing');
-        result.company = { id: companyId, name: companyName, slug };
+        result.company = { id: companyId, name: String(data.company_name || companyName), slug: String(data.company_slug || slug) };
         if(Array.isArray(SB.companies)){
           const existingIdx = SB.companies.findIndex(row => String(row.company_id) === companyId);
           const newRow = {
             company_id: companyId,
-            company_name: companyName,
-            company_slug: slug,
+            company_name: String(data.company_name || companyName),
+            company_slug: String(data.company_slug || slug),
             my_role: 'super_user',
             is_super_user: true,
             company_type: 'production',
@@ -10850,37 +12009,17 @@
           }
           renderCompanySwitcher();
         }
-        const onboardingState = String(onboardingInput ? onboardingInput.value : '').trim();
-        const billingMode = String(billingSelect ? billingSelect.value : '').trim();
-        result.settings = { onboarding_state: onboardingState, billing_mode: billingMode, success: false };
-        if(onboardingState || billingMode){
-          try{
-            const { data: companyRow, error: companyErr } = await SB.client
-              .from('companies')
-              .select('settings')
-              .eq('id', companyId)
-              .single();
-            if(companyErr) throw companyErr;
-            const settings = (companyRow && companyRow.settings && typeof companyRow.settings === 'object' && !Array.isArray(companyRow.settings))
-              ? companyRow.settings
-              : {};
-            const nextSettings = { ...settings };
-            if(onboardingState) nextSettings.onboarding_state = onboardingState;
-            if(Object.prototype.hasOwnProperty.call(settings, 'billing_mode') && billingMode){
-              nextSettings.billing_mode = billingMode;
-            }
-            if(JSON.stringify(nextSettings) !== JSON.stringify(settings)){
-              const { error: updateErr } = await SB.client
-                .from('companies')
-                .update({ settings: nextSettings, updated_at: new Date().toISOString() })
-                .eq('id', companyId);
-              if(updateErr) throw updateErr;
-              result.settings.success = true;
-            }else{
-              result.settings.success = true;
-            }
-          }catch(e){
-            result.settings.error = e && e.message ? e.message : 'Settings update failed';
+        result.users = { count: Number(data.users_added_count || 0) };
+        result.tier = data.tier_override || null;
+        result.seeding = data.inventory_seed || null;
+        const sourceRow = (Array.isArray(state._provisioningCompanies) ? state._provisioningCompanies : [])
+          .find(r => String(r.company_id || r.id) === sourceCompanyId);
+        if(result.seeding){
+          result.seeding.source_name = sourceRow ? String(sourceRow.company_name || sourceRow.company_slug || sourceRow.company_id || '') : '';
+          result.seeding.dedupe_key = payload.p_seed_dedupe_key;
+          const seedErr = String(result.seeding.error || '').toLowerCase();
+          if(seedErr && seedErr.includes('already seeded')){
+            result.seeding.warning = true;
           }
         }
       }catch(e){
@@ -10898,155 +12037,11 @@
         return;
       }
 
-      const targetCompanyId = result.company.id;
-      const actorId = SB.user ? SB.user.id : null;
-      const baseTierValue = String(baseTier ? baseTier.value : '').trim();
-      if(baseTierValue){
-        try{
-          const { data: tierData, error: tierErr } = await SB.client.rpc('set_company_base_tier', {
-            p_company_id: targetCompanyId,
-            p_new_base_tier: baseTierValue
-          });
-          if(tierErr) throw tierErr;
-          if(tierData && tierData.success === false){
-            throw new Error(tierData.error || 'Base tier update failed');
-          }
-          result.tier = { base: baseTierValue, success: true };
-        }catch(err){
-          result.tier = { base: baseTierValue, success: false, error: err && err.message ? err.message : 'Base tier update failed' };
-        }
-      }else{
-        result.tier = { base: '', success: false };
-      }
-
-      if(trialToggle && trialToggle.checked){
-        const overrideTier = String(trialTier ? trialTier.value : '').trim();
-        const daysRaw = String(trialDays ? trialDays.value : '').trim();
-        const days = Number(daysRaw);
-        if(!overrideTier){
-          result.override = { tier: '', success: false, error: 'Override tier required' };
-        }else if(!Number.isFinite(days) || days <= 0){
-          result.override = { tier: overrideTier, success: false, error: 'Trial length must be greater than 0' };
-        }else{
-          const endsAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
-          try{
-            const { data: overrideData, error: overrideErr } = await SB.client.rpc('grant_company_tier_override', {
-              p_company_id: targetCompanyId,
-              p_override_tier: overrideTier,
-              p_ends_at: endsAt
-            });
-            if(overrideErr) throw overrideErr;
-            if(overrideData && overrideData.success === false){
-              throw new Error(overrideData.error || 'Override failed');
-            }
-            result.override = { tier: overrideTier, ends_at: endsAt, success: true };
-          }catch(err){
-            result.override = { tier: overrideTier, ends_at: endsAt, success: false, error: err && err.message ? err.message : 'Override failed' };
-          }
-        }
-      }else{
-        result.override = { success: false };
-      }
-
-      const userRows = Array.isArray(state._provisioningUsers) ? state._provisioningUsers : [];
-      for(const row of userRows){
-        const email = String(row.email || '').trim();
-        const role = String(row.role || 'member').trim();
-        const mode = String(row.mode || 'invite').trim();
-        if(!email){
-          result.users.push({ action: mode, email, role, success: false, error: 'Email required' });
-          continue;
-        }
-        try{
-          if(mode === 'attach'){
-            const { data: profile, error: profileErr } = await SB.client
-              .from('profiles')
-              .select('user_id,email')
-              .ilike('email', email)
-              .maybeSingle();
-            if(profileErr) throw profileErr;
-            if(!profile || !profile.user_id) throw new Error('User not found');
-            const { error: insertErr } = await SB.client
-              .from('company_members')
-              .insert({
-                company_id: targetCompanyId,
-                user_id: profile.user_id,
-                role,
-                invited_by: actorId,
-                assigned_admin_id: actorId,
-                is_super_user: false,
-              });
-            if(insertErr) throw insertErr;
-            result.users.push({ action: mode, email, role, success: true });
-          }else{
-            const inviteResult = await sbInviteUser(email, role, targetCompanyId, { skipChecks: true });
-            if(inviteResult && inviteResult.ok === false){
-              throw new Error(inviteResult.error || 'Invite failed');
-            }
-            result.users.push({ action: mode, email, role, success: true });
-          }
-        }catch(err){
-          const msg = err && err.message ? err.message : 'User update failed';
-          result.users.push({ action: mode, email, role, success: false, error: msg });
-        }
-      }
-
-      if(seedToggle && seedToggle.checked){
-        const sourceId = String(seedSource ? seedSource.value : '').trim();
-        const dedupeKey = String(seedDedupe ? seedDedupe.value : '').trim() || 'sku';
-        const sourceRow = (Array.isArray(state._provisioningCompanies) ? state._provisioningCompanies : [])
-          .find(r => String(r.company_id || r.id) === sourceId);
-        const sourceName = sourceRow ? String(sourceRow.company_name || sourceRow.company_slug || sourceRow.company_id || '') : '';
-        if(!sourceId){
-          result.seeding = { success: false, error: 'Select a source company' };
-        }else{
-          try{
-            const { data: seedData, error: seedErr } = await SB.client.rpc('seed_company_inventory', {
-              p_source_company_id: sourceId,
-              p_target_company_id: targetCompanyId,
-              p_mode: 'items_only',
-              p_dedupe_key: dedupeKey || 'sku'
-            });
-            if(seedErr) throw seedErr;
-            if(seedData && seedData.success === false){
-              const errText = seedData.error || 'Seeding failed';
-              result.seeding = {
-                success: false,
-                warning: errText.toLowerCase().includes('already seeded'),
-                error: errText,
-                source_name: sourceName,
-                dedupe_key: dedupeKey
-              };
-            }else{
-              result.seeding = {
-                success: true,
-                items_copied_count: seedData && typeof seedData.items_copied_count === 'number'
-                  ? seedData.items_copied_count
-                  : 0,
-                source_name: sourceName,
-                dedupe_key: dedupeKey
-              };
-            }
-          }catch(err){
-            result.seeding = {
-              success: false,
-              error: err && err.message ? err.message : 'Seeding failed',
-              source_name: sourceName,
-              dedupe_key: dedupeKey
-            };
-          }
-        }
-      }else{
-        result.seeding = { success: false };
-      }
-
       state._provisioningResult = result;
       renderProvisioningSummary();
       const hasIssues = Boolean(
-        (result.settings && result.settings.error) ||
-        (Array.isArray(result.users) && result.users.some(u => !u.success)) ||
+        (result.users && result.users.error) ||
         (result.tier && result.tier.error) ||
-        (result.override && result.override.error) ||
         (result.seeding && result.seeding.error && !result.seeding.warning)
       );
       setProvisioningMessage(hasIssues ? 'Provisioning completed with issues.' : 'Provisioning complete.');
@@ -11440,13 +12435,15 @@
     }
     function normalizeCompanyType(value){
       const type = String(value || '').trim().toLowerCase();
+      if(type === 'development') return 'sandbox';
+      if(type === 'staging') return 'test';
       if(type === 'sandbox' || type === 'test' || type === 'system' || type === 'production') return type;
       return 'production';
     }
     function formatCompanyTypeLabel(value){
       const type = normalizeCompanyType(value);
       if(type === 'production') return 'Production';
-      if(type === 'sandbox') return 'Sandbox';
+      if(type === 'sandbox') return 'Development';
       if(type === 'test') return 'Test';
       if(type === 'system') return 'System';
       return 'Production';
@@ -12574,6 +13571,11 @@
     if(advancedCompanySearchBtn) advancedCompanySearchBtn.addEventListener('click', async ()=>{
       await loadAdvancedCompanies();
     });
+    const advancedCompanyProvisionBtn = $('advancedCompanyProvisionBtn');
+    if(advancedCompanyProvisionBtn) advancedCompanyProvisionBtn.addEventListener('click', ()=>{
+      show('advancedCompanyModal', false);
+      void openProvisioningModal();
+    });
     const advancedCompanyReturnBtn = $('advancedCompanyReturnBtn');
     if(advancedCompanyReturnBtn) advancedCompanyReturnBtn.addEventListener('click', async ()=>{
       if(!isEffectiveSuperUser()){
@@ -12609,6 +13611,66 @@
     if(advancedCompanyTypeFilter) advancedCompanyTypeFilter.addEventListener('change', async ()=>{
       await loadAdvancedCompanies();
     });
+    if(!document._companyOverflowWired){
+      document._companyOverflowWired = true;
+      document.addEventListener('click', (e)=>{
+        if(!state._companyOverflowOpenId) return;
+        if(e.target && e.target.closest && e.target.closest('.company-overflow')) return;
+        closeCompanyOverflowMenus();
+      });
+      document.addEventListener('keydown', (e)=>{
+        if(!state._companyOverflowOpenId) return;
+        if(e.key === 'Escape'){
+          e.preventDefault();
+          closeCompanyOverflowMenus();
+          return;
+        }
+        if(e.key !== 'Tab') return;
+        const wrapper = document.querySelector(`.company-overflow[data-company-menu="${state._companyOverflowOpenId}"]`);
+        if(!wrapper) return;
+        const items = Array.from(wrapper.querySelectorAll('.company-overflow-item'));
+        if(!items.length) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        if(e.shiftKey && document.activeElement === first){
+          e.preventDefault();
+          last.focus();
+        }else if(!e.shiftKey && document.activeElement === last){
+          e.preventDefault();
+          first.focus();
+        }
+      });
+    }
+    const btnSeedInventoryCancel = $('btnSeedInventoryCancel');
+    if(btnSeedInventoryCancel) btnSeedInventoryCancel.addEventListener('click', ()=>{
+      show('seedInventoryModal', false);
+    });
+    const btnSeedInventoryConfirm = $('btnSeedInventoryConfirm');
+    if(btnSeedInventoryConfirm) btnSeedInventoryConfirm.addEventListener('click', confirmSeedInventory);
+    const seedInventorySource = $('seedInventorySource');
+    if(seedInventorySource) seedInventorySource.addEventListener('change', ()=>{
+      if(!state._seedInventory) return;
+      state._seedInventory.sourceId = String(seedInventorySource.value || '').trim();
+      renderSeedInventoryModal();
+    });
+    const seedInventoryDedupe = $('seedInventoryDedupe');
+    if(seedInventoryDedupe) seedInventoryDedupe.addEventListener('change', ()=>{
+      if(!state._seedInventory) return;
+      state._seedInventory.dedupeKey = String(seedInventoryDedupe.value || 'sku').trim() || 'sku';
+      renderSeedInventoryModal();
+    });
+    const btnCompanyEnvironmentCancel = $('btnCompanyEnvironmentCancel');
+    if(btnCompanyEnvironmentCancel) btnCompanyEnvironmentCancel.addEventListener('click', ()=>{
+      show('companyEnvironmentModal', false);
+    });
+    const btnCompanyEnvironmentConfirm = $('btnCompanyEnvironmentConfirm');
+    if(btnCompanyEnvironmentConfirm) btnCompanyEnvironmentConfirm.addEventListener('click', confirmCompanyEnvironment);
+    const companyEnvironmentSelect = $('companyEnvironmentSelect');
+    if(companyEnvironmentSelect) companyEnvironmentSelect.addEventListener('change', ()=>{
+      if(!state._companyEnvironment) return;
+      state._companyEnvironment.nextType = normalizeCompanyType(companyEnvironmentSelect.value);
+      renderCompanyEnvironmentModal();
+    });
 
     const btnProvisioningClose = $('btnProvisioningClose');
     if(btnProvisioningClose) btnProvisioningClose.addEventListener('click', closeProvisioningModal);
@@ -12621,21 +13683,25 @@
     const btnProvisioningAddUser = $('btnProvisioningAddUser');
     if(btnProvisioningAddUser) btnProvisioningAddUser.addEventListener('click', ()=>{
       state._provisioningUsers = Array.isArray(state._provisioningUsers) ? state._provisioningUsers : [];
-      state._provisioningUsers.push({ id: randomUUID(), mode: 'invite', email: '', role: 'member' });
+      state._provisioningUsers.push({ id: randomUUID(), user_id: '', role: 'member' });
       renderProvisioningUsersList();
     });
     const btnProvisioningRefreshCompanies = $('btnProvisioningRefreshCompanies');
     if(btnProvisioningRefreshCompanies) btnProvisioningRefreshCompanies.addEventListener('click', async ()=>{
       await loadProvisioningCompanies();
     });
-    const provisioningTrialToggle = $('provisioningTrialToggle');
-    if(provisioningTrialToggle) provisioningTrialToggle.addEventListener('change', renderProvisioningTrialFields);
     const provisioningSeedToggle = $('provisioningSeedToggle');
     if(provisioningSeedToggle) provisioningSeedToggle.addEventListener('change', ()=>{
-      renderProvisioningSeedFields();
       if(provisioningSeedToggle.checked){
+        const confirmed = window.confirm('Copy inventory from an existing company? This action is explicit and auditable.');
+        if(!confirmed){
+          provisioningSeedToggle.checked = false;
+          renderProvisioningSeedFields();
+          return;
+        }
         void loadProvisioningCompanies();
       }
+      renderProvisioningSeedFields();
     });
     const provisioningName = $('provisioningCompanyName');
     const provisioningSlug = $('provisioningCompanySlug');
@@ -12659,20 +13725,6 @@
       const idx = rows.findIndex(r => String(r.id) === String(id));
       if(idx < 0) return;
       const value = target.value;
-      if(field === 'mode'){
-        const existingUsers = Array.isArray(state._provisioningExistingUsers) ? state._provisioningExistingUsers : [];
-        const currentEmail = String(rows[idx].email || '');
-        let nextEmail = currentEmail;
-        if(value === 'attach'){
-          const normalized = currentEmail.trim().toLowerCase();
-          const match = normalized && existingUsers.some(u => String(u.email || '').trim().toLowerCase() === normalized);
-          if(!match) nextEmail = '';
-        }
-        rows[idx] = { ...rows[idx], mode: value, email: nextEmail };
-        state._provisioningUsers = rows;
-        renderProvisioningUsersList();
-        return;
-      }
       rows[idx] = { ...rows[idx], [field]: value };
       state._provisioningUsers = rows;
     });
@@ -15665,23 +16717,10 @@ function emptyStateHtml(){
 	          openEditItemModal(id);
 	          return;
 	        }
-	        if(action === 'delete'){
-	          if(!requirePermission(PERMISSIONS.ITEMS_DELETE, 'Delete not allowed')) return;
-	          const item = state.items.find(it => it && it.id === id);
-	          const itemName = item ? item.name : 'this item';
-	          openConfirmModal('Delete item?', `Delete "${itemName}"?`, { okText:'Delete', cancelText:'Cancel' })
-	            .then(async (ok)=>{
-	              if(!ok) return;
-	              try{
-	                await sbDeleteMany([id]);
-	                await sbLoadSnapshot();
-	                toast('Item deleted', 'success');
-	              }catch(e){
-	                toast(e && e.message ? e.message : 'Delete failed', 'error');
-	              }
-	            });
-	          return;
-	        }
+        if(action === 'delete'){
+          handleInventoryDeleteAction(id);
+          return;
+        }
 		      });
 
       // Expanded detail panel actions
@@ -20277,40 +21316,57 @@ function emptyStateHtml(){
         const name = String(row.name || '').trim() || '(Untitled job)';
         const status = String(row.status || 'draft').trim();
         const created = row.created_at ? formatDateShort(row.created_at) : '—';
-        const statusLabel = jobStatusLabel(status);
-        const statusClass = jobStatusClass(status);
         const bomLines = state._jobBomByJobId && state._jobBomByJobId.get ? (state._jobBomByJobId.get(id) || []) : [];
-        let shortCount = 0;
+        let totalNeeded = 0;
+        let totalAvailable = 0;
+        let totalShortage = 0;
         bomLines.forEach(line=>{
           const itemId = String(line.item_id || '').trim();
           const qtyPlanned = Number(line.qty_planned || 0);
           const stats = computeJobLineStats(itemId, qtyPlanned, reservedMap);
-          if(stats.shortfall > 0) shortCount += 1;
+          totalNeeded += qtyPlanned;
+          totalAvailable += stats.available;
+          totalShortage += Math.max(0, qtyPlanned - stats.available);
         });
         const itemCount = bomLines.length;
         const summary = `${itemCount} item${itemCount === 1 ? '' : 's'}`;
         const isExpanded = expanded.has(id);
         const toggleLabel = isExpanded ? 'Collapse job' : 'Expand job';
+        const badgeTone = (status === 'approved' || status === 'completed')
+          ? 'approved'
+          : (status === 'draft' || status === 'voided')
+            ? 'draft'
+            : 'pending';
+        const badgeLabel = (status === 'approved')
+          ? 'Approved'
+          : (status === 'completed')
+            ? 'Completed'
+            : (status === 'draft')
+              ? 'Draft'
+              : (status === 'voided')
+                ? 'Voided'
+                : 'Pending';
+        const shortageLabel = totalShortage > 0 ? `${formatQty(totalShortage)} short` : '';
         html += (
-          `<div class="job-row" data-job-row="${escapeHtmlAttr(id)}" data-job-toggle-id="${escapeHtmlAttr(id)}" aria-expanded="${isExpanded ? 'true' : 'false'}">`+
-            `<button class="job-chevron" data-job-toggle-id="${escapeHtmlAttr(id)}" aria-label="${escapeHtmlAttr(toggleLabel)}" title="${escapeHtmlAttr(toggleLabel)}">${isExpanded ? ICONS.chevronDown : ICONS.chevronRight}</button>`+
-            `<div class="job-row-main" data-job-toggle-id="${escapeHtmlAttr(id)}">`+
-              `<div class="job-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
-              `<div class="job-row-meta">`+
-                `<span class="job-status ${escapeHtmlAttr(statusClass)}">${escapeHtml(statusLabel)}</span>`+
-                `<span class="job-meta">${escapeHtml(created)}</span>`+
-                `<span class="job-summary">`+
-                  `<span>${escapeHtml(summary)}</span>`+
-                  (shortCount > 0 ? `<span class="job-summary-sep">·</span><span class="job-short-icon" title="${escapeHtmlAttr(shortCount+' short')}">${ICONS.alertTriangle}</span><span>${escapeHtml(String(shortCount))} short</span>` : '')+
-                `</span>`+
+          `<div class="job-row" data-job-row="${escapeHtmlAttr(id)}" aria-expanded="${isExpanded ? 'true' : 'false'}">`+
+            `<div class="job-card-header" data-job-toggle-id="${escapeHtmlAttr(id)}">`+
+              `<button class="job-chevron" data-job-toggle-id="${escapeHtmlAttr(id)}" aria-label="${escapeHtmlAttr(toggleLabel)}" title="${escapeHtmlAttr(toggleLabel)}">${ICONS.chevronRight}</button>`+
+              `<div class="job-header-main">`+
+                `<div class="job-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
+                `<div class="job-header-meta">`+
+                  `<span class="job-status-pill job-status-pill--${escapeHtmlAttr(badgeTone)}">${escapeHtml(badgeLabel)}</span>`+
+                  `<span class="job-meta">${escapeHtml(created)}</span>`+
+                  `<span class="job-summary">${escapeHtml(summary)}</span>`+
+                  (totalShortage > 0 ? `<span class="job-shortage" title="${escapeHtmlAttr(shortageLabel)}">${ICONS.alertTriangle}<span>${escapeHtml(shortageLabel)}</span></span>` : '')+
+                `</div>`+
               `</div>`+
-            `</div>`+
-            `<div class="job-actions">`+
-              `<button class="icon-btn icon-btn--default job-action--view" data-job-view-id="${escapeHtmlAttr(id)}" aria-label="View job" title="View job">${ICONS.eye}</button>`+
-              `<button class="icon-btn icon-btn--default job-action--edit" data-job-edit-id="${escapeHtmlAttr(id)}" aria-label="Edit job" title="Edit job">${ICONS.pencil}</button>`+
-              (canAdmin && canApproveJob(status) ? `<button class="icon-btn icon-btn--success job-action--approve" data-job-approve-id="${escapeHtmlAttr(id)}" aria-label="Approve job" title="Approve job">${ICONS.checkCircle}</button>` : '')+
-              (canAdmin && canCompleteJob(status) ? `<button class="icon-btn icon-btn--success job-action--complete" data-job-complete-id="${escapeHtmlAttr(id)}" aria-label="Complete job" title="Complete job">${ICONS.check}</button>` : '')+
-              (canAdmin && canVoidJob(status) ? `<button class="icon-btn icon-btn--danger job-action--void" data-job-void-id="${escapeHtmlAttr(id)}" aria-label="Void job" title="Void job">${ICONS.xCircle}</button>` : '')+
+              `<div class="job-actions">`+
+                `<button class="icon-btn icon-btn--default job-action--view" data-job-view-id="${escapeHtmlAttr(id)}" aria-label="View job" title="View job">${ICONS.eye}</button>`+
+                `<button class="icon-btn icon-btn--default job-action--edit" data-job-edit-id="${escapeHtmlAttr(id)}" aria-label="Edit job" title="Edit job">${ICONS.pencil}</button>`+
+                (canAdmin && canApproveJob(status) ? `<button class="icon-btn icon-btn--success job-action--approve" data-job-approve-id="${escapeHtmlAttr(id)}" aria-label="Approve job" title="Approve job">${ICONS.checkCircle}</button>` : '')+
+                (canAdmin && canCompleteJob(status) ? `<button class="icon-btn icon-btn--success job-action--complete" data-job-complete-id="${escapeHtmlAttr(id)}" aria-label="Complete job" title="Complete job">${ICONS.check}</button>` : '')+
+                (canAdmin && canVoidJob(status) ? `<button class="icon-btn icon-btn--danger job-action--void" data-job-void-id="${escapeHtmlAttr(id)}" aria-label="Void job" title="Void job">${ICONS.xCircle}</button>` : '')+
+              `</div>`+
             `</div>`+
           `</div>`
         );
@@ -20318,7 +21374,8 @@ function emptyStateHtml(){
           if(!bomLines.length){
             html += `<div class="job-detail"><div class="muted">No BOM items yet.</div></div>`;
           }else{
-            html += `<div class="job-detail"><div class="job-bom-lines">`;
+            html += `<div class="job-detail">`;
+            html += `<table class="job-items-table"><thead><tr><th>Item</th><th class="num">Needed</th><th class="num">Available</th><th>Status</th></tr></thead><tbody>`;
             bomLines.forEach(line=>{
               const itemId = String(line.item_id || '').trim();
               const qtyPlanned = Number(line.qty_planned || 0);
@@ -20326,20 +21383,41 @@ function emptyStateHtml(){
               const itemName = item ? String(item.name || '') : itemId;
               const sku = item && item.sku ? String(item.sku || '').trim() : '';
               const stats = computeJobLineStats(itemId, qtyPlanned, reservedMap);
-              const shortIcon = stats.shortfall > 0 ? `<span class="job-short-icon" title="Short">${ICONS.alertTriangle}</span>` : '<span></span>';
+              let statusText = 'Fulfilled';
+              let statusClass = 'job-item-status--fulfilled';
+              let statusIcon = ICONS.check;
+              if(stats.available <= 0){
+                statusText = 'Out of Stock';
+                statusClass = 'job-item-status--out';
+                statusIcon = ICONS.xCircle;
+              }else if(stats.available < qtyPlanned){
+                statusText = 'Shortage';
+                statusClass = 'job-item-status--shortage';
+                statusIcon = ICONS.alertTriangle;
+              }
               html += (
-                `<div class="job-bom-line">`+
-                  `<div class="job-bom-item" title="${escapeHtmlAttr(itemName)}">`+
-                    `${escapeHtml(itemName)}`+
-                    (sku ? `<span class="job-bom-meta">${escapeHtml(sku)}</span>` : '')+
-                  `</div>`+
-                  `<div class="job-bom-qty">${escapeHtml(String(qtyPlanned))}</div>`+
-                  `<div class="job-bom-qty">${escapeHtml(String(stats.available))}</div>`+
-                  `${shortIcon}`+
-                `</div>`
+                `<tr>`+
+                  `<td class="item-cell" data-label="Item">`+
+                    `<div class="job-item-name" title="${escapeHtmlAttr(itemName)}">${escapeHtml(itemName)}</div>`+
+                    (sku ? `<div class="job-item-sku">${escapeHtml(sku)}</div>` : '')+
+                  `</td>`+
+                  `<td class="num" data-label="Needed">${escapeHtml(formatQty(qtyPlanned))}</td>`+
+                  `<td class="num" data-label="Available">${escapeHtml(formatQty(stats.available))}</td>`+
+                  `<td data-label="Status">`+
+                    `<span class="job-item-status ${escapeHtmlAttr(statusClass)}">${statusIcon}<span>${escapeHtml(statusText)}</span></span>`+
+                  `</td>`+
+                `</tr>`
               );
             });
-            html += `</div></div>`;
+            html += `</tbody></table>`;
+            html += (
+              `<div class="job-items-summary">`+
+                `<span><span>Total Needed</span><span>${escapeHtml(formatQty(totalNeeded))}</span></span>`+
+                `<span><span>Total Available</span><span>${escapeHtml(formatQty(totalAvailable))}</span></span>`+
+                `<span class="${totalShortage > 0 ? 'job-total-short' : ''}"><span>Total Shortage</span><span>${escapeHtml(formatQty(totalShortage))}</span></span>`+
+              `</div>`
+            );
+            html += `</div>`;
           }
         }
       }
@@ -22420,24 +23498,36 @@ function emptyStateHtml(){
       }
     }
 
+        async function handleInventoryDeleteAction(id){
+          if(!id) return;
+          if(!requireOnline()) return;
+          if(!requirePermission(PERMISSIONS.ITEMS_DELETE, 'Delete not allowed')) return;
+          const selectedIds = getSelectedRowIds();
+          const batchIds = (selectedIds.length > 1 && selectedIds.includes(id)) ? selectedIds : [id];
+          const isBatch = batchIds.length > 1;
+          const item = !isBatch ? state.items.find(it => it && it.id === id) : null;
+          const itemName = item ? item.name : 'this item';
+          const title = isBatch ? 'Delete items?' : 'Delete item?';
+          const message = isBatch
+            ? `Delete ${batchIds.length} selected items?`
+            : `Delete "${itemName}"?`;
+          const ok = await openConfirmModal(title, message, { okText:'Delete', cancelText:'Cancel' });
+          if(!ok) return;
+          try{
+            await sbDeleteMany(batchIds);
+            await sbLoadSnapshot();
+            toast(isBatch ? `Deleted ${batchIds.length} items` : 'Item deleted', 'success');
+          }catch(e){
+            toast(e && e.message ? e.message : 'Delete failed', 'error');
+          }
+        }
+
 			    // Row delete button handler (delegated)
-			    document.addEventListener('click', async (e)=>{
+			    document.addEventListener('click', (e)=>{
 		      const btn = e.target.closest('.row-delete-btn');
 		      if(!btn) return;
-		      if(!requireOnline()) return;
-		      if(!requirePermission(PERMISSIONS.ITEMS_DELETE, 'Delete not allowed')) return;
-		      const id = btn.dataset.id;
-      if(!id) return;
-      const item = state.items.find(it => it.id === id);
-      const itemName = item ? item.name : 'this item';
-      if(!(await openConfirmModal('Delete item?', `Delete "${itemName}"?`, { okText:'Delete', cancelText:'Cancel' }))) return;
-      try {
-        const res = await sbDeleteMany([id]);
-        await sbLoadSnapshot();
-        toast('Item deleted', 'success');
-      } catch (e) {
-        toast(e.message || 'Delete failed', 'error');
-      }
+		      const id = String(btn.dataset.id || '').trim();
+          handleInventoryDeleteAction(id);
     });
 
     // Row edit button handler (delegated)
@@ -22833,8 +23923,14 @@ function emptyStateHtml(){
   } else if (id === 'diagnosticsModal') {
     const inp = document.getElementById('diagRoleSelect');
     if (inp) setTimeout(() => inp.focus(), 0);
-	  } else if (id === 'addToJobModal') {
-	    const sel = document.getElementById('addToJobSelect');
+  } else if (id === 'addToJobModal') {
+    const sel = document.getElementById('addToJobSelect');
+    if (sel) setTimeout(() => sel.focus(), 0);
+  } else if (id === 'seedInventoryModal') {
+    const sel = document.getElementById('seedInventorySource');
+    if (sel) setTimeout(() => sel.focus(), 0);
+  } else if (id === 'companyEnvironmentModal') {
+    const sel = document.getElementById('companyEnvironmentSelect');
     if (sel) setTimeout(() => sel.focus(), 0);
   }
 	  setTimeout(()=>{

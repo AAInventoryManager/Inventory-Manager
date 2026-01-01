@@ -50,6 +50,19 @@ describe('RPC: seed_company_inventory', () => {
     superClient = await createAuthenticatedClient(TEST_USERS.SUPER, TEST_PASSWORD);
     adminClientAuth = await createAuthenticatedClient(TEST_USERS.ADMIN, TEST_PASSWORD);
     superUserId = await getAuthUserIdByEmail(TEST_USERS.SUPER);
+    const { error: cleanupError } = await adminClient
+      .from('company_members')
+      .delete()
+      .eq('user_id', superUserId);
+    if (cleanupError) throw cleanupError;
+    const { error: superMemberError } = await adminClient.from('company_members').insert({
+      company_id: sourceCompanyId,
+      user_id: superUserId,
+      role: 'admin',
+      is_super_user: true,
+      assigned_admin_id: superUserId
+    });
+    if (superMemberError) throw superMemberError;
 
     const { error: sourceItemsError } = await adminClient.from('inventory_items').insert([
       {
