@@ -58,11 +58,13 @@ jobs:
           supabase login --token "$SUPABASE_ACCESS_TOKEN"
           supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" --yes
           supabase db push --yes
-          # Force PostgREST schema reload via direct SQL
-          PGPASSWORD="$SUPABASE_DB_PASSWORD" psql \
-            "postgresql://postgres.${SUPABASE_PROJECT_REF}@aws-0-us-east-1.pooler.supabase.com:6543/postgres" \
-            -c "NOTIFY pgrst, 'reload schema';" || true
-          sleep 10
+          # Force PostgREST schema reload via API
+          curl -s -X POST \
+            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+            -H "Content-Type: application/json" \
+            "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_REF}/restart" \
+            --data '{"services": ["postgrest"]}' || echo "PostgREST restart failed (non-critical)"
+          sleep 15
 
       - name: Install dependencies
         run: npm install
