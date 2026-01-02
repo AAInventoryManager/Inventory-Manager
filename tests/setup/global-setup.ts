@@ -45,21 +45,43 @@ export default async function globalSetup() {
 
     // If user exists, just update password
     if (userId) {
-      // User exists, update password
+      // User exists, will update password below
     } else {
-      // User doesn't exist, create new
+      // User doesn't exist in our lookup, try to create
       // First clean up any stale profile data
       await adminClient.from('profiles').delete().eq('email', user.email);
 
-      const { data: created, error } = await adminClient.auth.admin.createUser({
+      let { data: created, error } = await adminClient.auth.admin.createUser({
         email: user.email,
         password: TEST_PASSWORD,
         email_confirm: true
       });
 
-      if (error) throw new Error(`Failed to create user ${user.email}: ${error.message}`);
-      if (!created?.user?.id) throw new Error(`No user ID returned for ${user.email}`);
-      userId = created.user.id;
+      // If user "already exists", try to find them with a fresh lookup
+      if (error?.message?.toLowerCase().includes('already')) {
+        // Try paginated lookup
+        let page = 1;
+        while (!userId && page <= 10) {
+          const { data: listData } = await adminClient.auth.admin.listUsers({ page, perPage: 1000 });
+          const found = listData?.users?.find(u => u.email === user.email);
+          if (found) {
+            userId = found.id;
+            break;
+          }
+          if (!listData?.users?.length || listData.users.length < 1000) break;
+          page++;
+        }
+
+        if (!userId) {
+          throw new Error(`User ${user.email} allegedly exists but not found in auth after paginated search`);
+        }
+      } else if (error) {
+        throw new Error(`Failed to create user ${user.email}: ${error.message}`);
+      } else if (!created?.user?.id) {
+        throw new Error(`No user ID returned for ${user.email}`);
+      } else {
+        userId = created.user.id;
+      }
     }
 
     // Update user password to ensure it's correct
