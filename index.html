@@ -47,7 +47,8 @@
   <style>
     :root{
       --bg:#24292d;--fg:#eaeff7;--muted:#a9b4c0;--accent:#5aa9ff;
-      --card:#000000;--border:#1f2a36;--title-min:12px;--title-max:56px
+      --card:#000000;--border:#1f2a36;--title-min:12px;--title-max:56px;
+      --inventory-sticky-offset: 120px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -75,6 +76,19 @@
     .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
     .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
     .toolbar .spacer{flex:1}
+    /* Sticky toolbar for inventory list - sticks below header */
+    #appMain .toolbar{
+      position:sticky;
+      top:calc(70px + env(safe-area-inset-top, 0px));
+      z-index:19;
+      background:var(--card);
+      margin:-12px -12px 0;
+      padding:12px;
+      border-bottom:1px solid var(--border);
+    }
+    @supports not (top: env(safe-area-inset-top)){
+      #appMain .toolbar{ top:70px; }
+    }
     :root{
       --glass-btn-blur: 14px;
       --glass-btn-radius: 14px;
@@ -261,7 +275,7 @@
     }
 	    thead th{
 	      text-align:center;color:#e2e8f0;font-weight:700;border-bottom:2px solid var(--border);
-	      padding:14px 12px;position:sticky;top:0;background:#0d1117;z-index:7;
+	      padding:14px 12px;position:sticky;top:var(--inventory-sticky-offset, 0px);background:#0d1117;z-index:7;
 	      text-transform:uppercase;font-size:12px;letter-spacing:0.5px;
 	      white-space:nowrap;
 	    }
@@ -645,6 +659,19 @@
           radial-gradient(220px 120px at 40% 35%, rgba(34,197,94,0.24), rgba(34,197,94,0) 70%),
           rgba(8,10,16,0.92);
         border-bottom-color: rgba(34,197,94,0.35);
+      }
+      #invTable tbody tr.order-selected td{
+        box-shadow:
+          inset 0 0 0 1px rgba(34,197,94,0.28),
+          0 0 14px rgba(34,197,94,0.32);
+      }
+      #invTable tbody tr.order-selected td:first-child{
+        border-top-left-radius:12px;
+        border-bottom-left-radius:12px;
+      }
+      #invTable tbody tr.order-selected td:last-child{
+        border-top-right-radius:12px;
+        border-bottom-right-radius:12px;
       }
       #invTable tbody tr.order-selected::after{
         content:'';
@@ -4439,38 +4466,408 @@
       font-size:12px;
     }
     .job-actions-bar{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
-    .add-job-modal .box{
-      max-width:520px;
+
+    /* ============================================
+       Add to Job Modal - Redesigned v2
+       ============================================ */
+    #addToJobModal .modal{
+      background:linear-gradient(145deg, rgba(30, 35, 45, 0.95), rgba(20, 24, 32, 0.98));
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border:1px solid rgba(255, 255, 255, 0.08);
+      border-radius:20px;
+      max-width:480px;
+      box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+      animation:atjModalIn 0.3s ease;
     }
-    .add-job-modal{
-      align-items:center;
-      justify-content:center;
+    @keyframes atjModalIn{
+      from{ opacity:0; transform:scale(0.95) translateY(10px); }
+      to{ opacity:1; transform:scale(1) translateY(0); }
     }
-    .add-job-grid{
-      display:grid;
-      gap:12px;
+    /* Item Card */
+    .atj-item-card{
+      margin:20px 24px 0;
+      padding:16px;
+      background:rgba(255,255,255,0.03);
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,0.06);
     }
-    .add-job-item{
-      font-weight:700;
+    .atj-item-name{
       font-size:15px;
+      font-weight:600;
+      color:#f1f5f9;
+      margin-bottom:4px;
     }
-    .add-job-actions{
+    .atj-item-desc{
+      font-size:13px;
+      color:#94a3b8;
+      line-height:1.4;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .atj-item-sku{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:10px;
+      padding:5px 10px;
+      background:rgba(255,255,255,0.05);
+      border-radius:6px;
+      font-size:12px;
+      color:#64748b;
+      font-family:"SF Mono",Monaco,monospace;
+    }
+    .atj-item-sku span{ color:#94a3b8; }
+    /* Stats Row */
+    .atj-stats-row{
       display:flex;
       gap:8px;
-      justify-content:flex-end;
-      margin-top:4px;
+      margin-top:16px;
+      padding-top:16px;
+      border-top:1px solid rgba(255,255,255,0.06);
     }
-    .add-job-inline{
+    .atj-stat{
+      flex:1;
+      padding:10px 12px;
+      background:rgba(255,255,255,0.03);
+      border-radius:10px;
+      text-align:center;
+    }
+    .atj-stat-value{
+      font-size:18px;
+      font-weight:700;
+      color:#f1f5f9;
+      letter-spacing:-0.02em;
+      font-variant-numeric:tabular-nums;
+    }
+    .atj-stat-value.available{ color:#34d399; }
+    .atj-stat-value.reserved{ color:#fbbf24; }
+    .atj-stat-label{
+      font-size:11px;
+      font-weight:500;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      color:#64748b;
+      margin-top:2px;
+    }
+    /* Tabs */
+    .atj-tabs{ margin:20px 24px 0; }
+    .atj-tabs-header{
       display:flex;
-      gap:10px;
+      gap:4px;
+      padding:4px;
+      background:rgba(255,255,255,0.04);
+      border-radius:12px;
+    }
+    .atj-tab-btn{
+      flex:1;
+      padding:10px 16px;
+      background:transparent;
+      border:none;
+      border-radius:9px;
+      font-size:13px;
+      font-weight:600;
+      color:#64748b;
+      cursor:pointer;
+      transition:all 0.2s ease;
+      display:flex;
       align-items:center;
-      flex-wrap:wrap;
+      justify-content:center;
+      gap:8px;
     }
-    .add-job-inline .qty-stepper{
-      max-width:180px;
+    .atj-tab-btn:hover{ color:#94a3b8; }
+    .atj-tab-btn.active{
+      background:rgba(255,255,255,0.1);
+      color:#f1f5f9;
+      box-shadow:0 2px 8px rgba(0,0,0,0.15);
+    }
+    .atj-tab-btn svg{ width:16px; height:16px; }
+    .atj-tab-content{ margin-top:16px; }
+    .atj-tab-panel{
+      display:none;
+      animation:atjFadeIn 0.2s ease;
+    }
+    .atj-tab-panel.active{ display:block; }
+    @keyframes atjFadeIn{
+      from{ opacity:0; transform:translateY(4px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+    /* Form fields */
+    .atj-field{ margin-bottom:16px; }
+    .atj-field:last-child{ margin-bottom:0; }
+    .atj-label{
+      display:block;
+      font-size:12px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      color:#94a3b8;
+      margin-bottom:8px;
+    }
+    .atj-label-optional{
+      font-weight:400;
+      text-transform:none;
+      color:#64748b;
+    }
+    /* Dropdown */
+    .atj-dropdown{ position:relative; }
+    .atj-dropdown-trigger{
       width:100%;
+      padding:14px 16px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:12px;
+      color:#f1f5f9;
+      font-size:14px;
+      text-align:left;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      transition:all 0.15s ease;
     }
-    @media (max-width: 640px){
+    .atj-dropdown-trigger:hover{
+      border-color:rgba(255,255,255,0.2);
+      background:rgba(255,255,255,0.06);
+    }
+    .atj-dropdown-trigger:focus{
+      outline:none;
+      border-color:#3b82f6;
+      box-shadow:0 0 0 3px rgba(59,130,246,0.15);
+    }
+    .atj-dropdown-trigger .placeholder{ color:#64748b; }
+    .atj-dropdown-trigger .chevron{ transition:transform 0.2s ease; }
+    .atj-dropdown-trigger.open .chevron{ transform:rotate(180deg); }
+    .atj-dropdown-menu{
+      position:absolute;
+      top:calc(100% + 8px);
+      left:0;
+      right:0;
+      background:rgba(30,35,45,0.98);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:14px;
+      padding:6px;
+      z-index:10;
+      box-shadow:0 20px 40px -10px rgba(0,0,0,0.5);
+      display:none;
+      max-height:240px;
+      overflow-y:auto;
+    }
+    .atj-dropdown-menu.open{
+      display:block;
+      animation:atjDropIn 0.15s ease;
+    }
+    @keyframes atjDropIn{
+      from{ opacity:0; transform:translateY(-8px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+    .atj-dropdown-item{
+      width:100%;
+      padding:12px 14px;
+      background:transparent;
+      border:none;
+      border-radius:10px;
+      color:#e2e8f0;
+      font-size:14px;
+      text-align:left;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      transition:background 0.15s ease;
+    }
+    .atj-dropdown-item:hover{ background:rgba(255,255,255,0.06); }
+    .atj-dropdown-item.selected{ background:rgba(96,165,250,0.1); }
+    .atj-dropdown-item .job-info{ display:flex; flex-direction:column; gap:2px; }
+    .atj-dropdown-item .job-name{ font-weight:500; }
+    .atj-dropdown-item .job-status{ font-size:12px; color:#64748b; }
+    .atj-dropdown-item .job-status.draft{ color:#94a3b8; }
+    .atj-dropdown-item .job-status.approved{ color:#34d399; }
+    .atj-dropdown-item .job-status.in_progress{ color:#60a5fa; }
+    .atj-dropdown-item .check-icon{ color:#60a5fa; display:none; }
+    .atj-dropdown-item.selected .check-icon{ display:block; }
+    .atj-dropdown-empty{
+      padding:20px;
+      text-align:center;
+      color:#64748b;
+      font-size:13px;
+    }
+    /* Text inputs */
+    .atj-input{
+      width:100%;
+      padding:14px 16px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:12px;
+      color:#f1f5f9;
+      font-size:14px;
+      outline:none;
+      transition:all 0.15s ease;
+    }
+    .atj-input:hover{ border-color:rgba(255,255,255,0.2); }
+    .atj-input:focus{
+      border-color:#3b82f6;
+      box-shadow:0 0 0 3px rgba(59,130,246,0.15);
+    }
+    .atj-input::placeholder{ color:#64748b; }
+    .atj-textarea{
+      width:100%;
+      padding:14px 16px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:12px;
+      color:#f1f5f9;
+      font-size:14px;
+      font-family:inherit;
+      outline:none;
+      transition:all 0.15s ease;
+      resize:vertical;
+      min-height:80px;
+    }
+    .atj-textarea:hover{ border-color:rgba(255,255,255,0.2); }
+    .atj-textarea:focus{
+      border-color:#3b82f6;
+      box-shadow:0 0 0 3px rgba(59,130,246,0.15);
+    }
+    .atj-textarea::placeholder{ color:#64748b; }
+    /* Quantity section */
+    .atj-qty-section{
+      padding:0 24px;
+      margin-top:20px;
+    }
+    .atj-qty-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .atj-qty-label-group{ display:flex; flex-direction:column; gap:2px; }
+    .atj-qty-main-label{ font-size:14px; font-weight:600; color:#f1f5f9; }
+    .atj-qty-helper{ font-size:12px; color:#64748b; }
+    .atj-qty-helper.warning{ color:#fbbf24; }
+    .atj-qty-wrapper{
+      display:flex;
+      align-items:center;
+      gap:2px;
+      background:rgba(255,255,255,0.04);
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.1);
+      padding:4px;
+    }
+    .atj-qty-btn{
+      width:40px;
+      height:40px;
+      border-radius:9px;
+      border:none;
+      background:rgba(255,255,255,0.06);
+      color:#94a3b8;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:all 0.15s ease;
+    }
+    .atj-qty-btn:hover{ background:rgba(255,255,255,0.1); color:#e2e8f0; }
+    .atj-qty-btn:active{ transform:scale(0.95); }
+    .atj-qty-btn:disabled{ opacity:0.4; cursor:not-allowed; }
+    .atj-qty-input{
+      width:56px;
+      height:40px;
+      border:none;
+      background:transparent;
+      color:#f1f5f9;
+      font-size:17px;
+      font-weight:600;
+      text-align:center;
+      outline:none;
+      -moz-appearance:textfield;
+    }
+    .atj-qty-input::-webkit-outer-spin-button,
+    .atj-qty-input::-webkit-inner-spin-button{
+      -webkit-appearance:none;
+      margin:0;
+    }
+    /* Footer */
+    .atj-footer{
+      display:flex;
+      gap:12px;
+      padding:20px 24px 24px;
+      margin-top:24px;
+      border-top:1px solid rgba(255,255,255,0.06);
+    }
+    .atj-cancel-btn{
+      flex:1;
+      padding:14px 20px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:12px;
+      color:#94a3b8;
+      font-size:14px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.15s ease;
+    }
+    .atj-cancel-btn:hover{ background:rgba(255,255,255,0.08); color:#e2e8f0; }
+    .atj-submit-btn{
+      flex:1.5;
+      padding:14px 20px;
+      background:linear-gradient(135deg, #3b82f6, #2563eb);
+      border:none;
+      border-radius:12px;
+      color:#ffffff;
+      font-size:14px;
+      font-weight:600;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      transition:all 0.15s ease;
+      box-shadow:0 4px 12px rgba(59,130,246,0.3);
+    }
+    .atj-submit-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 6px 16px rgba(59,130,246,0.4);
+    }
+    .atj-submit-btn:active{ transform:translateY(0); }
+    .atj-submit-btn:disabled{
+      opacity:0.5;
+      cursor:not-allowed;
+      transform:none;
+    }
+    .atj-submit-btn svg{ width:16px; height:16px; }
+    /* Message */
+    .atj-message{
+      display:none;
+      padding:12px 16px;
+      margin:0 24px 16px;
+      font-size:13px;
+      color:#64748b;
+      background:rgba(255,255,255,0.03);
+      border-radius:10px;
+      text-align:center;
+    }
+    .atj-message.visible{ display:block; }
+    .atj-message.error{ color:#f87171; background:rgba(248,113,113,0.1); }
+    .atj-submit-btn .spinner{
+      display:inline-block;
+      width:16px;
+      height:16px;
+      border:2px solid rgba(255,255,255,0.3);
+      border-top-color:#fff;
+      border-radius:50%;
+      animation:atjSpin 0.6s linear infinite;
+      vertical-align:middle;
+      margin-right:8px;
+    }
+    @keyframes atjSpin{
+      to{ transform:rotate(360deg); }
+    }
+    /* Mobile responsive */
+    @media (max-width:640px){
       .job-form-grid{ grid-template-columns:1fr; }
       .job-bom-add{ grid-template-columns:1fr; }
       .jobs-table th:nth-child(3),
@@ -4479,14 +4876,21 @@
         align-items:flex-end;
         padding:0;
       }
-      #addToJobModal .box{
+      #addToJobModal .modal{
         width:100%;
         max-width:100%;
         margin:0;
-        border-radius:16px 16px 0 0;
+        border-radius:20px 20px 0 0;
         max-height:calc(100vh - env(safe-area-inset-top));
         max-height:calc(100dvh - env(safe-area-inset-top));
       }
+      .atj-item-card{ margin:16px 20px 0; padding:14px; }
+      .atj-tabs{ margin:16px 20px 0; }
+      .atj-qty-section{ padding:0 20px; }
+      .atj-footer{ padding:16px 20px 20px; }
+      .atj-stats-row{ gap:6px; }
+      .atj-stat{ padding:8px 10px; }
+      .atj-stat-value{ font-size:16px; }
     }
 	    .drop{
 	      border:1px dashed var(--border);border-radius:10px;padding:12px;text-align:center;color:var(--muted)
@@ -4513,12 +4917,13 @@
        Inventory List Redesign - Glassmorphism
        ============================================ */
 
-    /* Stats Row */
+    /* Stats Row - inside toolbar sticky header */
     .inv-stats-row{
       display:flex;
       gap:10px;
-      margin-bottom:12px;
       flex-wrap:wrap;
+      width:100%;
+      margin-top:10px;
     }
     .inv-stat-card{
       flex:1 1 100px;
@@ -4665,7 +5070,17 @@
       background:rgba(255,255,255,0.1);
       color:#fff;
     }
+    .inv-card-action-btn:active{
+      background:rgba(255,255,255,0.2);
+      transform:scale(0.95);
+    }
     .inv-card-action-btn svg{ width:14px; height:14px; }
+    /* Larger touch targets on mobile */
+    @media (hover:none), (max-width:768px){
+      .inv-card-actions{ opacity:1; pointer-events:auto; gap:6px; }
+      .inv-card-action-btn{ width:44px; height:44px; border-radius:10px; background:rgba(255,255,255,0.08); }
+      .inv-card-action-btn svg{ width:22px; height:22px; }
+    }
     .inv-card-desc{
       margin:0 0 6px 0;
       font-size:12px;
@@ -4692,6 +5107,78 @@
       padding-top:8px;
       border-top:1px solid rgba(255,255,255,0.06);
     }
+    /* Dynamic card body - field-order aware */
+    .inv-card-body{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      margin-bottom:6px;
+    }
+    .inv-card-body:empty{ display:none; }
+    .inv-card-field{
+      display:flex;
+      align-items:baseline;
+      gap:6px;
+      font-size:12px;
+      line-height:1.3;
+    }
+    .inv-card-field-label{
+      color:#64748b;
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:0.3px;
+      flex-shrink:0;
+      min-width:50px;
+    }
+    .inv-card-field-value{
+      color:#94a3b8;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .inv-card-field-value.is-desc{
+      white-space:normal;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+    }
+    /* Numeric field badges in footer */
+    .inv-card-stats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+    .inv-card-stat{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:4px 10px;
+      background:rgba(255,255,255,0.04);
+      border-radius:6px;
+      border:1px solid rgba(255,255,255,0.06);
+      min-width:50px;
+    }
+    .inv-card-stat-value{
+      font-size:14px;
+      font-weight:700;
+      font-variant-numeric:tabular-nums;
+      color:var(--fg);
+    }
+    .inv-card-stat-label{
+      font-size:9px;
+      text-transform:uppercase;
+      letter-spacing:0.3px;
+      color:#64748b;
+    }
+    .inv-card-stat--good{ background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.2); }
+    .inv-card-stat--good .inv-card-stat-value{ color:#22c55e; }
+    .inv-card-stat--low{ background:rgba(245,158,11,0.1); border-color:rgba(245,158,11,0.2); }
+    .inv-card-stat--low .inv-card-stat-value{ color:#f59e0b; }
+    .inv-card-stat--out{ background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.2); }
+    .inv-card-stat--out .inv-card-stat-value{ color:#ef4444; }
+    .inv-card-stat--reserved{ background:rgba(96,165,250,0.1); border-color:rgba(96,165,250,0.2); }
+    .inv-card-stat--reserved .inv-card-stat-value{ color:#60a5fa; }
+    .inv-card-stat--muted .inv-card-stat-value{ color:#94a3b8; }
 
     /* LED Status Indicator */
     .inv-led{
@@ -4934,6 +5421,9 @@
         from{ transform:translateY(20px); opacity:0; }
         to{ transform:translateY(0); opacity:1; }
       }
+      /* Adjust sticky positions for mobile */
+      #appMain .toolbar{ top:calc(58px + env(safe-area-inset-top, 0px)); }
+      .order-pill-container{ top:calc(180px + env(safe-area-inset-top, 0px)); }
     }
     @media (max-width:400px){
       .inv-stat-card{ min-width:60px; padding:6px 8px; }
@@ -5193,43 +5683,41 @@
       min-width:0;
       justify-self:center;
     }
-    /* Main app order pill - positioned below totals, sticky */
+    /* Main app order pill - positioned below sticky toolbar, sticky */
     .order-pill-container{
       position:sticky;
-      top:0;
-      z-index:15;
+      top:calc(150px + env(safe-area-inset-top, 0px));
+      z-index:17;
       display:flex;
       justify-content:center;
       padding:10px 0;
-      background:linear-gradient(to bottom, var(--bg) 60%, transparent 100%);
+      margin-left:-12px;
+      margin-right:-12px;
+      background:linear-gradient(to bottom, var(--card) 60%, transparent 100%);
+    }
+    @supports not (top: env(safe-area-inset-top)){
+      .order-pill-container{ top:150px; }
     }
     .order-pill{
-      width:75%;
+      width:auto;
       max-width:400px;
       display:flex;
       align-items:center;
-      justify-content:center;
-      gap:8px;
+      gap:12px;
       background:rgba(34,197,94,0.18);
       border:1px solid rgba(34,197,94,0.55);
       color:#fff;
       font-weight:600;
-      padding:12px 20px;
+      padding:10px 12px 10px 18px;
       border-radius:14px;
-      cursor:pointer;
       box-shadow: 0 0 0 1px rgba(34,197,94,0.12), 0 10px 24px rgba(0,0,0,0.35);
       -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
-      transition: transform 150ms ease, box-shadow 150ms ease;
-      -webkit-tap-highlight-color: transparent;
       animation: orderPillIn 220ms ease;
     }
     @keyframes orderPillIn{
       from{ opacity:0; transform:translateY(-8px); }
       to{ opacity:1; transform:translateY(0); }
-    }
-    .order-pill:active{
-      transform: scale(0.97);
     }
     .order-pill-value{
       font-size:20px;
@@ -5239,12 +5727,40 @@
       font-size:15px;
       font-weight:600;
     }
-    .order-pill-hint{
-      font-size:11px;
-      opacity:0.8;
-      text-transform:uppercase;
-      letter-spacing:0.3px;
-      margin-left:auto;
+    .order-pill-actions{
+      display:flex;
+      gap:6px;
+      margin-left:4px;
+    }
+    .order-pill-btn{
+      width:44px;
+      height:44px;
+      border-radius:10px;
+      border:none;
+      background:rgba(255,255,255,0.15);
+      color:#fff;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:all 0.15s;
+    }
+    .order-pill-btn:hover{
+      background:rgba(255,255,255,0.25);
+    }
+    .order-pill-btn:active{
+      transform:scale(0.95);
+      background:rgba(255,255,255,0.3);
+    }
+    .order-pill-btn svg{
+      width:22px;
+      height:22px;
+    }
+    .order-pill-btn--clear{
+      background:rgba(239,68,68,0.25);
+    }
+    .order-pill-btn--clear:hover{
+      background:rgba(239,68,68,0.4);
     }
     .menu-backdrop,
     .profile-backdrop{
@@ -7248,13 +7764,13 @@
 	                <rect x="3" y="3" width="7" height="18"></rect>
 	                <rect x="14" y="3" width="7" height="18"></rect>
 	              </svg>
-	              <span>Columns</span>
+	              <span>Display</span>
 	            </button>
-	            <div class="column-builder" id="columnBuilder" role="dialog" aria-label="Column chooser" aria-hidden="true">
+	            <div class="column-builder" id="columnBuilder" role="dialog" aria-label="Display settings" aria-hidden="true">
 	              <div class="column-builder-header">
 	                <div>
-	                  <div class="column-builder-title">Columns</div>
-	                  <div class="column-builder-subtitle">Choose columns</div>
+	                  <div class="column-builder-title">Display Settings</div>
+	                  <div class="column-builder-subtitle">Fields shown in Table and Card views</div>
 	                </div>
 	                <button class="column-builder-drag" id="columnBuilderDrag" type="button" aria-label="Move column builder" title="Drag to move"></button>
 	              </div>
@@ -7287,25 +7803,24 @@
 	            </div>
 	          </div>
 	        </div>
-	      </div>
-
-	      <!-- Stats Cards Row -->
-	      <div class="inv-stats-row" id="invStatsRow" aria-live="polite">
-	        <div class="inv-stat-card">
-	          <span class="inv-stat-value" id="statTotalItems">0</span>
-	          <span class="inv-stat-label">Total Items</span>
-	        </div>
-	        <div class="inv-stat-card">
-	          <span class="inv-stat-value inv-stat-value--green" id="statInStock">0</span>
-	          <span class="inv-stat-label">In Stock</span>
-	        </div>
-	        <div class="inv-stat-card">
-	          <span class="inv-stat-value inv-stat-value--yellow" id="statLowStock">0</span>
-	          <span class="inv-stat-label">Low Stock</span>
-	        </div>
-	        <div class="inv-stat-card">
-	          <span class="inv-stat-value inv-stat-value--muted" id="statTotalQty">0</span>
-	          <span class="inv-stat-label">Total Qty</span>
+	        <!-- Stats Cards Row - inside toolbar for sticky header -->
+	        <div class="inv-stats-row" id="invStatsRow" aria-live="polite">
+	          <div class="inv-stat-card">
+	            <span class="inv-stat-value" id="statTotalItems">0</span>
+	            <span class="inv-stat-label">Total Items</span>
+	          </div>
+	          <div class="inv-stat-card">
+	            <span class="inv-stat-value inv-stat-value--green" id="statInStock">0</span>
+	            <span class="inv-stat-label">In Stock</span>
+	          </div>
+	          <div class="inv-stat-card">
+	            <span class="inv-stat-value inv-stat-value--yellow" id="statLowStock">0</span>
+	            <span class="inv-stat-label">Low Stock</span>
+	          </div>
+	          <div class="inv-stat-card">
+	            <span class="inv-stat-value inv-stat-value--muted" id="statTotalQty">0</span>
+	            <span class="inv-stat-label">Total Qty</span>
+	          </div>
 	        </div>
 	      </div>
 
@@ -7318,11 +7833,18 @@
 	      </div>
 
 	      <div class="order-pill-container" id="orderPillContainer" style="display:none;">
-	        <button class="order-pill" id="orderPill" data-order-reset aria-label="Shopping Cart (tap to clear selected items)">
+	        <div class="order-pill" id="orderPill" role="status" aria-live="polite">
 	          <span class="order-pill-value" id="orderPillValue">0</span>
 	          <span class="order-pill-label">Items in Cart</span>
-	          <span class="order-pill-hint">tap to clear</span>
-	        </button>
+	          <div class="order-pill-actions">
+	            <button class="order-pill-btn" id="orderPillOpen" type="button" title="Create Order" aria-label="Create Order">
+	              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.6a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6l1.65-8.6H6"></path></svg>
+	            </button>
+	            <button class="order-pill-btn order-pill-btn--clear" id="orderPillClear" type="button" title="Clear Cart" aria-label="Clear Cart" data-order-reset>
+	              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+	            </button>
+	          </div>
+	        </div>
 	      </div>
 
 	      <!-- Card View (hidden by default) -->
@@ -8448,65 +8970,136 @@
     </div>
   </div>
 
-  <!-- Add to Job modal -->
+  <!-- Add to Job modal (Redesigned v2) -->
   <div id="addToJobModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="addToJobTitle">
-      <div class="modal-header">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addToJobTitle">
+      <!-- Header -->
+      <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,0.06);padding:24px 24px 20px;">
         <div class="modal-title-wrap">
-          <span class="modal-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="2" y="7" width="20" height="14" rx="2"></rect>
-              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
-              <line x1="12" y1="12" x2="12" y2="16"></line>
-              <line x1="10" y1="14" x2="14" y2="14"></line>
+          <span class="modal-icon" style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg, rgba(96,165,250,0.2), rgba(59,130,246,0.1));border:1px solid rgba(96,165,250,0.3);color:#60a5fa;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
             </svg>
           </span>
           <div class="modal-title-text">
             <h2 id="addToJobTitle" class="modal-title">Add to Job</h2>
-            <div class="modal-subtitle">Choose a job and planned quantity.</div>
+            <div class="modal-subtitle">Allocate inventory to a job</div>
           </div>
         </div>
-        <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="addToJobModal" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="addToJobModal" aria-label="Close" style="width:36px;height:36px;border-radius:10px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
       </div>
-      <div class="modal-body">
-        <div class="form-section">
-          <div class="section-label">Details</div>
-          <label>Item</label>
-          <div id="addToJobItemName" class="add-job-item"></div>
-          <label for="addToJobSelect">Job</label>
-          <select id="addToJobSelect"></select>
-          <div id="addToJobNewWrap" style="display:none;">
-            <label for="addToJobNewName">Job name</label>
-            <input id="addToJobNewName" type="text" placeholder="New job name" />
+
+      <!-- Item Details Card -->
+      <div class="atj-item-card">
+        <div class="atj-item-name" id="atjItemName">Loading...</div>
+        <div class="atj-item-desc" id="atjItemDesc"></div>
+        <div class="atj-item-sku" id="atjItemSkuWrap" style="display:none;">SKU <span id="atjItemSku"></span></div>
+        <!-- Stats Row -->
+        <div class="atj-stats-row">
+          <div class="atj-stat">
+            <div class="atj-stat-value" id="atjStatOnHand">0</div>
+            <div class="atj-stat-label">On Hand</div>
           </div>
-          <label for="addToJobQty">Quantity</label>
-          <div class="qty-stepper qty-stepper--modal">
-            <button class="qty-step" id="addToJobQtyMinus" type="button" aria-label="Decrease qty">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
-            <input id="addToJobQty" type="number" min="1" step="1" pattern="[0-9]*" inputmode="numeric" enterkeyhint="done" />
-            <button class="qty-step" id="addToJobQtyPlus" type="button" aria-label="Increase qty">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
+          <div class="atj-stat">
+            <div class="atj-stat-value reserved" id="atjStatReserved">0</div>
+            <div class="atj-stat-label">Reserved</div>
           </div>
-          <div id="addToJobMsg" class="muted"></div>
+          <div class="atj-stat">
+            <div class="atj-stat-value available" id="atjStatAvailable">0</div>
+            <div class="atj-stat-label">Available</div>
+          </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <div class="footer-right">
-          <button class="btn-secondary" id="btnAddToJobCancel" type="button" data-modal-close="addToJobModal">Cancel</button>
-          <button class="btn-primary" id="btnAddToJobConfirm" type="button">Add to Job</button>
+
+      <!-- Tabs -->
+      <div class="atj-tabs">
+        <div class="atj-tabs-header">
+          <button class="atj-tab-btn active" id="atjTabExisting" data-atj-tab="existing" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+            Existing Job
+          </button>
+          <button class="atj-tab-btn" id="atjTabNew" data-atj-tab="new" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            New Job
+          </button>
         </div>
+        <div class="atj-tab-content">
+          <!-- Existing Job Panel -->
+          <div class="atj-tab-panel active" id="atjPanelExisting" data-atj-panel="existing">
+            <div class="atj-field">
+              <label class="atj-label">Select Job</label>
+              <div class="atj-dropdown" id="atjDropdown">
+                <button class="atj-dropdown-trigger" id="atjDropdownTrigger" type="button">
+                  <span id="atjSelectedText" class="placeholder">Choose a job...</span>
+                  <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </button>
+                <div class="atj-dropdown-menu" id="atjDropdownMenu"></div>
+              </div>
+            </div>
+          </div>
+          <!-- New Job Panel -->
+          <div class="atj-tab-panel" id="atjPanelNew" data-atj-panel="new">
+            <div class="atj-field">
+              <label class="atj-label" for="atjNewJobName">Job Name</label>
+              <input type="text" class="atj-input" id="atjNewJobName" placeholder="e.g., Anderson Fence Build">
+            </div>
+            <div class="atj-field">
+              <label class="atj-label" for="atjNewJobDesc">Description <span class="atj-label-optional">(optional)</span></label>
+              <textarea class="atj-textarea" id="atjNewJobDesc" placeholder="Brief description of the job scope..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quantity Section -->
+      <div class="atj-qty-section">
+        <div class="atj-qty-row">
+          <div class="atj-qty-label-group">
+            <div class="atj-qty-main-label">Quantity to Allocate</div>
+            <div class="atj-qty-helper" id="atjQtyHelper">0 available</div>
+          </div>
+          <div class="atj-qty-wrapper">
+            <button class="atj-qty-btn" id="atjQtyMinus" type="button" aria-label="Decrease quantity">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+            <input type="number" class="atj-qty-input" id="atjQtyInput" value="1" min="1" max="9999">
+            <button class="atj-qty-btn" id="atjQtyPlus" type="button" aria-label="Increase quantity">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div class="atj-message" id="atjMessage"></div>
+
+      <!-- Footer -->
+      <div class="atj-footer">
+        <button class="atj-cancel-btn" type="button" data-modal-close="addToJobModal">Cancel</button>
+        <button class="atj-submit-btn" id="btnAddToJobConfirm" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Add to Job
+        </button>
       </div>
     </div>
   </div>
@@ -8788,11 +9381,18 @@
 				      </div>
 
 				      <div class="order-pill-container report-pill-container" id="reportOrderPillContainer" style="display:none;">
-				        <button class="order-pill" id="reportOrderBadge" data-order-reset role="status" aria-live="polite" aria-label="Clear shopping cart selections">
+				        <div class="order-pill" id="reportOrderBadge" role="status" aria-live="polite">
 				          <span class="order-pill-value" id="reportOrderCount">0</span>
 				          <span class="order-pill-label">Items in Cart</span>
-				          <span class="order-pill-hint">tap to clear</span>
-				        </button>
+				          <div class="order-pill-actions">
+				            <button class="order-pill-btn" id="reportOrderPillOpen" type="button" title="Create Order" aria-label="Create Order">
+				              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.6a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6l1.65-8.6H6"></path></svg>
+				            </button>
+				            <button class="order-pill-btn order-pill-btn--clear" id="reportOrderPillClear" type="button" title="Clear Cart" aria-label="Clear Cart" data-order-reset>
+				              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+				            </button>
+				          </div>
+				        </div>
 				      </div>
 		
 					      <details class="report-section" id="reportLowStockSection">
@@ -18641,34 +19241,45 @@ function adjustTitleSize(){
 	function clampNum(v, min, max){
 	  return Math.max(min, Math.min(max, v));
 	}		function syncOrderIndicatorForRow(id){
-		  const tr = rowElById(id);
-		  if(!tr) return;
+		  const itemId = String(id || '').trim();
+		  if(!itemId) return;
 		  let inOrder = false;
 		  try{
 		    const ord = orderState();
-		    inOrder = !!(ord && Array.isArray(ord.lines) && ord.lines.some(l => l && l.id === id));
+		    inOrder = !!(ord && Array.isArray(ord.lines) && ord.lines.some(l => l && String(l.id || '').trim() === itemId));
 		  }catch(e){}
-		  const orderBtn = tr.querySelector('.row-order-btn');
-		  if(orderBtn){
-		    orderBtn.classList.toggle('row-order-btn--active', inOrder);
-		    orderBtn.setAttribute('aria-pressed', inOrder ? 'true' : 'false');
-		    const label = inOrder ? 'Remove from order' : 'Add to order';
-		    orderBtn.setAttribute('aria-label', label);
-		    orderBtn.setAttribute('title', label);
+
+		  // Update table row if exists
+		  const tr = rowElById(itemId);
+		  if(tr){
+		    const orderBtn = tr.querySelector('.row-order-btn');
+		    if(orderBtn){
+		      orderBtn.classList.toggle('row-order-btn--active', inOrder);
+		      orderBtn.setAttribute('aria-pressed', inOrder ? 'true' : 'false');
+		      const label = inOrder ? 'Remove from order' : 'Add to order';
+		      orderBtn.setAttribute('aria-label', label);
+		      orderBtn.setAttribute('title', label);
+		    }
+		    const detailBtn = document.querySelector(`tr.inv-detail-row[data-detail-id="${CSS.escape(itemId)}"] button[data-detail-action="order"]`);
+		    if(detailBtn){
+		      const label = inOrder ? 'Remove from Order' : 'Add to Order';
+		      detailBtn.setAttribute('aria-label', label);
+		      detailBtn.setAttribute('title', label);
+		      const text = detailBtn.querySelector('span');
+		      if(text) text.textContent = label;
+		    }
+		    tr.classList.toggle('order-selected', inOrder);
+		    updateOrderTrayButtonLabel(tr);
 		  }
-		  const detailBtn = document.querySelector(`tr.inv-detail-row[data-detail-id="${CSS.escape(String(id || ''))}"] button[data-detail-action="order"]`);
-		  if(detailBtn){
-		    const label = inOrder ? 'Remove from Order' : 'Add to Order';
-		    detailBtn.setAttribute('aria-label', label);
-		    detailBtn.setAttribute('title', label);
-		    const text = detailBtn.querySelector('span');
-		    if(text) text.textContent = label;
-		  }
-		  tr.classList.toggle('order-selected', inOrder);
-		  updateOrderTrayButtonLabel(tr);
-		  const card = document.querySelector(`.inv-card[data-item-id="${CSS.escape(String(id || ''))}"]`);
+
+		  // Update card if exists
+		  const card = document.querySelector(`.inv-card[data-item-id="${CSS.escape(itemId)}"]`);
 		  if(card){
 		    card.classList.toggle('order-selected', inOrder);
+		    // Force repaint on mobile Safari
+		    card.style.transform = 'translateZ(0)';
+		    void card.offsetHeight;
+		    card.style.transform = '';
 		    const cardOrderBtn = card.querySelector('[data-card-order]');
 		    if(cardOrderBtn){
 		      const label = inOrder ? 'Remove from order' : 'Add to order';
@@ -19194,12 +19805,20 @@ function emptyStateHtml(){
 	    if(statEl) statEl.textContent = v.toLocaleString();
 	  }
 	}
-	function refreshTotalsLabels(){
-	  const vItems = getTotalsValue('totalItems'); if(vItems !== null) setTotalsMetric('totalItems','items', vItems);
-	  const vStock = getTotalsValue('totalInStock'); if(vStock !== null) setTotalsMetric('totalInStock','inStock', vStock);
-	  const vLow = getTotalsValue('totalLowStock'); if(vLow !== null) setTotalsMetric('totalLowStock','lowStock', vLow);
-	  const vQty = getTotalsValue('totalQty'); if(vQty !== null) setTotalsMetric('totalQty','qty', vQty);
-	}
+    function refreshTotalsLabels(){
+      const vItems = getTotalsValue('totalItems'); if(vItems !== null) setTotalsMetric('totalItems','items', vItems);
+      const vStock = getTotalsValue('totalInStock'); if(vStock !== null) setTotalsMetric('totalInStock','inStock', vStock);
+      const vLow = getTotalsValue('totalLowStock'); if(vLow !== null) setTotalsMetric('totalLowStock','lowStock', vLow);
+      const vQty = getTotalsValue('totalQty'); if(vQty !== null) setTotalsMetric('totalQty','qty', vQty);
+    }
+    function updateInventoryStickyOffset(){
+      const header = document.querySelector('header');
+      const toolbar = document.querySelector('#appMain .toolbar');
+      const headerHeight = header ? header.getBoundingClientRect().height : 0;
+      const toolbarHeight = toolbar ? toolbar.getBoundingClientRect().height : 0;
+      const offset = Math.round(headerHeight + toolbarHeight + 6);
+      document.documentElement.style.setProperty('--inventory-sticky-offset', `${offset}px`);
+    }
 	    function renderTable(columnDefsOverride, layoutOverride){
 		      const config = getInventoryColumnConfig();
 	      const layout = layoutOverride || getInventoryLayoutFromConfig(config);
@@ -19336,44 +19955,80 @@ function emptyStateHtml(){
         return;
       }
       const config = getInventoryColumnConfig();
+      const order = Array.isArray(config.order) ? config.order : [];
       const visible = new Set(Array.isArray(config.visible) ? config.visible : []);
-      // Map card display fields to actual column keys from INVENTORY_COLUMN_DEFS
-      const showStatus = visible.has('on_hand') || visible.has('reorder_point'); // Status derived from qty/reorder
-      const showDesc = visible.has('description');
-      const showSku = visible.has('sku');
-      const showLocation = visible.has('location');
-      const showQty = visible.has('on_hand');
-      const showReserved = visible.has('reserved');
-      const showMinStock = visible.has('reorder_point');
+
+      // Define field types for card layout
+      const TEXT_FIELDS = new Set(['description', 'sku', 'location']);
+      const STAT_FIELDS = new Set(['on_hand', 'reserved', 'reorder_point']);
+      const FIELD_LABELS = {
+        description: 'Desc',
+        sku: 'SKU',
+        location: 'Location',
+        on_hand: 'On Hand',
+        reserved: 'Reserved',
+        reorder_point: 'Min Stock'
+      };
+
+      // Build ordered field lists based on config.order
+      const orderedTextFields = order.filter(k => TEXT_FIELDS.has(k) && visible.has(k));
+      const orderedStatFields = order.filter(k => STAT_FIELDS.has(k) && visible.has(k));
+      const showStatus = visible.has('on_hand') || visible.has('reorder_point');
 
       const html = items.map(item => {
         const status = getStockStatus(item);
         const ledClass = status === 'good' ? 'inv-led--good' : status === 'low' ? 'inv-led--low' : 'inv-led--out';
-        const qtyBadgeClass = status === 'good' ? '' : status === 'low' ? 'inv-qty-badge--low' : 'inv-qty-badge--out';
-        const statusBadgeHtml = status === 'low'
-          ? '<span class="inv-status-badge inv-status-badge--low">⚠ Low Stock</span>'
-          : status === 'out'
-            ? '<span class="inv-status-badge inv-status-badge--out">Out of Stock</span>'
-            : '';
         const name = escapeHtml(String(item.name || ''));
-        const desc = escapeHtml(String(item.desc || ''));
-        const sku = escapeHtml(String(item.sku || ''));
-        const loc = escapeHtml(inventoryLocationLabel(item) || '');
-        const qty = toInt(item.qty, 0);
-        const reservedVal = getInventoryReservedQty(item);
-        const reserved = Number.isFinite(reservedVal) ? reservedVal : 0;
-        const minStock = effectiveLowStockQty(item);
         const id = escapeHtmlAttr(String(item.id || ''));
         const inOrder = isItemInOrder(item.id);
         const orderTitle = inOrder ? 'Remove from order' : 'Add to order';
 
-        const metaItems = [];
-        if(showSku && sku) metaItems.push(`SKU: ${sku}`);
-        if(showLocation && loc) metaItems.push(loc);
-        if(showMinStock) metaItems.push(`Min: ${minStock}`);
-        const metaHtml = metaItems.length > 0
-          ? `<div class="inv-card-meta">${metaItems.map(m => `<span>${m}</span>`).join('')}</div>`
-          : '';
+        // Prepare field values
+        const fieldValues = {
+          description: escapeHtml(String(item.desc || '')),
+          sku: escapeHtml(String(item.sku || '')),
+          location: escapeHtml(inventoryLocationLabel(item) || ''),
+          on_hand: toInt(item.qty, 0),
+          reserved: (() => { const v = getInventoryReservedQty(item); return Number.isFinite(v) ? v : 0; })(),
+          reorder_point: effectiveLowStockQty(item)
+        };
+
+        // Build body (text fields) in order
+        const bodyHtml = orderedTextFields.map(key => {
+          const val = fieldValues[key];
+          if(!val) return '';
+          const isDesc = key === 'description';
+          return `<div class="inv-card-field">
+            <span class="inv-card-field-label">${FIELD_LABELS[key]}</span>
+            <span class="inv-card-field-value${isDesc ? ' is-desc' : ''}">${val}</span>
+          </div>`;
+        }).filter(Boolean).join('');
+
+        // Build stats (numeric fields) in order
+        const statsHtml = orderedStatFields.map(key => {
+          const val = fieldValues[key];
+          // Skip reserved if 0
+          if(key === 'reserved' && val === 0) return '';
+          let statClass = '';
+          if(key === 'on_hand'){
+            statClass = status === 'good' ? 'inv-card-stat--good' : status === 'low' ? 'inv-card-stat--low' : 'inv-card-stat--out';
+          } else if(key === 'reserved'){
+            statClass = 'inv-card-stat--reserved';
+          } else {
+            statClass = 'inv-card-stat--muted';
+          }
+          return `<div class="inv-card-stat ${statClass}">
+            <span class="inv-card-stat-value">${val}</span>
+            <span class="inv-card-stat-label">${FIELD_LABELS[key]}</span>
+          </div>`;
+        }).filter(Boolean).join('');
+
+        // Status badge
+        const statusBadgeHtml = status === 'low'
+          ? '<span class="inv-status-badge inv-status-badge--low">⚠ Low</span>'
+          : status === 'out'
+            ? '<span class="inv-status-badge inv-status-badge--out">Out</span>'
+            : '';
 
         return `
           <div class="inv-card${inOrder ? ' order-selected' : ''}" role="listitem" data-item-id="${id}">
@@ -19395,17 +20050,19 @@ function emptyStateHtml(){
                 }
               </div>
             </div>
-            ${showDesc && desc ? `<p class="inv-card-desc">${desc}</p>` : ''}
-            ${metaHtml}
-            <div class="inv-card-footer">
-              ${showQty ? `<div class="inv-qty-badge ${qtyBadgeClass}"><span class="inv-qty-value">${qty}</span><span class="inv-qty-label">On Hand</span></div>` : ''}
-              ${showReserved && reserved > 0 ? `<div class="inv-reserved-badge"><span class="inv-reserved-value">${reserved}</span><span class="inv-reserved-label">Reserved</span></div>` : ''}
+            ${bodyHtml ? `<div class="inv-card-body">${bodyHtml}</div>` : ''}
+            ${statsHtml || (showStatus && statusBadgeHtml) ? `<div class="inv-card-footer">
+              ${statsHtml ? `<div class="inv-card-stats">${statsHtml}</div>` : ''}
               ${showStatus ? statusBadgeHtml : ''}
-            </div>
+            </div>` : ''}
           </div>
         `;
       }).join('');
       cardGrid.innerHTML = html;
+    }
+    function refreshInventoryCardsForOrderState(){
+      if(_invViewMode !== 'cards') return;
+      try{ requestAnimationFrame(()=> renderInventoryCards()); }catch(e){}
     }
 
     function getFilteredInventoryItems(){
@@ -19499,11 +20156,11 @@ function emptyStateHtml(){
             toggleOrderLineForItemId(id);
             return;
           }
-          // Card click - expand or edit based on preference
+          // Card tap - use row tap preference
           const card = e.target.closest('.inv-card');
           if(card){
             const id = String(card.getAttribute('data-item-id') || '').trim();
-            if(id) openEditItemModal(id);
+            if(id) handleInventoryRowTap(id);
           }
         });
       }
@@ -19719,6 +20376,7 @@ function emptyStateHtml(){
 	          saveInventoryColumnConfig({ order: defaultInventoryOrder(), visible: defaultInventoryVisibleKeys() });
 	          getInventoryColumnConfig();
 	          renderTable();
+	          if(_invViewMode === 'cards') renderInventoryCards();
 	          syncTapUI();
 	        });
 	      }
@@ -19807,6 +20465,7 @@ function emptyStateHtml(){
 	          saveInventoryColumnConfig(next);
 	          getInventoryColumnConfig();
 	          renderTable();
+	          if(_invViewMode === 'cards') renderInventoryCards();
 	        });
 	        list.addEventListener('dragstart', (e)=>{
 	          const row = e.target && e.target.closest ? e.target.closest('.column-option') : null;
@@ -19867,6 +20526,7 @@ function emptyStateHtml(){
 	          getInventoryColumnConfig();
 	          const layout = getInventoryLayoutFromConfig({ order, visible: config.visible }, { force: true });
 	          renderTable(layout.columnDefs, layout);
+	          if(_invViewMode === 'cards') renderInventoryCards();
 	          dragState.dropped = true;
 	          clearDragStyles();
 	          dragState.key = null;
@@ -19880,6 +20540,7 @@ function emptyStateHtml(){
 	          const layout = getInventoryLayoutFromConfig({ order, visible: config.visible }, { force: true });
 	          renderInventoryTableShell({ order, visible: config.visible });
 	          renderTable(layout.columnDefs, layout);
+	          if(_invViewMode === 'cards') renderInventoryCards();
 	          dragState.key = null;
 	        });
 	      }
@@ -22250,13 +22911,17 @@ function emptyStateHtml(){
         }
       }catch(e){}
     }
+    function afterOrderStateChanged(){
+      try{ updateOrderCounterBadge(); }catch(e){}
+      refreshInventoryCardsForOrderState();
+    }
     function clearAllOrderLines(){
       const ord = orderState();
       const ids = ord.lines.map(l => l.id);
       ord.lines = [];
       try{ orderLineSelection.clear(); }catch(e){}
       ids.forEach(id => { try{ syncOrderIndicatorForRow(String(id)); }catch(e){} });
-      updateOrderCounterBadge();
+      afterOrderStateChanged();
     }
     function getInventoryById(id){
       return state.items.find(x => x && x.id === id) || null;
@@ -22266,10 +22931,10 @@ function emptyStateHtml(){
       const line = ord.lines.find(l => l.id === id);
       return line ? toInt(line.qty, 0) : 0;
     }
-	    function upsertOrderLineFromItem(it, qty = 1){
-	      const ord = orderState();
-	      if(!it || !it.id) return false;
-	      if(ord.lines.some(l => l.id === it.id)) return false;
+    function upsertOrderLineFromItem(it, qty = 1){
+      const ord = orderState();
+      if(!it || !it.id) return false;
+      if(ord.lines.some(l => l.id === it.id)) return false;
 	      ord.lines.push({
 	        id: it.id,
 	        name: String(it.name||'').trim(),
@@ -22279,24 +22944,24 @@ function emptyStateHtml(){
 	        _manualQty: false,
 	        _autoQtyApplied: false
 	      });
-	      ord.lines.sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
-	      try{ syncOrderIndicatorForRow(String(it.id)); }catch(e){}
-	      try{ updateOrderCounterBadge(); }catch(e){}
-	      return true;
-	    }
-	    function removeOrderLine(id){
-	      const ord = orderState();
-	      ord.lines = ord.lines.filter(l => l.id !== id);
-	      try{ orderLineSelection.delete(String(id || '').trim()); }catch(e){}
-	      try{ syncOrderIndicatorForRow(String(id)); }catch(e){}
-	      try{ updateOrderCounterBadge(); }catch(e){}
-	    }
-	    function addToOrderFromBom(itemId, shortage){
-	      const item = getInventoryById(itemId);
-	      if(!item){
-	        toast('Item not found');
-	        return;
-	      }
+      ord.lines.sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
+      try{ syncOrderIndicatorForRow(String(it.id)); }catch(e){}
+      afterOrderStateChanged();
+      return true;
+    }
+    function removeOrderLine(id){
+      const ord = orderState();
+      ord.lines = ord.lines.filter(l => l.id !== id);
+      try{ orderLineSelection.delete(String(id || '').trim()); }catch(e){}
+      try{ syncOrderIndicatorForRow(String(id)); }catch(e){}
+      afterOrderStateChanged();
+    }
+    function addToOrderFromBom(itemId, shortage){
+      const item = getInventoryById(itemId);
+      if(!item){
+        toast('Item not found');
+        return;
+      }
 	      const ord = orderState();
 	      const existing = ord.lines.find(l => l.id === itemId);
 	      if(existing){
@@ -22308,9 +22973,9 @@ function emptyStateHtml(){
 	        upsertOrderLineFromItem(item, shortage);
 	        toast(`Added ${item.name} (×${shortage}) to cart`);
 	      }
-	      try{ syncOrderIndicatorForRow(String(itemId)); }catch(e){}
-	      try{ updateOrderCounterBadge(); }catch(e){}
-	    }
+      try{ syncOrderIndicatorForRow(String(itemId)); }catch(e){}
+      afterOrderStateChanged();
+    }
     function setOrderQty(id, qty, opts = {}){
       const ord = orderState();
       const line = ord.lines.find(l => l.id === id);
@@ -25955,10 +26620,10 @@ function emptyStateHtml(){
     }
     const ADD_TO_JOB_NEW_VALUE = '__new__';
     function setAddToJobMessage(msg, isError = false){
-      const el = $('addToJobMsg');
+      const el = $('atjMessage');
       if(!el) return;
       el.textContent = String(msg || '');
-      el.style.color = isError ? '#f87171' : 'var(--muted)';
+      el.className = 'atj-message' + (isError ? ' error' : '') + (msg ? ' visible' : '');
     }
     function getAddToJobJobs(){
       const rows = Array.isArray(state._jobs) ? state._jobs : [];
@@ -25973,57 +26638,126 @@ function emptyStateHtml(){
     function renderAddToJobModal(){
       const data = state._addToJob;
       if(!data) return;
-      const itemName = $('addToJobItemName');
-      const select = $('addToJobSelect');
-      const newWrap = $('addToJobNewWrap');
-      const newInput = $('addToJobNewName');
-      const qtyInput = $('addToJobQty');
-      const confirmBtn = $('btnAddToJobConfirm');
+      const busy = !!state._addToJobBusy;
       const jobs = Array.isArray(data.jobs) ? data.jobs : [];
-      if(itemName) itemName.textContent = String(data.itemName || '');
+      const activeTab = data.activeTab || 'existing';
+
+      // Item card
+      const itemNameEl = $('atjItemName');
+      const itemDescEl = $('atjItemDesc');
+      const itemSkuEl = $('atjItemSku');
+      const itemSkuWrap = $('atjItemSkuWrap');
+      if(itemNameEl) itemNameEl.textContent = String(data.itemName || 'Loading...');
+      if(itemDescEl) itemDescEl.textContent = String(data.itemDesc || '');
+      if(itemSkuEl) itemSkuEl.textContent = String(data.itemSku || '');
+      if(itemSkuWrap) itemSkuWrap.style.display = data.itemSku ? 'block' : 'none';
+
+      // Stats
+      const onHand = toInt(data.onHand, 0);
+      const reserved = toInt(data.reserved, 0);
+      const available = Math.max(0, onHand - reserved);
+      const statOnHand = $('atjStatOnHand');
+      const statReserved = $('atjStatReserved');
+      const statAvailable = $('atjStatAvailable');
+      const qtyHelper = $('atjQtyHelper');
+      if(statOnHand) statOnHand.textContent = formatNumber(onHand);
+      if(statReserved) statReserved.textContent = formatNumber(reserved);
+      if(statAvailable) statAvailable.textContent = formatNumber(available);
+      if(qtyHelper) qtyHelper.textContent = `${formatNumber(available)} available`;
+
+      // Tabs
+      const tabExisting = $('atjTabExisting');
+      const tabNew = $('atjTabNew');
+      const panelExisting = $('atjPanelExisting');
+      const panelNew = $('atjPanelNew');
+      if(tabExisting) tabExisting.classList.toggle('active', activeTab === 'existing');
+      if(tabNew) tabNew.classList.toggle('active', activeTab === 'new');
+      if(panelExisting) panelExisting.classList.toggle('active', activeTab === 'existing');
+      if(panelNew) panelNew.classList.toggle('active', activeTab === 'new');
+
+      // Dropdown for existing job
+      const dropdownMenu = $('atjDropdownMenu');
+      const selectedText = $('atjSelectedText');
+      const dropdownTrigger = $('atjDropdownTrigger');
 
       const jobIds = new Set(jobs.map(j => String(j && j.id ? j.id : '')).filter(Boolean));
       let selected = data.selectedJobId;
-      if(selected && selected !== ADD_TO_JOB_NEW_VALUE && !jobIds.has(selected)) selected = '';
-      if(!selected){
-        selected = jobs.length ? String(jobs[0].id || '') : ADD_TO_JOB_NEW_VALUE;
-      }
+      if(selected && !jobIds.has(selected)) selected = '';
+      if(!selected && jobs.length) selected = String(jobs[0].id || '');
       data.selectedJobId = selected;
 
-      if(select){
-        const options = [];
+      if(dropdownMenu){
         if(jobs.length){
-          options.push('<option value="">Select job…</option>');
-          jobs.forEach(job=>{
+          const items = jobs.map(job => {
             const id = String(job.id || '').trim();
-            if(!id) return;
+            if(!id) return '';
             const name = String(job.name || '').trim() || '(Untitled job)';
             const status = jobStatusLabel(String(job.status || 'draft'));
-            options.push(`<option value="${escapeHtmlAttr(id)}">${escapeHtml(name)} — ${escapeHtml(status)}</option>`);
-          });
+            const isSelected = id === selected;
+            return `<div class="atj-dropdown-item${isSelected ? ' selected' : ''}" data-job-id="${escapeHtmlAttr(id)}">
+              <div class="atj-dropdown-item-name">${escapeHtml(name)}</div>
+              <div class="atj-dropdown-item-status">${escapeHtml(status)}</div>
+            </div>`;
+          }).filter(Boolean);
+          dropdownMenu.innerHTML = items.join('');
+        }else{
+          dropdownMenu.innerHTML = '<div class="atj-dropdown-empty">No jobs available</div>';
         }
-        options.push(`<option value="${ADD_TO_JOB_NEW_VALUE}">Create new job</option>`);
-        select.innerHTML = options.join('');
-        if(selected) select.value = selected;
-        select.disabled = !!state._addToJobBusy;
       }
 
-      const isNew = selected === ADD_TO_JOB_NEW_VALUE;
-      if(newWrap) newWrap.style.display = isNew ? 'block' : 'none';
-      if(newInput && isNew){
-        newInput.value = String(data.newJobName || newInput.value || '');
-        newInput.disabled = !!state._addToJobBusy;
+      // Update selected text
+      if(selectedText){
+        if(selected){
+          const job = jobs.find(j => String(j.id || '') === selected);
+          if(job){
+            selectedText.textContent = String(job.name || '').trim() || '(Untitled job)';
+            selectedText.classList.remove('placeholder');
+          }else{
+            selectedText.textContent = 'Choose a job...';
+            selectedText.classList.add('placeholder');
+          }
+        }else{
+          selectedText.textContent = jobs.length ? 'Choose a job...' : 'No jobs available';
+          selectedText.classList.add('placeholder');
+        }
       }
+
+      if(dropdownTrigger) dropdownTrigger.disabled = busy || !jobs.length;
+
+      // New job inputs
+      const newNameInput = $('atjNewJobName');
+      const newDescInput = $('atjNewJobDesc');
+      if(newNameInput){
+        if(!busy && newNameInput.value === '') newNameInput.value = String(data.newJobName || '');
+        newNameInput.disabled = busy;
+      }
+      if(newDescInput){
+        if(!busy && newDescInput.value === '') newDescInput.value = String(data.newJobDesc || '');
+        newDescInput.disabled = busy;
+      }
+
+      // Quantity
+      const qtyInput = $('atjQtyInput');
+      const qtyMinus = $('atjQtyMinus');
+      const qtyPlus = $('atjQtyPlus');
       if(qtyInput){
         const nextQty = Math.max(1, toInt(qtyInput.value || data.qty || 1, 1));
         qtyInput.value = String(nextQty);
-        qtyInput.disabled = !!state._addToJobBusy;
+        qtyInput.disabled = busy;
       }
-      const minus = $('addToJobQtyMinus');
-      const plus = $('addToJobQtyPlus');
-      if(minus) minus.disabled = !!state._addToJobBusy;
-      if(plus) plus.disabled = !!state._addToJobBusy;
-      if(confirmBtn) confirmBtn.disabled = !!state._addToJobBusy;
+      if(qtyMinus) qtyMinus.disabled = busy;
+      if(qtyPlus) qtyPlus.disabled = busy;
+
+      // Submit button
+      const confirmBtn = $('btnAddToJobConfirm');
+      if(confirmBtn){
+        confirmBtn.disabled = busy;
+        if(busy){
+          confirmBtn.innerHTML = '<span class="spinner"></span> Adding...';
+        }else{
+          confirmBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Add to Job`;
+        }
+      }
     }
     async function openAddToJobModal(itemId){
       if(!SB.ready){ toast('Supabase not configured'); return; }
@@ -26033,25 +26767,47 @@ function emptyStateHtml(){
       if(!requirePermission(PERMISSIONS.ITEMS_VIEW, 'Inventory access required')) return;
       const item = getInventoryById(itemId);
       if(!item){ toast('Item not found'); return; }
+
+      // Get reserved quantity for this item
+      const reservedMap = state._reservedByItemId || new Map();
+      const reserved = toInt(reservedMap.get(String(item.id || '')), 0);
+
       state._addToJob = {
         itemId: String(item.id || '').trim(),
         itemName: String(item.name || '').trim(),
+        itemDesc: String(item.description || '').trim(),
+        itemSku: String(item.sku || '').trim(),
+        onHand: toInt(item.on_hand, 0),
+        reserved: reserved,
         jobs: [],
         selectedJobId: '',
         qty: 1,
-        newJobName: ''
+        newJobName: '',
+        newJobDesc: '',
+        activeTab: 'existing'
       };
+      state._addToJobBusy = false;
       setAddToJobMessage('');
+      closeAtjDropdown();
       show('addToJobModal', true);
       renderAddToJobModal();
       try{
         await ensureInventoryLoaded();
+        // Refresh reserved map for accurate availability
+        const freshReserved = await sbFetchReservedMap();
+        state._reservedByItemId = freshReserved;
+        state._addToJob.reserved = toInt(freshReserved.get(String(item.id || '')), 0);
+
         if(!state._jobs || !state._jobs.length){
           const rows = await sbFetchJobs();
           state._jobs = rows;
           state._jobsById = new Map(rows.map(r => [String(r.id || ''), r]).filter(x => x[0]));
         }
         state._addToJob.jobs = getAddToJobJobs();
+        // Switch to "new" tab if no jobs available
+        if(!state._addToJob.jobs.length){
+          state._addToJob.activeTab = 'new';
+        }
         renderAddToJobModal();
       }catch(e){
         setAddToJobMessage(e && e.message ? e.message : 'Failed to load jobs', true);
@@ -26060,36 +26816,50 @@ function emptyStateHtml(){
     async function confirmAddToJob(){
       const data = state._addToJob;
       if(!data) return;
-      const select = $('addToJobSelect');
-      const newInput = $('addToJobNewName');
-      const qtyInput = $('addToJobQty');
+      const activeTab = data.activeTab || 'existing';
+      const isNewJob = activeTab === 'new';
+      const qtyInput = $('atjQtyInput');
       const rawQty = qtyInput ? Number(qtyInput.value || 0) : 0;
       const qty = Number.isFinite(rawQty) ? rawQty : 0;
       if(qty <= 0){ setAddToJobMessage('Quantity must be greater than zero.', true); return; }
-      const selection = select ? String(select.value || '').trim() : '';
-      if(!selection){ setAddToJobMessage('Select a job.', true); return; }
+
+      if(isNewJob){
+        // New job validation
+        const newNameInput = $('atjNewJobName');
+        const name = newNameInput ? String(newNameInput.value || '').trim() : '';
+        if(!name){ setAddToJobMessage('Job name is required.', true); return; }
+      }else{
+        // Existing job validation
+        if(!data.selectedJobId){ setAddToJobMessage('Select a job.', true); return; }
+      }
+
       setAddToJobMessage('');
       state._addToJobBusy = true;
       renderAddToJobModal();
       try{
-        let jobId = selection;
+        let jobId = '';
         let jobName = '';
-        if(selection === ADD_TO_JOB_NEW_VALUE){
-          const name = newInput ? String(newInput.value || '').trim() : '';
-          if(!name){ setAddToJobMessage('Job name is required.', true); return; }
+
+        if(isNewJob){
+          const newNameInput = $('atjNewJobName');
+          const newDescInput = $('atjNewJobDesc');
+          const name = newNameInput ? String(newNameInput.value || '').trim() : '';
+          const notes = newDescInput ? String(newDescInput.value || '').trim() : null;
           const { data: createdId, error } = await SB.client.rpc('create_job', {
             p_company_id: SB.companyId,
             p_name: name,
-            p_notes: null
+            p_notes: notes || null
           });
           if(error) throw error;
           jobId = createdId;
           jobName = name;
           await refreshJobs();
         }else{
-          const job = (data.jobs || []).find(j => String(j && j.id ? j.id : '') === String(selection));
+          jobId = data.selectedJobId;
+          const job = (data.jobs || []).find(j => String(j && j.id ? j.id : '') === String(jobId));
           jobName = job ? String(job.name || '').trim() : '';
         }
+
         const { error } = await SB.client.rpc('upsert_job_bom_line', {
           p_job_id: jobId,
           p_item_id: data.itemId,
@@ -26109,6 +26879,51 @@ function emptyStateHtml(){
         renderAddToJobModal();
       }
     }
+
+    // Add to Job modal dropdown helpers
+    function isAtjDropdownOpen(){
+      const menu = $('atjDropdownMenu');
+      return menu && menu.classList.contains('open');
+    }
+    function closeAtjDropdown(){
+      const menu = $('atjDropdownMenu');
+      const trigger = $('atjDropdownTrigger');
+      if(menu) menu.classList.remove('open');
+      if(trigger) trigger.classList.remove('open');
+    }
+    function toggleAtjDropdown(){
+      const menu = $('atjDropdownMenu');
+      const trigger = $('atjDropdownTrigger');
+      if(!menu || !trigger) return;
+      const willOpen = !menu.classList.contains('open');
+      if(willOpen){
+        menu.classList.add('open');
+        trigger.classList.add('open');
+      }else{
+        closeAtjDropdown();
+      }
+    }
+    function selectAtjJob(jobId){
+      if(!state._addToJob) return;
+      state._addToJob.selectedJobId = String(jobId || '');
+      closeAtjDropdown();
+      renderAddToJobModal();
+    }
+    function switchAtjTab(tab){
+      if(!state._addToJob) return;
+      state._addToJob.activeTab = tab === 'new' ? 'new' : 'existing';
+      setAddToJobMessage('');
+      renderAddToJobModal();
+    }
+    function adjustAtjQty(delta){
+      const input = $('atjQtyInput');
+      if(!input) return;
+      const current = Math.max(1, toInt(input.value, 1));
+      const next = Math.max(1, current + delta);
+      input.value = String(next);
+      if(state._addToJob) state._addToJob.qty = next;
+    }
+
     async function refreshJobEditorInventory(){
       const editor = state._jobEditor;
       if(!editor) return { inventoryMap: new Map(), reservedMap: new Map() };
@@ -26123,6 +26938,21 @@ function emptyStateHtml(){
       editor.inventoryMap = inventoryMap;
       editor.incomingMap = incomingMap;
       state._incomingByItemId = incomingMap;
+      let wasFulfillable = true;
+      const allLines = bomLines.concat(pendingLines);
+      if(allLines.length){
+        for(const line of allLines){
+          const itemId = String(line.item_id || '').trim();
+          if(!itemId) continue;
+          const qtyPlanned = Number(line.qty_planned || 0);
+          const stats = computeJobLineStats(itemId, qtyPlanned, reservedMap, inventoryMap);
+          if(stats.shortfall > 0){
+            wasFulfillable = false;
+            break;
+          }
+        }
+      }
+      editor.wasFulfillable = wasFulfillable;
       return { inventoryMap, reservedMap, incomingMap };
     }
     async function openJobEditor(jobId, opts = {}){
@@ -26486,6 +27316,7 @@ function emptyStateHtml(){
       const prior = btn ? btn.textContent : '';
       if(btn){ btn.disabled = true; btn.textContent = 'Approving…'; }
       renderApprovalShortages([]);
+      let latestShortages = [];
       try{
         const liveLines = await sbFetchJobBom(jobId);
         const itemIds = getJobBomItemIds(liveLines);
@@ -26507,6 +27338,7 @@ function emptyStateHtml(){
             });
           }
         });
+        latestShortages = shortages;
         // Update editor state with live data
         const isEditorJob = state._jobEditor && state._jobEditor.job && String(state._jobEditor.job.id) === String(jobId);
         if(isEditorJob){
@@ -26515,33 +27347,13 @@ function emptyStateHtml(){
           renderJobEditor();
         }
 
-        // Determine fulfillability states
-        const isNowFulfillable = shortages.length === 0;
-        const wasFulfillable = isEditorJob ? !!state._jobEditor.wasFulfillable : true;
-
-        // GUARDRAIL: Only block if job regressed from fulfillable to NOT fulfillable
-        // Do NOT block if: shortage decreased, resolved, inventory increased, or unrelated items changed
-        if(wasFulfillable && !isNowFulfillable){
-          renderApprovalShortages(shortages);
-          const warningTitle = 'Inventory changed during job approval';
-          const warningMsg = 'Inventory was reduced or reserved by another operation while you were editing this job, and it can no longer be fulfilled.';
-          if(isEditorJob){
-            setJobEditorMessage(warningMsg);
-          }else{
-            setJobsMessage(warningMsg);
-          }
-          toast(warningTitle);
-          // Dev mode logging
-          if(typeof DEV_MODE !== 'undefined' && DEV_MODE){
-            console.warn('[DEV] Approval blocked - fulfillability regression:', shortages.map(s => ({
-              item_id: s.item_id,
-              previous_shortage: 0,
-              current_shortage: s.shortfall
-            })));
-          }
-          return;
-        }
-        const { data, error } = await SB.client.rpc('approve_job', { p_job_id: jobId });
+        const wasFulfillable = isEditorJob
+          ? !!state._jobEditor.wasFulfillable
+          : (shortages.length === 0);
+        const { data, error } = await SB.client.rpc('approve_job', {
+          p_job_id: jobId,
+          p_was_fulfillable: wasFulfillable
+        });
         if(error) throw error;
         await refreshJobs();
         if(state._jobEditor && state._jobEditor.job && String(state._jobEditor.job.id) === String(jobId)){
@@ -26551,6 +27363,23 @@ function emptyStateHtml(){
         return data;
       }catch(e){
         const msg = e && e.message ? e.message : 'Approval failed';
+        if(msg.includes('Inventory changed during job approval')){
+          renderApprovalShortages(latestShortages);
+          const warningMsg = 'Inventory was reduced or reserved by another operation while you were editing this job, and it can no longer be fulfilled.';
+          const isEditorJob = state._jobEditor && state._jobEditor.job && String(state._jobEditor.job.id) === String(jobId);
+          if(isEditorJob){
+            setJobEditorMessage(warningMsg);
+          }else{
+            setJobsMessage(warningMsg);
+          }
+          if(typeof DEV_MODE !== 'undefined' && DEV_MODE){
+            console.warn('[DEV] Approval blocked - fulfillability regression:', latestShortages.map(s => ({
+              item_id: s.item_id,
+              previous_shortage: 0,
+              current_shortage: s.shortfall
+            })));
+          }
+        }
         const details = parseShortageDetails(msg);
         if(details){
           renderApprovalShortages(details);
@@ -27162,41 +27991,61 @@ function emptyStateHtml(){
       const jobId = editor && editor.job ? editor.job.id : null;
       if(jobId) voidJob(jobId);
     });
-    const btnAddToJobCancel = $('btnAddToJobCancel');
-    if(btnAddToJobCancel) btnAddToJobCancel.addEventListener('click', ()=> show('addToJobModal', false));
+    // Add to Job modal event listeners
     const btnAddToJobConfirm = $('btnAddToJobConfirm');
     if(btnAddToJobConfirm) btnAddToJobConfirm.addEventListener('click', confirmAddToJob);
-    const addToJobSelect = $('addToJobSelect');
-    if(addToJobSelect) addToJobSelect.addEventListener('change', ()=>{
+
+    // Tab switching
+    const atjTabExisting = $('atjTabExisting');
+    const atjTabNew = $('atjTabNew');
+    if(atjTabExisting) atjTabExisting.addEventListener('click', ()=> switchAtjTab('existing'));
+    if(atjTabNew) atjTabNew.addEventListener('click', ()=> switchAtjTab('new'));
+
+    // Dropdown toggle
+    const atjDropdownTrigger = $('atjDropdownTrigger');
+    if(atjDropdownTrigger) atjDropdownTrigger.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      toggleAtjDropdown();
+    });
+
+    // Dropdown item selection
+    const atjDropdownMenu = $('atjDropdownMenu');
+    if(atjDropdownMenu) atjDropdownMenu.addEventListener('click', (e)=>{
+      const item = e.target.closest('[data-job-id]');
+      if(!item) return;
+      const jobId = item.getAttribute('data-job-id');
+      if(jobId) selectAtjJob(jobId);
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e)=>{
+      if(!isAtjDropdownOpen()) return;
+      const dropdown = $('atjDropdown');
+      if(dropdown && !dropdown.contains(e.target)) closeAtjDropdown();
+    });
+
+    // New job inputs
+    const atjNewJobName = $('atjNewJobName');
+    if(atjNewJobName) atjNewJobName.addEventListener('input', ()=>{
       if(!state._addToJob) return;
-      state._addToJob.selectedJobId = String(addToJobSelect.value || '').trim();
-      setAddToJobMessage('');
-      renderAddToJobModal();
+      state._addToJob.newJobName = String(atjNewJobName.value || '');
     });
-    const addToJobNewName = $('addToJobNewName');
-    if(addToJobNewName) addToJobNewName.addEventListener('input', ()=>{
+    const atjNewJobDesc = $('atjNewJobDesc');
+    if(atjNewJobDesc) atjNewJobDesc.addEventListener('input', ()=>{
       if(!state._addToJob) return;
-      state._addToJob.newJobName = String(addToJobNewName.value || '');
+      state._addToJob.newJobDesc = String(atjNewJobDesc.value || '');
     });
-    const addToJobQty = $('addToJobQty');
-    if(addToJobQty) addToJobQty.addEventListener('input', ()=>{
+
+    // Quantity stepper
+    const atjQtyInput = $('atjQtyInput');
+    if(atjQtyInput) atjQtyInput.addEventListener('input', ()=>{
       if(!state._addToJob) return;
-      state._addToJob.qty = Math.max(1, toInt(addToJobQty.value, 1));
+      state._addToJob.qty = Math.max(1, toInt(atjQtyInput.value, 1));
     });
-    const addToJobQtyMinus = $('addToJobQtyMinus');
-    if(addToJobQtyMinus) addToJobQtyMinus.addEventListener('click', ()=>{
-      const inp = $('addToJobQty');
-      if(!inp) return;
-      inp.value = Math.max(1, toInt(inp.value, 1) - 1);
-      if(state._addToJob) state._addToJob.qty = toInt(inp.value, 1);
-    });
-    const addToJobQtyPlus = $('addToJobQtyPlus');
-    if(addToJobQtyPlus) addToJobQtyPlus.addEventListener('click', ()=>{
-      const inp = $('addToJobQty');
-      if(!inp) return;
-      inp.value = Math.max(1, toInt(inp.value, 1) + 1);
-      if(state._addToJob) state._addToJob.qty = toInt(inp.value, 1);
-    });
+    const atjQtyMinus = $('atjQtyMinus');
+    if(atjQtyMinus) atjQtyMinus.addEventListener('click', ()=> adjustAtjQty(-1));
+    const atjQtyPlus = $('atjQtyPlus');
+    if(atjQtyPlus) atjQtyPlus.addEventListener('click', ()=> adjustAtjQty(1));
     const btnTrashReload = $('btnTrashReload');
     if(btnTrashReload) btnTrashReload.addEventListener('click', refreshTrash);
     const trashFilter = $('trashFilter');
@@ -29485,6 +30334,7 @@ function emptyStateHtml(){
       load();
       loadInventoryQuickFilter();
       render();
+      updateInventoryStickyOffset();
       initColumnBuilder();
       initInventoryViews();
       initButtonSystem();
@@ -29494,7 +30344,15 @@ function emptyStateHtml(){
       setOnboardingRouteActive(isOnboardingRoute());
       wireOnboardingEvents();
       try{ setEditHint(); }catch(e){}
-      try{ adjustTitleSize(); if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=> requestAnimationFrame(adjustTitleSize)); } }catch(e){}
+      try{
+        adjustTitleSize();
+        if(document.fonts && document.fonts.ready){
+          document.fonts.ready.then(()=>{
+            requestAnimationFrame(adjustTitleSize);
+            updateInventoryStickyOffset();
+          });
+        }
+      }catch(e){}
       const fb=$('filterBox'); if(fb){
         fb.value=state._filter||'';
         updateFilterClearBtn();
@@ -29534,6 +30392,22 @@ function emptyStateHtml(){
 	        toast('Shopping cart cleared');
 	        try{ syncReportOrderIndicators(); }catch(ex){}
 	      });
+	      // Order pill "Create Order" buttons (main + report modal)
+	      const orderPillOpen = $('orderPillOpen');
+	      if(orderPillOpen){
+	        orderPillOpen.addEventListener('click', (e)=>{
+	          e.preventDefault();
+	          openOrderModal();
+	        });
+	      }
+	      const reportOrderPillOpen = $('reportOrderPillOpen');
+	      if(reportOrderPillOpen){
+	        reportOrderPillOpen.addEventListener('click', (e)=>{
+	          e.preventDefault();
+	          show('reportModal', false);
+	          openOrderModal();
+	        });
+	      }
 	      try{ updateOrderCounterBadge(); }catch(e){}
 
 	      // iOS-style qty picker - event handlers
@@ -29648,7 +30522,10 @@ function emptyStateHtml(){
 	      setInterval(checkServerHealth, 15000);
 	
 	      // Responsive: recompute inventory column layout on viewport change
-		      window.addEventListener('resize', ()=> { try{ scheduleInventoryLayoutRefresh(); }catch(e){} });
+	      window.addEventListener('resize', ()=> {
+	        try{ scheduleInventoryLayoutRefresh(); }catch(e){}
+	        try{ updateInventoryStickyOffset(); }catch(e){}
+	      });
 	
 	      // Close modals when clicking outside (on backdrop)
 	      document.addEventListener('click', (e)=>{

@@ -167,7 +167,7 @@ describe.sequential('Jobs RPCs', () => {
     expect(qty).toBe(5);
   });
 
-  it('blocks approval when availability is insufficient', async () => {
+  it('allows approval when job was never fulfillable', async () => {
     const itemId = await createInventoryItem(companyId, `Item Block ${uniqueSuffix}`, 2, adminUserId);
 
     const { data: jobId } = await adminAuth.rpc('create_job', {
@@ -182,12 +182,17 @@ describe.sequential('Jobs RPCs', () => {
       p_qty_planned: 3
     });
 
-    const { error } = await adminAuth.rpc('approve_job', { p_job_id: jobId });
-    expect(error).not.toBeNull();
-    expect(error?.message || '').toContain('Insufficient inventory');
+    const { error } = await adminAuth.rpc('approve_job', {
+      p_job_id: jobId,
+      p_was_fulfillable: false
+    });
+    expect(error).toBeNull();
+
+    const { data: job } = await adminClient.from('jobs').select('status').eq('id', jobId).single();
+    expect(job?.status).toBe('approved');
   });
 
-  it('reserves inventory on approval and prevents double reservation', async () => {
+  it('reserves inventory on approval and keeps approvals idempotent', async () => {
     const itemId = await createInventoryItem(companyId, `Item Reserve ${uniqueSuffix}`, 5, adminUserId);
 
     const { data: jobId1 } = await adminAuth.rpc('create_job', {
@@ -202,10 +207,16 @@ describe.sequential('Jobs RPCs', () => {
       p_qty_planned: 3
     });
 
-    const approve1 = await adminAuth.rpc('approve_job', { p_job_id: jobId1 });
+    const approve1 = await adminAuth.rpc('approve_job', {
+      p_job_id: jobId1,
+      p_was_fulfillable: true
+    });
     expect(approve1.error).toBeNull();
 
-    const approve1Again = await adminAuth.rpc('approve_job', { p_job_id: jobId1 });
+    const approve1Again = await adminAuth.rpc('approve_job', {
+      p_job_id: jobId1,
+      p_was_fulfillable: true
+    });
     expect(approve1Again.error).toBeNull();
 
     const { data: jobId2 } = await adminAuth.rpc('create_job', {
@@ -220,8 +231,11 @@ describe.sequential('Jobs RPCs', () => {
       p_qty_planned: 3
     });
 
-    const approve2 = await adminAuth.rpc('approve_job', { p_job_id: jobId2 });
-    expect(approve2.error).not.toBeNull();
+    const approve2 = await adminAuth.rpc('approve_job', {
+      p_job_id: jobId2,
+      p_was_fulfillable: false
+    });
+    expect(approve2.error).toBeNull();
 
     await adminAuth.rpc('upsert_job_bom_line', {
       p_job_id: jobId2,
@@ -229,7 +243,10 @@ describe.sequential('Jobs RPCs', () => {
       p_qty_planned: 2
     });
 
-    const approve2Fixed = await adminAuth.rpc('approve_job', { p_job_id: jobId2 });
+    const approve2Fixed = await adminAuth.rpc('approve_job', {
+      p_job_id: jobId2,
+      p_was_fulfillable: false
+    });
     expect(approve2Fixed.error).toBeNull();
     const qty = await getItemQuantity(itemId);
     expect(qty).toBe(5);
@@ -250,7 +267,10 @@ describe.sequential('Jobs RPCs', () => {
       p_qty_planned: 6
     });
 
-    const approve = await adminAuth.rpc('approve_job', { p_job_id: jobId });
+    const approve = await adminAuth.rpc('approve_job', {
+      p_job_id: jobId,
+      p_was_fulfillable: true
+    });
     expect(approve.error).toBeNull();
 
     const complete = await adminAuth.rpc('complete_job', {
@@ -272,7 +292,10 @@ describe.sequential('Jobs RPCs', () => {
       p_item_id: itemId,
       p_qty_planned: 6
     });
-    const approve2 = await adminAuth.rpc('approve_job', { p_job_id: jobId2 });
+    const approve2 = await adminAuth.rpc('approve_job', {
+      p_job_id: jobId2,
+      p_was_fulfillable: true
+    });
     expect(approve2.error).toBeNull();
   });
 
@@ -291,7 +314,10 @@ describe.sequential('Jobs RPCs', () => {
       p_qty_planned: 4
     });
 
-    const approve = await adminAuth.rpc('approve_job', { p_job_id: jobId });
+    const approve = await adminAuth.rpc('approve_job', {
+      p_job_id: jobId,
+      p_was_fulfillable: true
+    });
     expect(approve.error).toBeNull();
 
     const voided = await adminAuth.rpc('void_job', { p_job_id: jobId });
@@ -310,7 +336,10 @@ describe.sequential('Jobs RPCs', () => {
       p_item_id: itemId,
       p_qty_planned: 5
     });
-    const approve2 = await adminAuth.rpc('approve_job', { p_job_id: jobId2 });
+    const approve2 = await adminAuth.rpc('approve_job', {
+      p_job_id: jobId2,
+      p_was_fulfillable: true
+    });
     expect(approve2.error).toBeNull();
   });
 
@@ -335,7 +364,7 @@ describe.sequential('Jobs RPCs', () => {
       p_qty_planned: 1
     });
 
-    await adminAuth.rpc('approve_job', { p_job_id: jobId });
+    await adminAuth.rpc('approve_job', { p_job_id: jobId, p_was_fulfillable: true });
 
     const { error } = await adminAuth.rpc('complete_job', {
       p_job_id: jobId,
@@ -369,7 +398,7 @@ describe.sequential('Jobs RPCs', () => {
       p_qty_planned: 2
     });
 
-    await adminAuth.rpc('approve_job', { p_job_id: jobId });
+    await adminAuth.rpc('approve_job', { p_job_id: jobId, p_was_fulfillable: true });
 
     await adminAuth.rpc('complete_job', {
       p_job_id: jobId,
@@ -407,16 +436,14 @@ describe.sequential('Jobs RPCs', () => {
         p_qty_planned: 5
       });
 
-      // First approval should fail (shortage)
-      const { error: firstError } = await adminAuth.rpc('approve_job', { p_job_id: jobId });
-      expect(firstError).not.toBeNull();
-      expect(firstError?.message || '').toContain('Insufficient inventory');
-
       // Reseed inventory to resolve shortage
       await adminClient.from('inventory_items').update({ quantity: 10 }).eq('id', itemId);
 
       // Approval should now succeed
-      const { error: secondError } = await adminAuth.rpc('approve_job', { p_job_id: jobId });
+      const { error: secondError } = await adminAuth.rpc('approve_job', {
+        p_job_id: jobId,
+        p_was_fulfillable: false
+      });
       expect(secondError).toBeNull();
 
       // Verify job is approved
@@ -424,7 +451,7 @@ describe.sequential('Jobs RPCs', () => {
       expect(job?.status).toBe('approved');
     });
 
-    it('TEST 2 - inventory reduction blocks approval with Insufficient inventory', async () => {
+    it('TEST 2 - inventory reduction causes regression and blocks approval', async () => {
       // Create item with sufficient quantity
       const itemId = await createInventoryItem(companyId, `Item Reduce ${uniqueSuffix}`, 10, adminUserId);
 
@@ -445,9 +472,12 @@ describe.sequential('Jobs RPCs', () => {
       await adminClient.from('inventory_items').update({ quantity: 3 }).eq('id', itemId);
 
       // Approval should fail due to insufficient inventory
-      const { error } = await adminAuth.rpc('approve_job', { p_job_id: jobId });
+      const { error } = await adminAuth.rpc('approve_job', {
+        p_job_id: jobId,
+        p_was_fulfillable: true
+      });
       expect(error).not.toBeNull();
-      expect(error?.message || '').toContain('Insufficient inventory');
+      expect(error?.message || '').toContain('Inventory changed during job approval');
     });
 
     it('TEST 3 - concurrent user conflict blocks second approval', async () => {
@@ -481,13 +511,19 @@ describe.sequential('Jobs RPCs', () => {
       });
 
       // User B approves first (reserves the inventory)
-      const { error: approveB } = await adminAuth.rpc('approve_job', { p_job_id: jobIdB });
+      const { error: approveB } = await adminAuth.rpc('approve_job', {
+        p_job_id: jobIdB,
+        p_was_fulfillable: true
+      });
       expect(approveB).toBeNull();
 
       // User A tries to approve - should fail (only 1 unit left available)
-      const { error: approveA } = await adminAuth.rpc('approve_job', { p_job_id: jobIdA });
+      const { error: approveA } = await adminAuth.rpc('approve_job', {
+        p_job_id: jobIdA,
+        p_was_fulfillable: true
+      });
       expect(approveA).not.toBeNull();
-      expect(approveA?.message || '').toContain('Insufficient inventory');
+      expect(approveA?.message || '').toContain('Inventory changed during job approval');
     });
 
     it('TEST 4 - unrelated inventory change does not block approval', async () => {
@@ -512,7 +548,10 @@ describe.sequential('Jobs RPCs', () => {
       await adminClient.from('inventory_items').update({ quantity: 0 }).eq('id', itemB);
 
       // Approval should still succeed (Item B is unrelated)
-      const { error } = await adminAuth.rpc('approve_job', { p_job_id: jobId });
+      const { error } = await adminAuth.rpc('approve_job', {
+        p_job_id: jobId,
+        p_was_fulfillable: true
+      });
       expect(error).toBeNull();
 
       // Verify job is approved
