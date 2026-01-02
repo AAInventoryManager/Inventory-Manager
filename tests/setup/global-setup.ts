@@ -35,50 +35,34 @@ export default async function globalSetup() {
 
   for (const user of testUsers) {
     let userId: string | undefined;
-    let lastError: Error | null = null;
 
-    // Retry user creation up to 3 times
-    for (let attempt = 1; attempt <= 3 && !userId; attempt++) {
-      // Try to create user
+    // First, try to find existing user
+    try {
+      userId = await getAuthUserIdByEmail(user.email);
+    } catch {
+      // User doesn't exist, that's fine
+    }
+
+    // If user exists, just update password
+    if (userId) {
+      // User exists, update password
+    } else {
+      // User doesn't exist, create new
+      // First clean up any stale profile data
+      await adminClient.from('profiles').delete().eq('email', user.email);
+
       const { data: created, error } = await adminClient.auth.admin.createUser({
         email: user.email,
         password: TEST_PASSWORD,
         email_confirm: true
       });
 
-      userId = created?.user?.id;
-
-      // If creation succeeded, we're done
-      if (userId) break;
-
-      // Check if user already exists
-      const isAlreadyExists = error?.message?.toLowerCase().includes('already') ||
-                               error?.message?.toLowerCase().includes('exists');
-
-      if (isAlreadyExists) {
-        // Try to get existing user from auth
-        try {
-          userId = await getAuthUserIdByEmail(user.email);
-          break;
-        } catch {
-          // User not found in auth, will retry creation
-          lastError = new Error(`User allegedly exists but not found: ${user.email}`);
-        }
-      } else if (error) {
-        lastError = error;
-      } else {
-        lastError = new Error(`createUser returned null for ${user.email}`);
-      }
-
-      // Wait before retry
-      if (attempt < 3 && !userId) {
-        await new Promise(r => setTimeout(r, 1000 * attempt));
-      }
+      if (error) throw new Error(`Failed to create user ${user.email}: ${error.message}`);
+      if (!created?.user?.id) throw new Error(`No user ID returned for ${user.email}`);
+      userId = created.user.id;
     }
 
-    if (!userId) {
-      throw new Error(`Failed to create/find user ${user.email} after 3 attempts. Last error: ${lastError?.message || 'unknown'}`);
-    }
+    // Update user password to ensure it's correct
     userIds[user.email] = userId;
     const { error: updateError } = await adminClient.auth.admin.updateUserById(userId, {
       password: TEST_PASSWORD,
