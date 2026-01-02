@@ -91,11 +91,17 @@ export async function getUserIdByEmail(email: string): Promise<string> {
 }
 
 export async function getAuthUserIdByEmail(email: string): Promise<string> {
-  const { data, error } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  if (error) throw error;
-  const user = data.users.find(u => u.email === email);
-  if (!user) throw new Error(`Auth user not found for email: ${email}`);
-  return user.id;
+  // Paginated lookup to handle large user lists
+  let page = 1;
+  while (page <= 10) {
+    const { data, error } = await adminClient.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) throw error;
+    const user = data.users.find(u => u.email === email);
+    if (user) return user.id;
+    if (!data.users.length || data.users.length < 1000) break;
+    page++;
+  }
+  throw new Error(`Auth user not found for email: ${email}`);
 }
 
 export type Tier = 'starter' | 'professional' | 'business' | 'enterprise';
