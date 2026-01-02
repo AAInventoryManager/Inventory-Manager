@@ -383,4 +383,141 @@ describe.sequential('Jobs RPCs', () => {
     expect(events).toContain('job_completed');
     expect(events).toContain('job_inventory_consumed');
   });
+
+  // =========================================================================
+  // jobs_approval_inventory_consistency test suite
+  // Tests for the approval guardrail behavior per governance spec
+  // =========================================================================
+
+  describe('jobs_approval_inventory_consistency', () => {
+    it('TEST 1 - reseed resolves shortage and allows approval', async () => {
+      // Create item with insufficient quantity
+      const itemId = await createInventoryItem(companyId, `Item Reseed ${uniqueSuffix}`, 2, adminUserId);
+
+      // Create job requiring more than available
+      const { data: jobId } = await adminAuth.rpc('create_job', {
+        p_company_id: companyId,
+        p_name: 'Job Reseed Test',
+        p_notes: null
+      });
+
+      await adminAuth.rpc('upsert_job_bom_line', {
+        p_job_id: jobId,
+        p_item_id: itemId,
+        p_qty_planned: 5
+      });
+
+      // First approval should fail (shortage)
+      const { error: firstError } = await adminAuth.rpc('approve_job', { p_job_id: jobId });
+      expect(firstError).not.toBeNull();
+      expect(firstError?.message || '').toContain('Insufficient inventory');
+
+      // Reseed inventory to resolve shortage
+      await adminClient.from('inventory_items').update({ quantity: 10 }).eq('id', itemId);
+
+      // Approval should now succeed
+      const { error: secondError } = await adminAuth.rpc('approve_job', { p_job_id: jobId });
+      expect(secondError).toBeNull();
+
+      // Verify job is approved
+      const { data: job } = await adminClient.from('jobs').select('status').eq('id', jobId).single();
+      expect(job?.status).toBe('approved');
+    });
+
+    it('TEST 2 - inventory reduction blocks approval with Insufficient inventory', async () => {
+      // Create item with sufficient quantity
+      const itemId = await createInventoryItem(companyId, `Item Reduce ${uniqueSuffix}`, 10, adminUserId);
+
+      // Create fulfillable job
+      const { data: jobId } = await adminAuth.rpc('create_job', {
+        p_company_id: companyId,
+        p_name: 'Job Reduce Test',
+        p_notes: null
+      });
+
+      await adminAuth.rpc('upsert_job_bom_line', {
+        p_job_id: jobId,
+        p_item_id: itemId,
+        p_qty_planned: 5
+      });
+
+      // Reduce inventory before approval
+      await adminClient.from('inventory_items').update({ quantity: 3 }).eq('id', itemId);
+
+      // Approval should fail due to insufficient inventory
+      const { error } = await adminAuth.rpc('approve_job', { p_job_id: jobId });
+      expect(error).not.toBeNull();
+      expect(error?.message || '').toContain('Insufficient inventory');
+    });
+
+    it('TEST 3 - concurrent user conflict blocks second approval', async () => {
+      // Create item with limited quantity
+      const itemId = await createInventoryItem(companyId, `Item Concurrent ${uniqueSuffix}`, 5, adminUserId);
+
+      // User A creates and prepares a job
+      const { data: jobIdA } = await adminAuth.rpc('create_job', {
+        p_company_id: companyId,
+        p_name: 'Job A Concurrent',
+        p_notes: null
+      });
+
+      await adminAuth.rpc('upsert_job_bom_line', {
+        p_job_id: jobIdA,
+        p_item_id: itemId,
+        p_qty_planned: 4
+      });
+
+      // User B (member) creates a competing job
+      const { data: jobIdB } = await memberAuth.rpc('create_job', {
+        p_company_id: companyId,
+        p_name: 'Job B Concurrent',
+        p_notes: null
+      });
+
+      await memberAuth.rpc('upsert_job_bom_line', {
+        p_job_id: jobIdB,
+        p_item_id: itemId,
+        p_qty_planned: 4
+      });
+
+      // User B approves first (reserves the inventory)
+      const { error: approveB } = await adminAuth.rpc('approve_job', { p_job_id: jobIdB });
+      expect(approveB).toBeNull();
+
+      // User A tries to approve - should fail (only 1 unit left available)
+      const { error: approveA } = await adminAuth.rpc('approve_job', { p_job_id: jobIdA });
+      expect(approveA).not.toBeNull();
+      expect(approveA?.message || '').toContain('Insufficient inventory');
+    });
+
+    it('TEST 4 - unrelated inventory change does not block approval', async () => {
+      // Create two separate items
+      const itemA = await createInventoryItem(companyId, `Item A Unrelated ${uniqueSuffix}`, 10, adminUserId);
+      const itemB = await createInventoryItem(companyId, `Item B Unrelated ${uniqueSuffix}`, 10, adminUserId);
+
+      // Create job for Item A only
+      const { data: jobId } = await adminAuth.rpc('create_job', {
+        p_company_id: companyId,
+        p_name: 'Job Unrelated Test',
+        p_notes: null
+      });
+
+      await adminAuth.rpc('upsert_job_bom_line', {
+        p_job_id: jobId,
+        p_item_id: itemA,
+        p_qty_planned: 5
+      });
+
+      // Modify unrelated Item B (reduce to zero even)
+      await adminClient.from('inventory_items').update({ quantity: 0 }).eq('id', itemB);
+
+      // Approval should still succeed (Item B is unrelated)
+      const { error } = await adminAuth.rpc('approve_job', { p_job_id: jobId });
+      expect(error).toBeNull();
+
+      // Verify job is approved
+      const { data: job } = await adminClient.from('jobs').select('status').eq('id', jobId).single();
+      expect(job?.status).toBe('approved');
+    });
+  });
 });

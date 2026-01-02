@@ -1981,6 +1981,447 @@
       border:none;
       min-height:280px;
     }
+
+    /* ============================================
+       ORDER WIZARD - 3-Step Mobile-First Wizard
+       ============================================ */
+    .order-wizard{
+      display:flex;
+      flex-direction:column;
+      height:100%;
+      min-height:0;
+    }
+
+    /* Progress Stepper */
+    .order-wizard-stepper{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:0;
+      padding:16px 20px 12px;
+      background:rgba(13,19,27,0.6);
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      flex-shrink:0;
+    }
+    .order-wizard-step{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 14px;
+      border-radius:20px;
+      font-size:13px;
+      font-weight:600;
+      color:var(--muted);
+      transition:all 0.2s ease;
+      cursor:pointer;
+      user-select:none;
+    }
+    .order-wizard-step:hover{
+      background:rgba(255,255,255,0.05);
+    }
+    .order-wizard-step.active{
+      background:rgba(59,130,246,0.15);
+      color:#60a5fa;
+    }
+    .order-wizard-step.completed{
+      color:#22c55e;
+    }
+    .order-wizard-step-num{
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      border:2px solid currentColor;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:12px;
+      font-weight:700;
+      flex-shrink:0;
+    }
+    .order-wizard-step.active .order-wizard-step-num{
+      background:#3b82f6;
+      border-color:#3b82f6;
+      color:#fff;
+    }
+    .order-wizard-step.completed .order-wizard-step-num{
+      background:#22c55e;
+      border-color:#22c55e;
+      color:#fff;
+    }
+    .order-wizard-step.completed .order-wizard-step-num::after{
+      content:'✓';
+    }
+    .order-wizard-step.completed .order-wizard-step-num span{
+      display:none;
+    }
+    .order-wizard-step-label{
+      display:none;
+    }
+    @media (min-width:480px){
+      .order-wizard-step-label{
+        display:inline;
+      }
+    }
+    .order-wizard-connector{
+      width:24px;
+      height:2px;
+      background:rgba(255,255,255,0.15);
+      margin:0 4px;
+      flex-shrink:0;
+    }
+    .order-wizard-connector.active{
+      background:linear-gradient(90deg, #3b82f6 0%, rgba(255,255,255,0.15) 100%);
+    }
+    .order-wizard-connector.completed{
+      background:#22c55e;
+    }
+
+    /* Tab Panels */
+    .order-wizard-panels{
+      flex:1;
+      min-height:0;
+      overflow:hidden;
+      position:relative;
+    }
+    .order-wizard-panel{
+      position:absolute;
+      inset:0;
+      overflow-y:auto;
+      padding:16px;
+      opacity:0;
+      visibility:hidden;
+      transform:translateX(20px);
+      transition:opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+    }
+    .order-wizard-panel.active{
+      opacity:1;
+      visibility:visible;
+      transform:translateX(0);
+      position:relative;
+    }
+    .order-wizard-panel.exit-left{
+      transform:translateX(-20px);
+    }
+
+    /* Cart Tab */
+    .order-cart-search{
+      margin-bottom:12px;
+    }
+    .order-cart-results{
+      max-height:200px;
+      overflow-y:auto;
+      margin-bottom:16px;
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;
+    }
+    .order-cart-results:empty{
+      display:none;
+    }
+    .order-cart-result{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      cursor:pointer;
+      transition:background 0.15s;
+    }
+    .order-cart-result:last-child{
+      border-bottom:none;
+    }
+    .order-cart-result:hover{
+      background:rgba(59,130,246,0.08);
+    }
+    .order-cart-result-info{
+      flex:1;
+      min-width:0;
+    }
+    .order-cart-result-name{
+      font-weight:600;
+      font-size:14px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .order-cart-result-desc{
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .order-cart-section{
+      margin-bottom:16px;
+    }
+    .order-cart-section-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      font-size:12px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      color:var(--muted);
+      margin-bottom:10px;
+    }
+    .order-cart-items{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .order-cart-item{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px;
+      background:linear-gradient(145deg, rgba(26,31,38,0.9) 0%, rgba(18,22,28,0.9) 100%);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;
+    }
+    .order-cart-item-info{
+      flex:1;
+      min-width:0;
+    }
+    .order-cart-item-name{
+      font-weight:700;
+      font-size:14px;
+      margin-bottom:2px;
+    }
+    .order-cart-item-sub{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .order-cart-item-stepper{
+      flex-shrink:0;
+    }
+    .order-cart-item-remove{
+      flex-shrink:0;
+      width:32px;
+      height:32px;
+      border:none;
+      background:rgba(239,68,68,0.15);
+      color:#ef4444;
+      border-radius:8px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:background 0.15s;
+    }
+    .order-cart-item-remove:hover{
+      background:rgba(239,68,68,0.25);
+    }
+    .order-cart-summary{
+      padding:14px;
+      background:rgba(59,130,246,0.08);
+      border:1px solid rgba(59,130,246,0.2);
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:auto;
+    }
+    .order-cart-summary-label{
+      font-size:14px;
+      font-weight:600;
+    }
+    .order-cart-summary-value{
+      font-size:18px;
+      font-weight:800;
+      color:#60a5fa;
+    }
+    .order-cart-empty{
+      padding:32px 16px;
+      text-align:center;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .order-cart-empty svg{
+      width:48px;
+      height:48px;
+      margin-bottom:12px;
+      opacity:0.4;
+    }
+
+    /* Delivery Tab */
+    .order-delivery-section{
+      margin-bottom:20px;
+    }
+    .order-delivery-label{
+      font-size:12px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .order-delivery-suggestions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:8px;
+    }
+    .order-delivery-suggestion{
+      padding:6px 12px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:16px;
+      font-size:12px;
+      color:#cbd5e1;
+      cursor:pointer;
+      transition:all 0.15s;
+    }
+    .order-delivery-suggestion:hover{
+      background:rgba(59,130,246,0.15);
+      border-color:rgba(59,130,246,0.3);
+      color:#60a5fa;
+    }
+    .order-delivery-address-card{
+      padding:14px;
+      background:rgba(13,19,27,0.7);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;
+    }
+    .order-delivery-address-name{
+      font-weight:700;
+      font-size:14px;
+      margin-bottom:4px;
+    }
+    .order-delivery-address-text{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    /* Review Tab */
+    .order-review-section{
+      margin-bottom:20px;
+    }
+    .order-review-label{
+      font-size:12px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .order-review-po-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width:479px){
+      .order-review-po-grid{
+        grid-template-columns:1fr;
+      }
+    }
+    .order-review-preview{
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;
+      overflow:hidden;
+    }
+    .order-review-preview-header{
+      padding:10px 14px;
+      background:rgba(13,19,27,0.7);
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      font-size:12px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      color:var(--muted);
+    }
+    .order-review-preview-body{
+      background:#fff;
+      max-height:280px;
+      overflow-y:auto;
+    }
+    .order-review-preview-body iframe{
+      width:100%;
+      border:none;
+      min-height:250px;
+    }
+
+    /* Wizard Footer */
+    .order-wizard-footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px 16px;
+      background:rgba(13,19,27,0.8);
+      border-top:1px solid rgba(255,255,255,0.06);
+      flex-shrink:0;
+    }
+    .order-wizard-footer-left{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .order-wizard-footer-right{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .order-wizard-btn{
+      padding:10px 20px;
+      border-radius:10px;
+      font-size:14px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.15s;
+      border:none;
+    }
+    .order-wizard-btn-prev{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.15);
+      color:#cbd5e1;
+    }
+    .order-wizard-btn-prev:hover{
+      background:rgba(255,255,255,0.05);
+      border-color:rgba(255,255,255,0.25);
+    }
+    .order-wizard-btn-next{
+      background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color:#fff;
+    }
+    .order-wizard-btn-next:hover{
+      background:linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    }
+    .order-wizard-btn-next:disabled{
+      opacity:0.5;
+      cursor:not-allowed;
+    }
+    .order-wizard-btn-submit{
+      background:linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      color:#fff;
+    }
+    .order-wizard-btn-submit:hover{
+      background:linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+    }
+    .order-wizard-btn-submit:disabled{
+      opacity:0.5;
+      cursor:not-allowed;
+    }
+
+    /* Compact stepper on mobile */
+    @media (max-width:400px){
+      .order-wizard-stepper{
+        padding:12px 12px 8px;
+      }
+      .order-wizard-step{
+        padding:6px 8px;
+      }
+      .order-wizard-step-num{
+        width:22px;
+        height:22px;
+        font-size:11px;
+      }
+      .order-wizard-connector{
+        width:16px;
+      }
+    }
+
     .history-list{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
     .history-item{
       border:1px solid var(--border);
@@ -7240,10 +7681,10 @@
     </div>
   </div>
 
-  <!-- Order modal -->
+  <!-- Order modal (3-step wizard) -->
   <div id="orderModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal modal--lg" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
-      <div class="modal-header">
+    <div class="modal modal--lg" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle" style="display:flex;flex-direction:column;max-height:90vh;">
+      <div class="modal-header" style="flex-shrink:0;">
         <div class="modal-title-wrap">
           <span class="modal-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -7254,7 +7695,7 @@
           </span>
           <div class="modal-title-text">
             <h2 id="orderModalTitle" class="modal-title">Create Order</h2>
-            <div class="modal-subtitle">Build a cart and send the order email.</div>
+            <div class="modal-subtitle">Build a cart and send the order.</div>
           </div>
         </div>
         <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="orderModal" aria-label="Close">
@@ -7264,82 +7705,121 @@
           </svg>
         </button>
       </div>
-      <div class="modal-body">
-        <div class="form-section">
-          <div class="section-label">Materials</div>
-          <div class="input-wrap" style="max-width:100%;">
-            <input id="orderSearch" type="text" placeholder="Search inventory to add items…" autocomplete="off" />
-            <button class="icon-btn icon-btn--default clear-input-btn" id="btnClearOrderSearch" type="button" aria-label="Clear search" title="Clear search" style="display:none">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M18 6L6 18"></path>
-                <path d="M6 6l12 12"></path>
-              </svg>
-            </button>
+
+      <div class="order-wizard" style="flex:1;min-height:0;display:flex;flex-direction:column;">
+        <!-- Progress Stepper -->
+        <div class="order-wizard-stepper">
+          <div class="order-wizard-step active" data-step="0" id="orderWizStep0">
+            <span class="order-wizard-step-num"><span>1</span></span>
+            <span class="order-wizard-step-label">Cart</span>
           </div>
-          <div id="orderResultsBody" class="order-list" style="margin-top:10px;"></div>
-        </div>
-        <div class="form-section">
-          <div class="section-label">
-            <span>Shopping Cart</span>
-            <span id="orderLinesInfo"></span>
-            <button type="button" id="btnResetOrderList" class="icon-btn icon-btn--default" aria-label="Reset order list" title="Reset order list">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                <path d="M3 3v5h5"/>
-              </svg>
-            </button>
+          <div class="order-wizard-connector" id="orderWizConn1"></div>
+          <div class="order-wizard-step" data-step="1" id="orderWizStep1">
+            <span class="order-wizard-step-num"><span>2</span></span>
+            <span class="order-wizard-step-label">Delivery</span>
           </div>
-          <div id="orderLinesBody" class="order-list"></div>
-        </div>
-        <div class="form-section">
-          <div class="section-label">Order Fulfillment Email</div>
-          <label for="orderEmail">Recipient email</label>
-          <input id="orderEmail" type="email" placeholder="recipient@example.com" autocomplete="email" inputmode="email" />
-          <div id="orderEmailSuggest" class="order-suggest" aria-label="Email suggestions"></div>
-        </div>
-        <div class="form-section">
-          <div class="section-label">Shipping Address</div>
-          <div class="order-shipping-row">
-            <select id="orderShippingAddress" aria-label="Shipping address"></select>
-            <button class="btn-secondary" id="btnOrderShippingManage" type="button">Locations</button>
+          <div class="order-wizard-connector" id="orderWizConn2"></div>
+          <div class="order-wizard-step" data-step="2" id="orderWizStep2">
+            <span class="order-wizard-step-num"><span>3</span></span>
+            <span class="order-wizard-step-label">Review</span>
           </div>
-          <div id="orderShippingPreview" class="muted" style="margin-top:6px;"></div>
         </div>
-        <div class="form-section">
-          <div class="section-label">Message</div>
-          <div style="display:grid; grid-template-columns:1fr; gap:10px;">
-            <div class="order-po-grid">
-              <div>
-                <label for="orderCompanyPoNumber">Company PO Number (optional)</label>
-                <input id="orderCompanyPoNumber" type="text" placeholder="Company PO #" />
-              </div>
-              <div>
-                <label for="orderInternalPoNumber">Internal PO ID</label>
-                <input id="orderInternalPoNumber" type="text" readonly />
-              </div>
-              <div class="order-po-subject">
-                <label for="orderSubject">Subject</label>
-                <input id="orderSubject" type="text" readonly />
+
+        <!-- Tab Panels -->
+        <div class="order-wizard-panels" style="flex:1;min-height:0;overflow:hidden;">
+          <!-- Panel 1: Cart -->
+          <div class="order-wizard-panel active" id="orderWizPanel0">
+            <div class="order-cart-search">
+              <div class="input-wrap" style="max-width:100%;">
+                <input id="orderSearch" type="text" placeholder="Search inventory to add items…" autocomplete="off" />
+                <button class="icon-btn icon-btn--default clear-input-btn" id="btnClearOrderSearch" type="button" aria-label="Clear search" title="Clear search" style="display:none">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 6L6 18"></path>
+                    <path d="M6 6l12 12"></path>
+                  </svg>
+                </button>
               </div>
             </div>
-            <div>
+            <div id="orderResultsBody" class="order-cart-results"></div>
+            <div class="order-cart-section">
+              <div class="order-cart-section-title">
+                <span>Shopping Cart</span>
+                <button type="button" id="btnResetOrderList" class="icon-btn icon-btn--default" aria-label="Clear cart" title="Clear cart">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                    <path d="M3 3v5h5"/>
+                  </svg>
+                </button>
+              </div>
+              <div id="orderLinesBody" class="order-cart-items"></div>
+              <div id="orderLinesInfo" style="display:none;"></div>
+            </div>
+            <div class="order-cart-summary" id="orderCartSummary" style="display:none;">
+              <span class="order-cart-summary-label">Items in cart</span>
+              <span class="order-cart-summary-value" id="orderCartCount">0</span>
+            </div>
+          </div>
+
+          <!-- Panel 2: Delivery -->
+          <div class="order-wizard-panel" id="orderWizPanel1">
+            <div class="order-delivery-section">
+              <div class="order-delivery-label">Recipient Email</div>
+              <input id="orderEmail" type="email" placeholder="recipient@example.com" autocomplete="email" inputmode="email" />
+              <div id="orderEmailSuggest" class="order-delivery-suggestions" aria-label="Email suggestions"></div>
+            </div>
+            <div class="order-delivery-section">
+              <div class="order-delivery-label">Shipping Address</div>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <select id="orderShippingAddress" aria-label="Shipping address" style="flex:1;"></select>
+                <button class="btn-secondary" id="btnOrderShippingManage" type="button" style="flex-shrink:0;">Locations</button>
+              </div>
+              <div id="orderShippingPreview" class="order-delivery-address-card" style="margin-top:10px;display:none;">
+                <div class="order-delivery-address-name" id="orderShippingPreviewName"></div>
+                <div class="order-delivery-address-text" id="orderShippingPreviewText"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel 3: Review -->
+          <div class="order-wizard-panel" id="orderWizPanel2">
+            <div class="order-review-section">
+              <div class="order-review-label">Order Details</div>
+              <div class="order-review-po-grid">
+                <div>
+                  <label for="orderCompanyPoNumber">Company PO (optional)</label>
+                  <input id="orderCompanyPoNumber" type="text" placeholder="Company PO #" />
+                </div>
+                <div>
+                  <label for="orderInternalPoNumber">Internal PO ID</label>
+                  <input id="orderInternalPoNumber" type="text" readonly />
+                </div>
+              </div>
+            </div>
+            <div class="order-review-section">
               <label for="orderNotes">Notes (optional)</label>
-              <textarea id="orderNotes" rows="3" placeholder="Any notes…"></textarea>
+              <textarea id="orderNotes" rows="2" placeholder="Any notes for this order…"></textarea>
             </div>
-            <div class="order-preview">
-              <div class="section-label">Email Preview</div>
-              <div id="orderPreviewHtml" class="order-preview-html"></div>
+            <div class="order-review-section">
+              <div class="order-review-preview">
+                <div class="order-review-preview-header">Email Preview</div>
+                <div class="order-review-preview-body" id="orderPreviewHtml"></div>
+              </div>
             </div>
+            <input id="orderSubject" type="hidden" readonly />
           </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <div class="footer-left">
-          <button class="btn-secondary" id="btnOrderCopy" type="button">Copy</button>
-        </div>
-        <div class="footer-right">
-          <button class="btn-secondary" id="btnOrderCancel" type="button" data-modal-close="orderModal">Cancel</button>
-          <button class="btn-primary order-send" id="btnOrderSubmit" type="button">Submit Order</button>
+
+        <!-- Wizard Footer -->
+        <div class="order-wizard-footer">
+          <div class="order-wizard-footer-left">
+            <button class="order-wizard-btn order-wizard-btn-prev" id="btnOrderWizPrev" type="button" style="display:none;">Back</button>
+            <button class="btn-secondary" id="btnOrderCopy" type="button" style="display:none;">Copy</button>
+          </div>
+          <div class="order-wizard-footer-right">
+            <button class="btn-secondary" id="btnOrderCancel" type="button" data-modal-close="orderModal">Cancel</button>
+            <button class="order-wizard-btn order-wizard-btn-next" id="btnOrderWizNext" type="button">Next</button>
+            <button class="order-wizard-btn order-wizard-btn-submit" id="btnOrderSubmit" type="button" style="display:none;">Submit Order</button>
+          </div>
         </div>
       </div>
     </div>
@@ -21246,6 +21726,170 @@ function emptyStateHtml(){
       ensureOrderIdentifiers(state._order);
       return state._order;
     }
+
+    // =========================================
+    // ORDER WIZARD NAVIGATION
+    // =========================================
+    let _orderWizardStep = 0;
+    const ORDER_WIZARD_STEPS = ['Cart', 'Delivery', 'Review'];
+
+    function orderWizardGoTo(step){
+      const maxStep = ORDER_WIZARD_STEPS.length - 1;
+      const newStep = Math.max(0, Math.min(maxStep, step));
+      if(newStep === _orderWizardStep) return;
+      _orderWizardStep = newStep;
+      orderWizardUpdateUI();
+    }
+
+    function orderWizardNext(){
+      const ord = orderState();
+      // Validate current step before proceeding
+      if(_orderWizardStep === 0){
+        // Cart step: must have at least 1 item
+        if(!ord.lines.length){
+          toast('Add at least 1 item to continue');
+          return;
+        }
+      } else if(_orderWizardStep === 1){
+        // Delivery step: must have email
+        const email = String(ord.email || '').trim();
+        if(!email){
+          toast('Enter a recipient email');
+          const emailInput = $('orderEmail');
+          if(emailInput) emailInput.focus();
+          return;
+        }
+        // Render email preview when moving to review
+        renderOrderPreview();
+      }
+      orderWizardGoTo(_orderWizardStep + 1);
+    }
+
+    function orderWizardPrev(){
+      orderWizardGoTo(_orderWizardStep - 1);
+    }
+
+    function orderWizardUpdateUI(){
+      const step = _orderWizardStep;
+      const ord = orderState();
+
+      // Update stepper pills
+      for(let i = 0; i < ORDER_WIZARD_STEPS.length; i++){
+        const stepEl = $('orderWizStep' + i);
+        const connEl = $('orderWizConn' + (i + 1));
+        const panelEl = $('orderWizPanel' + i);
+        if(!stepEl) continue;
+
+        stepEl.classList.remove('active', 'completed');
+        if(i < step){
+          stepEl.classList.add('completed');
+        } else if(i === step){
+          stepEl.classList.add('active');
+        }
+
+        if(connEl){
+          connEl.classList.remove('active', 'completed');
+          if(i < step){
+            connEl.classList.add('completed');
+          } else if(i === step){
+            connEl.classList.add('active');
+          }
+        }
+
+        if(panelEl){
+          panelEl.classList.remove('active', 'exit-left');
+          if(i === step){
+            panelEl.classList.add('active');
+          } else if(i < step){
+            panelEl.classList.add('exit-left');
+          }
+        }
+      }
+
+      // Update footer buttons
+      const btnPrev = $('btnOrderWizPrev');
+      const btnNext = $('btnOrderWizNext');
+      const btnSubmit = $('btnOrderSubmit');
+      const btnCopy = $('btnOrderCopy');
+
+      if(btnPrev){
+        btnPrev.style.display = step > 0 ? '' : 'none';
+      }
+      if(btnNext){
+        btnNext.style.display = step < ORDER_WIZARD_STEPS.length - 1 ? '' : 'none';
+        // Disable next if cart is empty on step 0
+        if(step === 0){
+          btnNext.disabled = !ord.lines.length;
+        } else if(step === 1){
+          btnNext.disabled = !String(ord.email || '').trim();
+        } else {
+          btnNext.disabled = false;
+        }
+      }
+      if(btnSubmit){
+        btnSubmit.style.display = step === ORDER_WIZARD_STEPS.length - 1 ? '' : 'none';
+      }
+      if(btnCopy){
+        btnCopy.style.display = step === ORDER_WIZARD_STEPS.length - 1 ? '' : 'none';
+      }
+
+      // Update cart summary
+      updateOrderWizardCartSummary();
+
+      // Update shipping preview
+      if(step === 1){
+        updateOrderWizardShippingPreview();
+      }
+    }
+
+    function updateOrderWizardCartSummary(){
+      const ord = orderState();
+      const count = ord.lines.length;
+      const summary = $('orderCartSummary');
+      const countEl = $('orderCartCount');
+      if(summary){
+        summary.style.display = count > 0 ? 'flex' : 'none';
+      }
+      if(countEl){
+        countEl.textContent = String(count);
+      }
+    }
+
+    function updateOrderWizardShippingPreview(){
+      const ord = orderState();
+      const previewWrap = $('orderShippingPreview');
+      const nameEl = $('orderShippingPreviewName');
+      const textEl = $('orderShippingPreviewText');
+      if(!previewWrap) return;
+
+      const addressId = ord.shippingAddressId;
+      if(!addressId){
+        previewWrap.style.display = 'none';
+        return;
+      }
+
+      const row = (state._orderShippingById && typeof state._orderShippingById.get === 'function'
+        ? state._orderShippingById.get(addressId)
+        : null)
+        || (state._shippingAddressById && typeof state._shippingAddressById.get === 'function'
+          ? state._shippingAddressById.get(addressId)
+          : null);
+
+      if(!row){
+        previewWrap.style.display = 'none';
+        return;
+      }
+
+      previewWrap.style.display = 'block';
+      if(nameEl) nameEl.textContent = row.label || 'Address';
+      if(textEl) textEl.textContent = row.address || '';
+    }
+
+    function resetOrderWizard(){
+      _orderWizardStep = 0;
+      orderWizardUpdateUI();
+    }
+
     function getOrderRecommendationState(){
       if(!state._orderRecommendations){
         state._orderRecommendations = {
@@ -24729,13 +25373,17 @@ function emptyStateHtml(){
       if(notesInput) notesInput.disabled = !editable;
       if(addItemBtn) addItemBtn.disabled = state._jobEditorBusy || !editable;
       if(saveBtn){
-        saveBtn.textContent = job && job.id ? 'Save Job Details' : 'Create Job';
+        // Job creation via Details tab is deprecated - use wizard only
+        // Only show Save button when editing an existing job
+        const hasJob = !!(job && job.id);
+        saveBtn.style.display = hasJob ? '' : 'none';
+        saveBtn.textContent = 'Save Job Details';
         saveBtn.disabled = state._jobEditorBusy || !editable;
       }
 
       const hasJob = !!(job && job.id);
       if(!hasJob){
-        setJobBomMessage('Create the job, then add items from Inventory.');
+        setJobBomMessage('Use the Jobs wizard to create a new job.');
       }
 
       if(approveSection){
@@ -25340,10 +25988,24 @@ function emptyStateHtml(){
             inventoryMap = new Map();
           }
         }
-        state._jobEditor = { job, bomLines, actuals, reservedMap, inventoryMap, incomingMap };
+        // Calculate initial fulfillability at editor open time
+        let wasFulfillable = true;
+        if(bomLines && bomLines.length){
+          for(const line of bomLines){
+            const itemId = String(line.item_id || '').trim();
+            if(!itemId) continue;
+            const qtyPlanned = Number(line.qty_planned || 0);
+            const stats = computeJobLineStats(itemId, qtyPlanned, reservedMap, inventoryMap);
+            if(stats.shortfall > 0){
+              wasFulfillable = false;
+              break;
+            }
+          }
+        }
+        state._jobEditor = { job, bomLines, actuals, reservedMap, inventoryMap, incomingMap, wasFulfillable };
         state._incomingByItemId = incomingMap;
       }catch(e){
-        state._jobEditor = { job: { id:null, name:'', status:'draft', notes:'' }, bomLines:[], actuals:[], reservedMap:new Map(), inventoryMap:new Map(), incomingMap:new Map() };
+        state._jobEditor = { job: { id:null, name:'', status:'draft', notes:'' }, bomLines:[], actuals:[], reservedMap:new Map(), inventoryMap:new Map(), incomingMap:new Map(), wasFulfillable: true };
         setJobEditorMessage(e && e.message ? e.message : 'Failed to load job');
       }finally{
         state._jobEditorBusy = false;
@@ -25654,20 +26316,38 @@ function emptyStateHtml(){
             });
           }
         });
-        if(state._jobEditor && state._jobEditor.job && String(state._jobEditor.job.id) === String(jobId)){
+        // Update editor state with live data
+        const isEditorJob = state._jobEditor && state._jobEditor.job && String(state._jobEditor.job.id) === String(jobId);
+        if(isEditorJob){
           state._jobEditor.reservedMap = liveReservedMap;
           state._jobEditor.inventoryMap = liveInventoryMap;
           renderJobEditor();
         }
-        if(shortages.length){
+
+        // Determine fulfillability states
+        const isNowFulfillable = shortages.length === 0;
+        const wasFulfillable = isEditorJob ? !!state._jobEditor.wasFulfillable : true;
+
+        // GUARDRAIL: Only block if job regressed from fulfillable to NOT fulfillable
+        // Do NOT block if: shortage decreased, resolved, inventory increased, or unrelated items changed
+        if(wasFulfillable && !isNowFulfillable){
           renderApprovalShortages(shortages);
-          const warningMsg = 'Inventory changed while editing this job.';
-          if(state._jobEditor && state._jobEditor.job && String(state._jobEditor.job.id) === String(jobId)){
+          const warningTitle = 'Inventory changed during job approval';
+          const warningMsg = 'Inventory was reduced or reserved by another operation while you were editing this job, and it can no longer be fulfilled.';
+          if(isEditorJob){
             setJobEditorMessage(warningMsg);
           }else{
             setJobsMessage(warningMsg);
           }
-          toast('Inventory changed while editing this job.');
+          toast(warningTitle);
+          // Dev mode logging
+          if(typeof DEV_MODE !== 'undefined' && DEV_MODE){
+            console.warn('[DEV] Approval blocked - fulfillability regression:', shortages.map(s => ({
+              item_id: s.item_id,
+              previous_shortage: 0,
+              current_shortage: s.shortfall
+            })));
+          }
           return;
         }
         const { data, error } = await SB.client.rpc('approve_job', { p_job_id: jobId });
@@ -25833,10 +26513,7 @@ function emptyStateHtml(){
       const items = (state.items||[]).slice().sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
       list.innerHTML = '';
       if(!items.length){
-        const empty = document.createElement('div');
-        empty.className = 'order-empty';
-        empty.textContent = 'No inventory loaded yet.';
-        list.appendChild(empty);
+        list.innerHTML = '<div class="order-cart-empty">No inventory loaded yet.</div>';
         return;
       }
       if(!qRaw){
@@ -25848,40 +26525,31 @@ function emptyStateHtml(){
         const name = toKey(it.name);
         const desc = toKey(it.desc);
         return name.includes(q) || desc.includes(q) || String(toInt(it.qty,0)).includes(qRaw);
-      }).slice(0, 20);
+      }).slice(0, 12);
 
       if(!hits.length){
-        const empty = document.createElement('div');
-        empty.className = 'order-empty';
-        empty.textContent = 'No matches.';
-        list.appendChild(empty);
+        list.innerHTML = '<div class="order-cart-empty">No matches.</div>';
         return;
       }
 
       for(const it of hits){
-        const card = document.createElement('div');
-        card.className = 'order-card';
+        const el = document.createElement('div');
+        el.className = 'order-cart-result';
+        el.dataset.itemId = it.id;
         const desc = String(it.desc||'').trim();
         const orderQty = getOrderQtyForItem(it.id);
-        card.innerHTML =
-          `<div class="order-card-top">`+
-            `<div class="order-meta">`+
-              `<div class="order-title">${escapeHtml(it.name||'')}</div>`+
-              (desc ? `<div class="order-sub">${escapeHtml(desc)}</div>` : ``)+
-            `</div>`+
-            `<div class="order-side">`+
-              `<div class="order-kpi">`+
-                `<div class="order-kpi-label">On Hand</div>`+
-                `<div class="order-kpi-value">${toInt(it.qty,0)}</div>`+
-              `</div>`+
-              `<div class="qty-stepper">`+
-                `<button class="qty-stepper-btn" data-stepper-dec="${it.id}"${orderQty === 0 ? ' disabled style="opacity:0.3"' : ''}>−</button>`+
-                `<span class="qty-stepper-val">${orderQty}</span>`+
-                `<button class="qty-stepper-btn" data-stepper-inc="${it.id}">+</button>`+
-              `</div>`+
-            `</div>`+
+        const inCart = orderQty > 0;
+        el.innerHTML =
+          `<div class="order-cart-result-info">`+
+            `<div class="order-cart-result-name">${escapeHtml(it.name||'')}</div>`+
+            (desc ? `<div class="order-cart-result-desc">${escapeHtml(desc)}</div>` : ``)+
+          `</div>`+
+          `<div class="qty-stepper" style="height:40px;">`+
+            `<button class="qty-stepper-btn" style="width:40px;height:40px;" data-stepper-dec="${it.id}"${orderQty === 0 ? ' disabled style="opacity:0.3;width:40px;height:40px;"' : ''}>−</button>`+
+            `<span class="qty-stepper-val" style="min-width:2.5rem;font-size:18px;">${orderQty}</span>`+
+            `<button class="qty-stepper-btn" style="width:40px;height:40px;" data-stepper-inc="${it.id}">+</button>`+
           `</div>`;
-        list.appendChild(card);
+        list.appendChild(el);
       }
     }
     function renderOrderLines(){
@@ -25893,96 +26561,52 @@ function emptyStateHtml(){
 
       const lines = ord.lines.slice().sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
       pruneOrderLineSelection(lines);
-      const recState = getOrderRecommendationState();
-      if(!recState.ready && !recState.loading){
-        void ensureOrderRecommendationData();
-      }
-      const recError = String(recState.error || '').trim();
-      const recErrorDetail = recError && recError.toLowerCase() !== 'recommendations unavailable'
-        ? `<div class="order-rec-line order-rec-muted">${escapeHtml(recError)}</div>`
-        : '';
-      const recReady = !!recState.ready && !recError;
-      if(info){
-        info.textContent = lines.length ? (lines.length === 1 ? '1 item' : `${lines.length} items`) : '';
-      }
 
       if(!lines.length){
-        const empty = document.createElement('div');
-        empty.className = 'order-empty';
-        empty.textContent = 'No items in the order yet. Add from inventory above, or pre-select items in the main table before opening Create Order.';
-        list.appendChild(empty);
+        list.innerHTML = `<div class="order-cart-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 12.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <div>Cart is empty</div>
+          <div style="font-size:12px;margin-top:4px;">Search above to add items</div>
+        </div>`;
         renderOrderPreview();
+        // Update wizard cart summary and button states
+        try{ updateOrderWizardCartSummary(); orderWizardUpdateUI(); }catch(e){}
         return;
       }
 
       for(const l of lines){
         const inv = getInventoryById(l.id);
         const onHand = inv ? toInt(inv.qty, 0) : null;
-        if(typeof l.includeReorder !== 'boolean') l.includeReorder = false;
-        const rec = recReady
-          ? getOrderRecommendationForItem(l.id)
-          : { jobRequired: 0, policyRequired: null, recommended: 0, reorderAllowed: false };
-        if(recReady) applyOrderRecommendationDefaults(l, rec);
-        const jobRequired = rec.jobRequired;
-        const policyRequired = rec.policyRequired;
-        const recommended = rec.recommended;
-        const showReorder = rec.reorderAllowed;
-        const showPolicyLine = showReorder;
-        const showEqualsNote = showReorder && (Number(policyRequired) === 0);
-        const jobText = formatQty(jobRequired);
-        const policyText = formatQty(policyRequired || 0);
-        const recommendedText = formatQty(recommended);
-        const card = document.createElement('div');
-        card.className = 'order-card order-card--selected';
-        card.dataset.orderLineId = l.id;
-        const isSelected = orderLineSelection.has(String(l.id || '').trim());
-        const selectLabel = `Select ${String(l.name || '').trim() || 'item'} for batch qty edit`;
         const desc = String(l.desc||'').trim();
-        const recommendationHtml = recError
-          ? `<div class="order-recommendation">`+
-              `<div class="order-rec-title">Recommended</div>`+
-              `<div class="order-rec-line order-rec-muted">Recommendations unavailable.</div>`+
-              recErrorDetail+
-            `</div>`
-          : recReady
-            ? `<div class="order-recommendation">`+
-                `<div class="order-rec-title">Recommended</div>`+
-                `<div class="order-rec-line"><span class="order-rec-value">${escapeHtml(jobText)}</span> needed for approved jobs</div>`+
-                (showPolicyLine ? `<div class="order-rec-line order-rec-muted">+${escapeHtml(policyText)} to reach reorder point</div>` : ``)+
-                (showEqualsNote ? `<div class="order-rec-line order-rec-muted">Recommended equals job demand</div>` : ``)+
-                `<div class="order-rec-line order-rec-total">Suggested order: ${escapeHtml(recommendedText)}</div>`+
-                (showReorder
-                  ? `<label class="order-rec-toggle"><input type="checkbox" data-order-reorder-toggle="${escapeHtmlAttr(l.id)}"${l.includeReorder ? ' checked' : ''}><span>Include reorder stock</span></label>`
-                  : ``)+
-              `</div>`
-            : `<div class="order-recommendation">`+
-                `<div class="order-rec-title">Recommended</div>`+
-                `<div class="order-rec-line order-rec-muted">Loading recommendations…</div>`+
-              `</div>`;
+
+        const card = document.createElement('div');
+        card.className = 'order-cart-item';
+        card.dataset.orderLineId = l.id;
         card.innerHTML =
-          `<div class="order-card-header">`+
-            `<div class="order-title">${escapeHtml(l.name||'')}</div>`+
-            `<div class="order-inline-kpi"><span class="muted">On Hand</span><span class="order-inline-kpi-val">${onHand===null ? '—' : onHand}</span></div>`+
+          `<div class="order-cart-item-info">`+
+            `<div class="order-cart-item-name">${escapeHtml(l.name||'')}</div>`+
+            `<div class="order-cart-item-sub">${desc ? escapeHtml(desc) + ' · ' : ''}On hand: ${onHand===null ? '—' : onHand}</div>`+
           `</div>`+
-          (desc ? `<div class="order-sub">${escapeHtml(desc)}</div>` : ``)+
-          `<div class="order-controls order-controls--compact">`+
-            `<label class="order-batch-toggle" title="Select for batch qty edit">`+
-              `<input type="checkbox" class="order-line-select" data-order-select-id="${escapeHtmlAttr(l.id)}" aria-label="${escapeHtmlAttr(selectLabel)}"${isSelected ? ' checked' : ''}>`+
-            `</label>`+
-            `<div class="qty-stepper" data-qty-picker-trigger="${l.id}">`+
-              `<button class="qty-stepper-btn" data-line-dec="${l.id}">−</button>`+
-              `<input type="text" inputmode="numeric" pattern="[0-9]*" class="qty-stepper-input" data-line-qty-input="${l.id}" value="${toInt(l.qty,0)}" aria-label="Order quantity">`+
-              `<button class="qty-stepper-btn" data-line-inc="${l.id}">+</button>`+
+          `<div class="order-cart-item-stepper">`+
+            `<div class="qty-stepper" style="height:40px;" data-qty-picker-trigger="${l.id}">`+
+              `<button class="qty-stepper-btn" style="width:40px;height:40px;" data-line-dec="${l.id}">−</button>`+
+              `<input type="text" inputmode="numeric" pattern="[0-9]*" class="qty-stepper-input" style="height:40px;font-size:18px;min-width:2.5rem;" data-line-qty-input="${l.id}" value="${toInt(l.qty,0)}" aria-label="Order quantity">`+
+              `<button class="qty-stepper-btn" style="width:40px;height:40px;" data-line-inc="${l.id}">+</button>`+
             `</div>`+
-            `<button class="icon-btn icon-btn--danger order-remove-btn" data-remove-order-id="${l.id}" title="Remove">`+
-              `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>`+
-            `</button>`+
           `</div>`+
-          recommendationHtml;
+          `<button class="order-cart-item-remove" data-remove-order-id="${l.id}" title="Remove">`+
+            `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>`+
+          `</button>`;
         list.appendChild(card);
       }
 
       renderOrderPreview();
+      // Update wizard cart summary and button states
+      try{ updateOrderWizardCartSummary(); orderWizardUpdateUI(); }catch(e){}
     }
     function renderOrderPreview(){
       const ord = orderState();
@@ -26052,6 +26676,9 @@ function emptyStateHtml(){
       try{ await loadOrderShippingOptions(); }catch(e){}
       renderOrderPreview();
       try{ updateOrderSearchClearBtn(); }catch(e){}
+
+      // Reset wizard to first step and update UI
+      resetOrderWizard();
 
       show('orderModal', true);
     }
@@ -26696,6 +27323,27 @@ function emptyStateHtml(){
 	    }
 	    const btnOrderCancel = $('btnOrderCancel');
 	    if(btnOrderCancel) btnOrderCancel.addEventListener('click', ()=> show('orderModal', false));
+
+    // Order Wizard navigation
+    const btnOrderWizNext = $('btnOrderWizNext');
+    if(btnOrderWizNext) btnOrderWizNext.addEventListener('click', orderWizardNext);
+
+    const btnOrderWizPrev = $('btnOrderWizPrev');
+    if(btnOrderWizPrev) btnOrderWizPrev.addEventListener('click', orderWizardPrev);
+
+    // Allow clicking on stepper steps to navigate (only to completed or current step)
+    const wizardSteps = document.querySelectorAll('.order-wizard-step[data-step]');
+    wizardSteps.forEach(stepEl => {
+      stepEl.addEventListener('click', ()=>{
+        const targetStep = parseInt(stepEl.dataset.step, 10);
+        if(isNaN(targetStep)) return;
+        // Can only go back or stay, not skip ahead
+        if(targetStep <= _orderWizardStep){
+          orderWizardGoTo(targetStep);
+        }
+      });
+    });
+
     const btnResetOrderList = $('btnResetOrderList');
     if(btnResetOrderList) btnResetOrderList.addEventListener('click', ()=> {
       clearAllOrderLines();
@@ -26784,6 +27432,7 @@ function emptyStateHtml(){
 	      ord.email = orderEmail.value || '';
 	      renderOrderPreview();
 	      requestOrderEmailSuggestions(ord.email);
+	      try{ orderWizardUpdateUI(); }catch(e){}
 	    });
 	    if(orderEmail) orderEmail.addEventListener('focus', ()=> requestOrderEmailSuggestions(orderEmail.value || ''));
 	    if(orderEmail) orderEmail.addEventListener('blur', ()=>{
@@ -26816,6 +27465,7 @@ function emptyStateHtml(){
 	          : null);
 	      ord.shippingAddressSnapshot = row ? { label: row.label, address: row.address } : null;
 	      renderOrderPreview();
+	      try{ updateOrderWizardShippingPreview(); }catch(e){}
 	    });
 	    const btnOrderShippingManage = $('btnOrderShippingManage');
 	    if(btnOrderShippingManage) btnOrderShippingManage.addEventListener('click', openCompanyLocationsModal);
