@@ -4873,16 +4873,17 @@
       .jobs-table th:nth-child(3),
       .jobs-table td:nth-child(3){ display:none; }
       #addToJobModal{
-        align-items:flex-end;
-        padding:0;
+        align-items:center;
+        justify-content:center;
+        padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
       }
       #addToJobModal .modal{
         width:100%;
-        max-width:100%;
+        max-width:min(480px, 94vw);
         margin:0;
-        border-radius:20px 20px 0 0;
-        max-height:calc(100vh - env(safe-area-inset-top));
-        max-height:calc(100dvh - env(safe-area-inset-top));
+        border-radius:20px;
+        max-height:calc(100vh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
       }
       .atj-item-card{ margin:16px 20px 0; padding:14px; }
       .atj-tabs{ margin:16px 20px 0; }
@@ -26628,7 +26629,7 @@ function emptyStateHtml(){
     function getAddToJobJobs(){
       const rows = Array.isArray(state._jobs) ? state._jobs : [];
       return rows
-        .filter(r => ['draft','quoted','approved'].includes(String(r && r.status ? r.status : '').trim()))
+        .filter(r => ['draft','quoted','approved','in_progress'].includes(String(r && r.status ? r.status : '').trim()))
         .sort((a,b)=>{
           const at = Date.parse(String(a && a.created_at ? a.created_at : '')) || 0;
           const bt = Date.parse(String(b && b.created_at ? b.created_at : '')) || 0;
@@ -26798,15 +26799,16 @@ function emptyStateHtml(){
         state._reservedByItemId = freshReserved;
         state._addToJob.reserved = toInt(freshReserved.get(String(item.id || '')), 0);
 
-        if(!state._jobs || !state._jobs.length){
-          const rows = await sbFetchJobs();
-          state._jobs = rows;
-          state._jobsById = new Map(rows.map(r => [String(r.id || ''), r]).filter(x => x[0]));
-        }
+        const rows = await sbFetchJobs();
+        state._jobs = rows;
+        state._jobsById = new Map(rows.map(r => [String(r.id || ''), r]).filter(x => x[0]));
         state._addToJob.jobs = getAddToJobJobs();
-        // Switch to "new" tab if no jobs available
-        if(!state._addToJob.jobs.length){
+        // Switch to "new" tab if no jobs available (keep user's selection if changed)
+        const preferredTab = state._addToJob.activeTab || 'existing';
+        if(!state._addToJob.jobs.length && preferredTab !== 'new'){
           state._addToJob.activeTab = 'new';
+        }else{
+          state._addToJob.activeTab = preferredTab;
         }
         renderAddToJobModal();
       }catch(e){
