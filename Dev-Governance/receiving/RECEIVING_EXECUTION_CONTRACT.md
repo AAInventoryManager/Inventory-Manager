@@ -208,7 +208,7 @@ FOR EACH line IN receipt.lines WHERE po_line_id IS NOT NULL:
 
 ## Operation: void-receipt
 
-Reverses a COMPLETED receipt, removing its inventory impact. Enterprise tier only.
+Voids a COMPLETED receipt without mutating inventory. Enterprise tier only.
 
 ### Inputs
 
@@ -228,7 +228,6 @@ Reverses a COMPLETED receipt, removing its inventory impact. Enterprise tier onl
 | P5 | Company tier = Enterprise | `ERR_TIER_REQUIRED` |
 | P6 | `void_reason` is provided and length >= 10 | `ERR_VOID_REASON_REQUIRED` |
 | P7 | All referenced items still exist | `ERR_ITEM_NOT_FOUND` |
-| P8 | **Advisory:** No item would go negative after void | `WARN_NEGATIVE_INVENTORY` |
 
 ### State Transitions
 
@@ -246,38 +245,7 @@ COMPLETED → VOIDED
 
 ### Inventory Side Effects
 
-**Executed atomically within a single transaction (exact reversal of post):**
-
-```sql
-FOR EACH line IN receipt.lines:
-    UPDATE items
-    SET quantity = quantity - line.received_qty,
-        updated_at = now()
-    WHERE id = line.item_id;
-
-    -- Record negative adjustment in action_metrics
-    INSERT INTO action_metrics (
-        company_id, action_date, action_type,
-        records_affected, quantity_removed
-    ) VALUES (
-        receipt.company_id, CURRENT_DATE, 'void_receive',
-        1, line.received_qty
-    );
-```
-
-**Quantity changes:**
-| Line Field | Inventory Effect |
-|------------|------------------|
-| `received_qty` | `item.quantity -= received_qty` |
-
-**PO updates (if linked):**
-```sql
-FOR EACH line IN receipt.lines WHERE po_line_id IS NOT NULL:
-    UPDATE purchase_order_lines
-    SET received_qty = received_qty - line.received_qty,
-        updated_at = now()
-    WHERE id = line.po_line_id;
-```
+**None.** Voiding a receipt does not mutate inventory quantities or purchase order line quantities. Any corrective inventory changes occur outside this operation.
 
 ### Forbidden Actions
 
@@ -294,30 +262,17 @@ FOR EACH line IN receipt.lines WHERE po_line_id IS NOT NULL:
 | Mode | Behavior | Rollback |
 |------|----------|----------|
 | Item deleted since posting | Abort with `ERR_ITEM_NOT_FOUND` | Full rollback |
-| Would create negative inventory | Warn, require override flag | Block unless overridden |
+| Would create negative inventory | N/A | No inventory mutation on void |
 | Constraint violation | Abort with constraint details | Full rollback |
 | Deadlock on item row | Retry (3x), then fail | Full rollback |
-
-### Negative Inventory Handling
-
-By default, void-receipt will **warn but not block** if voiding would result in negative inventory. This allows correction of erroneous receipts even when items have been consumed.
-
-| Company Setting | Behavior |
-|-----------------|----------|
-| `allow_negative_inventory = true` | Proceed with void |
-| `allow_negative_inventory = false` | Require `force_void = true` input |
-
-When `force_void = true` is required, the void reason must document why negative inventory is acceptable.
 
 ### Post-conditions
 
 - Receipt status = VOIDED
 - `voided_at`, `voided_by`, and `void_reason` are set
-- All item quantities decreased by original `received_qty`
-- All PO line `received_qty` decremented (if linked)
-- Action metrics recorded for void
+- No inventory or PO line quantities are changed
 - Audit log entry created: `receipt.voided` with reason
-- Event emitted: `ReceiptVoided`, `InventoryAdjusted` (per line, negative)
+- Event emitted: `ReceiptVoided`
 - Receipt remains in database (never hard-deleted)
 
 ### Idempotency
@@ -335,7 +290,7 @@ BEGIN;
   -- Validate preconditions (SELECT ... FOR UPDATE on receipt)
   -- Acquire row locks on affected items
   -- Execute state transition
-  -- Execute inventory side effects
+  -- Execute inventory side effects (post-receipt only)
   -- Record audit log
   -- Record action metrics
 COMMIT;
@@ -352,7 +307,7 @@ Failure at any step triggers full rollback. No partial states are possible.
 | create-receipt | `receipt.created` | receipt_id, user_id, company_id, po_id |
 | post-receipt (submit) | `receipt.submitted` | receipt_id, user_id, line_count |
 | post-receipt (approve) | `receipt.posted` | receipt_id, user_id, total_qty_received |
-| void-receipt | `receipt.voided` | receipt_id, user_id, void_reason, total_qty_reversed |
+| void-receipt | `receipt.voided` | receipt_id, user_id, void_reason |
 
 All audit entries include timestamp, IP address (if available), and user agent.
 
@@ -365,7 +320,7 @@ All audit entries include timestamp, IP address (if available), and user agent.
 | create-receipt | `ReceiptCreated` |
 | post-receipt (submit) | `ReceiptSubmitted` |
 | post-receipt (approve) | `ReceiptApproved`, `InventoryAdjusted[]` |
-| void-receipt | `ReceiptVoided`, `InventoryAdjusted[]` |
+| void-receipt | `ReceiptVoided` |
 
 Events are emitted **after** transaction commit. Failure to emit does not roll back the transaction (eventual consistency for downstream consumers).
 
