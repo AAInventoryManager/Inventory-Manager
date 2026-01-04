@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { randomUUID } from 'crypto';
 import {
   adminClient,
   createAuthenticatedClient,
   getAuthUserIdByEmail,
+  setCompanyTierForTests,
   TEST_PASSWORD
 } from '../../setup/test-utils';
 
@@ -69,13 +69,14 @@ describe('RPC: receipt-based receiving', () => {
       .insert({
         name: 'Receiving RPC Test',
         slug,
-        settings: { test: true, tier: 'starter' },
+        settings: { test: true, tier: 'enterprise' },
         company_type: 'test'
       })
       .select()
       .single();
     if (error || !data) throw error || new Error('Failed to create company');
     companyId = data.id;
+    await setCompanyTierForTests(companyId, 'enterprise', 'receiving RPC tests');
 
     const adminEmail = uniqueEmail('receiving-admin');
     const viewerEmail = uniqueEmail('receiving-viewer');
@@ -137,21 +138,20 @@ describe('RPC: receipt-based receiving', () => {
 
   it('draft receipts do not affect inventory', async () => {
     const itemId = await createItem(10);
-    const purchaseOrderId = randomUUID();
-
     const { data: receipt, error: receiptError } = await adminAuth.rpc('create_receipt', {
       p_company_id: companyId,
-      p_purchase_order_id: purchaseOrderId
+      p_purchase_order_id: null
     });
     expect(receiptError).toBeNull();
     expect(receipt?.success).toBe(true);
 
     const receiptId = receipt?.receipt_id;
-    const { data: line, error: lineError } = await adminAuth.rpc('upsert_receipt_line', {
+    const { data: line, error: lineError } = await adminAuth.rpc('add_receipt_line', {
       p_receipt_id: receiptId,
       p_item_id: itemId,
-      p_qty_received: 4,
-      p_qty_rejected: 1
+      p_received_qty: 4,
+      p_rejected_qty: 1,
+      p_rejection_reason: 'Damaged in transit'
     });
     expect(lineError).toBeNull();
     expect(line?.success).toBe(true);
@@ -162,23 +162,27 @@ describe('RPC: receipt-based receiving', () => {
 
   it('completing a receipt increments inventory correctly', async () => {
     const itemId = await createItem(5);
-    const purchaseOrderId = randomUUID();
-
     const { data: receipt, error: receiptError } = await adminAuth.rpc('create_receipt', {
       p_company_id: companyId,
-      p_purchase_order_id: purchaseOrderId
+      p_purchase_order_id: null
     });
     expect(receiptError).toBeNull();
     expect(receipt?.success).toBe(true);
 
     const receiptId = receipt?.receipt_id;
-    const { error: lineError } = await adminAuth.rpc('upsert_receipt_line', {
+    const { error: lineError } = await adminAuth.rpc('add_receipt_line', {
       p_receipt_id: receiptId,
       p_item_id: itemId,
-      p_qty_received: 3,
-      p_qty_rejected: 0
+      p_received_qty: 3,
+      p_rejected_qty: 0
     });
     expect(lineError).toBeNull();
+
+    const { error: submitError } = await adminAuth.rpc('transition_receipt_status', {
+      p_receipt_id: receiptId,
+      p_next_status: 'pending'
+    });
+    expect(submitError).toBeNull();
 
     const { data: completed, error: completeError } = await adminAuth.rpc('complete_receipt', {
       p_receipt_id: receiptId
@@ -192,22 +196,27 @@ describe('RPC: receipt-based receiving', () => {
 
   it('partial receipt lines increment only received qty', async () => {
     const itemId = await createItem(7);
-    const purchaseOrderId = randomUUID();
-
     const { data: receipt, error: receiptError } = await adminAuth.rpc('create_receipt', {
       p_company_id: companyId,
-      p_purchase_order_id: purchaseOrderId
+      p_purchase_order_id: null
     });
     expect(receiptError).toBeNull();
     const receiptId = receipt?.receipt_id;
 
-    const { error: lineError } = await adminAuth.rpc('upsert_receipt_line', {
+    const { error: lineError } = await adminAuth.rpc('add_receipt_line', {
       p_receipt_id: receiptId,
       p_item_id: itemId,
-      p_qty_received: 2,
-      p_qty_rejected: 5
+      p_received_qty: 2,
+      p_rejected_qty: 5,
+      p_rejection_reason: 'Damaged'
     });
     expect(lineError).toBeNull();
+
+    const { error: submitError } = await adminAuth.rpc('transition_receipt_status', {
+      p_receipt_id: receiptId,
+      p_next_status: 'pending'
+    });
+    expect(submitError).toBeNull();
 
     const { error: completeError } = await adminAuth.rpc('complete_receipt', { p_receipt_id: receiptId });
     expect(completeError).toBeNull();
@@ -216,24 +225,28 @@ describe('RPC: receipt-based receiving', () => {
     expect(quantity).toBe(9);
   });
 
-  it('voiding a receipt reverses inventory', async () => {
+  it('voiding a receipt does not change inventory', async () => {
     const itemId = await createItem(6);
-    const purchaseOrderId = randomUUID();
-
     const { data: receipt, error: receiptError } = await adminAuth.rpc('create_receipt', {
       p_company_id: companyId,
-      p_purchase_order_id: purchaseOrderId
+      p_purchase_order_id: null
     });
     expect(receiptError).toBeNull();
     const receiptId = receipt?.receipt_id;
 
-    const { error: lineError } = await adminAuth.rpc('upsert_receipt_line', {
+    const { error: lineError } = await adminAuth.rpc('add_receipt_line', {
       p_receipt_id: receiptId,
       p_item_id: itemId,
-      p_qty_received: 4,
-      p_qty_rejected: 0
+      p_received_qty: 4,
+      p_rejected_qty: 0
     });
     expect(lineError).toBeNull();
+
+    const { error: submitError } = await adminAuth.rpc('transition_receipt_status', {
+      p_receipt_id: receiptId,
+      p_next_status: 'pending'
+    });
+    expect(submitError).toBeNull();
 
     const { error: completeError } = await adminAuth.rpc('complete_receipt', { p_receipt_id: receiptId });
     expect(completeError).toBeNull();
@@ -241,33 +254,38 @@ describe('RPC: receipt-based receiving', () => {
     expect(quantity).toBe(10);
 
     const { data: voided, error: voidError } = await adminAuth.rpc('void_receipt', {
-      p_receipt_id: receiptId
+      p_receipt_id: receiptId,
+      p_reason: 'Voiding receipt for audit correction'
     });
     expect(voidError).toBeNull();
     expect(voided?.success).toBe(true);
 
     quantity = await getItemQuantity(itemId);
-    expect(quantity).toBe(6);
+    expect(quantity).toBe(10);
   });
 
   it('prevents double completion and double void', async () => {
     const itemId = await createItem(12);
-    const purchaseOrderId = randomUUID();
-
     const { data: receipt, error: receiptError } = await adminAuth.rpc('create_receipt', {
       p_company_id: companyId,
-      p_purchase_order_id: purchaseOrderId
+      p_purchase_order_id: null
     });
     expect(receiptError).toBeNull();
     const receiptId = receipt?.receipt_id;
 
-    const { error: lineError } = await adminAuth.rpc('upsert_receipt_line', {
+    const { error: lineError } = await adminAuth.rpc('add_receipt_line', {
       p_receipt_id: receiptId,
       p_item_id: itemId,
-      p_qty_received: 3,
-      p_qty_rejected: 0
+      p_received_qty: 3,
+      p_rejected_qty: 0
     });
     expect(lineError).toBeNull();
+
+    const { error: submitError } = await adminAuth.rpc('transition_receipt_status', {
+      p_receipt_id: receiptId,
+      p_next_status: 'pending'
+    });
+    expect(submitError).toBeNull();
 
     const { error: completeError } = await adminAuth.rpc('complete_receipt', { p_receipt_id: receiptId });
     expect(completeError).toBeNull();
@@ -277,30 +295,32 @@ describe('RPC: receipt-based receiving', () => {
     const { data: completedAgain } = await adminAuth.rpc('complete_receipt', {
       p_receipt_id: receiptId
     });
-    expect(completedAgain?.already_completed).toBe(true);
+    expect(completedAgain?.already_in_state).toBe(true);
     quantity = await getItemQuantity(itemId);
     expect(quantity).toBe(15);
 
-    const { error: voidError } = await adminAuth.rpc('void_receipt', { p_receipt_id: receiptId });
+    const { error: voidError } = await adminAuth.rpc('void_receipt', {
+      p_receipt_id: receiptId,
+      p_reason: 'Voiding receipt for audit correction'
+    });
     expect(voidError).toBeNull();
     quantity = await getItemQuantity(itemId);
-    expect(quantity).toBe(12);
+    expect(quantity).toBe(15);
 
     const { data: voidedAgain } = await adminAuth.rpc('void_receipt', {
-      p_receipt_id: receiptId
+      p_receipt_id: receiptId,
+      p_reason: 'Voiding receipt for audit correction'
     });
-    expect(voidedAgain?.already_voided).toBe(true);
+    expect(voidedAgain?.already_in_state).toBe(true);
     quantity = await getItemQuantity(itemId);
-    expect(quantity).toBe(12);
+    expect(quantity).toBe(15);
   });
 
   it('rejects unauthorized users', async () => {
     const itemId = await createItem(9);
-    const purchaseOrderId = randomUUID();
-
     const { data: deniedCreate, error: deniedCreateError } = await viewerAuth.rpc('create_receipt', {
       p_company_id: companyId,
-      p_purchase_order_id: purchaseOrderId
+      p_purchase_order_id: null
     });
     expect(deniedCreateError).toBeNull();
     expect(deniedCreate?.success).toBe(false);
@@ -308,18 +328,24 @@ describe('RPC: receipt-based receiving', () => {
 
     const { data: receipt, error: receiptError } = await adminAuth.rpc('create_receipt', {
       p_company_id: companyId,
-      p_purchase_order_id: purchaseOrderId
+      p_purchase_order_id: null
     });
     expect(receiptError).toBeNull();
     const receiptId = receipt?.receipt_id;
 
-    const { error: lineError } = await adminAuth.rpc('upsert_receipt_line', {
+    const { error: lineError } = await adminAuth.rpc('add_receipt_line', {
       p_receipt_id: receiptId,
       p_item_id: itemId,
-      p_qty_received: 2,
-      p_qty_rejected: 0
+      p_received_qty: 2,
+      p_rejected_qty: 0
     });
     expect(lineError).toBeNull();
+
+    const { error: submitError } = await adminAuth.rpc('transition_receipt_status', {
+      p_receipt_id: receiptId,
+      p_next_status: 'pending'
+    });
+    expect(submitError).toBeNull();
 
     const { data: deniedComplete, error: deniedCompleteError } = await viewerAuth.rpc('complete_receipt', {
       p_receipt_id: receiptId

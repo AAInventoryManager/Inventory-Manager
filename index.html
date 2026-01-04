@@ -1148,6 +1148,7 @@
       padding:14px 16px 16px;
       overflow:auto;
       flex:1 1 auto;
+      min-height:0;
       -webkit-overflow-scrolling:touch;
     }
     .modal-footer{
@@ -2418,7 +2419,6 @@
     }
     .order-review-preview-body{
       background:#fff;
-      max-height:280px;
       overflow-y:auto;
     }
     .order-review-preview-body iframe{
@@ -2539,6 +2539,93 @@
       opacity:0.5;
       cursor:not-allowed;
     }
+    /* Mobile two-row footer */
+    @media (max-width: 540px){
+      .order-wizard-footer{
+        flex-direction:column;
+        gap:10px;
+        padding:12px 16px 16px;
+      }
+      .order-wizard-footer-left,
+      .order-wizard-footer-right{
+        width:100%;
+        justify-content:stretch;
+      }
+      .order-wizard-footer-left{
+        order:1;
+      }
+      .order-wizard-footer-right{
+        order:2;
+      }
+      .order-wizard-footer-left .order-wizard-btn-prev{
+        flex:1;
+      }
+      .order-wizard-footer-left .btn-secondary{
+        flex:0 0 auto;
+        padding:10px 12px;
+      }
+      .order-wizard-footer-right{
+        gap:10px;
+      }
+      .order-wizard-footer-right .btn-secondary{
+        flex:1;
+      }
+      .order-wizard-footer-right .order-wizard-btn-next,
+      .order-wizard-footer-right .order-wizard-btn-submit{
+        flex:2;
+      }
+    }
+    @media (max-width: 360px){
+      .order-wizard-footer-left .btn-secondary span{
+        display:none;
+      }
+      .order-wizard-footer-left .btn-secondary svg{
+        margin-right:0;
+      }
+      .order-wizard-footer-left .btn-secondary{
+        padding:10px;
+        width:40px;
+        flex:0 0 40px;
+      }
+    }
+    /* Expandable email preview */
+    .order-review-preview-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .order-preview-toggle{
+      font-size:12px;
+      color:#60a5fa;
+      background:none;
+      border:none;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:4px;
+      padding:0;
+    }
+    .order-preview-toggle:hover{
+      color:#93c5fd;
+    }
+    .order-preview-toggle svg{
+      transition:transform 0.2s ease;
+    }
+    .order-review-preview-body{
+      max-height:180px;
+      transition:max-height 0.3s ease;
+    }
+    .order-review-preview-body.expanded{
+      max-height:400px;
+    }
+    @media (max-width: 540px){
+      .order-review-preview-body{
+        max-height:150px;
+      }
+      .order-review-preview-body.expanded{
+        max-height:350px;
+      }
+    }
 
     /* Compact stepper on mobile */
     @media (max-width:400px){
@@ -2621,6 +2708,65 @@
       gap:8px;
       flex-wrap:wrap;
     }
+    .receive-mode-bar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .receive-mode-badges{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .receive-status-pill,
+    .receive-mode-pill{
+      display:inline-flex;
+      align-items:center;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      border:1px solid transparent;
+    }
+    .receive-status-pill[data-status="draft"]{
+      background:rgba(148,163,184,0.15);
+      color:#94a3b8;
+      border-color:rgba(148,163,184,0.2);
+    }
+    .receive-status-pill[data-status="pending"]{
+      background:rgba(251,191,36,0.15);
+      color:#fbbf24;
+      border-color:rgba(251,191,36,0.2);
+    }
+    .receive-status-pill[data-status="completed"]{
+      background:rgba(52,211,153,0.15);
+      color:#34d399;
+      border-color:rgba(52,211,153,0.2);
+    }
+    .receive-status-pill[data-status="voided"]{
+      background:rgba(248,113,113,0.15);
+      color:#f87171;
+      border-color:rgba(248,113,113,0.2);
+    }
+    .receive-mode-pill{
+      background:rgba(59,130,246,0.12);
+      color:#93c5fd;
+      border-color:rgba(59,130,246,0.2);
+    }
+    .receive-receipt-id{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .receive-receipt-id span{
+      color:#e2e8f0;
+    }
     .receive-order-meta{
       display:grid;
       grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
@@ -2659,6 +2805,26 @@
       color:var(--muted);
       font-size:12px;
     }
+    .receive-order-note label{
+      display:block;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .receive-order-note textarea{
+      margin-top:6px;
+      width:100%;
+      min-height:60px;
+      resize:vertical;
+      background:rgba(15,23,42,0.6);
+      border:1px solid var(--border);
+      color:var(--text);
+      border-radius:8px;
+      padding:8px 10px;
+      font-size:13px;
+    }
     .receive-lines{
       margin-top:12px;
       display:flex;
@@ -2681,9 +2847,16 @@
       gap:10px;
       flex-wrap:wrap;
     }
+    .receive-line-info{
+      min-width:0;
+      flex:1;
+    }
     .receive-line-title{
       font-weight:800;
       font-size:14px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .receive-line-sku{
       color:var(--muted);
@@ -2699,7 +2872,7 @@
     }
     .receive-line-inputs{
       display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
       gap:8px;
       margin-top:8px;
     }
@@ -2709,6 +2882,25 @@
       font-weight:700;
       letter-spacing:.04em;
       text-transform:uppercase;
+    }
+    .receive-line-inputs input,
+    .receive-line-inputs textarea{
+      width:100%;
+    }
+    .receive-line-inputs textarea{
+      min-height:60px;
+      resize:vertical;
+      padding:8px 10px;
+      background:rgba(15,23,42,0.6);
+      border:1px solid var(--border);
+      color:var(--text);
+      border-radius:8px;
+      font-size:13px;
+    }
+    .receive-line-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
     .receive-line-warning{
       display:none;
@@ -2774,6 +2966,58 @@
     }
     .receive-receipt-line span{
       white-space:nowrap;
+    }
+    .receive-void-row{
+      margin-top:8px;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .receive-void-row input{
+      flex:1;
+      min-width:200px;
+      background:rgba(15,23,42,0.6);
+      border:1px solid var(--border);
+      color:var(--text);
+      border-radius:8px;
+      padding:8px 10px;
+      font-size:13px;
+    }
+    .receive-search-results{
+      margin-top:10px;
+      border:1px solid var(--border);
+      background:#0b0f14;
+      border-radius:12px;
+      overflow:hidden;
+    }
+    .receive-search-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-top:1px solid var(--border);
+    }
+    .receive-search-item:first-child{
+      border-top:none;
+    }
+    .receive-search-item-title{
+      font-weight:700;
+      font-size:13px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:320px;
+    }
+    .receive-search-item-meta{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .receive-search-empty{
+      padding:12px;
+      font-size:12px;
+      color:var(--muted);
     }
 	    /* Qty picker wheel */
 	    .qty-picker-wheel-wrap{
@@ -3449,6 +3693,181 @@
       .job-items-table td.item-cell::before{ display:none; }
     }
 
+    /* Jobs Modal Layout */
+    #jobsModal .modal{
+      max-height:85vh;
+    }
+    #jobsModal .modal-header,
+    #jobsModal .modal-toolbar,
+    #jobsModal .modal-footer{
+      flex-shrink:0;
+    }
+    #jobsModal .modal-toolbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 16px;
+      border-bottom:1px solid var(--border);
+      background:rgba(12,16,22,0.85);
+    }
+    #jobsModal .modal-toolbar-label{
+      font-size:12px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      color:var(--muted);
+    }
+    #jobsModal .modal-toolbar-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    #jobsModal .modal-content{
+      flex:1 1 auto;
+      min-height:0;
+      overflow-y:auto;
+      padding:12px 16px 16px;
+      -webkit-overflow-scrolling:touch;
+    }
+    #jobsModal #jobsMsg{ margin-top:8px; }
+    #jobsModal .modal-content::-webkit-scrollbar{ width:8px; }
+    #jobsModal .modal-content::-webkit-scrollbar-track{
+      background:rgba(255,255,255,0.02);
+      border-radius:4px;
+    }
+    #jobsModal .modal-content::-webkit-scrollbar-thumb{
+      background:rgba(255,255,255,0.1);
+      border-radius:4px;
+    }
+    #jobsModal .modal-content::-webkit-scrollbar-thumb:hover{
+      background:rgba(255,255,255,0.15);
+    }
+    #jobsModal .udwe-table-wrap{
+      max-width:100% !important;
+    }
+    #jobs_bom_table{
+      width:100%;
+      min-width:550px;
+      table-layout:fixed;
+    }
+    #jobs_bom_table thead th{
+      background:rgba(0,0,0,0.2);
+    }
+    #jobs_bom_table colgroup col:nth-child(1){ width:40% !important; }
+    #jobs_bom_table colgroup col:nth-child(2){ width:12% !important; }
+    #jobs_bom_table colgroup col:nth-child(3){ width:12% !important; }
+    #jobs_bom_table colgroup col:nth-child(4){ width:20% !important; }
+    #jobs_bom_table colgroup col:nth-child(5){ width:16% !important; }
+    #jobs_bom_table th:nth-child(1),
+    #jobs_bom_table td:nth-child(1){ min-width:180px; }
+    #jobs_bom_table th:nth-child(2),
+    #jobs_bom_table td:nth-child(2){ min-width:70px; }
+    #jobs_bom_table th:nth-child(3),
+    #jobs_bom_table td:nth-child(3){ min-width:80px; }
+    #jobs_bom_table th:nth-child(4),
+    #jobs_bom_table td:nth-child(4){ min-width:120px; }
+    #jobs_bom_table th:nth-child(5),
+    #jobs_bom_table td:nth-child(5){ min-width:100px; }
+    #jobs_bom_table .item-cell{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    #jobs_bom_table .item-name{
+      font-weight:500;
+      color:#f1f5f9;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:250px;
+      display:block;
+    }
+    #jobs_bom_table .item-sku{
+      font-size:12px;
+      color:#64748b;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    #jobsModal .job-item-status{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:5px 10px;
+      border-radius:6px;
+      font-size:12px;
+      font-weight:500;
+      white-space:nowrap;
+    }
+    #jobsModal .job-item-status--in-stock,
+    #jobsModal .job-item-status--fulfilled{
+      background:rgba(52,211,153,0.1);
+      color:#34d399;
+    }
+    #jobsModal .job-item-status--low-stock,
+    #jobsModal .job-item-status--shortage{
+      background:rgba(251,191,36,0.1);
+      color:#fbbf24;
+    }
+    #jobsModal .job-item-status--out{
+      background:rgba(248,113,113,0.1);
+      color:#f87171;
+    }
+    /* Jobs BOM Table - Mobile Responsive */
+    @media (max-width: 640px){
+      #jobs_bom_table{
+        min-width:0;
+        table-layout:auto;
+      }
+      #jobs_bom_table thead{
+        display:none;
+      }
+      #jobs_bom_table tbody tr{
+        display:block;
+        padding:12px 0;
+        border-bottom:1px solid var(--border);
+      }
+      #jobs_bom_table tbody tr:last-child{
+        border-bottom:none;
+      }
+      #jobs_bom_table td{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:12px;
+        padding:6px 0;
+        border-bottom:none;
+        min-width:0 !important;
+      }
+      #jobs_bom_table td::before{
+        content:attr(data-label);
+        color:var(--muted);
+        text-transform:uppercase;
+        letter-spacing:0.05em;
+        font-size:10px;
+        font-weight:600;
+        flex-shrink:0;
+      }
+      #jobs_bom_table td:first-child{
+        display:block;
+        padding-bottom:8px;
+      }
+      #jobs_bom_table td:first-child::before{
+        display:none;
+      }
+      #jobs_bom_table .item-cell{
+        flex-direction:row;
+        gap:8px;
+      }
+      #jobs_bom_table .item-name{
+        max-width:none;
+      }
+      #jobs_bom_table colgroup{
+        display:none;
+      }
+    }
+
     /* Job Modal Redesign */
     .job-modal{
       width:100%;
@@ -3869,6 +4288,7 @@
     .job-planned-input{ display:none; }
     .job-stock-row{
       display:flex;
+      flex-wrap:wrap;
       gap:8px;
       padding:10px;
       background:rgba(0,0,0,0.2);
@@ -3887,9 +4307,13 @@
       margin-bottom:2px;
       font-variant-numeric:tabular-nums;
     }
-    .job-stock-value.available{ color:#22c55e; }
-    .job-stock-value.zero{ color:#64748b; }
-    .job-stock-value.on-order{ color:#3b82f6; }
+    .readonly-value{
+      color:#64748b;
+      font-style:italic;
+    }
+    .readonly-value.on-hand-good{ color:#22c55e; }
+    .readonly-value.on-hand-low{ color:#fbbf24; }
+    .readonly-value.on-hand-out{ color:#f87171; }
     .job-stock-label{
       font-size:9px;
       color:#64748b;
@@ -4388,7 +4812,6 @@
       font-weight:700;
     }
     .job-bom-shortfall{ color:#f97316; font-weight:800; }
-    .job-bom-available{ color:#34d399; font-weight:800; }
     /* Job Item Picker */
     .job-item-picker-results{
       display:flex;
@@ -4542,8 +4965,13 @@
       letter-spacing:-0.02em;
       font-variant-numeric:tabular-nums;
     }
-    .atj-stat-value.available{ color:#34d399; }
-    .atj-stat-value.reserved{ color:#fbbf24; }
+    .atj-stat-value.readonly-value{
+      color:#64748b;
+      font-style:italic;
+    }
+    .atj-stat-value.readonly-value.on-hand-good{ color:#22c55e; }
+    .atj-stat-value.readonly-value.on-hand-low{ color:#fbbf24; }
+    .atj-stat-value.readonly-value.on-hand-out{ color:#f87171; }
     .atj-stat-label{
       font-size:11px;
       font-weight:500;
@@ -8460,7 +8888,15 @@
             </div>
             <div class="order-review-section">
               <div class="order-review-preview">
-                <div class="order-review-preview-header">Email Preview</div>
+                <div class="order-review-preview-header">
+                  <span>Email Preview</span>
+                  <button type="button" class="order-preview-toggle" id="btnOrderPreviewToggle" aria-expanded="false">
+                    <span id="orderPreviewToggleText">Expand</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="orderPreviewToggleIcon">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                </div>
                 <div class="order-review-preview-body" id="orderPreviewHtml"></div>
               </div>
             </div>
@@ -8758,22 +9194,22 @@
           </svg>
         </button>
       </div>
-      <div class="modal-body">
-        <div class="form-section">
-          <div class="section-label">Job List</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-            <button class="btn-primary btn-with-icon" id="btnJobsCreate" type="button">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              <span>New Job</span>
-            </button>
-            <button class="btn-secondary" id="btnJobsRefresh" type="button">Refresh</button>
-          </div>
-          <div id="jobsList" aria-live="polite"></div>
-          <div id="jobsMsg" class="muted" style="margin-top:8px;"></div>
+      <div class="modal-toolbar">
+        <span class="modal-toolbar-label">Job List</span>
+        <div class="modal-toolbar-actions">
+          <button class="btn-primary btn-with-icon" id="btnJobsCreate" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>New Job</span>
+          </button>
+          <button class="btn-secondary" id="btnJobsRefresh" type="button">Refresh</button>
         </div>
+      </div>
+      <div class="modal-content">
+        <div id="jobsList" aria-live="polite"></div>
+        <div id="jobsMsg" class="muted"></div>
       </div>
       <div class="modal-footer">
         <div class="footer-right">
@@ -8917,12 +9353,12 @@
                   <span id="jobShortfallInfoTitle" class="job-shortfall-info-title">Items in shortfall</span>
                 </div>
                 <p class="job-shortfall-info-text">
-                  <strong>You can still approve this job.</strong> Approving now reserves available stock and clarifies what to order.
+                  <strong>Approval is blocked until shortfalls are resolved.</strong> Shortfalls track missing quantities without creating orders.
                 </p>
                 <div class="job-shortfall-benefits">
-                  <div class="job-shortfall-benefit-item"><span class="job-shortfall-benefit-icon" aria-hidden="true"></span>Reserves available stock</div>
-                  <div class="job-shortfall-benefit-item"><span class="job-shortfall-benefit-icon" aria-hidden="true"></span>Clarifies what to order</div>
-                  <div class="job-shortfall-benefit-item"><span class="job-shortfall-benefit-icon" aria-hidden="true"></span>Enables parallel workflows</div>
+                  <div class="job-shortfall-benefit-item"><span class="job-shortfall-benefit-icon" aria-hidden="true"></span>Prevents duplicate ordering</div>
+                  <div class="job-shortfall-benefit-item"><span class="job-shortfall-benefit-icon" aria-hidden="true"></span>Tracks missing quantities per item</div>
+                  <div class="job-shortfall-benefit-item"><span class="job-shortfall-benefit-icon" aria-hidden="true"></span>Resolves automatically on successful allocation</div>
                 </div>
                 <div id="jobApprovalWarnings" class="job-shortfall-info-list" style="display:none;"></div>
               </div>
@@ -9004,16 +9440,12 @@
         <!-- Stats Row -->
         <div class="atj-stats-row">
           <div class="atj-stat">
-            <div class="atj-stat-value" id="atjStatOnHand">0</div>
+            <div class="atj-stat-value readonly-value" id="atjStatOnHand">0</div>
             <div class="atj-stat-label">On Hand</div>
           </div>
           <div class="atj-stat">
-            <div class="atj-stat-value reserved" id="atjStatReserved">0</div>
+            <div class="atj-stat-value readonly-value" id="atjStatReserved">0</div>
             <div class="atj-stat-label">Reserved</div>
-          </div>
-          <div class="atj-stat">
-            <div class="atj-stat-value available" id="atjStatAvailable">0</div>
-            <div class="atj-stat-label">Available</div>
           </div>
         </div>
       </div>
@@ -9070,7 +9502,7 @@
         <div class="atj-qty-row">
           <div class="atj-qty-label-group">
             <div class="atj-qty-main-label">Quantity to Allocate</div>
-            <div class="atj-qty-helper" id="atjQtyHelper">0 available</div>
+            <div class="atj-qty-helper" id="atjQtyHelper">On Hand: 0</div>
           </div>
           <div class="atj-qty-wrapper">
             <button class="atj-qty-btn" id="atjQtyMinus" type="button" aria-label="Decrease quantity">
@@ -9234,7 +9666,7 @@
                 </svg>
               </span>
               <div class="modal-title-text">
-                <h2 id="receiveOrderTitle" class="modal-title">Receive Order</h2>
+                <h2 id="receiveOrderTitle" class="modal-title">Receive Inventory</h2>
                 <div class="modal-subtitle">Inventory is updated only when the receipt is completed.</div>
               </div>
             </div>
@@ -9247,16 +9679,44 @@
           </div>
           <div class="modal-body">
             <div class="form-section">
-              <div class="section-label">Summary</div>
+              <div class="section-label">Receipt</div>
+              <div class="receive-mode-bar">
+                <div class="receive-mode-badges">
+                  <span id="receiveReceiptStatus" class="receive-status-pill" data-status="draft">Draft</span>
+                  <span id="receiveReceiptMode" class="receive-mode-pill">Order Receipt</span>
+                </div>
+                <div id="receiveReceiptId" class="receive-receipt-id"></div>
+              </div>
+              <div class="receive-order-note">
+                <label for="receiveReceiptNotes">Receipt Notes</label>
+                <textarea id="receiveReceiptNotes" rows="2" placeholder="Optional notes for this receipt."></textarea>
+              </div>
+            </div>
+            <div class="form-section" id="receiveOrderSummarySection">
+              <div class="section-label">Order Summary</div>
               <div id="receiveOrderMeta" class="receive-order-meta"></div>
               <div id="receiveOrderSummary" class="receive-summary"></div>
+            </div>
+            <div class="form-section" id="receiveManualSection">
+              <div class="section-label">Manual Receive</div>
+              <label for="receiveManualSearch">Search inventory</label>
+              <div class="input-wrap" style="max-width:100%;">
+                <input id="receiveManualSearch" type="search" placeholder="Search items by name or SKU…" autocomplete="off" />
+                <button class="icon-btn icon-btn--default clear-input-btn" id="btnReceiveManualClear" type="button" aria-label="Clear manual search" title="Clear search" style="display:none">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 6L6 18"></path>
+                    <path d="M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+              <div id="receiveManualResults" class="receive-search-results"></div>
             </div>
             <div class="form-section">
               <div class="section-label">Lines</div>
               <div id="receiveOrderLines" class="receive-lines" aria-live="polite"></div>
               <div id="receiveOrderWarning" class="receive-order-warning" role="status"></div>
             </div>
-            <div class="form-section">
+            <div class="form-section" id="receiveOrderReceiptsSection">
               <div class="section-label">Receipts</div>
               <div id="receiveOrderReceipts" class="receive-receipts"></div>
             </div>
@@ -10826,6 +11286,8 @@
       _jobsLoading:false,
       _jobsExpanded:new Set(),
       _jobReservedMap:new Map(),
+      _jobAllocationsByJobId:new Map(),
+      _jobShortfallsByJobId:new Map(),
       _addToJob:null,
       _addToJobBusy:false,
       _seedInventory:null,
@@ -11383,7 +11845,7 @@
       function renderTbody(columns, data, config){
         if(!Array.isArray(data) || !data.length){
           const colCount = columns?.length || 1;
-          return `<tbody><tr><td colspan="${colCount}" class="udwe-empty">No data available</td></tr></tbody>`;
+          return `<tbody><tr><td colspan="${colCount}" class="udwe-empty">No data found</td></tr></tbody>`;
         }
         const rows = data.map(row => {
           const cells = columns.map(col => {
@@ -11426,7 +11888,7 @@
 
       function renderCards(config, data){
         if(!Array.isArray(data) || !data.length){
-          return '<div class="udwe-cards udwe-empty">No data available</div>';
+          return '<div class="udwe-cards udwe-empty">No data found</div>';
         }
         const primaryKey = config.mobilePrimaryKey || (config.columns[0]?.key);
         const secondaryKeys = config.mobileSecondaryKeys || config.columns.slice(1).map(c => c.key);
@@ -24690,8 +25152,11 @@ function emptyStateHtml(){
 	      return id ? id.slice(0, 8) : '';
 	    }
 	    function receiveLineOverBy(line){
-	      const remaining = Number(line && line.remaining_qty !== undefined ? line.remaining_qty : 0);
-	      const total = toQty(line && line.qty_received, 0) + toQty(line && line.qty_rejected, 0);
+	      const remainingRaw = line ? line.remaining_qty : null;
+	      if(remainingRaw === null || typeof remainingRaw === 'undefined') return 0;
+	      const remaining = Number(remainingRaw);
+	      if(!Number.isFinite(remaining)) return 0;
+	      const total = toInt(line && line.qty_received, 0) + toInt(line && line.qty_rejected, 0);
 	      return total - remaining;
 	    }
 	    function receiveLineHasOverage(line){
@@ -24730,29 +25195,33 @@ function emptyStateHtml(){
 	      if(!el) return null;
 	      const key = String(el.dataset.receiveLineKey || '').trim();
 	      const field = String(el.dataset.receiveField || '').trim();
-	      if(!key || (field !== 'received' && field !== 'rejected')) return null;
+	      if(!key || (field !== 'received' && field !== 'rejected' && field !== 'reason')) return null;
 	      const line = getReceiveOrderLineByKey(key);
 	      if(!line || line.disabled) return null;
+	      if(field === 'reason'){
+	        line.rejection_reason = String(el.value || '').trim();
+	        return line;
+	      }
 	      const raw = String(el.value || '');
 	      const numeric = Number(raw);
-	      const invalid = raw !== '' && !Number.isFinite(numeric);
+	      const invalid = raw !== '' && (!Number.isFinite(numeric) || !Number.isInteger(numeric));
 	      const negative = Number.isFinite(numeric) && numeric < 0;
-	      let next = Number.isFinite(numeric) ? numeric : 0;
+	      let next = Number.isFinite(numeric) ? Math.floor(numeric) : 0;
 	      if(next < 0) next = 0;
 	      if(field === 'received') line.qty_received = next;
 	      else line.qty_rejected = next;
 	      if(opts.format){
-	        el.value = formatQty(next);
+	        el.value = String(next);
 	      }
 	      if(opts.showError){
 	        const msgEl = $('receiveOrderMsg');
 	        if(negative){
 	          setReceiveOrderMessage('Quantities must be 0 or higher.');
 	        }else if(invalid){
-	          setReceiveOrderMessage('Enter a valid quantity.');
+	          setReceiveOrderMessage('Enter a whole number.');
 	        }else if(msgEl){
 	          const existing = String(msgEl.textContent || '').trim();
-	          if(existing === 'Quantities must be 0 or higher.' || existing === 'Enter a valid quantity.'){
+	          if(existing === 'Quantities must be 0 or higher.' || existing === 'Enter a whole number.'){
 	            setReceiveOrderMessage('');
 	          }
 	        }
@@ -24764,6 +25233,10 @@ function emptyStateHtml(){
 	    function updateReceiveOrderWarning(){
 	      const ro = state._receiveOrder;
 	      if(!ro){
+	        setReceiveOrderWarning('');
+	        return;
+	      }
+	      if(String(ro.mode || '') !== 'order' || String(ro.receiptStatus || '').trim().toLowerCase() !== 'draft'){
 	        setReceiveOrderWarning('');
 	        return;
 	      }
@@ -24811,7 +25284,7 @@ function emptyStateHtml(){
 	      if(!id) return { receipts: [], receiptLines: [] };
 	      const { data: receipts, error } = await SB.client
 	        .from('receipts')
-	        .select('id,status,received_at,created_at,received_by')
+	        .select('id,status,created_at,updated_at,submitted_at,received_at,voided_at,notes,received_by,submitted_by,voided_by')
 	        .eq('purchase_order_id', id)
 	        .order('created_at', { ascending:false });
 	      if(error) throw error;
@@ -24821,7 +25294,7 @@ function emptyStateHtml(){
 	      }
 	      const { data: lines, error: lineError } = await SB.client
 	        .from('receipt_lines')
-	        .select('id,receipt_id,item_id,qty_received,qty_rejected,created_at')
+	        .select('id,receipt_id,item_id,po_line_id,expected_qty,received_qty,rejected_qty,rejection_reason,created_at,updated_at')
 	        .in('receipt_id', receiptIds);
 	      if(lineError) throw lineError;
 	      return {
@@ -24829,7 +25302,7 @@ function emptyStateHtml(){
 	        receiptLines: Array.isArray(lines) ? lines : [],
 	      };
 	    }
-	    function buildReceiveOrderState(po, poLines, receipts, receiptLines){
+	    function buildReceiveOrderState(po, poLines, receipts, receiptLines, opts = {}){
 	      const normalizedLines = normalizePurchaseOrderLines(poLines || []);
 	      const lineByItemId = new Map();
 	      normalizedLines.forEach(line => {
@@ -24840,22 +25313,40 @@ function emptyStateHtml(){
 	        id: String(line && line.id ? line.id : '').trim(),
 	        receipt_id: String(line && line.receipt_id ? line.receipt_id : '').trim(),
 	        item_id: String(line && line.item_id ? line.item_id : '').trim(),
-	        qty_received: toQty(line && line.qty_received, 0),
-	        qty_rejected: toQty(line && line.qty_rejected, 0),
+	        po_line_id: String(line && line.po_line_id ? line.po_line_id : '').trim(),
+	        expected_qty: (line && line.expected_qty !== undefined && line.expected_qty !== null) ? toInt(line.expected_qty, 0) : null,
+	        received_qty: toInt(line && line.received_qty, 0),
+	        rejected_qty: toInt(line && line.rejected_qty, 0),
+	        rejection_reason: String(line && line.rejection_reason ? line.rejection_reason : '').trim(),
 	        created_at: line && line.created_at ? line.created_at : null,
+	        updated_at: line && line.updated_at ? line.updated_at : null,
 	      }));
 
-	      const draftReceipts = (receipts || []).filter(r => String(r && r.status ? r.status : '').trim() === 'draft');
-	      const draftReceipt = draftReceipts
-	        .slice()
-	        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))[0] || null;
-	      const draftReceiptId = draftReceipt && draftReceipt.id ? String(draftReceipt.id) : '';
+	      const preferredId = String(opts.receiptId || '').trim();
+	      let activeReceipt = null;
+	      if(preferredId){
+	        activeReceipt = (receipts || []).find(r => String(r && r.id ? r.id : '').trim() === preferredId) || null;
+	      }
+	      if(!activeReceipt){
+	        const draftReceipts = (receipts || []).filter(r => String(r && r.status ? r.status : '').trim() === 'draft');
+	        activeReceipt = draftReceipts
+	          .slice()
+	          .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))[0] || null;
+	      }
+	      const activeReceiptId = activeReceipt && activeReceipt.id ? String(activeReceipt.id) : preferredId;
+	      const receiptStatus = activeReceipt && activeReceipt.status ? String(activeReceipt.status).trim() : (opts.receiptStatus || 'draft');
+	      const receiptNotes = activeReceipt && typeof activeReceipt.notes !== 'undefined'
+	        ? String(activeReceipt.notes || '')
+	        : String(opts.receiptNotes || '');
 
-	      const draftLineMap = new Map();
-	      if(draftReceiptId){
+	      const activeLineMap = new Map();
+	      if(activeReceiptId){
 	        normalizedReceiptLines
-	          .filter(l => l.receipt_id === draftReceiptId)
-	          .forEach(l => { if(l.item_id) draftLineMap.set(l.item_id, l); });
+	          .filter(l => l.receipt_id === activeReceiptId)
+	          .forEach(l => {
+	            if(l.po_line_id) activeLineMap.set(`po:${l.po_line_id}`, l);
+	            if(l.item_id) activeLineMap.set(`item:${l.item_id}`, l);
+	          });
 	      }
 
 	      const completedReceiptIds = new Set(
@@ -24869,25 +25360,32 @@ function emptyStateHtml(){
 	        if(!completedReceiptIds.has(line.receipt_id)) continue;
 	        if(!line.item_id) continue;
 	        const prev = receivedByItem.get(line.item_id) || 0;
-	        receivedByItem.set(line.item_id, prev + toQty(line.qty_received, 0));
+	        receivedByItem.set(line.item_id, prev + toInt(line.received_qty, 0));
 	      }
 
 	      const lines = normalizedLines.map((line, idx) => {
 	        const key = line.id || line.item_id || `line-${idx}`;
-	        const ordered = toQty(line.quantity_ordered, 0);
+	        const ordered = toInt(line.quantity_ordered, 0);
 	        const prevReceived = receivedByItem.get(line.item_id) || 0;
-	        const remaining = ordered - prevReceived;
-	        const draftLine = line.item_id ? draftLineMap.get(line.item_id) : null;
-	        const qtyReceived = draftLine ? toQty(draftLine.qty_received, 0) : Math.max(remaining, 0);
-	        const qtyRejected = draftLine ? toQty(draftLine.qty_rejected, 0) : 0;
+	        const remaining = Math.max(0, ordered - prevReceived);
+	        const mapKey = line.id ? `po:${line.id}` : (line.item_id ? `item:${line.item_id}` : '');
+	        const draftLine = mapKey ? activeLineMap.get(mapKey) : null;
+	        const qtyReceived = draftLine ? toInt(draftLine.received_qty, 0) : 0;
+	        const qtyRejected = draftLine ? toInt(draftLine.rejected_qty, 0) : 0;
+	        const rejectionReason = draftLine ? String(draftLine.rejection_reason || '').trim() : '';
 	        return {
 	          ...line,
 	          key,
 	          ordered_qty: ordered,
+	          expected_qty: ordered,
 	          prev_received: prevReceived,
 	          remaining_qty: remaining,
 	          qty_received: qtyReceived,
 	          qty_rejected: qtyRejected,
+	          rejection_reason: rejectionReason,
+	          receipt_line_id: draftLine ? String(draftLine.id || '').trim() : '',
+	          po_line_id: line.id || '',
+	          unit_cost: line.unit_cost !== undefined ? line.unit_cost : null,
 	          disabled: !line.item_id,
 	        };
 	      });
@@ -24911,8 +25409,10 @@ function emptyStateHtml(){
 	        receipts: Array.isArray(receipts) ? receipts : [],
 	        receiptLines: normalizedReceiptLines,
 	        receiptLinesByReceipt,
-	        draftReceiptId,
-	        draftReceiptsCount: draftReceipts.length,
+	        receiptId: activeReceiptId,
+	        receiptStatus,
+	        receiptNotes,
+	        mode: opts && opts.mode ? opts.mode : 'order',
 	      };
 	    }
 	    function renderReceiveOrderModal(){
@@ -24921,9 +25421,23 @@ function emptyStateHtml(){
 	      const summary = $('receiveOrderSummary');
 	      const linesWrap = $('receiveOrderLines');
 	      const receiptsWrap = $('receiveOrderReceipts');
+	      const statusEl = $('receiveReceiptStatus');
+	      const modeEl = $('receiveReceiptMode');
+	      const receiptIdEl = $('receiveReceiptId');
+	      const notesEl = $('receiveReceiptNotes');
+	      const manualSection = $('receiveManualSection');
+	      const summarySection = $('receiveOrderSummarySection');
+	      const receiptsSection = $('receiveOrderReceiptsSection');
 	      if(!meta || !summary || !linesWrap || !receiptsWrap) return;
 
 	      if(!ro || ro.loading){
+	        if(statusEl){
+	          statusEl.textContent = 'Draft';
+	          statusEl.dataset.status = 'draft';
+	        }
+	        if(modeEl) modeEl.textContent = 'Order Receipt';
+	        if(receiptIdEl) receiptIdEl.textContent = '';
+	        if(notesEl){ notesEl.value = ''; notesEl.disabled = true; }
 	        if(meta) meta.innerHTML = '';
 	        if(summary) summary.innerHTML = '';
 	        if(linesWrap) linesWrap.innerHTML = `<div class="muted">Loading receipt details…</div>`;
@@ -24931,130 +25445,209 @@ function emptyStateHtml(){
 	        return;
 	      }
 
-	      const po = ro.po || {};
-	      const poNumber = String(po.po_number || '').trim();
-	      const supplier = String(po.vendor_name || (po.vendor && po.vendor.name) || po.vendor_id || '').trim() || 'Unknown';
-	      const status = formatStateToken(po.status || '');
+	      const mode = String(ro.mode || 'order');
+	      const isOrderMode = mode === 'order';
+	      const receiptStatus = String(ro.receiptStatus || 'draft').trim().toLowerCase();
+	      const statusText = formatStateToken(receiptStatus || 'draft');
+	      const isEditable = receiptStatus === 'draft';
 
-	      meta.innerHTML =
-	        `<div class="receive-order-card">`+
-	          `<div class="label">Purchase Order</div>`+
-	          `<div class="value">${escapeHtml(poNumber || String(po.id || '').trim() || '—')}</div>`+
-	        `</div>`+
-	        `<div class="receive-order-card">`+
-	          `<div class="label">Supplier</div>`+
-	          `<div class="value">${escapeHtml(supplier)}</div>`+
-	        `</div>`+
-	        `<div class="receive-order-card">`+
-	          `<div class="label">Status</div>`+
-	          `<div class="value">${escapeHtml(status || '—')}</div>`+
-	        `</div>`;
+	      if(statusEl){
+	        statusEl.textContent = statusText || 'Draft';
+	        statusEl.dataset.status = receiptStatus || 'draft';
+	      }
+	      if(modeEl) modeEl.textContent = isOrderMode ? 'Order Receipt' : 'Manual Receipt';
+	      if(receiptIdEl){
+	        receiptIdEl.innerHTML = ro.receiptId
+	          ? `Receipt ID: <span>${escapeHtml(shortId(ro.receiptId) || ro.receiptId)}</span>`
+	          : '';
+	      }
+	      if(notesEl){
+	        notesEl.value = String(ro.receiptNotes || '');
+	        notesEl.disabled = !isEditable;
+	      }
 
-	      const totals = computeReceiveTotals(ro.lines || []);
-	      summary.innerHTML =
-	        `<div class="receive-order-card">`+
-	          `<div class="label">Ordered Qty</div>`+
-	          `<div class="value">${formatQty(totals.ordered)}</div>`+
-	        `</div>`+
-	        `<div class="receive-order-card">`+
-	          `<div class="label">Previously Received</div>`+
-	          `<div class="value">${formatQty(totals.received)}</div>`+
-	        `</div>`+
-	        `<div class="receive-order-card">`+
-	          `<div class="label">Remaining Qty</div>`+
-	          `<div class="value">${formatQty(totals.remaining)}</div>`+
-	        `</div>`;
+	      if(summarySection) summarySection.style.display = isOrderMode ? '' : 'none';
+	      if(receiptsSection) receiptsSection.style.display = isOrderMode ? '' : 'none';
+	      if(manualSection) manualSection.style.display = isOrderMode ? 'none' : '';
+	      if(!isOrderMode){
+	        const manualInput = $('receiveManualSearch');
+	        if(manualInput){
+	          manualInput.value = String(ro.manualSearch || '');
+	          manualInput.disabled = !isEditable;
+	        }
+	        updateReceiveManualClearBtn();
+	        renderReceiveManualResults();
+	      }
+
+	      if(isOrderMode){
+	        const po = ro.po || {};
+	        const poNumber = String(po.po_number || '').trim();
+	        const supplier = String(po.vendor_name || (po.vendor && po.vendor.name) || po.vendor_id || '').trim() || 'Unknown';
+	        const status = formatStateToken(po.status || '');
+
+	        meta.innerHTML =
+	          `<div class="receive-order-card">`+
+	            `<div class="label">Purchase Order</div>`+
+	            `<div class="value">${escapeHtml(poNumber || String(po.id || '').trim() || '—')}</div>`+
+	          `</div>`+
+	          `<div class="receive-order-card">`+
+	            `<div class="label">Supplier</div>`+
+	            `<div class="value">${escapeHtml(supplier)}</div>`+
+	          `</div>`+
+	          `<div class="receive-order-card">`+
+	            `<div class="label">Status</div>`+
+	            `<div class="value">${escapeHtml(status || '—')}</div>`+
+	          `</div>`;
+
+	        const totals = computeReceiveTotals(ro.lines || []);
+	        summary.innerHTML =
+	          `<div class="receive-order-card">`+
+	            `<div class="label">Expected Qty</div>`+
+	            `<div class="value">${formatQty(totals.ordered)}</div>`+
+	          `</div>`+
+	          `<div class="receive-order-card">`+
+	            `<div class="label">Previously Received</div>`+
+	            `<div class="value">${formatQty(totals.received)}</div>`+
+	          `</div>`+
+	          `<div class="receive-order-card">`+
+	            `<div class="label">Remaining Qty</div>`+
+	            `<div class="value">${formatQty(totals.remaining)}</div>`+
+	          `</div>`;
+	      }else{
+	        meta.innerHTML = '';
+	        summary.innerHTML = '';
+	      }
 
 	      if(!ro.lines || !ro.lines.length){
-	        linesWrap.innerHTML = `<div class="order-empty">No line items found.</div>`;
+	        linesWrap.innerHTML = `<div class="order-empty">${isOrderMode ? 'No line items found.' : 'No items added yet.'}</div>`;
 	      }else{
+	        const incomingMap = state._incomingByItemId && typeof state._incomingByItemId.get === 'function'
+	          ? state._incomingByItemId
+	          : buildInventoryIncomingMap();
+	        state._incomingByItemId = incomingMap;
 	        linesWrap.innerHTML = ro.lines.map(line => {
 	          const name = line.item_name || '(Unnamed item)';
 	          const sku = line.item_sku || '';
-	          const remaining = formatQty(line.remaining_qty);
-	          const disabled = line.disabled;
+	          const remaining = (line.remaining_qty === null || typeof line.remaining_qty === 'undefined')
+	            ? '—'
+	            : formatQty(line.remaining_qty);
+	          const disabled = line.disabled || !isEditable;
 	          const receivedVal = formatQty(line.qty_received);
 	          const rejectedVal = formatQty(line.qty_rejected);
+	          const reasonVal = String(line.rejection_reason || '').trim();
+	          const invItem = line.item_id ? getInventoryById(line.item_id) : null;
+	          const onHand = invItem ? toInt(invItem.qty, 0) : null;
+	          const incomingEntry = line.item_id ? incomingMap.get(line.item_id) : null;
+	          const incomingQty = incomingEntry ? incomingEntry.qty : 0;
+	          const incomingOrders = incomingEntry ? incomingEntry.orders.size : 0;
+	          const onHandText = (onHand === null || typeof onHand === 'undefined') ? '—' : formatQty(onHand);
+	          const incomingText = incomingQty > 0
+	            ? `${formatQty(incomingQty)} (${incomingOrders} open order${incomingOrders === 1 ? '' : 's'})`
+	            : '—';
+	          const stats = [];
+	          if(isOrderMode){
+	            stats.push(`<div>Expected: ${formatQty(line.expected_qty)}</div>`);
+	            stats.push(`<div>Previously received: ${formatQty(line.prev_received)}</div>`);
+	            stats.push(`<div>Remaining: ${remaining}</div>`);
+	          }
+	          stats.push(`<div>On Hand: ${onHandText}</div>`);
+	          stats.push(`<div>Incoming (Not Yet Received): ${incomingText}</div>`);
 	          return (
 	            `<div class="receive-line${disabled ? ' disabled' : ''}" data-receive-line-key="${escapeHtmlAttr(line.key)}">`+
 	              `<div class="receive-line-header">`+
-	                `<div>`+
-	                  `<div class="receive-line-title">${escapeHtml(name)}</div>`+
+	                `<div class="receive-line-info">`+
+	                  `<div class="receive-line-title" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
 	                  (sku ? `<div class="receive-line-sku">SKU: ${escapeHtml(sku)}</div>` : '')+
 	                `</div>`+
 	                `<div class="receive-line-stats">`+
-	                  `<div>Ordered: ${formatQty(line.ordered_qty)}</div>`+
-	                  `<div>Previously received: ${formatQty(line.prev_received)}</div>`+
-	                  `<div>Remaining: ${remaining}</div>`+
+	                  stats.join('')+
 	                `</div>`+
 	              `</div>`+
 	              `<div class="receive-line-inputs">`+
 	                `<div>`+
 	                  `<label>Qty Received</label>`+
-	                  `<input type="number" inputmode="decimal" step="0.01" min="0" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="received" value="${escapeHtmlAttr(receivedVal)}"${disabled ? ' disabled' : ''}>`+
+	                  `<input type="number" inputmode="numeric" step="1" min="0" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="received" value="${escapeHtmlAttr(receivedVal)}"${disabled ? ' disabled' : ''}>`+
 	                `</div>`+
 	                `<div>`+
 	                  `<label>Qty Rejected</label>`+
-	                  `<input type="number" inputmode="decimal" step="0.01" min="0" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="rejected" value="${escapeHtmlAttr(rejectedVal)}"${disabled ? ' disabled' : ''}>`+
+	                  `<input type="number" inputmode="numeric" step="1" min="0" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="rejected" value="${escapeHtmlAttr(rejectedVal)}"${disabled ? ' disabled' : ''}>`+
+	                `</div>`+
+	                `<div>`+
+	                  `<label>Rejection Reason</label>`+
+	                  `<textarea data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="reason" placeholder="Required if rejected qty > 0."${disabled ? ' disabled' : ''}>${escapeHtml(reasonVal)}</textarea>`+
 	                `</div>`+
 	              `</div>`+
 	              `<div class="receive-line-warning" data-receive-line-warning></div>`+
-	              (disabled ? `<div class="receive-line-note">Item mapping missing. This line cannot be received.</div>` : '')+
+	              (line.disabled ? `<div class="receive-line-note">Item mapping missing. This line cannot be received.</div>` : '')+
 	            `</div>`
 	          );
 	        }).join('');
 	        ro.lines.forEach(updateReceiveLineDom);
 	      }
 
-	      const visibleReceipts = (ro.receipts || []).filter(r => String(r && r.status ? r.status : '').trim() !== 'draft');
-	      const draftCount = ro.draftReceiptsCount || 0;
-	      if(!visibleReceipts.length){
-	        receiptsWrap.innerHTML = `<div class="muted">No completed receipts yet.</div>`;
-	      }else{
-	        receiptsWrap.innerHTML =
-	          `<div class="muted" style="letter-spacing:.08em;text-transform:uppercase;font-weight:800;">Previous Receipts</div>`+
-	          visibleReceipts.map(r => {
-	            const receiptId = String(r && r.id ? r.id : '').trim();
-	            const statusText = formatStateToken(r && r.status ? r.status : '');
-	            const when = r && (r.received_at || r.created_at) ? formatEasternDateTime(r.received_at || r.created_at) : '';
-	            const lines = ro.receiptLinesByReceipt && ro.receiptLinesByReceipt.get(receiptId) ? ro.receiptLinesByReceipt.get(receiptId) : [];
-	            const totalReceived = lines.reduce((sum, l) => sum + toQty(l.qty_received, 0), 0);
-	            const totalRejected = lines.reduce((sum, l) => sum + toQty(l.qty_rejected, 0), 0);
-	            const canVoid = (String(r && r.status ? r.status : '').trim() === 'completed') && canReceivingVoid();
-	            return (
-	              `<div class="receive-receipt">`+
-	                `<div class="receive-receipt-header">`+
-	                  `<div>`+
-	                    `<div class="receive-receipt-title">Receipt ${escapeHtml(shortId(receiptId) || receiptId)}</div>`+
-	                    `<div class="receive-receipt-meta">${escapeHtml(statusText || '')}${when ? ` • ${escapeHtml(when)}` : ''}</div>`+
+	      if(isOrderMode){
+	        const visibleReceipts = (ro.receipts || []).filter(r => String(r && r.status ? r.status : '').trim() !== 'draft');
+	        if(!visibleReceipts.length){
+	          receiptsWrap.innerHTML = `<div class="muted">No receipts yet.</div>`;
+	        }else{
+	          receiptsWrap.innerHTML =
+	            `<div class="muted" style="letter-spacing:.08em;text-transform:uppercase;font-weight:800;">Previous Receipts</div>`+
+	            visibleReceipts.map(r => {
+	              const receiptId = String(r && r.id ? r.id : '').trim();
+	              const rStatus = String(r && r.status ? r.status : '').trim();
+	              const statusLabel = formatStateToken(rStatus || '');
+	              const when = r && (r.received_at || r.voided_at || r.created_at)
+	                ? formatEasternDateTime(r.received_at || r.voided_at || r.created_at)
+	                : '';
+	              const lines = ro.receiptLinesByReceipt && ro.receiptLinesByReceipt.get(receiptId) ? ro.receiptLinesByReceipt.get(receiptId) : [];
+	              const totalReceived = lines.reduce((sum, l) => sum + toInt(l.received_qty, 0), 0);
+	              const totalRejected = lines.reduce((sum, l) => sum + toInt(l.rejected_qty, 0), 0);
+	              const canVoid = (rStatus === 'completed') && canReceivingVoid();
+	              return (
+	                `<div class="receive-receipt">`+
+	                  `<div class="receive-receipt-header">`+
+	                    `<div>`+
+	                      `<div class="receive-receipt-title">Receipt ${escapeHtml(shortId(receiptId) || receiptId)}</div>`+
+	                      `<div class="receive-receipt-meta">${escapeHtml(statusLabel || '')}${when ? ` • ${escapeHtml(when)}` : ''}</div>`+
+	                    `</div>`+
 	                  `</div>`+
-	                  `<div>`+
-	                    (canVoid ? `<button class="btn-tertiary btn-sm btn-danger" type="button" data-void-receipt-id="${escapeHtmlAttr(receiptId)}">Void</button>` : '')+
+	                  `<div class="receive-receipt-meta">Received: ${formatQty(totalReceived)} • Rejected: ${formatQty(totalRejected)}</div>`+
+	                  `<div class="receive-receipt-lines">`+
+	                    (lines.length ? lines.map(line => {
+	                      const itemName = line.item_name || line.item_id || 'Item';
+	                      const sku = line.item_sku ? ` (${line.item_sku})` : '';
+	                      return (
+	                        `<div class="receive-receipt-line">`+
+	                          `<div>${escapeHtml(itemName)}${escapeHtml(sku)}</div>`+
+	                          `<span>+${formatQty(line.received_qty)}</span>`+
+	                          `<span>−${formatQty(line.rejected_qty)}</span>`+
+	                        `</div>`
+	                      );
+	                    }).join('') : `<div class="muted">No lines.</div>`) +
 	                  `</div>`+
-	                `</div>`+
-	                `<div class="receive-receipt-meta">Received: ${formatQty(totalReceived)} • Rejected: ${formatQty(totalRejected)}</div>`+
-	                `<div class="receive-receipt-lines">`+
-	                  (lines.length ? lines.map(line => {
-	                    const itemName = line.item_name || line.item_id || 'Item';
-	                    const sku = line.item_sku ? ` (${line.item_sku})` : '';
-	                    return (
-	                      `<div class="receive-receipt-line">`+
-	                        `<div>${escapeHtml(itemName)}${escapeHtml(sku)}</div>`+
-	                        `<span>+${formatQty(line.qty_received)}</span>`+
-	                        `<span>−${formatQty(line.qty_rejected)}</span>`+
+	                  (canVoid
+	                    ? `<div class="receive-void-row">`+
+	                        `<input type="text" placeholder="Void reason (min 10 chars)" data-void-receipt-reason="${escapeHtmlAttr(receiptId)}">`+
+	                        `<button class="btn-tertiary btn-sm btn-danger" type="button" data-void-receipt-id="${escapeHtmlAttr(receiptId)}">Void</button>`+
 	                      `</div>`
-	                    );
-	                  }).join('') : `<div class="muted">No lines.</div>`) +
-	                `</div>`+
-	              `</div>`
-	            );
-	          }).join('');
+	                    : ''
+	                  )+
+	                `</div>`
+	              );
+	            }).join('');
+	        }
+	      }else{
+	        receiptsWrap.innerHTML = '';
 	      }
 
-	      if(draftCount > 1){
-	        setReceiveOrderMessage('Multiple draft receipts detected. The most recent draft is loaded.');
-	      }else if(ro.draftReceiptId){
-	        setReceiveOrderMessage('Draft receipt loaded. Save or complete to apply changes.');
+	      if(receiptStatus === 'pending'){
+	        setReceiveOrderMessage('Receipt is pending approval.');
+	      }else if(receiptStatus === 'completed'){
+	        setReceiveOrderMessage('Receipt completed. Inventory updated on completion.');
+	      }else if(receiptStatus === 'voided'){
+	        setReceiveOrderMessage('Receipt voided. Inventory unchanged.');
+	      }else if(receiptStatus === 'draft'){
+	        setReceiveOrderMessage('Draft receipt ready. Save or complete to update inventory.');
 	      }else{
 	        setReceiveOrderMessage('');
 	      }
@@ -25063,14 +25656,17 @@ function emptyStateHtml(){
 	      const saveBtn = $('btnReceiveOrderSave');
 	      const completeBtn = $('btnReceiveOrderComplete');
 	      const cancelBtn = $('btnReceiveOrderCancel');
-	      const canSave = ro.draftReceiptId ? canReceivingEdit() : (canReceivingCreate() && canReceivingEdit());
+	      const canSave = isEditable && canReceivingEdit();
+	      const canComplete = (receiptStatus === 'draft' && canCompleteReceipt()) ||
+	        (receiptStatus === 'pending' && canReceivingApprove());
 	      if(saveBtn) saveBtn.disabled = !canSave;
-	      if(completeBtn) completeBtn.disabled = !canReceivingApprove();
+	      if(completeBtn) completeBtn.disabled = !canComplete;
 	      if(cancelBtn) cancelBtn.disabled = false;
 	    }
 	    async function refreshReceiveOrderModal(poId){
 	      const id = String(poId || '').trim();
 	      if(!id) return;
+	      const existingState = state._receiveOrder;
 	      const existing = state._receiveOrder && state._receiveOrder.po ? state._receiveOrder.po : null;
 	      const poRow = existing && String(existing.id || '').trim() === id ? existing : (getOrderHistoryRowById(id) || await sbFetchPurchaseOrderById(id));
 	      let lineMap = state._orderHistoryLinesByPo && state._orderHistoryLinesByPo.get ? state._orderHistoryLinesByPo : new Map();
@@ -25080,56 +25676,150 @@ function emptyStateHtml(){
 	        poLines = fetched.get(id) || [];
 	      }
 	      const { receipts, receiptLines } = await sbFetchReceiptDataForPo(id);
-	      state._receiveOrder = buildReceiveOrderState(poRow, poLines, receipts, receiptLines);
+	      const next = buildReceiveOrderState(poRow, poLines, receipts, receiptLines, {
+	        receiptId: existingState ? existingState.receiptId : '',
+	        receiptStatus: existingState ? existingState.receiptStatus : 'draft',
+	        receiptNotes: existingState ? existingState.receiptNotes : '',
+	        mode: 'order'
+	      });
+	      next.loading = false;
+	      state._receiveOrder = next;
 	      renderReceiveOrderModal();
 	    }
 	    async function ensureDraftReceiptId(receiveState){
-	      if(receiveState.draftReceiptId) return receiveState.draftReceiptId;
-	      const { data, error } = await SB.client.rpc('create_receipt', {
-	        p_company_id: SB.companyId,
-	        p_purchase_order_id: receiveState.po && receiveState.po.id ? receiveState.po.id : receiveState.poId
-	      });
+	      if(receiveState.receiptId) return receiveState.receiptId;
+	      const payload = { p_company_id: SB.companyId };
+	      const poId = receiveState.po && receiveState.po.id ? receiveState.po.id : receiveState.poId;
+	      if(poId) payload.p_purchase_order_id = poId;
+	      const { data, error } = await SB.client.rpc('create_receipt', payload);
 	      if(error) throw error;
 	      if(data && data.success === false){
 	        throw new Error(data.error || 'Failed to create receipt');
 	      }
-	      const receiptId = data && data.receipt_id ? String(data.receipt_id).trim() : '';
+	      const receiptId = data && (data.receipt_id || data.id) ? String(data.receipt_id || data.id).trim() : '';
 	      if(!receiptId) throw new Error('Failed to create receipt');
-	      receiveState.draftReceiptId = receiptId;
+	      const status = data && (data.status || data.receipt_status) ? String(data.status || data.receipt_status).trim() : 'draft';
+	      receiveState.receiptId = receiptId;
+	      receiveState.receiptStatus = status || 'draft';
 	      return receiptId;
 	    }
-	    async function saveReceiptLines(receiveState){
+	    async function saveReceiptNotes(receiveState, receiptId){
+	      if(!receiveState || !receiptId) return;
+	      const status = String(receiveState.receiptStatus || '').trim().toLowerCase();
+	      if(status && status !== 'draft') return;
+	      const notes = String(receiveState.receiptNotes || '').trim();
+	      const last = String(receiveState._lastSavedNotes || '');
+	      if(notes === last) return;
+	      const patch = {
+	        notes: notes ? notes : null,
+	        updated_at: new Date().toISOString(),
+	        updated_by: SB.user ? SB.user.id : null
+	      };
+	      const { error } = await SB.client
+	        .from('receipts')
+	        .update(patch)
+	        .eq('id', receiptId)
+	        .eq('company_id', SB.companyId);
+	      if(error) throw error;
+	      receiveState._lastSavedNotes = notes;
+	    }
+	    async function saveReceiptLines(receiveState, opts = {}){
 	      const lines = receiveState.lines || [];
-	      const hasAny = lines.some(l => !l.disabled && (toQty(l.qty_received, 0) > 0 || toQty(l.qty_rejected, 0) > 0));
-	      if(!hasAny) throw new Error('Enter at least one received or rejected quantity.');
+	      const requireLine = !!opts.requireLine;
+	      const hasAny = lines.some(l => !l.disabled && (toInt(l.qty_received, 0) > 0 || toInt(l.qty_rejected, 0) > 0));
+	      if(requireLine && !hasAny) throw new Error('Enter at least one received or rejected quantity.');
 	      const receiptId = await ensureDraftReceiptId(receiveState);
+	      await saveReceiptNotes(receiveState, receiptId);
 	      for(const line of lines){
 	        if(line.disabled) continue;
-	        const { data, error } = await SB.client.rpc('upsert_receipt_line', {
-	          p_receipt_id: receiptId,
-	          p_item_id: line.item_id,
-	          p_qty_received: toQty(line.qty_received, 0),
-	          p_qty_rejected: toQty(line.qty_rejected, 0),
-	        });
-	        if(error) throw error;
-	        if(data && data.success === false){
-	          throw new Error(data.error || 'Failed to save receipt line');
+	        if(!line.item_id) continue;
+	        const qtyReceived = toInt(line.qty_received, 0);
+	        const qtyRejected = toInt(line.qty_rejected, 0);
+	        const reason = String(line.rejection_reason || '').trim();
+	        if(qtyRejected > 0 && !reason){
+	          throw new Error('Rejection reason required when rejecting items.');
+	        }
+	        const hasLineId = !!line.receipt_line_id;
+	        const shouldPersist = hasLineId || qtyReceived > 0 || qtyRejected > 0;
+	        if(!shouldPersist) continue;
+	        if(hasLineId){
+	          const { data, error } = await SB.client.rpc('update_receipt_line', {
+	            p_line_id: line.receipt_line_id,
+	            p_received_qty: qtyReceived,
+	            p_rejected_qty: qtyRejected,
+	            p_rejection_reason: reason || null,
+	          });
+	          if(error) throw error;
+	          if(data && data.success === false){
+	            throw new Error(data.error || 'Failed to update receipt line');
+	          }
+	        }else{
+	          const { data, error } = await SB.client.rpc('add_receipt_line', {
+	            p_receipt_id: receiptId,
+	            p_item_id: line.item_id,
+	            p_po_line_id: line.po_line_id || null,
+	            p_expected_qty: (line.expected_qty === null || typeof line.expected_qty === 'undefined') ? null : toInt(line.expected_qty, 0),
+	            p_received_qty: qtyReceived,
+	            p_rejected_qty: qtyRejected,
+	            p_rejection_reason: reason || null,
+	            p_unit_cost: (line.unit_cost === null || typeof line.unit_cost === 'undefined') ? null : line.unit_cost,
+	          });
+	          if(error) throw error;
+	          if(data && data.success === false){
+	            throw new Error(data.error || 'Failed to add receipt line');
+	          }
+	          const lineId = data && (data.receipt_line_id || data.line_id || data.id) ? String(data.receipt_line_id || data.line_id || data.id).trim() : '';
+	          if(lineId) line.receipt_line_id = lineId;
 	        }
 	      }
 	      return receiptId;
 	    }
+	    function canCompleteReceipt(){
+	      if(canReceivingApprove()) return true;
+	      const tier = normalizeTier(getCompanyTier());
+	      return tier === 'professional' && canReceivingEdit();
+	    }
+	    async function refreshInventoryAfterReceipt(receiveState){
+	      const lines = receiveState && Array.isArray(receiveState.lines) ? receiveState.lines : [];
+	      const itemIds = Array.from(new Set(lines.map(l => l && l.item_id ? String(l.item_id).trim() : '').filter(Boolean)));
+	      if(itemIds.length){
+	        try{
+	          const inventoryMap = await sbFetchInventoryByItemIds(itemIds);
+	          for(const [id, entry] of inventoryMap){
+	            const item = state.items.find(x => x && String(x.id || '') === id);
+	            if(item && entry && typeof entry.onHand !== 'undefined'){
+	              item.qty = toInt(entry.onHand, 0);
+	            }
+	          }
+	        }catch(e){}
+	      }
+	      try{ await ensureIncomingOrdersLoaded(true); }catch(e){}
+	      try{ state._incomingByItemId = buildInventoryIncomingMap(); }catch(e){}
+	      try{ refreshInventoryLayout(); }catch(e){}
+	      try{ renderOrderHistoryFiltered(); }catch(e){}
+	      try{
+	        const jobsModal = $('jobsModal');
+	        if(jobsModal && jobsModal.getAttribute('aria-hidden') === 'false'){
+	          await refreshJobs();
+	        }
+	      }catch(e){}
+	    }
 	    async function handleSaveReceiptDraft(){
 	      const ro = state._receiveOrder;
 	      if(!ro) return;
-	      if(!canReceivingEdit() || (!ro.draftReceiptId && !canReceivingCreate())){
-	        toast('Receipt draft permission required');
+	      if(String(ro.receiptStatus || '').trim().toLowerCase() !== 'draft'){
+	        toast('Receipt is locked');
+	        return;
+	      }
+	      if(!canReceivingEdit()){
+	        toast('Receipt edit permission required');
 	        return;
 	      }
 	      const btn = $('btnReceiveOrderSave');
 	      const prior = btn ? btn.textContent : '';
 	      if(btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
 	      try{
-	        await saveReceiptLines(ro);
+	        await saveReceiptLines(ro, { requireLine:false });
 	        toast('Draft saved');
 	        setReceiveOrderMessage('Draft saved.');
 	      }catch(e){
@@ -25141,7 +25831,12 @@ function emptyStateHtml(){
 	    async function handleCompleteReceipt(){
 	      const ro = state._receiveOrder;
 	      if(!ro) return;
-	      if(!canReceivingApprove()){
+	      const status = String(ro.receiptStatus || '').trim().toLowerCase();
+	      if(status !== 'draft' && status !== 'pending'){
+	        toast('Receipt is locked');
+	        return;
+	      }
+	      if(!(status === 'draft' ? canCompleteReceipt() : canReceivingApprove())){
 	        toast('Complete receipt permission required');
 	        return;
 	      }
@@ -25156,15 +25851,48 @@ function emptyStateHtml(){
 	      const prior = btn ? btn.textContent : '';
 	      if(btn){ btn.disabled = true; btn.textContent = 'Completing…'; }
 	      try{
-	        const receiptId = await saveReceiptLines(ro);
-	        const { data, error } = await SB.client.rpc('complete_receipt', { p_receipt_id: receiptId });
-	        if(error) throw error;
-	        if(data && data.success === false){
-	          throw new Error(data.error || 'Failed to complete receipt');
+	        const receiptId = (status === 'draft')
+	          ? await saveReceiptLines(ro, { requireLine:true })
+	          : String(ro.receiptId || '').trim();
+	        if(!receiptId) throw new Error('Receipt not found.');
+	        const transitionToCompleted = async () => {
+	          const { data, error } = await SB.client.rpc('transition_receipt_status', {
+	            p_receipt_id: receiptId,
+	            p_status: 'completed'
+	          });
+	          if(error) throw error;
+	          if(data && data.success === false){
+	            throw new Error(data.error || 'Failed to complete receipt');
+	          }
+	          return data || {};
+	        };
+	        try{
+	          await transitionToCompleted();
+	        }catch(err){
+	          const msg = err && err.message ? String(err.message) : '';
+	          if(status === 'draft' && canReceivingApprove()){
+	            const { data: pendData, error: pendErr } = await SB.client.rpc('transition_receipt_status', {
+	              p_receipt_id: receiptId,
+	              p_status: 'pending'
+	            });
+	            if(pendErr) throw pendErr;
+	            if(pendData && pendData.success === false){
+	              throw new Error(pendData.error || 'Failed to submit receipt');
+	            }
+	            await transitionToCompleted();
+	          }else{
+	            throw new Error(msg || 'Failed to complete receipt');
+	          }
 	        }
+	        ro.receiptStatus = 'completed';
 	        toast('Receipt completed');
 	        setReceiveOrderMessage('Receipt completed. Inventory updated on completion.');
-	        await refreshReceiveOrderModal(ro.po && ro.po.id ? ro.po.id : ro.poId);
+	        await refreshInventoryAfterReceipt(ro);
+	        if(ro.mode === 'order'){
+	          await refreshReceiveOrderModal(ro.po && ro.po.id ? ro.po.id : ro.poId);
+	        }else{
+	          renderReceiveOrderModal();
+	        }
 	      }catch(e){
 	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to complete receipt');
 	      }finally{
@@ -25178,9 +25906,22 @@ function emptyStateHtml(){
 	        toast('Void receipt permission required');
 	        return;
 	      }
+	      let reasonInput = null;
+	      try{
+	        const sel = (window.CSS && CSS.escape)
+	          ? `[data-void-receipt-reason="${CSS.escape(id)}"]`
+	          : `[data-void-receipt-reason="${id}"]`;
+	        reasonInput = document.querySelector(sel);
+	      }catch(e){}
+	      const voidReason = reasonInput ? String(reasonInput.value || '').trim() : '';
+	      if(voidReason.length < 10){
+	        toast('Void reason required (min 10 characters).');
+	        if(reasonInput) reasonInput.focus();
+	        return;
+	      }
 	      const ok = await openConfirmModal(
 	        'Void receipt?',
-	        'Voiding reverses inventory adjustments for this receipt.',
+	        'Voiding does not change inventory. Use a corrective receipt or manual adjustment for reversals.',
 	        { okText:'Void', cancelText:'Cancel' }
 	      );
 	      if(!ok) return;
@@ -25191,14 +25932,27 @@ function emptyStateHtml(){
 	        btn.textContent = 'Voiding…';
 	      }
 	      try{
-	        const { data, error } = await SB.client.rpc('void_receipt', { p_receipt_id: id });
+	        const { data, error } = await SB.client.rpc('transition_receipt_status', {
+	          p_receipt_id: id,
+	          p_status: 'voided',
+	          p_void_reason: voidReason
+	        });
 	        if(error) throw error;
 	        if(data && data.success === false){
 	          throw new Error(data.error || 'Failed to void receipt');
 	        }
 	        toast('Receipt voided');
 	        const ro = state._receiveOrder;
-	        if(ro) await refreshReceiveOrderModal(ro.po && ro.po.id ? ro.po.id : ro.poId);
+	        if(ro){
+	          if(String(ro.receiptId || '') === id){
+	            ro.receiptStatus = 'voided';
+	          }
+	          if(ro.mode === 'order'){
+	            await refreshReceiveOrderModal(ro.po && ro.po.id ? ro.po.id : ro.poId);
+	          }else{
+	            renderReceiveOrderModal();
+	          }
+	        }
 	      }catch(e){
 	        toast(e && e.message ? e.message : 'Failed to void receipt');
 	      }finally{
@@ -25224,14 +25978,182 @@ function emptyStateHtml(){
 
 	      setReceiveOrderMessage('');
 	      setReceiveOrderWarning('');
-	      state._receiveOrder = { poId: id, po: getOrderHistoryRowById(id), lines: [], receipts: [], receiptLines: [], receiptLinesByReceipt: new Map(), draftReceiptId:'', draftReceiptsCount:0, loading:true };
+	      state._receiveOrder = {
+	        mode: 'order',
+	        poId: id,
+	        po: getOrderHistoryRowById(id),
+	        lines: [],
+	        receipts: [],
+	        receiptLines: [],
+	        receiptLinesByReceipt: new Map(),
+	        receiptId: '',
+	        receiptStatus: 'draft',
+	        receiptNotes: '',
+	        manualSearch: '',
+	        loading:true
+	      };
 	      show('receiveOrderModal', true);
 	      renderReceiveOrderModal();
 	      try{
+	        await ensureInventoryLoaded();
+	        await ensureIncomingOrdersLoaded();
+	        await ensureDraftReceiptId(state._receiveOrder);
 	        await refreshReceiveOrderModal(id);
 	      }catch(e){
 	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt data');
 	        renderReceiveOrderModal();
+	      }
+	    }
+
+	    async function openReceiveManualModal(){
+	      if(!SB.ready){ toast('Supabase not configured'); return; }
+	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
+	      if(!canReceiveOrders()){ toast('Receiving access required'); return; }
+
+	      setReceiveOrderMessage('');
+	      setReceiveOrderWarning('');
+	      state._receiveOrder = {
+	        mode: 'manual',
+	        poId: '',
+	        po: null,
+	        lines: [],
+	        receipts: [],
+	        receiptLines: [],
+	        receiptLinesByReceipt: new Map(),
+	        receiptId: '',
+	        receiptStatus: 'draft',
+	        receiptNotes: '',
+	        manualSearch: '',
+	        loading:true
+	      };
+	      show('receiveOrderModal', true);
+	      renderReceiveOrderModal();
+	      try{
+	        await ensureInventoryLoaded();
+	        await ensureIncomingOrdersLoaded();
+	        await ensureDraftReceiptId(state._receiveOrder);
+	        state._receiveOrder.loading = false;
+	        renderReceiveOrderModal();
+	      }catch(e){
+	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to create receipt');
+	        state._receiveOrder.loading = false;
+	        renderReceiveOrderModal();
+	      }
+	    }
+
+	    function updateReceiveManualClearBtn(){
+	      const inp = $('receiveManualSearch');
+	      const btn = $('btnReceiveManualClear');
+	      if(!inp || !btn) return;
+	      const has = String(inp.value || '').length > 0;
+	      btn.style.display = has ? 'flex' : 'none';
+	      btn.disabled = !has;
+	      btn.setAttribute('aria-hidden', has ? 'false' : 'true');
+	    }
+
+	    function renderReceiveManualResults(){
+	      const ro = state._receiveOrder;
+	      const wrap = $('receiveManualResults');
+	      if(!wrap || !ro || ro.mode !== 'manual') return;
+	      const term = String(ro.manualSearch || '').trim().toLowerCase();
+	      if(!term){
+	        wrap.innerHTML = `<div class="receive-search-empty">Search for items to add to this receipt.</div>`;
+	        return;
+	      }
+	      const items = Array.isArray(state.items) ? state.items : [];
+	      const existing = new Set((ro.lines || []).map(l => String(l && l.item_id ? l.item_id : '').trim()).filter(Boolean));
+	      const matches = items.filter(it => {
+	        const name = String(it && it.name ? it.name : '').toLowerCase();
+	        const sku = String(it && it.sku ? it.sku : '').toLowerCase();
+	        const desc = String(it && it.desc ? it.desc : '').toLowerCase();
+	        return name.includes(term) || sku.includes(term) || desc.includes(term);
+	      });
+	      if(!matches.length){
+	        wrap.innerHTML = `<div class="receive-search-empty">No matching items.</div>`;
+	        return;
+	      }
+	      const canEdit = String(ro.receiptStatus || '').trim().toLowerCase() === 'draft';
+	      const max = 20;
+	      wrap.innerHTML = matches.slice(0, max).map(it => {
+	        const id = String(it && it.id ? it.id : '').trim();
+	        if(!id) return '';
+	        const name = String(it && it.name ? it.name : '').trim() || '(Unnamed item)';
+	        const sku = String(it && it.sku ? it.sku : '').trim();
+	        const onHand = formatQty(toInt(it && it.qty !== undefined ? it.qty : 0, 0));
+	        const added = existing.has(id);
+	        const disabled = added || !canEdit;
+	        const btnLabel = !canEdit ? 'Locked' : (added ? 'Added' : 'Add');
+	        const meta = [
+	          sku ? `SKU: ${escapeHtml(sku)}` : '',
+	          `On Hand: ${escapeHtml(onHand)}`
+	        ].filter(Boolean).join(' • ');
+	        return (
+	          `<div class="receive-search-item">`+
+	            `<div>`+
+	              `<div class="receive-search-item-title" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
+	              `<div class="receive-search-item-meta">${meta}</div>`+
+	            `</div>`+
+	            `<button class="btn-tertiary btn-sm" type="button" data-receive-add-item-id="${escapeHtmlAttr(id)}"${disabled ? ' disabled aria-disabled="true"' : ''}>${escapeHtml(btnLabel)}</button>`+
+	          `</div>`
+	        );
+	      }).join('');
+	    }
+
+	    async function addManualReceiveLine(itemId){
+	      const ro = state._receiveOrder;
+	      if(!ro || ro.mode !== 'manual') return;
+	      const status = String(ro.receiptStatus || '').trim().toLowerCase();
+	      if(status !== 'draft'){
+	        toast('Receipt is locked');
+	        return;
+	      }
+	      const id = String(itemId || '').trim();
+	      if(!id) return;
+	      if(ro.lines && ro.lines.some(l => String(l && l.item_id ? l.item_id : '').trim() === id)) return;
+	      const item = getInventoryById(id);
+	      if(!item){
+	        toast('Item not found');
+	        return;
+	      }
+	      const newLine = {
+	        key: `manual-${id}`,
+	        item_id: id,
+	        item_name: String(item.name || '').trim(),
+	        item_sku: String(item.sku || '').trim(),
+	        ordered_qty: 0,
+	        expected_qty: null,
+	        prev_received: 0,
+	        remaining_qty: null,
+	        qty_received: 0,
+	        qty_rejected: 0,
+	        rejection_reason: '',
+	        receipt_line_id: '',
+	        po_line_id: '',
+	        unit_cost: null,
+	        disabled: false
+	      };
+	      ro.lines = Array.isArray(ro.lines) ? ro.lines.concat([newLine]) : [newLine];
+	      ro.lines.sort((a, b) => toKey(a.item_name || '').localeCompare(toKey(b.item_name || '')));
+	      renderReceiveOrderModal();
+	      try{
+	        const receiptId = await ensureDraftReceiptId(ro);
+	        const { data, error } = await SB.client.rpc('add_receipt_line', {
+	          p_receipt_id: receiptId,
+	          p_item_id: id,
+	          p_received_qty: 0,
+	          p_rejected_qty: 0
+	        });
+	        if(error) throw error;
+	        if(data && data.success === false){
+	          throw new Error(data.error || 'Failed to add receipt line');
+	        }
+	        const lineId = data && (data.receipt_line_id || data.line_id || data.id) ? String(data.receipt_line_id || data.line_id || data.id).trim() : '';
+	        if(lineId) newLine.receipt_line_id = lineId;
+	      }catch(e){
+	        ro.lines = ro.lines.filter(l => l !== newLine);
+	        renderReceiveOrderModal();
+	        toast(e && e.message ? e.message : 'Failed to add receipt line');
 	      }
 	    }
 
@@ -25694,9 +26616,12 @@ function emptyStateHtml(){
       const lines = getJobEditorLines(editor);
       const reservedMap = editor ? editor.reservedMap : new Map();
       const inventoryMap = editor ? editor.inventoryMap : new Map();
+      const jobShortfalls = editor && editor.jobShortfalls ? editor.jobShortfalls : new Map();
+      const status = editor && editor.job ? String(editor.job.status || '') : '';
+      const usesPlannedShortfall = ['draft', 'quoted'].includes(status);
       const actualMap = getJobActualMap(editor);
       let totalPlanned = 0;
-      let totalAvailable = 0;
+      let totalOnHand = 0;
       let totalShortfall = 0;
       let totalActual = 0;
       lines.forEach(line=>{
@@ -25704,14 +26629,18 @@ function emptyStateHtml(){
         const planned = Number(line && line.qty_planned ? line.qty_planned : 0);
         if(!itemId) return;
         const stats = computeJobLineStats(itemId, planned, reservedMap, inventoryMap);
+        const recordedShortfall = jobShortfalls && jobShortfalls.has(itemId) ? Number(jobShortfalls.get(itemId)) : null;
+        const shortfallQty = Number.isFinite(recordedShortfall)
+          ? recordedShortfall
+          : (usesPlannedShortfall ? stats.shortfall : 0);
         totalPlanned += planned;
-        totalAvailable += stats.available;
-        totalShortfall += Math.max(0, planned - stats.available);
+        totalOnHand += stats.onHand;
+        totalShortfall += Math.max(0, shortfallQty);
         const actual = actualMap.has(itemId) ? Number(actualMap.get(itemId)) : 0;
         totalActual += actual;
       });
       const completionPercent = totalPlanned > 0 ? Math.round((totalActual / totalPlanned) * 100) : 0;
-      return { totalPlanned, totalAvailable, totalShortfall, totalActual, completionPercent };
+      return { totalPlanned, totalOnHand, totalShortfall, totalActual, completionPercent };
     }
     function updateJobProgressStepper(editor){
       const job = editor ? editor.job : null;
@@ -25812,6 +26741,47 @@ function emptyStateHtml(){
       if(error) throw error;
       return Array.isArray(data) ? data : [];
     }
+    async function sbFetchAllocationsForJobs(jobIds){
+      const ids = Array.isArray(jobIds) ? jobIds.filter(Boolean) : [];
+      const map = new Map();
+      if(!ids.length) return map;
+      const { data, error } = await SB.client
+        .from('allocations')
+        .select('job_id,item_id,qty_allocated')
+        .in('job_id', ids);
+      if(error) throw error;
+      (Array.isArray(data) ? data : []).forEach(row=>{
+        const jobId = String(row.job_id || '').trim();
+        const itemId = String(row.item_id || '').trim();
+        if(!jobId || !itemId) return;
+        const qty = Number(row.qty_allocated || 0);
+        if(!Number.isFinite(qty)) return;
+        if(!map.has(jobId)) map.set(jobId, new Map());
+        map.get(jobId).set(itemId, qty);
+      });
+      return map;
+    }
+    async function sbFetchShortfallsForJobs(jobIds){
+      const ids = Array.isArray(jobIds) ? jobIds.filter(Boolean) : [];
+      const map = new Map();
+      if(!ids.length) return map;
+      const { data, error } = await SB.client
+        .from('shortfalls')
+        .select('job_id,item_id,qty_missing,status')
+        .in('job_id', ids)
+        .eq('status', 'active');
+      if(error) throw error;
+      (Array.isArray(data) ? data : []).forEach(row=>{
+        const jobId = String(row.job_id || '').trim();
+        const itemId = String(row.item_id || '').trim();
+        if(!jobId || !itemId) return;
+        const qty = Number(row.qty_missing || 0);
+        if(!Number.isFinite(qty)) return;
+        if(!map.has(jobId)) map.set(jobId, new Map());
+        map.get(jobId).set(itemId, qty);
+      });
+      return map;
+    }
     function getJobBomItemIds(lines){
       const ids = new Set();
       (Array.isArray(lines) ? lines : []).forEach(line=>{
@@ -25821,19 +26791,16 @@ function emptyStateHtml(){
       return Array.from(ids);
     }
     async function sbFetchReservedMap(){
-      const approved = (state._jobs || []).filter(j => ['approved','in_progress'].includes(String(j.status || '')));
-      const jobIds = approved.map(j => j.id).filter(Boolean);
       const reserved = new Map();
-      if(!jobIds.length) return reserved;
       const { data, error } = await SB.client
-        .from('job_bom')
-        .select('job_id,item_id,qty_planned')
-        .in('job_id', jobIds);
+        .from('allocations')
+        .select('item_id,qty_allocated')
+        .eq('company_id', SB.companyId);
       if(error) throw error;
       (Array.isArray(data) ? data : []).forEach(line=>{
         const itemId = String(line.item_id || '');
         if(!itemId) return;
-        const qty = Number(line.qty_planned || 0);
+        const qty = Number(line.qty_allocated || 0);
         if(!Number.isFinite(qty)) return;
         reserved.set(itemId, (reserved.get(itemId) || 0) + qty);
       });
@@ -25890,72 +26857,102 @@ function emptyStateHtml(){
           key: 'item',
           label: 'Item',
           type: 'text',
-          minWidth: 110,
-          maxWidth: 180,
+          minWidth: 180,
+          maxWidth: 480,
           truncatable: false,
           align: 'left',
           priority: 1,
           locked: true,
-          cellClass: 'item-cell',
+          cellClass: 'col-item',
           render: (val, row) => {
             const name = escapeHtml(row.itemName || '');
-            const sku = row.sku ? `<div class="job-item-sku">${escapeHtml(row.sku)}</div>` : '';
-            return `<div class="job-item-name" title="${escapeHtmlAttr(row.itemName || '')}">${name}</div>${sku}`;
+            const sku = row.sku ? `<span class="item-sku">${escapeHtml(row.sku)}</span>` : '';
+            return `<div class="item-cell"><span class="item-name" title="${escapeHtmlAttr(row.itemName || '')}">${name}</span>${sku}</div>`;
           }
         },
         {
           key: 'needed',
           label: 'Qty',
-          mobileLabel: 'Needed',
+          mobileLabel: 'Qty',
           type: 'number',
-          minWidth: 50,
-          maxWidth: 60,
+          minWidth: 70,
+          maxWidth: 90,
           truncatable: false,
           align: 'center',
           priority: 2,
-          locked: true
+          locked: true,
+          cellClass: 'col-qty'
         },
         {
-          key: 'available',
-          label: 'Avail',
-          mobileLabel: 'Available',
+          key: 'onHand',
+          label: 'On Hand',
+          mobileLabel: 'On Hand',
           type: 'number',
-          minWidth: 50,
-          maxWidth: 60,
+          minWidth: 80,
+          maxWidth: 110,
           truncatable: false,
           align: 'center',
           priority: 3,
-          locked: true
+          locked: true,
+          cellClass: 'col-on-hand readonly-value'
+        },
+        {
+          key: 'allocated',
+          label: 'Allocated',
+          mobileLabel: 'Allocated',
+          type: 'number',
+          minWidth: 90,
+          maxWidth: 120,
+          truncatable: false,
+          align: 'center',
+          priority: 4,
+          locked: true,
+          cellClass: 'col-allocated readonly-value'
+        },
+        {
+          key: 'remaining',
+          label: 'Remaining',
+          mobileLabel: 'Remaining',
+          type: 'number',
+          minWidth: 90,
+          maxWidth: 120,
+          truncatable: false,
+          align: 'center',
+          priority: 5,
+          locked: true,
+          cellClass: 'col-remaining readonly-value'
         },
         {
           key: 'status',
           label: 'Status',
           type: 'status',
-          minWidth: 85,
-          maxWidth: 110,
+          minWidth: 120,
+          maxWidth: 180,
           truncatable: false,
           align: 'left',
-          priority: 4,
+          priority: 6,
           locked: true,
+          cellClass: 'col-status',
           render: (val, row) => {
             return `<span class="job-item-status ${escapeHtmlAttr(row.statusClass)}">${row.statusIcon}<span>${escapeHtml(row.statusText)}</span></span>`;
           }
         },
         {
           key: 'actions',
-          label: '',
+          label: 'Actions',
           type: 'actions',
-          minWidth: 44,
-          maxWidth: 44,
+          minWidth: 100,
+          maxWidth: 120,
           truncatable: false,
-          align: 'center',
-          priority: 5,
+          align: 'right',
+          priority: 7,
           locked: true,
+          cellClass: 'col-actions',
           render: (val, row) => {
-            // Show "on order" indicator if item has open PO
+            // Show incoming indicator if item has open PO
             if(row.hasOpenPO){
               const orderText = row.incomingOrderCount === 1 ? '1 order' : `${row.incomingOrderCount} orders`;
-              return `<span class="job-bom-incoming" title="+${row.incomingQty} incoming (${orderText})">${ICONS.package}</span>`;
+              return `<span class="job-bom-incoming" title="Incoming (Not Yet Received): +${row.incomingQty} (${orderText})">${ICONS.package}</span>`;
             }
             // Show cart button if item needs ordering
             if(!row.needsOrder) return '';
@@ -25963,13 +26960,13 @@ function emptyStateHtml(){
           }
         }
       ],
-      baselineWidth: 480,
-      minWidth: 360,
-      maxWidth: 560,
+      baselineWidth: 720,
+      minWidth: 550,
+      maxWidth: 980,
       mobileBreakpoint: 600,
-      mobileLayout: 'stacked',
+      mobileLayout: 'scroll',
       mobilePrimaryKey: 'item',
-      mobileSecondaryKeys: ['needed', 'available', 'status', 'actions']
+      mobileSecondaryKeys: ['needed', 'onHand', 'allocated', 'remaining', 'status', 'actions']
     };
 
     function renderJobsList(){
@@ -25984,6 +26981,8 @@ function emptyStateHtml(){
       const canAdmin = canItemsDelete();
       const reservedMap = state._jobReservedMap || new Map();
       const inventoryMap = state._jobInventoryByItemId || new Map();
+      const jobAllocationsByJobId = state._jobAllocationsByJobId || new Map();
+      const jobShortfallsByJobId = state._jobShortfallsByJobId || new Map();
       const expanded = state._jobsExpanded || new Set();
       let html = `<div class="jobs-list">`;
       for(const row of rows){
@@ -25993,16 +26992,23 @@ function emptyStateHtml(){
         const status = String(row.status || 'draft').trim();
         const created = row.created_at ? formatDateShort(row.created_at) : '—';
         const bomLines = state._jobBomByJobId && state._jobBomByJobId.get ? (state._jobBomByJobId.get(id) || []) : [];
+        const jobAllocations = jobAllocationsByJobId && jobAllocationsByJobId.get ? jobAllocationsByJobId.get(id) : null;
+        const jobShortfalls = jobShortfallsByJobId && jobShortfallsByJobId.get ? jobShortfallsByJobId.get(id) : null;
+        const usesPlannedShortfall = ['draft', 'quoted'].includes(status);
         let totalNeeded = 0;
-        let totalAvailable = 0;
+        let totalOnHand = 0;
         let totalShortage = 0;
         bomLines.forEach(line=>{
           const itemId = String(line.item_id || '').trim();
           const qtyPlanned = Number(line.qty_planned || 0);
           const stats = computeJobLineStats(itemId, qtyPlanned, reservedMap, inventoryMap);
+          const recordedShortfall = jobShortfalls && jobShortfalls.has(itemId) ? Number(jobShortfalls.get(itemId)) : null;
+          const shortfallQty = Number.isFinite(recordedShortfall)
+            ? recordedShortfall
+            : (usesPlannedShortfall ? stats.shortfall : 0);
           totalNeeded += qtyPlanned;
-          totalAvailable += stats.available;
-          totalShortage += Math.max(0, qtyPlanned - stats.available);
+          totalOnHand += stats.onHand;
+          totalShortage += Math.max(0, shortfallQty);
         });
         const itemCount = bomLines.length;
         const summary = `${itemCount} item${itemCount === 1 ? '' : 's'}`;
@@ -26059,32 +27065,44 @@ function emptyStateHtml(){
               const itemName = item ? String(item.name || '') : itemId;
               const sku = item && item.sku ? String(item.sku || '').trim() : '';
               const stats = computeJobLineStats(itemId, qtyPlanned, reservedMap, inventoryMap);
+              const allocatedForJob = jobAllocations && jobAllocations.has(itemId) ? Number(jobAllocations.get(itemId)) : 0;
+              const remaining = Number.isFinite(stats.available) ? stats.available : 0;
+              const recordedShortfall = jobShortfalls && jobShortfalls.has(itemId) ? Number(jobShortfalls.get(itemId)) : null;
+              const shortfallQty = Number.isFinite(recordedShortfall)
+                ? recordedShortfall
+                : (usesPlannedShortfall ? stats.shortfall : 0);
               // Check for open POs
               const incoming = incomingMap.get(itemId);
               const hasOpenPO = incoming && incoming.qty > 0;
               const incomingQty = incoming ? incoming.qty : 0;
               const incomingOrderCount = incoming ? incoming.orders.size : 0;
-              let statusText = 'Fulfilled';
-              let statusClass = 'job-item-status--fulfilled';
+              let statusText = 'In Stock';
+              let statusClass = 'job-item-status--in-stock';
               let statusIcon = ICONS.check;
-              if(stats.available <= 0){
+              if(shortfallQty > 0){
+                statusText = 'Shortfall';
+                statusClass = 'job-item-status--shortage';
+                statusIcon = ICONS.alertTriangle;
+              }else if(remaining <= 0){
                 statusText = 'Out of Stock';
                 statusClass = 'job-item-status--out';
                 statusIcon = ICONS.xCircle;
-              }else if(stats.available < qtyPlanned){
-                statusText = 'Shortage';
-                statusClass = 'job-item-status--shortage';
+              }else if(remaining < qtyPlanned){
+                statusText = 'Low Stock';
+                statusClass = 'job-item-status--low-stock';
                 statusIcon = ICONS.alertTriangle;
               }
-              const shortage = Math.max(0, qtyPlanned - stats.available);
-              const needsOrder = stats.available < qtyPlanned && !hasOpenPO;
+              const shortage = Math.max(0, shortfallQty);
+              const needsOrder = shortfallQty > 0 && !hasOpenPO;
               return {
                 item: itemName,
                 itemName,
                 itemId,
                 sku,
                 needed: formatQty(qtyPlanned),
-                available: formatQty(stats.available),
+                onHand: formatQty(stats.onHand),
+                allocated: formatQty(Number.isFinite(allocatedForJob) ? allocatedForJob : 0),
+                remaining: formatQty(Number.isFinite(remaining) ? remaining : 0),
                 status: statusText,
                 statusText,
                 statusClass,
@@ -26101,7 +27119,7 @@ function emptyStateHtml(){
             html += (
               `<div class="job-items-summary">`+
                 `<span><span>Total Needed</span><span>${escapeHtml(formatQty(totalNeeded))}</span></span>`+
-                `<span><span>Total Available</span><span>${escapeHtml(formatQty(totalAvailable))}</span></span>`+
+                `<span><span>Total On Hand</span><span>${escapeHtml(formatQty(totalOnHand))}</span></span>`+
                 `<span class="${totalShortage > 0 ? 'job-total-short' : ''}"><span>Total Shortage</span><span>${escapeHtml(formatQty(totalShortage))}</span></span>`+
               `</div>`
             );
@@ -26135,6 +27153,8 @@ function emptyStateHtml(){
         const jobIds = rows.map(r => r && r.id).filter(Boolean);
         state._jobBomByJobId = await sbFetchJobBomForJobs(jobIds);
         state._jobReservedMap = await sbFetchReservedMap();
+        state._jobAllocationsByJobId = await sbFetchAllocationsForJobs(jobIds);
+        state._jobShortfallsByJobId = await sbFetchShortfallsForJobs(jobIds);
         try{
           const allBomLines = [];
           state._jobBomByJobId.forEach(lines=>{
@@ -26151,6 +27171,8 @@ function emptyStateHtml(){
         state._jobsById = new Map();
         state._jobBomByJobId = new Map();
         state._jobReservedMap = new Map();
+        state._jobAllocationsByJobId = new Map();
+        state._jobShortfallsByJobId = new Map();
         state._jobInventoryByItemId = new Map();
         const msg = e && e.message ? e.message : 'Failed to load jobs';
         if(list) list.innerHTML = `<div class="order-empty">${escapeHtml(msg)}</div>`;
@@ -26300,7 +27322,7 @@ function emptyStateHtml(){
       }
       if(materialsHint){
         materialsHint.textContent = totals.totalShortfall > 0
-          ? `${formatQty(totals.totalShortfall)} items in shortfall. You can still approve to reserve available stock.`
+          ? `${formatQty(totals.totalShortfall)} items in shortfall. Approval is blocked until shortfalls are resolved.`
           : '';
       }
       if(shortfallBox){
@@ -26335,25 +27357,28 @@ function emptyStateHtml(){
       const reserved = reservedMap && reservedMap.has(itemId) ? Number(reservedMap.get(itemId)) : 0;
       const available = onHand - reserved;
       const shortfall = Math.max(Number(qtyPlanned || 0) - available, 0);
-      return { onHand, reserved, available, shortfall };
+      return { onHand, reserved, available, remaining: available, shortfall };
     }
     function updateBomIndicators(itemId, qtyPlanned){
       const editor = state._jobEditor;
       if(!editor) return;
       const stats = computeJobLineStats(itemId, qtyPlanned, editor.reservedMap, editor.inventoryMap);
+      const status = editor && editor.job ? String(editor.job.status || '') : '';
+      const usesPlannedShortfall = ['draft', 'quoted'].includes(status);
+      const recordedShortfall = editor.jobShortfalls && editor.jobShortfalls.has(itemId)
+        ? Number(editor.jobShortfalls.get(itemId))
+        : null;
+      const shortfallQty = Number.isFinite(recordedShortfall)
+        ? recordedShortfall
+        : (usesPlannedShortfall ? stats.shortfall : 0);
       const onHandEl = document.querySelector(`[data-bom-on-hand="${CSS.escape(itemId)}"]`);
       const reservedEl = document.querySelector(`[data-bom-reserved="${CSS.escape(itemId)}"]`);
-      const availableEl = document.querySelector(`[data-bom-available="${CSS.escape(itemId)}"]`);
       const shortfallEl = document.querySelector(`[data-bom-shortfall="${CSS.escape(itemId)}"]`);
       if(onHandEl) onHandEl.textContent = String(stats.onHand);
       if(reservedEl) reservedEl.textContent = String(stats.reserved);
-      if(availableEl){
-        availableEl.textContent = String(stats.available);
-        availableEl.classList.toggle('job-bom-available', stats.available >= Number(qtyPlanned || 0));
-      }
       if(shortfallEl){
-        shortfallEl.textContent = String(stats.shortfall);
-        shortfallEl.classList.toggle('job-bom-shortfall', stats.shortfall > 0);
+        shortfallEl.textContent = String(shortfallQty);
+        shortfallEl.classList.toggle('job-bom-shortfall', shortfallQty > 0);
       }
     }
     function renderJobBomTable(){
@@ -26367,6 +27392,9 @@ function emptyStateHtml(){
       const lines = getJobEditorLines(editor);
       const reservedMap = editor ? editor.reservedMap : new Map();
       const inventoryMap = editor ? editor.inventoryMap : new Map();
+      const jobAllocations = editor && editor.jobAllocations ? editor.jobAllocations : new Map();
+      const jobShortfalls = editor && editor.jobShortfalls ? editor.jobShortfalls : new Map();
+      const usesPlannedShortfall = ['draft', 'quoted'].includes(status);
       const incomingMap = (editor && editor.incomingMap && typeof editor.incomingMap.get === 'function')
         ? editor.incomingMap
         : buildInventoryIncomingMap();
@@ -26385,12 +27413,21 @@ function emptyStateHtml(){
         const sku = item && item.sku ? String(item.sku || '') : '';
         const qtyPlanned = Math.max(1, Number(line.qty_planned || 1));
         const stats = computeJobLineStats(itemId, qtyPlanned, reservedMap, inventoryMap);
-        const shortfall = Math.max(0, qtyPlanned - stats.available);
+        const allocatedForJob = jobAllocations && jobAllocations.has(itemId) ? Number(jobAllocations.get(itemId)) : 0;
+        const remaining = Number.isFinite(stats.available) ? stats.available : 0;
+        const recordedShortfall = jobShortfalls && jobShortfalls.has(itemId) ? Number(jobShortfalls.get(itemId)) : null;
+        const shortfallQty = Number.isFinite(recordedShortfall)
+          ? recordedShortfall
+          : (usesPlannedShortfall ? stats.shortfall : 0);
+        const shortfall = Math.max(0, shortfallQty);
         const incoming = incomingMap.get(itemId);
         const onOrder = incoming ? Number(incoming.qty || 0) : 0;
         const statusClass = shortfall > 0
           ? (onOrder >= shortfall ? 'status-pending' : 'status-shortage')
           : 'status-good';
+        const onHandClass = stats.onHand <= 0
+          ? 'on-hand-out'
+          : (stats.onHand < qtyPlanned ? 'on-hand-low' : 'on-hand-good');
         const expanded = state._jobEditorExpandedItemId === itemId;
         const disableControls = !editable || !!state._jobEditorBusy;
         const plannedDisplay = formatQty(qtyPlanned);
@@ -26400,7 +27437,7 @@ function emptyStateHtml(){
           `<div class="job-item-card ${statusClass}${expanded ? ' expanded' : ''}" data-bom-card data-bom-item-id="${escapeHtmlAttr(itemId)}">`+
             `<div class="job-item-header">`+
               `<div class="job-item-info">`+
-                `<span class="job-item-name">${escapeHtml(name)}</span>`+
+                `<span class="job-item-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</span>`+
                 `<span class="job-item-sku">${escapeHtml(sku)}</span>`+
               `</div>`+
               `<div class="job-item-planned">`+
@@ -26415,20 +27452,20 @@ function emptyStateHtml(){
             `</div>`+
             `<div class="job-stock-row">`+
               `<div class="job-stock-item">`+
-                `<span class="job-stock-value">${escapeHtml(formatQty(stats.onHand))}</span>`+
+                `<span class="job-stock-value readonly-value ${onHandClass}">${escapeHtml(formatQty(stats.onHand))}</span>`+
                 `<span class="job-stock-label">On Hand</span>`+
               `</div>`+
               `<div class="job-stock-item">`+
-                `<span class="job-stock-value">${escapeHtml(formatQty(stats.reserved))}</span>`+
-                `<span class="job-stock-label">Reserved</span>`+
+                `<span class="job-stock-value readonly-value">${escapeHtml(formatQty(Number.isFinite(allocatedForJob) ? allocatedForJob : 0))}</span>`+
+                `<span class="job-stock-label">Allocated (This Job)</span>`+
               `</div>`+
               `<div class="job-stock-item">`+
-                `<span class="job-stock-value ${stats.available > 0 ? 'available' : 'zero'}">${escapeHtml(formatQty(stats.available))}</span>`+
-                `<span class="job-stock-label">Available</span>`+
+                `<span class="job-stock-value readonly-value">${escapeHtml(formatQty(Number.isFinite(remaining) ? remaining : 0))}</span>`+
+                `<span class="job-stock-label">Remaining</span>`+
               `</div>`+
               `<div class="job-stock-item">`+
-                `<span class="job-stock-value ${onOrder > 0 ? 'on-order' : 'zero'}">${escapeHtml(formatQty(onOrder))}</span>`+
-                `<span class="job-stock-label">On Order</span>`+
+                `<span class="job-stock-value readonly-value">${escapeHtml(formatQty(onOrder))}</span>`+
+                `<span class="job-stock-label">Incoming (Not Yet Received)</span>`+
               `</div>`+
             `</div>`+
             (shortfall > 0
@@ -26441,7 +27478,7 @@ function emptyStateHtml(){
                     (onOrder > 0
                       ? `<div class="job-on-order-note">`+
                           `${ICONS.package}`+
-                          `<span>${escapeHtml(formatQty(onOrder))} awaiting receipt</span>`+
+                          `<span>Incoming (Not Yet Received): ${escapeHtml(formatQty(onOrder))}</span>`+
                         `</div>`
                       : '')+
                   `</div>`+
@@ -26497,7 +27534,7 @@ function emptyStateHtml(){
           `<div class="job-completion-card" data-actual-item-id="${escapeHtmlAttr(itemId)}">`+
             `<div class="job-completion-header">`+
               `<div class="job-item-info">`+
-                `<span class="job-item-name">${escapeHtml(name)}</span>`+
+                `<span class="job-item-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</span>`+
                 `<span class="job-item-sku">${escapeHtml(sku)}</span>`+
               `</div>`+
               `<span class="job-completion-percent${percent >= 100 ? ' complete' : ''}">${escapeHtml(String(percent))}%</span>`+
@@ -26613,8 +27650,7 @@ function emptyStateHtml(){
         const name = item ? String(item.name || '') : itemId;
         const shortfall = Number(row.shortfall || 0);
         const required = Number(row.required || row.qty_planned || 0);
-        const available = Number(row.available || 0);
-        return `<div>${escapeHtml(name)}: need ${required}, available ${available} (short ${shortfall})</div>`;
+        return `<div>${escapeHtml(name)}: need ${escapeHtml(formatQty(required))}, short ${escapeHtml(formatQty(shortfall))}</div>`;
       });
       box.style.display = 'block';
       box.innerHTML = rows.join('');
@@ -26648,7 +27684,11 @@ function emptyStateHtml(){
       const itemDescEl = $('atjItemDesc');
       const itemSkuEl = $('atjItemSku');
       const itemSkuWrap = $('atjItemSkuWrap');
-      if(itemNameEl) itemNameEl.textContent = String(data.itemName || 'Loading...');
+      if(itemNameEl){
+        const itemName = String(data.itemName || 'Loading...');
+        itemNameEl.textContent = itemName;
+        itemNameEl.title = itemName;
+      }
       if(itemDescEl) itemDescEl.textContent = String(data.itemDesc || '');
       if(itemSkuEl) itemSkuEl.textContent = String(data.itemSku || '');
       if(itemSkuWrap) itemSkuWrap.style.display = data.itemSku ? 'block' : 'none';
@@ -26656,15 +27696,16 @@ function emptyStateHtml(){
       // Stats
       const onHand = toInt(data.onHand, 0);
       const reserved = toInt(data.reserved, 0);
-      const available = Math.max(0, onHand - reserved);
       const statOnHand = $('atjStatOnHand');
       const statReserved = $('atjStatReserved');
-      const statAvailable = $('atjStatAvailable');
       const qtyHelper = $('atjQtyHelper');
-      if(statOnHand) statOnHand.textContent = formatNumber(onHand);
+      if(statOnHand){
+        statOnHand.textContent = formatNumber(onHand);
+        statOnHand.classList.remove('on-hand-good', 'on-hand-low', 'on-hand-out');
+        statOnHand.classList.add(onHand <= 0 ? 'on-hand-out' : 'on-hand-good');
+      }
       if(statReserved) statReserved.textContent = formatNumber(reserved);
-      if(statAvailable) statAvailable.textContent = formatNumber(available);
-      if(qtyHelper) qtyHelper.textContent = `${formatNumber(available)} available`;
+      if(qtyHelper) qtyHelper.textContent = `On Hand: ${formatNumber(onHand)}`;
 
       // Tabs
       const tabExisting = $('atjTabExisting');
@@ -26696,13 +27737,13 @@ function emptyStateHtml(){
             const status = jobStatusLabel(String(job.status || 'draft'));
             const isSelected = id === selected;
             return `<div class="atj-dropdown-item${isSelected ? ' selected' : ''}" data-job-id="${escapeHtmlAttr(id)}">
-              <div class="atj-dropdown-item-name">${escapeHtml(name)}</div>
+              <div class="atj-dropdown-item-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>
               <div class="atj-dropdown-item-status">${escapeHtml(status)}</div>
             </div>`;
           }).filter(Boolean);
           dropdownMenu.innerHTML = items.join('');
         }else{
-          dropdownMenu.innerHTML = '<div class="atj-dropdown-empty">No jobs available</div>';
+          dropdownMenu.innerHTML = '<div class="atj-dropdown-empty">No jobs found</div>';
         }
       }
 
@@ -26712,13 +27753,16 @@ function emptyStateHtml(){
           const job = jobs.find(j => String(j.id || '') === selected);
           if(job){
             selectedText.textContent = String(job.name || '').trim() || '(Untitled job)';
+            selectedText.title = selectedText.textContent;
             selectedText.classList.remove('placeholder');
           }else{
             selectedText.textContent = 'Choose a job...';
+            selectedText.title = '';
             selectedText.classList.add('placeholder');
           }
         }else{
-          selectedText.textContent = jobs.length ? 'Choose a job...' : 'No jobs available';
+          selectedText.textContent = jobs.length ? 'Choose a job...' : 'No jobs found';
+          selectedText.title = '';
           selectedText.classList.add('placeholder');
         }
       }
@@ -26803,7 +27847,7 @@ function emptyStateHtml(){
         state._jobs = rows;
         state._jobsById = new Map(rows.map(r => [String(r.id || ''), r]).filter(x => x[0]));
         state._addToJob.jobs = getAddToJobJobs();
-        // Switch to "new" tab if no jobs available (keep user's selection if changed)
+        // Switch to "new" tab if no jobs found (keep user's selection if changed)
         const preferredTab = state._addToJob.activeTab || 'existing';
         if(!state._addToJob.jobs.length && preferredTab !== 'new'){
           state._addToJob.activeTab = 'new';
@@ -26928,7 +27972,7 @@ function emptyStateHtml(){
 
     async function refreshJobEditorInventory(){
       const editor = state._jobEditor;
-      if(!editor) return { inventoryMap: new Map(), reservedMap: new Map() };
+      if(!editor) return { inventoryMap: new Map(), reservedMap: new Map(), incomingMap: new Map(), jobAllocations: new Map(), jobShortfalls: new Map() };
       const bomLines = Array.isArray(editor.bomLines) ? editor.bomLines : [];
       const pendingLines = Array.isArray(editor.pendingBomLines) ? editor.pendingBomLines : [];
       const itemIds = getJobBomItemIds(bomLines.concat(pendingLines));
@@ -26936,9 +27980,19 @@ function emptyStateHtml(){
       const inventoryMap = await sbFetchInventoryByItemIds(itemIds);
       await ensureIncomingOrdersLoaded();
       const incomingMap = buildInventoryIncomingMap();
+      let jobAllocations = new Map();
+      let jobShortfalls = new Map();
+      if(editor.job && editor.job.id){
+        const allocationsByJob = await sbFetchAllocationsForJobs([editor.job.id]);
+        jobAllocations = allocationsByJob.get(String(editor.job.id)) || new Map();
+        const shortfallsByJob = await sbFetchShortfallsForJobs([editor.job.id]);
+        jobShortfalls = shortfallsByJob.get(String(editor.job.id)) || new Map();
+      }
       editor.reservedMap = reservedMap;
       editor.inventoryMap = inventoryMap;
       editor.incomingMap = incomingMap;
+      editor.jobAllocations = jobAllocations;
+      editor.jobShortfalls = jobShortfalls;
       state._incomingByItemId = incomingMap;
       let wasFulfillable = true;
       const allLines = bomLines.concat(pendingLines);
@@ -26955,7 +28009,7 @@ function emptyStateHtml(){
         }
       }
       editor.wasFulfillable = wasFulfillable;
-      return { inventoryMap, reservedMap, incomingMap };
+      return { inventoryMap, reservedMap, incomingMap, jobAllocations, jobShortfalls };
     }
     async function openJobEditor(jobId, opts = {}){
       if(!SB.ready){ toast('Supabase not configured'); return; }
@@ -26988,6 +28042,8 @@ function emptyStateHtml(){
         let actuals = [];
         let inventoryMap = new Map();
         let incomingMap = buildInventoryIncomingMap();
+        let jobAllocations = new Map();
+        let jobShortfalls = new Map();
         if(jobId){
           job = state._jobsById.get(String(jobId)) || null;
           if(!job){
@@ -26999,6 +28055,10 @@ function emptyStateHtml(){
           if(job){
             bomLines = await sbFetchJobBom(job.id);
             actuals = await sbFetchJobActuals(job.id);
+            const allocationsByJob = await sbFetchAllocationsForJobs([job.id]);
+            jobAllocations = allocationsByJob.get(String(job.id)) || new Map();
+            const shortfallsByJob = await sbFetchShortfallsForJobs([job.id]);
+            jobShortfalls = shortfallsByJob.get(String(job.id)) || new Map();
           }
         }else{
           job = { id:null, name:'', status:'draft', notes:'' };
@@ -27025,10 +28085,10 @@ function emptyStateHtml(){
             }
           }
         }
-        state._jobEditor = { job, bomLines, actuals, reservedMap, inventoryMap, incomingMap, wasFulfillable };
+        state._jobEditor = { job, bomLines, actuals, reservedMap, inventoryMap, incomingMap, jobAllocations, jobShortfalls, wasFulfillable };
         state._incomingByItemId = incomingMap;
       }catch(e){
-        state._jobEditor = { job: { id:null, name:'', status:'draft', notes:'' }, bomLines:[], actuals:[], reservedMap:new Map(), inventoryMap:new Map(), incomingMap:new Map(), wasFulfillable: true };
+        state._jobEditor = { job: { id:null, name:'', status:'draft', notes:'' }, bomLines:[], actuals:[], reservedMap:new Map(), inventoryMap:new Map(), incomingMap:new Map(), jobAllocations:new Map(), jobShortfalls:new Map(), wasFulfillable: true };
         setJobEditorMessage(e && e.message ? e.message : 'Failed to load job');
       }finally{
         state._jobEditorBusy = false;
@@ -27195,7 +28255,7 @@ function emptyStateHtml(){
 
         html += `<div class="job-item-picker-row${isSelected ? ' selected' : ''}" data-picker-item-id="${escapeHtmlAttr(id)}">`;
         html += `<div class="item-info">`;
-        html += `<div class="item-name">${nameHtml}</div>`;
+        html += `<div class="item-name" title="${escapeHtmlAttr(name)}">${nameHtml}</div>`;
         if(skuHtml) html += `<div class="item-sku">SKU: ${skuHtml}</div>`;
         // Show description if it matched the search OR if no search query (always show for context)
         if(desc && (matchedFields.desc || !q)){
@@ -27357,6 +28417,29 @@ function emptyStateHtml(){
           p_was_fulfillable: wasFulfillable
         });
         if(error) throw error;
+        if(data && data.blocked){
+          const shortfallList = Array.isArray(data.shortfalls) ? data.shortfalls : latestShortages;
+          renderApprovalShortages(shortfallList);
+          const reason = String(data.reason || '');
+          const blockedMsg = reason === 'inventory_changed'
+            ? 'Inventory changed while this job was being reviewed, and it can no longer be fulfilled.'
+            : 'Approval blocked due to shortfalls. Resolve missing quantities and try again.';
+          if(isEditorJob){
+            setJobEditorMessage(blockedMsg);
+            const jobShortfalls = new Map();
+            shortfallList.forEach(row=>{
+              const itemId = String(row.item_id || '').trim();
+              const qty = Number(row.shortfall || 0);
+              if(itemId && Number.isFinite(qty) && qty > 0) jobShortfalls.set(itemId, qty);
+            });
+            state._jobEditor.jobShortfalls = jobShortfalls;
+            renderJobEditor();
+          }else{
+            setJobsMessage(blockedMsg);
+          }
+          await refreshJobs();
+          return data;
+        }
         await refreshJobs();
         if(state._jobEditor && state._jobEditor.job && String(state._jobEditor.job.id) === String(jobId)){
           await openJobEditor(jobId);
@@ -27367,7 +28450,7 @@ function emptyStateHtml(){
         const msg = e && e.message ? e.message : 'Approval failed';
         if(msg.includes('Inventory changed during job approval')){
           renderApprovalShortages(latestShortages);
-          const warningMsg = 'Inventory was reduced or reserved by another operation while you were editing this job, and it can no longer be fulfilled.';
+          const warningMsg = 'Inventory was reduced or allocated by another operation while you were editing this job, and it can no longer be fulfilled.';
           const isEditorJob = state._jobEditor && state._jobEditor.job && String(state._jobEditor.job.id) === String(jobId);
           if(isEditorJob){
             setJobEditorMessage(warningMsg);
@@ -27565,16 +28648,15 @@ function emptyStateHtml(){
         // Calculate inventory stats
         const onHand = toInt(it.qty, 0);
         const reserved = reservedMap.has(it.id) ? Number(reservedMap.get(it.id)) : 0;
-        const available = Math.max(0, onHand - reserved);
         const reorderPoint = getInventoryReorderPoint(it);
         const rec = getOrderRecommendationForItem(it.id);
         const recommended = rec.recommended || 0;
 
-        // Determine availability class
-        let availClass = '';
-        if(available <= 0) availClass = 'out';
-        else if(reorderPoint !== null && available <= reorderPoint) availClass = 'low';
-        else availClass = 'good';
+        // Determine on-hand status class
+        let onHandClass = '';
+        if(onHand <= 0) onHandClass = 'out';
+        else if(reorderPoint !== null && onHand <= reorderPoint) onHandClass = 'low';
+        else onHandClass = 'good';
 
         el.innerHTML =
           `<div class="order-cart-result-info">`+
@@ -27582,15 +28664,11 @@ function emptyStateHtml(){
             `<div class="order-cart-result-stats">`+
               `<span class="order-cart-result-stat">`+
                 `<span class="order-cart-result-stat-label">On Hand</span>`+
-                `<span class="order-cart-result-stat-value">${onHand}</span>`+
+                `<span class="order-cart-result-stat-value ${onHandClass}">${onHand}</span>`+
               `</span>`+
               `<span class="order-cart-result-stat">`+
                 `<span class="order-cart-result-stat-label">Rsv</span>`+
                 `<span class="order-cart-result-stat-value">${reserved}</span>`+
-              `</span>`+
-              `<span class="order-cart-result-stat">`+
-                `<span class="order-cart-result-stat-label">Avail</span>`+
-                `<span class="order-cart-result-stat-value ${availClass}">${available}</span>`+
               `</span>`+
               (reorderPoint !== null ?
                 `<span class="order-cart-result-stat">`+
@@ -27757,7 +28835,7 @@ function emptyStateHtml(){
 	      openJobsModal();
 	    });
     const menuReceive = $('menuReceive');
-    if(menuReceive) menuReceive.addEventListener('click', ()=>{ toggleMenu(false); openOrderHistoryModal({ returnToOrder: false }); });
+    if(menuReceive) menuReceive.addEventListener('click', ()=>{ toggleMenu(false); openReceiveManualModal(); });
     const menuHistory = $('menuHistory');
     if(menuHistory) menuHistory.addEventListener('click', ()=>{ toggleMenu(false); openOrderHistoryModal({ returnToOrder: false }); });
     const menuTrash = $('menuTrash');
@@ -28222,19 +29300,60 @@ function emptyStateHtml(){
 	    if(btnReceiveOrderSave) btnReceiveOrderSave.addEventListener('click', handleSaveReceiptDraft);
 	    const btnReceiveOrderComplete = $('btnReceiveOrderComplete');
 	    if(btnReceiveOrderComplete) btnReceiveOrderComplete.addEventListener('click', handleCompleteReceipt);
+	    const receiveReceiptNotes = $('receiveReceiptNotes');
+	    if(receiveReceiptNotes) receiveReceiptNotes.addEventListener('input', ()=>{
+	      if(state._receiveOrder) state._receiveOrder.receiptNotes = String(receiveReceiptNotes.value || '');
+	    });
 	    const receiveOrderLines = $('receiveOrderLines');
 	    if(receiveOrderLines){
 	      receiveOrderLines.addEventListener('input', (e)=>{
-	        const inp = e.target.closest('input[data-receive-line-key]');
+	        const inp = e.target.closest('[data-receive-line-key]');
 	        if(!inp) return;
 	        updateReceiveLineFromInput(inp, { format:false });
 	      });
 	      receiveOrderLines.addEventListener('change', (e)=>{
-	        const inp = e.target.closest('input[data-receive-line-key]');
+	        const inp = e.target.closest('[data-receive-line-key]');
 	        if(!inp) return;
 	        updateReceiveLineFromInput(inp, { format:true, showError:true });
 	      });
 	    }
+	    const receiveManualSearch = $('receiveManualSearch');
+	    if(receiveManualSearch){
+	      updateReceiveManualClearBtn();
+	      receiveManualSearch.addEventListener('input', ()=>{
+	        if(state._receiveOrder) state._receiveOrder.manualSearch = receiveManualSearch.value || '';
+	        renderReceiveManualResults();
+	        updateReceiveManualClearBtn();
+	      });
+	      receiveManualSearch.addEventListener('keydown', (e)=>{
+	        if(e.key === 'Escape' && receiveManualSearch.value){
+	          e.preventDefault();
+	          receiveManualSearch.value = '';
+	          if(state._receiveOrder) state._receiveOrder.manualSearch = '';
+	          renderReceiveManualResults();
+	          updateReceiveManualClearBtn();
+	        }
+	      });
+	    }
+	    const btnReceiveManualClear = $('btnReceiveManualClear');
+	    if(btnReceiveManualClear && receiveManualSearch){
+	      btnReceiveManualClear.addEventListener('click', ()=>{
+	        if(!receiveManualSearch.value) return;
+	        receiveManualSearch.value = '';
+	        if(state._receiveOrder) state._receiveOrder.manualSearch = '';
+	        renderReceiveManualResults();
+	        updateReceiveManualClearBtn();
+	        try{ receiveManualSearch.focus(); }catch(e){}
+	      });
+	    }
+	    const receiveManualResults = $('receiveManualResults');
+	    if(receiveManualResults) receiveManualResults.addEventListener('click', (e)=>{
+	      const btn = e.target.closest('button[data-receive-add-item-id]');
+	      if(!btn) return;
+	      const id = String(btn.dataset.receiveAddItemId || '').trim();
+	      if(!id) return;
+	      void addManualReceiveLine(id);
+	    });
 	    const receiveOrderReceipts = $('receiveOrderReceipts');
 	    if(receiveOrderReceipts) receiveOrderReceipts.addEventListener('click', (e)=>{
 	      const btn = e.target.closest('button[data-void-receipt-id]');
@@ -28431,6 +29550,17 @@ function emptyStateHtml(){
     });
     const btnOrderCopy = $('btnOrderCopy');
     if(btnOrderCopy) btnOrderCopy.addEventListener('click', copyOrderToClipboard);
+    const btnOrderPreviewToggle = $('btnOrderPreviewToggle');
+    if(btnOrderPreviewToggle) btnOrderPreviewToggle.addEventListener('click', ()=>{
+      const previewBody = $('orderPreviewHtml');
+      const toggleText = $('orderPreviewToggleText');
+      const toggleIcon = $('orderPreviewToggleIcon');
+      if(!previewBody) return;
+      const isExpanded = previewBody.classList.toggle('expanded');
+      if(toggleText) toggleText.textContent = isExpanded ? 'Collapse' : 'Expand';
+      if(toggleIcon) toggleIcon.style.transform = isExpanded ? 'rotate(180deg)' : '';
+      btnOrderPreviewToggle.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+    });
     const btnOrderSubmit = $('btnOrderSubmit');
     if(btnOrderSubmit) btnOrderSubmit.addEventListener('click', async ()=>{
       const url = buildMailtoUrl();

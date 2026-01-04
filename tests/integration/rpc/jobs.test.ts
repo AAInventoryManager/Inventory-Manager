@@ -101,6 +101,22 @@ async function fetchJobEvents(jobId: string): Promise<string[]> {
     .filter((name): name is string => Boolean(name));
 }
 
+async function fetchActiveShortfalls(jobId: string): Promise<Map<string, number>> {
+  const { data, error } = await adminClient
+    .from('shortfalls')
+    .select('item_id,qty_missing,status')
+    .eq('job_id', jobId)
+    .eq('status', 'active');
+  if (error) throw error;
+  const map = new Map<string, number>();
+  (data || []).forEach(row => {
+    const itemId = String((row as { item_id?: string }).item_id || '').trim();
+    const qty = Number((row as { qty_missing?: number }).qty_missing || 0);
+    if (itemId && Number.isFinite(qty)) map.set(itemId, qty);
+  });
+  return map;
+}
+
 describe.sequential('Jobs RPCs', () => {
   let companyId: string;
   let adminAuth: SupabaseClient;
@@ -167,7 +183,7 @@ describe.sequential('Jobs RPCs', () => {
     expect(qty).toBe(5);
   });
 
-  it('allows approval when job was never fulfillable', async () => {
+  it('blocks approval and records shortfall when job is not fulfillable', async () => {
     const itemId = await createInventoryItem(companyId, `Item Block ${uniqueSuffix}`, 2, adminUserId);
 
     const { data: jobId } = await adminAuth.rpc('create_job', {
@@ -182,14 +198,18 @@ describe.sequential('Jobs RPCs', () => {
       p_qty_planned: 3
     });
 
-    const { error } = await adminAuth.rpc('approve_job', {
+    const { data, error } = await adminAuth.rpc('approve_job', {
       p_job_id: jobId,
       p_was_fulfillable: false
     });
     expect(error).toBeNull();
+    expect(data?.blocked).toBe(true);
 
     const { data: job } = await adminClient.from('jobs').select('status').eq('id', jobId).single();
-    expect(job?.status).toBe('approved');
+    expect(job?.status).toBe('draft');
+
+    const shortfalls = await fetchActiveShortfalls(jobId);
+    expect(shortfalls.get(itemId)).toBe(1);
   });
 
   it('reserves inventory on approval and keeps approvals idempotent', async () => {
@@ -236,6 +256,10 @@ describe.sequential('Jobs RPCs', () => {
       p_was_fulfillable: false
     });
     expect(approve2.error).toBeNull();
+    expect(approve2.data?.blocked).toBe(true);
+
+    const shortfallsBefore = await fetchActiveShortfalls(jobId2);
+    expect(shortfallsBefore.get(itemId)).toBe(1);
 
     await adminAuth.rpc('upsert_job_bom_line', {
       p_job_id: jobId2,
@@ -248,8 +272,12 @@ describe.sequential('Jobs RPCs', () => {
       p_was_fulfillable: false
     });
     expect(approve2Fixed.error).toBeNull();
+    expect(approve2Fixed.data?.status).toBe('approved');
     const qty = await getItemQuantity(itemId);
     expect(qty).toBe(5);
+
+    const shortfallsAfter = await fetchActiveShortfalls(jobId2);
+    expect(shortfallsAfter.size).toBe(0);
   });
 
   it('completes job with variance, consumes inventory, and releases reservations', async () => {
@@ -472,12 +500,13 @@ describe.sequential('Jobs RPCs', () => {
       await adminClient.from('inventory_items').update({ quantity: 3 }).eq('id', itemId);
 
       // Approval should fail due to insufficient inventory
-      const { error } = await adminAuth.rpc('approve_job', {
+      const { data, error } = await adminAuth.rpc('approve_job', {
         p_job_id: jobId,
         p_was_fulfillable: true
       });
-      expect(error).not.toBeNull();
-      expect(error?.message || '').toContain('Inventory changed during job approval');
+      expect(error).toBeNull();
+      expect(data?.blocked).toBe(true);
+      expect(data?.reason).toBe('inventory_changed');
     });
 
     it('TEST 3 - concurrent user conflict blocks second approval', async () => {
@@ -518,12 +547,13 @@ describe.sequential('Jobs RPCs', () => {
       expect(approveB).toBeNull();
 
       // User A tries to approve - should fail (only 1 unit left available)
-      const { error: approveA } = await adminAuth.rpc('approve_job', {
+      const { data: approveA, error: approveAError } = await adminAuth.rpc('approve_job', {
         p_job_id: jobIdA,
         p_was_fulfillable: true
       });
-      expect(approveA).not.toBeNull();
-      expect(approveA?.message || '').toContain('Inventory changed during job approval');
+      expect(approveAError).toBeNull();
+      expect(approveA?.blocked).toBe(true);
+      expect(approveA?.reason).toBe('inventory_changed');
     });
 
     it('TEST 4 - unrelated inventory change does not block approval', async () => {
