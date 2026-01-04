@@ -2477,6 +2477,31 @@
     .order-review-summary-value.accent{
       color:#60a5fa;
     }
+    .order-review-shortfall-toggle{
+      margin:-6px 0 16px;
+      padding:10px 12px;
+      border:1px dashed rgba(148,163,184,0.25);
+      border-radius:10px;
+      font-size:12px;
+      color:var(--muted);
+      background:rgba(15,23,42,0.25);
+    }
+    .order-shortfall-toggle{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:600;
+      color:#e2e8f0;
+      cursor:pointer;
+    }
+    .order-shortfall-toggle input{
+      accent-color:#60a5fa;
+    }
+    .order-shortfall-hint{
+      margin-top:6px;
+      font-size:11px;
+      color:#94a3b8;
+    }
 
     /* Wizard Footer */
     .order-wizard-footer{
@@ -3517,6 +3542,19 @@
       border:1px solid transparent;
       white-space:nowrap;
     }
+    .job-readiness-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:600;
+      letter-spacing:0.02em;
+      text-transform:uppercase;
+      border:1px solid transparent;
+      white-space:nowrap;
+    }
     .job-status-pill--approved{
       color:var(--status-approved, #238636);
       background:rgba(35,134,54,0.15);
@@ -3531,6 +3569,21 @@
       color:var(--status-draft, #6e7681);
       background:rgba(110,118,129,0.15);
       border-color:rgba(110,118,129,0.3);
+    }
+    .job-readiness-pill--ready{
+      color:var(--status-approved, #22c55e);
+      background:rgba(34,197,94,0.12);
+      border-color:rgba(34,197,94,0.3);
+    }
+    .job-readiness-pill--not-ready{
+      color:var(--status-pending, #f59e0b);
+      background:rgba(245,158,11,0.12);
+      border-color:rgba(245,158,11,0.3);
+    }
+    .job-readiness-pill--unknown{
+      color:var(--muted, #94a3b8);
+      background:rgba(148,163,184,0.12);
+      border-color:rgba(148,163,184,0.3);
     }
     .job-summary{
       display:inline-flex;
@@ -3917,6 +3970,46 @@
       text-transform:uppercase;
       border:1px solid transparent;
       flex-shrink:0;
+    }
+    .job-readiness-badge{
+      padding:4px 10px;
+      border-radius:6px;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:0.2px;
+      text-transform:uppercase;
+      border:1px solid transparent;
+      flex-shrink:0;
+    }
+    .job-readiness-badge--ready{
+      background:rgba(34,197,94,0.18);
+      color:#22c55e;
+      border-color:rgba(34,197,94,0.35);
+    }
+    .job-readiness-badge--not-ready{
+      background:rgba(245,158,11,0.18);
+      color:#f59e0b;
+      border-color:rgba(245,158,11,0.35);
+    }
+    .job-readiness-badge--unknown{
+      background:rgba(148,163,184,0.16);
+      color:#94a3b8;
+      border-color:rgba(148,163,184,0.3);
+    }
+    .job-readiness-detail{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .job-readiness-detail .job-readiness-value{
+      font-weight:700;
+      color:#e2e8f0;
+    }
+    .job-readiness-detail .job-readiness-reasons{
+      font-size:11px;
+      color:var(--muted);
     }
     .job-status-badge--draft{
       background:rgba(59,130,246,0.2);
@@ -4356,6 +4449,16 @@
       color:#3b82f6;
     }
     .job-on-order-note svg{ width:12px; height:12px; }
+    .job-shortfall-link{
+      display:flex;
+      align-items:center;
+      gap:5px;
+      margin-top:4px;
+      font-size:11px;
+      color:#94a3b8;
+    }
+    .job-shortfall-link.has-order{ color:#22c55e; }
+    .job-shortfall-link svg{ width:12px; height:12px; }
     .job-add-to-po-btn{
       display:flex;
       align-items:center;
@@ -6663,12 +6766,7 @@
     }
     .manage-companies-modal{
       width:96vw;
-      max-width:min(1200px, 96vw);
-    }
-    @media (min-width: 1400px){
-      .manage-companies-modal{
-        max-width:1400px;
-      }
+      max-width:min(800px, 96vw);
     }
     .manage-companies-results{
       margin-top:10px;
@@ -6818,9 +6916,7 @@
       height:32px;
     }
     .company-overflow-menu{
-      position:absolute;
-      right:0;
-      top:36px;
+      position:fixed;
       min-width:190px;
       background:#121820;
       border:1px solid rgba(255,255,255,0.08);
@@ -6828,7 +6924,7 @@
       padding:8px;
       box-shadow:0 12px 30px rgba(0,0,0,0.35);
       display:none;
-      z-index:20;
+      z-index:9999;
     }
     .company-overflow.open .company-overflow-menu{ display:block; }
     .company-overflow-section{
@@ -7263,36 +7359,154 @@
     .shipping-address-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .shipping-address-form{display:flex;flex-direction:column;gap:8px}
     .shipping-address-default{display:flex;align-items:center;gap:12px}
-    .company-locations-list{margin-top:12px}
-    .company-locations-table{min-width:860px}
-    .company-location-name-row{display:flex;align-items:center;gap:8px;justify-content:space-between}
-    .company-location-name{font-weight:700;flex:1;min-width:0}
-    .company-location-address{white-space:pre-line;color:var(--muted)}
-    .company-location-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .company-location-status{
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:0.08em;
-      font-weight:700;
-      color:#86efac;
+    /* Company Locations Modal */
+    .locations-modal{
+      width:96vw;
+      max-width:min(900px,96vw);
     }
-    .company-location-status.archived{color:#fca5a5}
-    .company-location-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
-    .company-location-badge{
+    .locations-body{
+      padding:0 !important;
+    }
+    .locations-toolbar{
+      display:flex;
+      justify-content:flex-end;
+      padding:12px 16px;
+      border-bottom:1px solid var(--border);
+    }
+    .locations-table-wrap{
+      padding:0 16px 16px;
+    }
+    .locations-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:14px;
+    }
+    .locations-table thead{
+      position:sticky;
+      top:0;
+      z-index:10;
+      background:#0d131b;
+    }
+    .locations-table th{
+      padding:12px 16px;
+      text-align:left;
+      font-weight:600;
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      border-bottom:1px solid var(--border);
+      white-space:nowrap;
+    }
+    .locations-table td{
+      padding:14px 16px;
+      border-bottom:1px solid var(--border);
+      vertical-align:middle;
+    }
+    .locations-table tbody tr:hover{background:rgba(255,255,255,0.02)}
+    .locations-table tbody tr:last-child td{border-bottom:none}
+    .location-name-cell{display:flex;align-items:center;gap:12px}
+    .location-edit-btn{
+      width:32px;
+      height:32px;
+      border:1px solid var(--border);
+      background:#101826;
+      border-radius:8px;
+      color:var(--fg);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:background 0.15s;
+      flex-shrink:0;
+    }
+    .location-edit-btn:hover{background:#1a2636}
+    .location-edit-btn:disabled{opacity:0.4;cursor:not-allowed}
+    .location-name-text{display:flex;flex-direction:column;gap:2px}
+    .location-name-primary{font-weight:600;color:var(--fg)}
+    .location-id{font-size:11px;color:var(--muted);font-family:monospace}
+    .location-type{color:var(--muted)}
+    .location-address{line-height:1.4;color:var(--fg)}
+    .location-address-line{display:block}
+    .location-address-city{color:var(--muted);font-size:13px}
+    .location-status{
       display:inline-flex;
       align-items:center;
-      padding:2px 6px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      font-size:10px;
+      gap:6px;
+      font-size:12px;
+      font-weight:600;
       text-transform:uppercase;
-      letter-spacing:0.08em;
-      font-weight:700;
-      background:var(--card);
-      color:var(--muted);
+      letter-spacing:0.5px;
     }
-    .company-location-badge.ship{border-color:#1d4ed8;color:#93c5fd;background:#0f263a}
-    .company-location-badge.receive{border-color:#16a34a;color:#86efac;background:#0f2f26}
+    .location-status::before{
+      content:'';
+      width:6px;
+      height:6px;
+      background:currentColor;
+      border-radius:50%;
+    }
+    .location-status.active{color:#22c55e}
+    .location-status.archived{color:#f87171}
+    .location-defaults{display:flex;flex-wrap:wrap;gap:6px}
+    .location-default-tag{
+      padding:4px 10px;
+      border-radius:6px;
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+    }
+    .location-default-tag.ship-to{
+      background:rgba(59,130,246,0.2);
+      color:#60a5fa;
+      border:1px solid rgba(59,130,246,0.3);
+    }
+    .location-default-tag.receive-at{
+      background:rgba(34,197,94,0.2);
+      color:#4ade80;
+      border:1px solid rgba(34,197,94,0.3);
+    }
+    .location-no-default{color:var(--muted);font-size:13px}
+    .location-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+    .locations-empty{padding:32px 16px;text-align:center;color:var(--muted)}
+    /* Mobile Cards */
+    .locations-mobile-cards{display:none;padding:12px 16px;overflow:auto}
+    .location-card{
+      background:#0d131b;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px;
+      margin-bottom:12px;
+    }
+    .location-card:last-child{margin-bottom:0}
+    .location-card-header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .location-card-name{font-weight:600;font-size:15px;margin-bottom:4px}
+    .location-card-id{font-size:11px;color:var(--muted);font-family:monospace}
+    .location-card-meta{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-bottom:12px;
+      font-size:14px;
+    }
+    .location-card-row{display:flex;gap:8px}
+    .location-card-label{color:var(--muted);min-width:60px}
+    .location-card-defaults{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+    .location-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .location-card-actions .btn-tertiary{width:100%;justify-content:center}
+    .location-card-actions .btn-danger{grid-column:span 2}
+    @media (max-width:768px){
+      .locations-modal{max-height:calc(100vh - 24px);border-radius:12px}
+      .locations-toolbar{padding:10px 16px}
+      .locations-table-wrap{display:none}
+      .locations-mobile-cards{display:block}
+    }
     .company-location-form{
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
@@ -7302,9 +7516,72 @@
     .company-location-form .field{display:flex;flex-direction:column;gap:6px}
     .company-location-form .field.full{grid-column:1 / -1}
     .company-location-defaults{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
+    /* Company Selector for Super Users */
+    .locations-company-selector{
+      border-bottom:1px solid var(--border);
+      padding:12px 16px;
+    }
+    .locations-selector-header{margin-bottom:10px}
+    .locations-company-list{
+      max-height:200px;
+      overflow-y:auto;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background:#0d131b;
+    }
+    .locations-company-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 12px;
+      cursor:pointer;
+      border-bottom:1px solid var(--border);
+    }
+    .locations-company-item:last-child{border-bottom:none}
+    .locations-company-item:hover{background:rgba(255,255,255,0.04)}
+    .locations-company-name{font-weight:600}
+    .locations-no-locations{
+      font-size:11px;
+      color:#f97316;
+      background:rgba(249,115,22,0.15);
+      padding:2px 8px;
+      border-radius:4px;
+    }
+    .locations-has-locations{
+      font-size:11px;
+      color:var(--muted);
+    }
+    .locations-selected-company{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 16px;
+      background:rgba(59,130,246,0.1);
+      border-bottom:1px solid var(--border);
+    }
+    .locations-selected-company .btn-change-company{
+      background:transparent;
+      border:1px solid var(--border);
+      color:var(--accent);
+      padding:6px 12px;
+      border-radius:6px;
+      font-size:13px;
+      font-weight:500;
+      cursor:pointer;
+      transition:background 0.15s, border-color 0.15s;
+    }
+    .locations-selected-company .btn-change-company:hover{
+      background:rgba(59,130,246,0.1);
+      border-color:var(--accent);
+    }
+    /* Z-index for nested modals (when opened from other modals) */
+    #companyLocationsModal.modal-nested{z-index:10002}
+    #companyLocationsModal.modal-nested .modal{z-index:10003}
+    #companyLocationEditorModal.modal-nested{z-index:10004}
+    #companyLocationEditorModal.modal-nested .modal{z-index:10005}
 
     /* Google Places Autocomplete Styling */
-    .pac-container{background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.4);font-family:inherit;z-index:10001;margin-top:4px}
+    .pac-container{background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.4);font-family:inherit;z-index:10010;margin-top:4px}
     .pac-item{padding:10px 14px;color:var(--fg);cursor:pointer;border-top:1px solid var(--border);font-size:13px}
     .pac-item:first-child{border-top:none}
     .pac-item:hover,.pac-item-selected{background:var(--border)}
@@ -8488,33 +8765,25 @@
           <div class="inventory-display">
             <div class="inventory-item">
               <div class="inventory-label">On Hand</div>
-              <div class="inventory-value editable" id="editInvOnHandValue" role="button" tabindex="0" aria-label="Click to edit quantity">0</div>
-              <div class="inventory-stepper">
-                <button class="inventory-stepper-btn" id="editInvOnHandMinus" type="button" aria-label="Decrease">−</button>
-                <button class="inventory-stepper-btn" id="editInvOnHandPlus" type="button" aria-label="Increase">+</button>
-              </div>
+              <div class="inventory-value calculated" id="editInvOnHandValue">0</div>
+              <div class="inventory-calc-hint">Inventory updates only via Receiving</div>
             </div>
             <div class="inventory-item">
-              <div class="inventory-label">Reserved</div>
-              <div class="inventory-value" id="editInvReservedValue">0</div>
+              <div class="inventory-label">Incoming (Not Yet Received)</div>
+              <div class="inventory-value calculated" id="editInvIncomingValue">0</div>
+              <div class="inventory-calc-hint">(open orders)</div>
+            </div>
+            <div class="inventory-item">
+              <div class="inventory-label">Allocated</div>
+              <div class="inventory-value calculated" id="editInvAllocatedValue">0</div>
               <div class="inventory-calc-hint">(from orders)</div>
             </div>
             <div class="inventory-item">
-              <div class="inventory-label">Available</div>
-              <div class="inventory-value calculated" id="editInvAvailableValue">0</div>
-              <div class="inventory-calc-hint">(calculated)</div>
+              <div class="inventory-label">Remaining</div>
+              <div class="inventory-value calculated" id="editInvRemainingValue">0</div>
+              <div class="inventory-calc-hint">(derived)</div>
             </div>
           </div>
-          <div class="quick-actions">
-            <button class="quick-btn" data-quick-add="10" type="button">+10</button>
-            <button class="quick-btn" data-quick-add="25" type="button">+25</button>
-            <button class="quick-btn" data-quick-add="50" type="button">+50</button>
-            <button class="quick-btn" data-quick-add="100" type="button">+100</button>
-          </div>
-          <!-- Hidden input for form submission -->
-          <input type="hidden" id="editItemQty" />
-          <input type="hidden" id="editItemReserved" />
-          <input type="hidden" id="editItemAvailable" />
         </div>
 
         <!-- Settings Tab -->
@@ -8868,6 +9137,17 @@
                 <span class="order-review-summary-label">Ship To</span>
                 <span class="order-review-summary-value" id="orderReviewShipTo">—</span>
               </div>
+              <div class="order-review-summary-row" id="orderReviewShortfallRow" style="display:none;">
+                <span class="order-review-summary-label">Shortfall</span>
+                <span class="order-review-summary-value" id="orderReviewShortfallValue">—</span>
+              </div>
+            </div>
+            <div class="order-review-shortfall-toggle" id="orderReviewShortfallToggle" style="display:none;">
+              <label class="order-shortfall-toggle">
+                <input type="checkbox" id="orderShortfallAttachToggle" />
+                Attach shortfall to this order
+              </label>
+              <div id="orderReviewShortfallHint" class="order-shortfall-hint"></div>
             </div>
             <div class="order-review-section">
               <div class="order-review-label">Order Details</div>
@@ -8996,20 +9276,15 @@
 
   <!-- Company locations modal -->
   <div id="companyLocationsModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal modal--lg" role="dialog" aria-modal="true" aria-labelledby="companyLocationsTitle">
+    <div class="modal locations-modal" role="dialog" aria-modal="true" aria-labelledby="companyLocationsTitle">
       <div class="modal-header">
         <div class="modal-title-wrap">
           <span class="modal-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M3 21h18"></path>
-              <path d="M5 21V7l8-4 8 4v14"></path>
-              <path d="M9 21v-8h6v8"></path>
+              <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
             </svg>
           </span>
-          <div class="modal-title-text">
-            <h2 id="companyLocationsTitle" class="modal-title">Company Locations</h2>
-            <div class="modal-subtitle">Manage locations used for shipping and receiving.</div>
-          </div>
+          <h2 id="companyLocationsTitle" class="modal-title">Company Locations</h2>
         </div>
         <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="companyLocationsModal" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -9018,15 +9293,23 @@
           </svg>
         </button>
       </div>
-      <div class="modal-body">
-        <div class="form-section">
-          <div class="section-label">Locations</div>
-          <div style="display:flex;justify-content:flex-end;">
-            <button class="btn-secondary" id="btnCompanyLocationNew" type="button">Add Location</button>
+      <div class="modal-body locations-body">
+        <div id="locationsCompanySelector" class="locations-company-selector" hidden>
+          <div class="locations-selector-header">
+            <input type="text" id="locationsCompanySearch" placeholder="Search companies..." class="form-input">
           </div>
-          <div id="companyLocationsList" class="company-locations-list" aria-live="polite"></div>
-          <div id="companyLocationsMsg" class="muted" style="margin-top:8px;"></div>
+          <div id="locationsCompanyList" class="locations-company-list"></div>
         </div>
+        <div id="locationsSelectedCompany" class="locations-selected-company" hidden>
+          <span>Managing: <strong id="locationsSelectedName"></strong></span>
+          <button type="button" id="btnLocationsClearCompany" class="btn-change-company">Change Company</button>
+        </div>
+        <div class="locations-toolbar">
+          <button class="btn-primary" id="btnCompanyLocationNew" type="button">+ Add Location</button>
+        </div>
+        <div id="companyLocationsList" class="locations-table-wrap" aria-live="polite"></div>
+        <div id="companyLocationsMobileCards" class="locations-mobile-cards"></div>
+        <div id="companyLocationsMsg" class="muted" style="padding:16px 0;"></div>
       </div>
       <div class="modal-footer">
         <div class="footer-right">
@@ -9249,6 +9532,7 @@
         <div class="job-status-bar">
           <div class="job-status-name" id="jobStatusName">Untitled Job</div>
           <div id="jobStatusBadge" class="job-status-badge job-status-badge--draft">DRAFT</div>
+          <div id="jobReadinessBadge" class="job-readiness-badge job-readiness-badge--unknown">UNKNOWN</div>
         </div>
         <div class="job-progress-stepper" id="jobProgressStepper" aria-label="Job progress">
           <button class="job-step-item" type="button" data-job-step="details" aria-label="Details step">
@@ -9294,6 +9578,13 @@
               <div class="job-field-half">
                 <label class="job-field-label">Created</label>
                 <div id="jobCreatedMeta" class="job-date-display">--</div>
+              </div>
+            </div>
+            <div class="job-field-group">
+              <label class="job-field-label">Readiness</label>
+              <div id="jobReadinessDetail" class="job-readiness-detail">
+                <span id="jobReadinessValue" class="job-readiness-value">Unknown</span>
+                <span id="jobReadinessReasons" class="job-readiness-reasons"></span>
               </div>
             </div>
             <div class="job-field-group">
@@ -11218,7 +11509,9 @@
         contactName:'',
         search:'',
         shippingAddressId:'',
-        shippingAddressSnapshot:null
+        shippingAddressSnapshot:null,
+        shortfall:null,
+        shortfallAttached:false
       },
       _orderHistoryLinesByPo:new Map(),
       _receiveOrder:null,
@@ -11230,6 +11523,7 @@
       _companyLocations:[],
       _companyLocationById:new Map(),
       _companyLocationEditing:null,
+      _companyLocationsContext:null,
 	      _trashItems:[],
 	      _trashFilter:'',
       _auditRows:[],
@@ -11288,6 +11582,9 @@
       _jobReservedMap:new Map(),
       _jobAllocationsByJobId:new Map(),
       _jobShortfallsByJobId:new Map(),
+      _jobReadinessByJobId:new Map(),
+      _shortfallOrdersById:new Map(),
+      _shortfallOrdersLoaded:false,
       _addToJob:null,
       _addToJobBusy:false,
       _seedInventory:null,
@@ -12484,7 +12781,17 @@
       const el = $(inputId);
       if(!el) return null;
       if(isPlaceAutocompleteHost(el)){
-        return el.inputElement || null;
+        // Try multiple methods to find the internal input
+        if(el.inputElement) return el.inputElement;
+        // Try shadow DOM
+        if(el.shadowRoot){
+          const shadowInput = el.shadowRoot.querySelector('input');
+          if(shadowInput) return shadowInput;
+        }
+        // Try direct child input
+        const childInput = el.querySelector('input');
+        if(childInput) return childInput;
+        return null;
       }
       return el;
     }
@@ -12493,10 +12800,20 @@
       const el = $(inputId);
       if(!el) return '';
       if(isPlaceAutocompleteHost(el)){
-        if(el.inputElement && el.inputElement.value) return String(el.inputElement.value || '');
-        if(el._imLastValue) return String(el._imLastValue || '');
+        // First check our cached value
+        if(el._imLastValue) return String(el._imLastValue);
+        // Try inputElement property
+        if(el.inputElement && typeof el.inputElement.value === 'string') return el.inputElement.value;
+        // Try shadow DOM
+        if(el.shadowRoot){
+          const shadowInput = el.shadowRoot.querySelector('input');
+          if(shadowInput && shadowInput.value) return String(shadowInput.value);
+        }
+        // Try direct child
+        const childInput = el.querySelector('input');
+        if(childInput && childInput.value) return String(childInput.value);
         try{
-          if(typeof el.value !== 'undefined') return String(el.value || '');
+          if(typeof el.value === 'string') return el.value;
         }catch(e){}
         return '';
       }
@@ -12509,8 +12826,18 @@
       const next = String(value || '');
       if(!el) return;
       if(isPlaceAutocompleteHost(el)){
-        if(el.inputElement) el.inputElement.value = next;
+        // Always cache the value
         el._imLastValue = next;
+        // Try inputElement property
+        if(el.inputElement) el.inputElement.value = next;
+        // Try shadow DOM
+        if(el.shadowRoot){
+          const shadowInput = el.shadowRoot.querySelector('input');
+          if(shadowInput) shadowInput.value = next;
+        }
+        // Try direct child
+        const childInput = el.querySelector('input');
+        if(childInput) childInput.value = next;
         try{
           if(typeof el.value !== 'undefined') el.value = next;
         }catch(e){}
@@ -12592,11 +12919,13 @@
         components = safePlaceField(place, 'addressComponents') || components || [];
         populateAddressFields(components, fieldMapping, formattedAddress);
 
-        const nextValue = getInputValueById(inputId) || formattedAddress || inputFallback || '';
-        if(nextValue && !getInputValueById(inputId)){
-          setInputValueById(inputId, nextValue);
+        // Ensure address1 has a value - use formattedAddress as fallback
+        const currentAddr1 = getInputValueById(inputId);
+        if(!currentAddr1 && formattedAddress){
+          setInputValueById(inputId, formattedAddress);
         }
-        placeElement._imLastValue = nextValue;
+        // Always cache the final value
+        placeElement._imLastValue = getInputValueById(inputId) || formattedAddress || inputFallback || '';
       };
 
       placeElement.addEventListener('gmp-select', handleSelect);
@@ -14785,6 +15114,22 @@
       wrapper.classList.add('open');
       state._companyOverflowOpenId = targetId;
       if(btn) btn.setAttribute('aria-expanded', 'true');
+      const menu = wrapper.querySelector('.company-overflow-menu');
+      if(menu && btn){
+        const btnRect = btn.getBoundingClientRect();
+        const menuHeight = menu.offsetHeight || 200;
+        const spaceBelow = window.innerHeight - btnRect.bottom - 8;
+        const spaceAbove = btnRect.top - 8;
+        if(spaceBelow >= menuHeight || spaceBelow >= spaceAbove){
+          menu.style.top = (btnRect.bottom + 4) + 'px';
+          menu.style.bottom = 'auto';
+        } else {
+          menu.style.bottom = (window.innerHeight - btnRect.top + 4) + 'px';
+          menu.style.top = 'auto';
+        }
+        menu.style.right = (window.innerWidth - btnRect.right) + 'px';
+        menu.style.left = 'auto';
+      }
       const first = wrapper.querySelector('.company-overflow-item');
       if(first) first.focus();
     }
@@ -15231,6 +15576,24 @@
         console.warn('Failed to load inventory:', e);
         setManageInventoryMessage('Failed to load inventory.');
       }
+    }
+    async function openManageCompanyLocationsModal(company){
+      if(!company) return;
+      if(!isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return;
+      }
+      const companyId = String(company.company_id || '').trim();
+      if(!companyId) return;
+      const companyName = String(company.company_name || company.company_slug || company.company_id || '').trim() || companyId;
+      // Add nested class for higher z-index when opened from Manage Companies
+      const modal = $('companyLocationsModal');
+      if(modal) modal.classList.add('modal-nested');
+      await openCompanyLocationsModal({
+        companyId,
+        companyName,
+        source:'manage_companies'
+      });
     }
     async function deleteSelectedInventory(){
       if(!isEffectiveSuperUser()) return;
@@ -15935,6 +16298,7 @@
                   `<div class="company-overflow-section">Manage</div>` +
                   `<button class="company-overflow-item" type="button" role="menuitem" data-manage-users="${escapeHtmlAttr(id)}">Manage Users</button>` +
                   `<button class="company-overflow-item" type="button" role="menuitem" data-manage-inventory="${escapeHtmlAttr(id)}">Manage Inventory</button>` +
+                  `<button class="company-overflow-item" type="button" role="menuitem" data-manage-locations="${escapeHtmlAttr(id)}">Manage Locations</button>` +
                   `<div class="company-overflow-section">Data Operations</div>` +
                   `<button class="company-overflow-item" type="button" role="menuitem" data-advanced-seed="${escapeHtmlAttr(id)}">Seed Inventory</button>` +
                   `<button class="company-overflow-item" type="button" role="menuitem" data-advanced-reset-seed="${escapeHtmlAttr(id)}">Reset Seed Lock</button>` +
@@ -16037,6 +16401,15 @@
             await openManageInventoryModal(row);
             return;
           }
+          const manageLocationsBtn = e.target.closest('[data-manage-locations]');
+          if(manageLocationsBtn){
+            closeCompanyOverflowMenus();
+            const targetId = String(manageLocationsBtn.getAttribute('data-manage-locations') || '').trim();
+            const row = getAdvancedCompanyRow(targetId);
+            if(!row) return;
+            await openManageCompanyLocationsModal(row);
+            return;
+          }
           const seedBtn = e.target.closest('[data-advanced-seed]');
           if(seedBtn){
             closeCompanyOverflowMenus();
@@ -16101,6 +16474,7 @@
             return;
           }
         });
+        container.addEventListener('scroll', closeCompanyOverflowMenus, { passive: true });
       }
     }
     async function loadAdvancedCompanies(){
@@ -17553,6 +17927,10 @@
       state._companyLocations = [];
       state._companyLocationById = new Map();
       state._companyLocationEditing = null;
+      state._companyLocationsContext = null;
+      state._locationsCompanies = [];
+      state._locationsCompanySearch = '';
+      state._locationsLocationCounts = {};
       state._receiveOrder = null;
       state._userMgmtRows = [];
       state._pendingInvites = [];
@@ -21081,22 +21459,6 @@ function emptyStateHtml(){
       setEditItemMessage('');
       show('editItemModal', false);
     }
-	    function updateEditItemAvailability(){
-	      const ctx = _editItemCtx;
-	      if(!ctx || !ctx.id) return;
-	      const it = state.items.find(x=> x.id===ctx.id);
-	      if(!it) return;
-	      const qtyInput = $('editItemQty');
-	      const qtyVal = qtyInput ? toInt(qtyInput.value, toInt(it.qty,0)) : toInt(it.qty,0);
-	      const reserved = getInventoryReservedQty(it);
-	      const reservedNum = Number.isFinite(reserved) ? reserved : 0;
-	      const reservedEl = $('editItemReserved');
-	      const availableEl = $('editItemAvailable');
-	      if(reservedEl) reservedEl.value = (reserved === null || typeof reserved === 'undefined') ? '—' : formatQty(reserved);
-	      if(availableEl) availableEl.value = formatQty(Math.max(0, qtyVal - reservedNum));
-	      // Also update new inventory display
-	      updateEditItemInventoryDisplay();
-	    }
 	    const DEFAULT_UOM_OPTIONS = ['Each','Box','Case','Pack','Pallet','Set','Pair','Roll','Foot','Meter'];
 	    function renderEditItemUomOptions(selected){
 	      const select = $('editItemUom');
@@ -21156,7 +21518,7 @@ function emptyStateHtml(){
 	      renderEditItemUomOptions(selectedUom);
 	      renderEditItemCategoryOptions(selectedCategoryId);
 	      renderEditItemLocationOptions(selectedLocationId);
-	      if((state._companyLocations || []).length) return;
+	      // Always refresh locations to ensure we have current company's locations
 	      try{
 	        await loadCompanyLocations();
 	      }catch(e){}
@@ -21172,16 +21534,8 @@ function emptyStateHtml(){
 	      const sku = $('editItemSku'); if(sku) sku.value = String(it.sku||'');
 	      const desc = $('editItemDesc'); if(desc) desc.value = String(it.desc||'');
 
-	      // Inventory tab - set hidden inputs and display values
-	      const qtyVal = toInt(it.qty, 0);
-	      const qty = $('editItemQty'); if(qty) qty.value = String(qtyVal);
-	      const reservedQty = getInventoryReservedQty(it);
-	      const reserved = Number.isFinite(reservedQty) ? reservedQty : 0;
-
-	      // Update display elements
-	      const onHandDisplay = $('editInvOnHandValue'); if(onHandDisplay) onHandDisplay.textContent = String(qtyVal);
-	      const reservedDisplay = $('editInvReservedValue'); if(reservedDisplay) reservedDisplay.textContent = String(reserved);
-	      updateEditItemInventoryDisplay();
+      // Inventory tab - display-only values
+      updateEditItemInventoryDisplay();
 
 	      // Settings tab
 	      const lowStockOverride = getItemLowStockQtyOverride(it);
@@ -21254,33 +21608,37 @@ function emptyStateHtml(){
       if(subtitle) subtitle.textContent = `${skuPart} · ${locPart}`;
     }
 
-    // Update inventory display (available value + color coding)
+    // Update inventory display (derived, read-only)
     function updateEditItemInventoryDisplay(){
-      const qtyInput = $('editItemQty');
       const onHandDisplay = $('editInvOnHandValue');
-      const reservedDisplay = $('editInvReservedValue');
-      const availableDisplay = $('editInvAvailableValue');
+      const incomingDisplay = $('editInvIncomingValue');
+      const allocatedDisplay = $('editInvAllocatedValue');
+      const remainingDisplay = $('editInvRemainingValue');
 
-      const qty = qtyInput ? toInt(qtyInput.value, 0) : 0;
-      const reserved = reservedDisplay ? toInt(reservedDisplay.textContent, 0) : 0;
-      const available = qty - reserved;
+      const ctx = _editItemCtx;
+      const itemId = ctx && ctx.id ? String(ctx.id) : '';
+      const it = itemId ? state.items.find(x=> x && x.id === itemId) : null;
+      const onHand = it ? toInt(it.qty, 0) : 0;
+      const reservedRaw = it ? getInventoryReservedQty(it) : 0;
+      const allocated = Number.isFinite(reservedRaw) ? reservedRaw : 0;
+      const incomingMap = (state._incomingByItemId && typeof state._incomingByItemId.get === 'function')
+        ? state._incomingByItemId
+        : buildInventoryIncomingMap();
+      state._incomingByItemId = incomingMap;
+      const incomingEntry = itemId ? incomingMap.get(itemId) : null;
+      const incomingQty = incomingEntry ? Number(incomingEntry.qty || 0) : 0;
+      const remaining = onHand - allocated;
 
-      if(onHandDisplay) onHandDisplay.textContent = String(qty);
-      if(availableDisplay){
-        availableDisplay.textContent = String(available);
-        availableDisplay.classList.remove('positive', 'negative', 'calculated');
-        if(available > 0) availableDisplay.classList.add('positive');
-        else if(available < 0) availableDisplay.classList.add('negative');
-        else availableDisplay.classList.add('calculated');
+      if(onHandDisplay) onHandDisplay.textContent = formatQty(onHand);
+      if(incomingDisplay) incomingDisplay.textContent = formatQty(incomingQty);
+      if(allocatedDisplay) allocatedDisplay.textContent = formatQty(allocated);
+      if(remainingDisplay){
+        remainingDisplay.textContent = formatQty(remaining);
+        remainingDisplay.classList.remove('positive', 'negative');
+        if(remaining > 0) remainingDisplay.classList.add('positive');
+        else if(remaining < 0) remainingDisplay.classList.add('negative');
       }
     }
-	    function bumpEditItemQty(delta){
-	      const inp = $('editItemQty'); if(!inp) return;
-	      const q = toInt(inp.value, 0);
-	      const nv = Math.max(0, q + toSignedInt(delta, 0));
-	      inp.value = String(nv);
-	      updateEditItemInventoryDisplay();
-	    }
 	    function bumpEditItemLowStockQty(delta){
 	      const inp = $('editLowStockQty'); if(!inp) return;
 	      const curRaw = String(inp.value ?? '').trim();
@@ -21411,7 +21769,6 @@ function emptyStateHtml(){
 	      const unitOfMeasure = $('editItemUom') ? $('editItemUom').value : '';
 	      const locationId = $('editItemLocation') ? $('editItemLocation').value : '';
 	      const categoryId = $('editItemCategory') ? $('editItemCategory').value : '';
-	      const qty  = $('editItemQty')  ? $('editItemQty').value  : '';
 	      const lowStockQty = $('editLowStockQty') ? $('editLowStockQty').value : '';
 	      const reorderQty = $('editItemReorderQty') ? $('editItemReorderQty').value : '';
 	      const reorderEnabled = $('editReorderEnabled') ? $('editReorderEnabled').checked : true;
@@ -21421,7 +21778,7 @@ function emptyStateHtml(){
 	      setEditItemMessage('');
 
 	      try{
-	        await commitItemUpdate(id, { name, sku, desc, unitOfMeasure, locationId, categoryId, qty, lowStockQty, reorderPoint: lowStockQty, reorderQty, reorderEnabled });
+	        await commitItemUpdate(id, { name, sku, desc, unitOfMeasure, locationId, categoryId, lowStockQty, reorderPoint: lowStockQty, reorderQty, reorderEnabled });
 	        try{ syncLowStockOverrideIndicatorForRow(id); }catch(e){}
 	        try{ syncLowStockIndicatorForRow(id); }catch(e){}
 	        toast('Auto-saved');
@@ -21479,17 +21836,13 @@ function emptyStateHtml(){
 	    const btnEditItemCancel = $('btnEditItemCancel');
 	    if(btnEditItemCancel) btnEditItemCancel.addEventListener('click', closeEditItemModal);
 	    // Auto-save listeners for edit item modal
-		    ['editItemName','editItemSku','editItemDesc','editItemQty','editLowStockQty','editItemReorderQty','editItemUom','editItemLocation','editItemCategory'].forEach(id=>{
+		    ['editItemName','editItemSku','editItemDesc','editLowStockQty','editItemReorderQty','editItemUom','editItemLocation','editItemCategory'].forEach(id=>{
 		      const el = $(id);
 		      if(el){
 		        el.addEventListener('blur', scheduleEditItemAutoSave);
 		        el.addEventListener('change', scheduleEditItemAutoSave);
 		      }
 		    });
-	    const btnQtyMinus = $('editItemQtyMinus');
-	    if(btnQtyMinus) btnQtyMinus.addEventListener('click', ()=> { bumpEditItemQty(-1); scheduleEditItemAutoSave(); });
-	    const btnQtyPlus = $('editItemQtyPlus');
-	    if(btnQtyPlus) btnQtyPlus.addEventListener('click', ()=> { bumpEditItemQty(1); scheduleEditItemAutoSave(); });
 	    const btnLowStockMinus = $('editLowStockMinus');
 	    if(btnLowStockMinus) btnLowStockMinus.addEventListener('click', ()=> { bumpEditItemLowStockQty(-1); scheduleEditItemAutoSave(); });
 	    const btnLowStockPlus = $('editLowStockPlus');
@@ -21508,22 +21861,7 @@ function emptyStateHtml(){
       });
     });
 
-    // New inventory tab controls
-    const btnInvOnHandMinus = $('editInvOnHandMinus');
-    if(btnInvOnHandMinus) btnInvOnHandMinus.addEventListener('click', ()=> { bumpEditItemQty(-1); scheduleEditItemAutoSave(); });
-    const btnInvOnHandPlus = $('editInvOnHandPlus');
-    if(btnInvOnHandPlus) btnInvOnHandPlus.addEventListener('click', ()=> { bumpEditItemQty(1); scheduleEditItemAutoSave(); });
-
-    // Quick add buttons
-    document.querySelectorAll('[data-quick-add]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const amount = toInt(btn.dataset.quickAdd, 0);
-        if(amount > 0){
-          bumpEditItemQty(amount);
-          scheduleEditItemAutoSave();
-        }
-      });
-    });
+    // New inventory tab controls removed (read-only)
 
     // Settings tab stepper controls
     const btnReorderPointMinus = $('editReorderPointMinus');
@@ -21553,43 +21891,11 @@ function emptyStateHtml(){
     const editItemLocation = $('editItemLocation');
     if(editItemLocation) editItemLocation.addEventListener('change', updateEditItemHeader);
 
-	    const editItemQty = $('editItemQty');
-	    if(editItemQty) editItemQty.addEventListener('keydown', e=>{
-	      if(e.key==='Escape'){ e.preventDefault(); closeEditItemModal(); }
-	      if(e.key==='Enter'){ e.preventDefault(); autoSaveEditItem().then(ok=> { if(ok) closeEditItemModal(); }); }
-	    });
 	    const btnEditItemDone = $('btnEditItemDone');
 	    if(btnEditItemDone) btnEditItemDone.addEventListener('click', async ()=>{
 	      const ok = await autoSaveEditItem();
 	      if(ok) closeEditItemModal();
 	    });
-	    if(editItemQty) editItemQty.addEventListener('input', updateEditItemAvailability);
-	    // Click handler for editable on-hand value (both mobile and desktop)
-	    const editInvOnHandValue = $('editInvOnHandValue');
-	    if(editInvOnHandValue){
-	      const openQtyEditor = async (e)=>{
-	        if(!requireOnline()) return;
-	        e.preventDefault();
-	        e.stopPropagation();
-
-	        const id = _editItemCtx && _editItemCtx.id ? String(_editItemCtx.id) : '';
-	        const it = id ? state.items.find(x => x && x.id === id) : null;
-	        const itemName = it ? String(it.name || '').trim() : '';
-	        const qtyInput = $('editItemQty');
-	        const oldQty = qtyInput ? toInt(qtyInput.value, 0) : 0;
-	        const next = await openQtyEntryModal('Set Qty', itemName || 'Inventory Qty', oldQty, { min:0, okText:'Save', cancelText:'Cancel' });
-	        if(next === null || typeof next === 'undefined') return;
-	        const newQty = Math.max(0, toInt(next, oldQty));
-	        if(newQty === oldQty) return;
-	        if(qtyInput) qtyInput.value = String(newQty);
-	        updateEditItemInventoryDisplay();
-	        scheduleEditItemAutoSave();
-	      };
-	      editInvOnHandValue.addEventListener('click', openQtyEditor);
-	      editInvOnHandValue.addEventListener('keydown', (e)=>{
-	        if(e.key === 'Enter' || e.key === ' '){ openQtyEditor(e); }
-	      });
-	    }
 	    const editLowStockQty = $('editLowStockQty');
 	    if(editLowStockQty) editLowStockQty.addEventListener('keydown', e=>{
 	      if(e.key==='Escape'){ e.preventDefault(); closeEditItemModal(); }
@@ -22994,10 +23300,62 @@ function emptyStateHtml(){
     }
     function orderState(){
       if(!state._order){
-        state._order = { lines:[], email:'', companyPoNumber:'', internalPoNumber:'', subject:'', notes:'', contactName:'', search:'', shippingAddressId:'', shippingAddressSnapshot:null };
+        state._order = {
+          lines:[],
+          email:'',
+          companyPoNumber:'',
+          internalPoNumber:'',
+          subject:'',
+          notes:'',
+          contactName:'',
+          search:'',
+          shippingAddressId:'',
+          shippingAddressSnapshot:null,
+          shortfall:null,
+          shortfallAttached:false
+        };
       }
+      if(!Object.prototype.hasOwnProperty.call(state._order, 'shortfall')) state._order.shortfall = null;
+      if(!Object.prototype.hasOwnProperty.call(state._order, 'shortfallAttached')) state._order.shortfallAttached = false;
       ensureOrderIdentifiers(state._order);
       return state._order;
+    }
+    function setOrderShortfallLink({ shortfallId, jobId, itemId, qtyMissing } = {}){
+      const id = String(shortfallId || '').trim();
+      if(!id) return;
+      const missing = Number(qtyMissing || 0);
+      const ord = orderState();
+      ord.shortfall = {
+        id,
+        jobId: String(jobId || '').trim(),
+        itemId: String(itemId || '').trim(),
+        qtyMissing: Number.isFinite(missing) ? missing : 0
+      };
+      ord.shortfallAttached = true;
+    }
+    function clearOrderShortfallLink(){
+      const ord = orderState();
+      ord.shortfall = null;
+      ord.shortfallAttached = false;
+    }
+    function getOrderShortfallContext(ord){
+      const entry = ord && ord.shortfall ? ord.shortfall : null;
+      if(!entry || !entry.id) return null;
+      const jobId = String(entry.jobId || '').trim();
+      const itemId = String(entry.itemId || '').trim();
+      const jobName = (jobId && state._jobsById && typeof state._jobsById.get === 'function')
+        ? String((state._jobsById.get(jobId) || {}).name || '').trim()
+        : '';
+      const itemName = itemId ? String((getInventoryById(itemId) || {}).name || '').trim() : '';
+      const qtyMissing = Number(entry.qtyMissing || 0);
+      return { shortfallId: String(entry.id || '').trim(), jobId, itemId, jobName, itemName, qtyMissing };
+    }
+    function formatOrderShortfallSummary(ctx){
+      if(!ctx) return '';
+      const jobLabel = ctx.jobName || (ctx.jobId ? `Job ${shortId(ctx.jobId)}` : 'Job');
+      const itemLabel = ctx.itemName || (ctx.itemId ? `Item ${shortId(ctx.itemId)}` : 'Item');
+      const missingLabel = Number.isFinite(ctx.qtyMissing) ? `Missing ${formatQty(ctx.qtyMissing)}` : 'Missing —';
+      return `${jobLabel} • ${itemLabel} • ${missingLabel}`;
     }
 
     // =========================================
@@ -23172,6 +23530,11 @@ function emptyStateHtml(){
       const itemCountEl = $('orderReviewItemCount');
       const recipientEl = $('orderReviewRecipient');
       const shipToEl = $('orderReviewShipTo');
+      const shortfallRow = $('orderReviewShortfallRow');
+      const shortfallValue = $('orderReviewShortfallValue');
+      const shortfallToggle = $('orderReviewShortfallToggle');
+      const shortfallToggleInput = $('orderShortfallAttachToggle');
+      const shortfallHint = $('orderReviewShortfallHint');
 
       if(itemCountEl){
         itemCountEl.textContent = String(ord.lines.length);
@@ -23197,6 +23560,28 @@ function emptyStateHtml(){
           }
         }
         shipToEl.textContent = shipLabel;
+      }
+      const shortfallCtx = getOrderShortfallContext(ord);
+      if(shortfallCtx){
+        const summary = formatOrderShortfallSummary(shortfallCtx);
+        if(shortfallValue) shortfallValue.textContent = summary || '—';
+        if(shortfallRow) shortfallRow.style.display = '';
+        if(shortfallToggle) shortfallToggle.style.display = '';
+        if(shortfallToggleInput){
+          shortfallToggleInput.checked = !!ord.shortfallAttached;
+          shortfallToggleInput.disabled = false;
+        }
+        if(shortfallHint){
+          shortfallHint.textContent = ord.shortfallAttached
+            ? 'Traceability only. Shortfalls resolve through allocation, not ordering.'
+            : 'Not attached. This order will not be linked to the shortfall.';
+        }
+      }else{
+        if(shortfallRow) shortfallRow.style.display = 'none';
+        if(shortfallToggle) shortfallToggle.style.display = 'none';
+        if(shortfallValue) shortfallValue.textContent = '—';
+        if(shortfallHint) shortfallHint.textContent = '';
+        if(shortfallToggleInput) shortfallToggleInput.checked = false;
       }
     }
 
@@ -23377,11 +23762,13 @@ function emptyStateHtml(){
     function afterOrderStateChanged(){
       try{ updateOrderCounterBadge(); }catch(e){}
       refreshInventoryCardsForOrderState();
+      try{ orderWizardUpdateUI(); }catch(e){}
     }
     function clearAllOrderLines(){
       const ord = orderState();
       const ids = ord.lines.map(l => l.id);
       ord.lines = [];
+      clearOrderShortfallLink();
       try{ orderLineSelection.clear(); }catch(e){}
       ids.forEach(id => { try{ syncOrderIndicatorForRow(String(id)); }catch(e){} });
       afterOrderStateChanged();
@@ -23415,17 +23802,43 @@ function emptyStateHtml(){
     function removeOrderLine(id){
       const ord = orderState();
       ord.lines = ord.lines.filter(l => l.id !== id);
+      if(ord.shortfall && String(ord.shortfall.itemId || '') === String(id || '')){
+        clearOrderShortfallLink();
+      }
       try{ orderLineSelection.delete(String(id || '').trim()); }catch(e){}
       try{ syncOrderIndicatorForRow(String(id)); }catch(e){}
       afterOrderStateChanged();
     }
-    function addToOrderFromBom(itemId, shortage){
+    function addToOrderFromBom(itemId, shortage, opts = {}){
       const item = getInventoryById(itemId);
       if(!item){
         toast('Item not found');
         return;
       }
-	      const ord = orderState();
+      const ord = orderState();
+        const ctx = opts || {};
+        let shortfallId = String(ctx.shortfallId || '').trim();
+        let shortfallQty = Number(ctx.shortfallQty || 0);
+        if(!shortfallId && ctx.jobId && state._jobShortfallsByJobId && typeof state._jobShortfallsByJobId.get === 'function'){
+          const jobMap = state._jobShortfallsByJobId.get(String(ctx.jobId)) || null;
+          if(jobMap && typeof jobMap.has === 'function' && jobMap.has(itemId)){
+            const entry = jobMap.get(itemId);
+            shortfallId = shortfallIdFromEntry(entry);
+            shortfallQty = shortfallQtyFromEntry(entry);
+          }
+        }
+        if(shortfallId){
+          if(!ord.shortfall || !ord.shortfall.id){
+            setOrderShortfallLink({
+              shortfallId,
+              jobId: ctx.jobId,
+              itemId,
+              qtyMissing: Number.isFinite(shortfallQty) ? shortfallQty : Number(shortage || 0)
+            });
+          }else if(String(ord.shortfall.id) !== shortfallId){
+            toast('Order already linked to a shortfall. Additional items will not be linked.');
+          }
+        }
 	      const existing = ord.lines.find(l => l.id === itemId);
 	      if(existing){
 	        existing.qty = Math.max(existing.qty, toInt(shortage, 1));
@@ -24030,6 +24443,35 @@ function emptyStateHtml(){
       { code:'PT', label:'Portugal' },
       { code:'JP', label:'Japan' }
     ];
+    function setCompanyLocationsContext(context){
+      if(context && context.companyId){
+        state._companyLocationsContext = {
+          companyId: String(context.companyId || '').trim(),
+          companyName: String(context.companyName || '').trim(),
+          source: String(context.source || '').trim()
+        };
+      }else{
+        state._companyLocationsContext = null;
+      }
+    }
+    function getCompanyLocationsCompanyId(){
+      const ctx = state._companyLocationsContext;
+      if(ctx && ctx.companyId) return ctx.companyId;
+      return SB.companyId ? String(SB.companyId).trim() : '';
+    }
+    function updateCompanyLocationsContextDisplay(){
+      const el = $('companyLocationsContext');
+      if(!el) return;
+      const ctx = state._companyLocationsContext;
+      const label = ctx ? (ctx.companyName || ctx.companyId) : '';
+      if(label){
+        el.textContent = `Company: ${label}`;
+        el.hidden = false;
+      }else{
+        el.textContent = '';
+        el.hidden = true;
+      }
+    }
     function setCompanyLocationsMessage(msg){
       const el = $('companyLocationsMsg'); if(!el) return;
       el.textContent = String(msg || '');
@@ -24057,89 +24499,167 @@ function emptyStateHtml(){
     }
     function renderCompanyLocationsList(){
       const list = $('companyLocationsList');
+      const mobileList = $('companyLocationsMobileCards');
       if(!list) return;
       const rows = Array.isArray(state._companyLocations) ? state._companyLocations : [];
       if(!rows.length){
-        list.innerHTML = `<div class="order-empty">No locations yet. Add your first location to enable receiving.</div>`;
+        list.innerHTML = `<div class="locations-empty">No locations yet. Add your first location to enable receiving.</div>`;
+        if(mobileList) mobileList.innerHTML = '';
         return;
       }
       const canManage = canManageCompanyLocations();
+      const editSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>`;
+      const tableRows = rows.map(row => {
+        const id = String(row && row.id ? row.id : '').trim();
+        const name = String(row && row.name ? row.name : '').trim() || 'Location';
+        const type = formatLocationTypeLabel(row && row.location_type ? row.location_type : '');
+        const line1 = String(row && row.address_line1 ? row.address_line1 : '').trim();
+        const line2 = String(row && row.address_line2 ? row.address_line2 : '').trim();
+        const city = String(row && row.city ? row.city : '').trim();
+        const region = String(row && row.state_region ? row.state_region : '').trim();
+        const postal = String(row && row.postal_code ? row.postal_code : '').trim();
+        const country = String(row && row.country_code ? row.country_code : '').trim();
+        let cityLine = '';
+        if(city && region) cityLine = `${city}, ${region}`;
+        else cityLine = city || region;
+        if(postal) cityLine = cityLine ? `${cityLine} ${postal}` : postal;
+        if(country) cityLine = cityLine ? `${cityLine}, ${country}` : country;
+        const active = !!(row && row.is_active);
+        const statusText = active ? 'Active' : 'Archived';
+        const statusClass = active ? 'active' : 'archived';
+        const shipDefault = !!(row && row.is_default_ship_to);
+        const receiveDefault = !!(row && row.is_default_receive_at);
+        const defaultTags = [
+          shipDefault ? `<span class="location-default-tag ship-to">Ship-To</span>` : '',
+          receiveDefault ? `<span class="location-default-tag receive-at">Receive-At</span>` : ''
+        ].filter(Boolean).join('');
+        const disableActions = !canManage;
+        const editBtn = canManage
+          ? `<button class="location-edit-btn" type="button" data-location-edit="${escapeHtmlAttr(id)}"${disableActions ? ' disabled' : ''} title="Edit location" aria-label="Edit location">${editSvg}</button>`
+          : '';
+        const defaultShipBtn = active
+          ? `<button class="btn-tertiary btn-sm" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="ship_to"${disableActions || shipDefault ? ' disabled' : ''}>Set Ship-To</button>`
+          : '';
+        const defaultReceiveBtn = active
+          ? `<button class="btn-tertiary btn-sm" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="receive_at"${disableActions || receiveDefault ? ' disabled' : ''}>Set Receive-At</button>`
+          : '';
+        const archiveBtn = active
+          ? `<button class="btn-tertiary btn-sm btn-danger" type="button" data-location-archive="${escapeHtmlAttr(id)}"${disableActions ? ' disabled' : ''}>Archive</button>`
+          : '';
+        const restoreBtn = !active
+          ? `<button class="btn-tertiary btn-sm" type="button" data-location-restore="${escapeHtmlAttr(id)}"${disableActions ? ' disabled' : ''}>Restore</button>`
+          : '';
+        return (
+          `<tr data-location-id="${escapeHtmlAttr(id)}">`+
+            `<td>`+
+              `<div class="location-name-cell">`+
+                editBtn+
+                `<div class="location-name-text">`+
+                  `<span class="location-name-primary">${escapeHtml(name)}</span>`+
+                  `<span class="location-id">ID: ${escapeHtml(id.slice(0,8))}</span>`+
+                `</div>`+
+              `</div>`+
+            `</td>`+
+            `<td><span class="location-type">${escapeHtml(type || 'Other')}</span></td>`+
+            `<td>`+
+              `<div class="location-address">`+
+                `<span class="location-address-line">${escapeHtml(line1)}${line2 ? ' ' + escapeHtml(line2) : ''}</span>`+
+                `<span class="location-address-city">${escapeHtml(cityLine)}</span>`+
+              `</div>`+
+            `</td>`+
+            `<td><span class="location-status ${statusClass}">${statusText}</span></td>`+
+            `<td><div class="location-defaults">${defaultTags || '<span class="location-no-default">None</span>'}</div></td>`+
+            `<td>`+
+              `<div class="location-actions">`+
+                defaultShipBtn+
+                defaultReceiveBtn+
+                archiveBtn+
+                restoreBtn+
+              `</div>`+
+            `</td>`+
+          `</tr>`
+        );
+      }).join('');
       list.innerHTML =
-        `<div class="pending-invites-table-wrap">`+
-          `<table class="metrics-table company-locations-table">`+
-            `<thead>`+
-              `<tr>`+
-                `<th>Name</th>`+
-                `<th>Type</th>`+
-                `<th>Address</th>`+
-                `<th>Status</th>`+
-                `<th>Defaults</th>`+
-                `<th></th>`+
-              `</tr>`+
-            `</thead>`+
-            `<tbody>`+
-              rows.map(row => {
-                const id = String(row && row.id ? row.id : '').trim();
-                const name = String(row && row.name ? row.name : '').trim() || 'Location';
-                const type = formatLocationTypeLabel(row && row.location_type ? row.location_type : '');
-                const address = formatLocationAddress(row || {});
-                const active = !!(row && row.is_active);
-                const statusText = active ? 'Active' : 'Archived';
-                const statusClass = active ? 'active' : 'archived';
-                const shipDefault = !!(row && row.is_default_ship_to);
-                const receiveDefault = !!(row && row.is_default_receive_at);
-                const badges = [
-                  shipDefault ? `<span class="company-location-badge ship">Ship-To</span>` : '',
-                  receiveDefault ? `<span class="company-location-badge receive">Receive-At</span>` : ''
-                ].filter(Boolean).join('');
-                const disableActions = !canManage;
-                const editIcon = canManage
-                  ? `<button class="icon-btn icon-btn--default company-location-edit-btn" type="button" data-location-edit="${escapeHtmlAttr(id)}"${disableActions ? ' disabled aria-disabled=\"true\"' : ''} title="Edit location" aria-label="Edit location">`+
-                      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
-                        `<path d="M12 20h9"></path>`+
-                        `<path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>`+
-                      `</svg>`+
-                    `</button>`
-                  : `<span class="muted">Read-only</span>`;
-                const defaultShipBtn = active
-                  ? `<button class="btn-tertiary btn-sm" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="ship_to"${disableActions || shipDefault ? ' disabled aria-disabled=\"true\"' : ''}>Set Ship-To</button>`
-                  : '';
-                const defaultReceiveBtn = active
-                  ? `<button class="btn-tertiary btn-sm" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="receive_at"${disableActions || receiveDefault ? ' disabled aria-disabled=\"true\"' : ''}>Set Receive-At</button>`
-                  : '';
-                const archiveBtn = active
-                  ? `<button class="btn-tertiary btn-sm btn-danger" type="button" data-location-archive="${escapeHtmlAttr(id)}"${disableActions ? ' disabled aria-disabled=\"true\"' : ''}>Archive</button>`
-                  : '';
-                const restoreBtn = !active
-                  ? `<button class="btn-tertiary btn-sm" type="button" data-location-restore="${escapeHtmlAttr(id)}"${disableActions ? ' disabled aria-disabled=\"true\"' : ''}>Restore</button>`
-                  : '';
-                return (
-                  `<tr data-location-id="${escapeHtmlAttr(id)}">`+
-                    `<td>`+
-                      `<div class="company-location-name-row">`+
-                        `<div class="company-location-name">${escapeHtml(name)}</div>`+
-                        `${editIcon}`+
-                      `</div>`+
-                      `<div class="muted" style="font-size:12px;">ID: ${escapeHtml(id.slice(0,8))}</div>`+
-                    `</td>`+
-                    `<td>${escapeHtml(type || 'Other')}</td>`+
-                    `<td class="company-location-address">${escapeHtml(address)}</td>`+
-                    `<td><span class="company-location-status ${statusClass}">${statusText}</span></td>`+
-                    `<td><div class="company-location-badges">${badges || '<span class=\"muted\">None</span>'}</div></td>`+
-                    `<td>`+
-                      `<div class="company-location-actions">`+
-                        defaultShipBtn+
-                        defaultReceiveBtn+
-                        archiveBtn+
-                        restoreBtn+
-                      `</div>`+
-                    `</td>`+
-                  `</tr>`
-                );
-              }).join('')+
-            `</tbody>`+
-          `</table>`+
-        `</div>`;
+        `<table class="locations-table">`+
+          `<thead>`+
+            `<tr>`+
+              `<th>Name</th>`+
+              `<th>Type</th>`+
+              `<th>Address</th>`+
+              `<th>Status</th>`+
+              `<th>Defaults</th>`+
+              `<th style="text-align:right;">Actions</th>`+
+            `</tr>`+
+          `</thead>`+
+          `<tbody>${tableRows}</tbody>`+
+        `</table>`;
+      if(mobileList){
+        const cards = rows.map(row => {
+          const id = String(row && row.id ? row.id : '').trim();
+          const name = String(row && row.name ? row.name : '').trim() || 'Location';
+          const type = formatLocationTypeLabel(row && row.location_type ? row.location_type : '');
+          const line1 = String(row && row.address_line1 ? row.address_line1 : '').trim();
+          const city = String(row && row.city ? row.city : '').trim();
+          const region = String(row && row.state_region ? row.state_region : '').trim();
+          const postal = String(row && row.postal_code ? row.postal_code : '').trim();
+          let addrShort = line1;
+          let cityPart = '';
+          if(city && region) cityPart = `${city}, ${region}`;
+          else cityPart = city || region;
+          if(postal) cityPart = cityPart ? `${cityPart} ${postal}` : postal;
+          if(cityPart) addrShort = addrShort ? `${addrShort}, ${cityPart}` : cityPart;
+          const active = !!(row && row.is_active);
+          const statusText = active ? 'Active' : 'Archived';
+          const statusClass = active ? 'active' : 'archived';
+          const shipDefault = !!(row && row.is_default_ship_to);
+          const receiveDefault = !!(row && row.is_default_receive_at);
+          const defaultTags = [
+            shipDefault ? `<span class="location-default-tag ship-to">Ship-To</span>` : '',
+            receiveDefault ? `<span class="location-default-tag receive-at">Receive-At</span>` : ''
+          ].filter(Boolean).join('');
+          const disableActions = !canManage;
+          const editBtn = canManage
+            ? `<button class="location-edit-btn" type="button" data-location-edit="${escapeHtmlAttr(id)}"${disableActions ? ' disabled' : ''} title="Edit location">${editSvg}</button>`
+            : '';
+          const defaultShipBtn = active
+            ? `<button class="btn-tertiary btn-sm" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="ship_to"${disableActions || shipDefault ? ' disabled' : ''}>Set Ship-To</button>`
+            : '';
+          const defaultReceiveBtn = active
+            ? `<button class="btn-tertiary btn-sm" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="receive_at"${disableActions || receiveDefault ? ' disabled' : ''}>Set Receive-At</button>`
+            : '';
+          const archiveBtn = active
+            ? `<button class="btn-tertiary btn-sm btn-danger" type="button" data-location-archive="${escapeHtmlAttr(id)}"${disableActions ? ' disabled' : ''}>Archive</button>`
+            : '';
+          const restoreBtn = !active
+            ? `<button class="btn-tertiary btn-sm" type="button" data-location-restore="${escapeHtmlAttr(id)}"${disableActions ? ' disabled' : ''}>Restore</button>`
+            : '';
+          return (
+            `<div class="location-card" data-location-id="${escapeHtmlAttr(id)}">`+
+              `<div class="location-card-header">`+
+                `<div>`+
+                  `<div class="location-card-name">${escapeHtml(name)}</div>`+
+                  `<div class="location-card-id">ID: ${escapeHtml(id.slice(0,8))}</div>`+
+                `</div>`+
+                editBtn+
+              `</div>`+
+              `<div class="location-card-meta">`+
+                `<div class="location-card-row"><span class="location-card-label">Type</span><span>${escapeHtml(type || 'Other')}</span></div>`+
+                `<div class="location-card-row"><span class="location-card-label">Address</span><span>${escapeHtml(addrShort)}</span></div>`+
+                `<div class="location-card-row"><span class="location-card-label">Status</span><span class="location-status ${statusClass}">${statusText}</span></div>`+
+              `</div>`+
+              (defaultTags ? `<div class="location-card-defaults">${defaultTags}</div>` : '')+
+              `<div class="location-card-actions">`+
+                defaultShipBtn+
+                defaultReceiveBtn+
+                archiveBtn+
+                restoreBtn+
+              `</div>`+
+            `</div>`
+          );
+        }).join('');
+        mobileList.innerHTML = cards;
+      }
     }
     function renderCompanyLocationCountryOptions(selected){
       const select = $('companyLocationCountry');
@@ -24157,12 +24677,14 @@ function emptyStateHtml(){
       }
     }
     async function sbFetchCompanyLocations(){
-      if(!SB.ready || !SB.session || !SB.companyId) return [];
+      if(!SB.ready || !SB.session) return [];
       if(!canAccessCompanyLocations()) return [];
+      const companyId = getCompanyLocationsCompanyId();
+      if(!companyId) return [];
       const { data, error } = await SB.client
         .from('company_locations')
         .select('id,company_id,name,location_type,address_line1,address_line2,city,state_region,postal_code,country_code,is_active,is_default_ship_to,is_default_receive_at,created_at,updated_at')
-        .eq('company_id', SB.companyId)
+        .eq('company_id', companyId)
         .order('is_active', { ascending:false })
         .order('name', { ascending:true });
       if(error) throw error;
@@ -24173,6 +24695,80 @@ function emptyStateHtml(){
       state._companyLocations = rows;
       state._companyLocationById = new Map(rows.map(r => [String(r.id || '').trim(), r]).filter(x => x[0]));
       renderCompanyLocationsList();
+    }
+    // Load companies for super user selector in Locations modal
+    async function loadLocationsCompanies(){
+      if(!isEffectiveSuperUser()) return;
+      const search = state._locationsCompanySearch || '';
+      const { data, error } = await SB.client.rpc('get_company_switcher_companies', {
+        p_search: search || null,
+        p_company_type: null,
+        p_limit: 100
+      });
+      if(error) throw error;
+      state._locationsCompanies = data || [];
+      await loadLocationsCompanyCounts();
+      renderLocationsCompanyList();
+    }
+    // Fetch location counts per company
+    async function loadLocationsCompanyCounts(){
+      const companyIds = (state._locationsCompanies || []).map(c => c.company_id);
+      if(!companyIds.length) return;
+      const { data, error } = await SB.client
+        .from('company_locations')
+        .select('company_id')
+        .in('company_id', companyIds)
+        .eq('is_active', true);
+      if(error){ console.warn(error); return; }
+      const counts = {};
+      (data || []).forEach(row => {
+        const id = row.company_id;
+        counts[id] = (counts[id] || 0) + 1;
+      });
+      state._locationsLocationCounts = counts;
+    }
+    function renderLocationsCompanyList(){
+      const container = $('locationsCompanyList');
+      if(!container) return;
+      const companies = state._locationsCompanies || [];
+      const counts = state._locationsLocationCounts || {};
+      if(!companies.length){
+        container.innerHTML = '<div class="muted" style="padding:12px;">No companies found.</div>';
+        return;
+      }
+      container.innerHTML = companies.map(c => {
+        const count = counts[c.company_id] || 0;
+        const badge = count === 0
+          ? '<span class="locations-no-locations">No Locations</span>'
+          : `<span class="locations-has-locations">${count} location${count !== 1 ? 's' : ''}</span>`;
+        return `<div class="locations-company-item" data-locations-select-company="${escapeHtmlAttr(c.company_id)}">
+          <span class="locations-company-name">${escapeHtml(c.company_name || c.company_id)}</span>
+          ${badge}
+        </div>`;
+      }).join('');
+    }
+    function showLocationsCompanySelector(showSelector){
+      const selector = $('locationsCompanySelector');
+      const selected = $('locationsSelectedCompany');
+      const toolbar = document.querySelector('.locations-toolbar');
+      const tableWrap = $('companyLocationsList');
+      if(selector) selector.hidden = !showSelector;
+      if(selected) selected.hidden = showSelector;
+      if(toolbar) toolbar.style.display = showSelector ? 'none' : '';
+      if(tableWrap) tableWrap.style.display = showSelector ? 'none' : '';
+    }
+    function selectLocationsCompany(companyId, companyName){
+      setCompanyLocationsContext({ companyId, companyName, source: 'super_user_selector' });
+      const nameEl = $('locationsSelectedName');
+      if(nameEl) nameEl.textContent = companyName || companyId;
+      showLocationsCompanySelector(false);
+      // Re-enable the Add Location button now that a company is selected
+      const btnNew = $('btnCompanyLocationNew');
+      if(btnNew){
+        btnNew.disabled = false;
+        btnNew.setAttribute('aria-disabled', 'false');
+      }
+      loadCompanyLocations();
     }
     function clearCompanyLocationForm(){
       state._companyLocationEditing = null;
@@ -24221,6 +24817,14 @@ function emptyStateHtml(){
       }else{
         clearCompanyLocationForm();
       }
+      // Add nested class if parent modal is nested (for proper z-index stacking)
+      const editorModal = $('companyLocationEditorModal');
+      const parentModal = $('companyLocationsModal');
+      if(editorModal && parentModal && parentModal.classList.contains('modal-nested')){
+        editorModal.classList.add('modal-nested');
+      }else if(editorModal){
+        editorModal.classList.add('modal-nested'); // Always nest since opened from locations modal
+      }
       show('companyLocationEditorModal', true);
       // Initialize Google Places autocomplete after modal is visible
       void ensureGooglePlacesLoaded().then((ok)=>{
@@ -24240,33 +24844,91 @@ function emptyStateHtml(){
     }
     function closeCompanyLocationEditor(){
       show('companyLocationEditorModal', false);
+      const editorModal = $('companyLocationEditorModal');
+      if(editorModal) editorModal.classList.remove('modal-nested');
     }
-    async function openCompanyLocationsModal(){
+    async function openCompanyLocationsModal(context){
       if(!SB.ready){ toast('Supabase not configured'); return; }
       if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!canAccessCompanyLocations()){ toast('Company admin access required'); return; }
+      const ctx = (context && context.companyId) ? {
+        companyId: String(context.companyId || '').trim(),
+        companyName: String(context.companyName || '').trim(),
+        source: String(context.source || '').trim()
+      } : null;
+      if(ctx && ctx.companyId && String(ctx.companyId) !== String(SB.companyId || '').trim()){
+        if(!isEffectiveSuperUser()){
+          toast('Super user access required.');
+          return;
+        }
+      }
+      setCompanyLocationsContext(ctx);
+      updateCompanyLocationsContextDisplay();
+      // Super users without context see company selector first
+      const showCompanySelector = isEffectiveSuperUser() && !ctx;
+      if(!showCompanySelector && !canAccessCompanyLocations()){
+        toast('Company admin access required');
+        setCompanyLocationsContext(null);
+        updateCompanyLocationsContextDisplay();
+        return;
+      }
       const list = $('companyLocationsList');
       if(list) list.innerHTML = `<div class="muted">Loading locations...</div>`;
       setCompanyLocationsMessage('');
       show('companyLocationsModal', true);
       const btnNew = $('btnCompanyLocationNew');
       if(btnNew){
-        btnNew.disabled = !canManageCompanyLocations();
-        btnNew.setAttribute('aria-disabled', canManageCompanyLocations() ? 'false' : 'true');
+        const canManage = showCompanySelector ? false : canManageCompanyLocations();
+        btnNew.disabled = !canManage;
+        btnNew.setAttribute('aria-disabled', canManage ? 'false' : 'true');
       }
-      try{
-        await loadCompanyLocations();
-      }catch(e){
-        const msg = e && e.message ? e.message : 'Failed to load locations';
-        if(isMissingRelationError(e)){
-          setCompanyLocationsMessage('Locations are not available yet.');
+      if(showCompanySelector){
+        // Show company selector for super users
+        showLocationsCompanySelector(true);
+        try{
+          await loadLocationsCompanies();
+        }catch(e){
+          console.error('Failed to load companies:', e);
+          setCompanyLocationsMessage('Failed to load companies');
+        }
+      }else{
+        // Show locations directly
+        showLocationsCompanySelector(false);
+        // Update selected company header for super users with context
+        if(isEffectiveSuperUser() && ctx){
+          const nameEl = $('locationsSelectedName');
+          if(nameEl) nameEl.textContent = ctx.companyName || ctx.companyId;
+          const selectedDiv = $('locationsSelectedCompany');
+          if(selectedDiv) selectedDiv.hidden = false;
         }else{
-          setCompanyLocationsMessage(msg);
+          const selectedDiv = $('locationsSelectedCompany');
+          if(selectedDiv) selectedDiv.hidden = true;
+        }
+        try{
+          await loadCompanyLocations();
+        }catch(e){
+          const msg = e && e.message ? e.message : 'Failed to load locations';
+          if(isMissingRelationError(e)){
+            setCompanyLocationsMessage('Locations are not available yet.');
+          }else{
+            setCompanyLocationsMessage(msg);
+          }
         }
       }
     }
     async function closeCompanyLocationsModal(){
       show('companyLocationsModal', false);
+      // Remove nested class when closing
+      const modal = $('companyLocationsModal');
+      if(modal) modal.classList.remove('modal-nested');
+      const ctx = state._companyLocationsContext;
+      const override = ctx && ctx.companyId && String(ctx.companyId) !== String(SB.companyId || '').trim();
+      setCompanyLocationsContext(null);
+      updateCompanyLocationsContextDisplay();
+      if(override){
+        try{
+          await loadCompanyLocations();
+        }catch(e){}
+      }
       const isOnboardingLocations = isOnboardingRoute() && (
         state._onboardingStep === 'locations' ||
         !!document.querySelector('[data-onboarding-step="locations"].active')
@@ -24313,7 +24975,12 @@ function emptyStateHtml(){
       return '';
     }
     async function saveCompanyLocation(){
-      if(!SB.ready || !SB.session || !SB.companyId) return;
+      if(!SB.ready || !SB.session) return;
+      const companyId = getCompanyLocationsCompanyId();
+      if(!companyId){
+        setCompanyLocationEditorMessage('No company selected.');
+        return;
+      }
       if(!canManageCompanyLocations()){
         setCompanyLocationEditorMessage('Location permissions required.');
         return;
@@ -24371,7 +25038,7 @@ function emptyStateHtml(){
           }
         }else{
           const { data, error } = await SB.client.rpc('create_company_location', {
-            p_company_id: SB.companyId,
+            p_company_id: companyId,
             p_name: payload.name,
             p_location_type: payload.locationType,
             p_address_line1: payload.addressLine1,
@@ -24510,10 +25177,11 @@ function emptyStateHtml(){
         })
         .filter((x) => x.part);
     }
-    async function sbInsertOrderHistoryFromData({ toEmail, subjectLine, contactName, notes, lineItems, providerResult, companyPoNumber, internalPoNumber, shippingAddressId, shippingAddressSnapshot }){
+    async function sbInsertOrderHistoryFromData({ toEmail, subjectLine, contactName, notes, lineItems, providerResult, companyPoNumber, internalPoNumber, shippingAddressId, shippingAddressSnapshot, shortfallId }){
       if(!SB.ready || !SB.session || !SB.authorized || !SB.user || !SB.companyId) return;
       if(!canOrdersCreate()) throw new Error('Permission denied');
       const cleaned = normalizeEmailLineItems(lineItems).map(x => ({ item_id: x.item_id ? String(x.item_id).trim() : null, part: x.part, desc: x.desc, qty: x.qty }));
+      const shortfall = String(shortfallId || '').trim();
       const row = {
         company_id: SB.companyId,
         created_by: SB.user.id,
@@ -24528,6 +25196,7 @@ function emptyStateHtml(){
         internal_po_number: String(internalPoNumber||'').trim() || null,
         shipping_address_id: shippingAddressId ? String(shippingAddressId).trim() : null,
         shipping_address_snapshot: shippingAddressSnapshot || null,
+        shortfall_id: shortfall || null,
       };
       const { error } = await SB.client.from('orders').insert([row]);
       if(error) throw error;
@@ -24535,6 +25204,9 @@ function emptyStateHtml(){
     async function sbInsertOrderHistory(providerResult){
       const ord = orderState();
       const lineItems = orderActiveLines().map(l => ({ item_id: String(l.id || '').trim() || null, part: String(l.name||'').trim(), desc: String(l.desc||'').trim(), qty: toInt(l.qty, 0) }));
+      const shortfallId = (ord.shortfallAttached && ord.shortfall && ord.shortfall.id)
+        ? String(ord.shortfall.id)
+        : null;
       return sbInsertOrderHistoryFromData({
         toEmail: String(ord.email||'').trim(),
         subjectLine: composeOrderSubject(ord),
@@ -24546,6 +25218,7 @@ function emptyStateHtml(){
         internalPoNumber: String(ord.internalPoNumber||'').trim(),
         shippingAddressId: ord.shippingAddressId,
         shippingAddressSnapshot: getOrderShippingSnapshot(ord),
+        shortfallId,
       });
     }
 	    async function sbFetchOrders(limit = 50){
@@ -26510,6 +27183,33 @@ function emptyStateHtml(){
       if(s === 'voided') return 'Voided';
       return s;
     }
+    const JOB_READINESS_REASON_LABELS = {
+      job_not_approved: 'Job not approved',
+      shortfall_exists: 'Shortfall exists',
+      allocation_incomplete: 'Allocation incomplete'
+    };
+    function jobReadinessLabel(isReady){
+      return isReady ? 'Ready' : 'Not Ready';
+    }
+    function formatJobReadinessReasons(reasons){
+      const list = Array.isArray(reasons) ? reasons : [];
+      return list.map(reason => JOB_READINESS_REASON_LABELS[reason] || String(reason));
+    }
+    function shortfallQtyFromEntry(entry){
+      if(entry && typeof entry === 'object'){
+        const qty = Number(entry.qty_missing ?? entry.qty ?? entry.shortfall ?? 0);
+        return Number.isFinite(qty) ? qty : 0;
+      }
+      const num = Number(entry ?? 0);
+      return Number.isFinite(num) ? num : 0;
+    }
+    function shortfallIdFromEntry(entry){
+      if(entry && typeof entry === 'object'){
+        const id = entry.shortfall_id || entry.shortfallId || entry.id || '';
+        return String(id || '').trim();
+      }
+      return '';
+    }
     function jobStatusClass(status){
       const s = String(status || 'draft').trim();
       return `job-status--${s}`;
@@ -26629,7 +27329,8 @@ function emptyStateHtml(){
         const planned = Number(line && line.qty_planned ? line.qty_planned : 0);
         if(!itemId) return;
         const stats = computeJobLineStats(itemId, planned, reservedMap, inventoryMap);
-        const recordedShortfall = jobShortfalls && jobShortfalls.has(itemId) ? Number(jobShortfalls.get(itemId)) : null;
+        const hasRecorded = jobShortfalls && typeof jobShortfalls.has === 'function' && jobShortfalls.has(itemId);
+        const recordedShortfall = hasRecorded ? shortfallQtyFromEntry(jobShortfalls.get(itemId)) : null;
         const shortfallQty = Number.isFinite(recordedShortfall)
           ? recordedShortfall
           : (usesPlannedShortfall ? stats.shortfall : 0);
@@ -26767,7 +27468,7 @@ function emptyStateHtml(){
       if(!ids.length) return map;
       const { data, error } = await SB.client
         .from('shortfalls')
-        .select('job_id,item_id,qty_missing,status')
+        .select('shortfall_id,job_id,item_id,qty_missing,status')
         .in('job_id', ids)
         .eq('status', 'active');
       if(error) throw error;
@@ -26778,7 +27479,73 @@ function emptyStateHtml(){
         const qty = Number(row.qty_missing || 0);
         if(!Number.isFinite(qty)) return;
         if(!map.has(jobId)) map.set(jobId, new Map());
-        map.get(jobId).set(itemId, qty);
+        map.get(jobId).set(itemId, {
+          shortfall_id: String(row.shortfall_id || '').trim(),
+          shortfallId: String(row.shortfall_id || '').trim(),
+          job_id: jobId,
+          item_id: itemId,
+          qty_missing: qty,
+          qty,
+          status: String(row.status || '').trim()
+        });
+      });
+      return map;
+    }
+    function collectShortfallIdsFromMap(shortfallsByJob){
+      const ids = new Set();
+      if(!shortfallsByJob || typeof shortfallsByJob.forEach !== 'function') return [];
+      shortfallsByJob.forEach(value=>{
+        if(value && typeof value.forEach === 'function'){
+          value.forEach(entry=>{
+            const id = shortfallIdFromEntry(entry);
+            if(id) ids.add(id);
+          });
+          return;
+        }
+        const id = shortfallIdFromEntry(value);
+        if(id) ids.add(id);
+      });
+      return Array.from(ids);
+    }
+    async function sbFetchOrderShortfallLinks(shortfallIds){
+      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return new Map();
+      if(!canOrdersView()) return new Map();
+      const ids = Array.isArray(shortfallIds) ? shortfallIds.filter(Boolean) : [];
+      if(!ids.length) return new Map();
+      let query = SB.client
+        .from('orders')
+        .select('id,shortfall_id')
+        .eq('company_id', SB.companyId)
+        .is('deleted_at', null)
+        .not('shortfall_id', 'is', null);
+      query = query.in('shortfall_id', ids);
+      const { data, error } = await query;
+      if(error) throw error;
+      const map = new Map();
+      (Array.isArray(data) ? data : []).forEach(row=>{
+        const shortfallId = String(row && row.shortfall_id ? row.shortfall_id : '').trim();
+        if(!shortfallId) return;
+        map.set(shortfallId, (map.get(shortfallId) || 0) + 1);
+      });
+      return map;
+    }
+    async function sbFetchJobReadiness(jobIds){
+      if(!SB.companyId) throw new Error('No company selected');
+      const ids = Array.isArray(jobIds) ? jobIds.filter(Boolean) : [];
+      const map = new Map();
+      if(!ids.length) return map;
+      const { data, error } = await SB.client.rpc('get_job_readiness', {
+        p_company_id: SB.companyId,
+        p_job_ids: ids
+      });
+      if(error) throw error;
+      (Array.isArray(data) ? data : []).forEach(row=>{
+        const jobId = String(row && row.job_id ? row.job_id : '').trim();
+        if(!jobId) return;
+        map.set(jobId, {
+          ready: !!(row && row.ready),
+          reasons: Array.isArray(row && row.reasons) ? row.reasons : []
+        });
       });
       return map;
     }
@@ -26956,7 +27723,7 @@ function emptyStateHtml(){
             }
             // Show cart button if item needs ordering
             if(!row.needsOrder) return '';
-            return `<button class="icon-btn icon-btn--default icon-btn--sm job-bom-order-btn" data-item-id="${escapeHtmlAttr(row.itemId)}" data-shortage="${escapeHtmlAttr(String(row.shortage))}" aria-label="Add to purchase order" title="Order ${row.shortage} more">${ICONS.shoppingCart}</button>`;
+            return `<button class="icon-btn icon-btn--default icon-btn--sm job-bom-order-btn" data-item-id="${escapeHtmlAttr(row.itemId)}" data-shortage="${escapeHtmlAttr(String(row.shortage))}" data-job-id="${escapeHtmlAttr(String(row.jobId || ''))}" data-shortfall-id="${escapeHtmlAttr(String(row.shortfallId || ''))}" data-shortfall-qty="${escapeHtmlAttr(String(row.shortage || 0))}" aria-label="Add to purchase order" title="Order ${row.shortage} more">${ICONS.shoppingCart}</button>`;
           }
         }
       ],
@@ -26983,6 +27750,7 @@ function emptyStateHtml(){
       const inventoryMap = state._jobInventoryByItemId || new Map();
       const jobAllocationsByJobId = state._jobAllocationsByJobId || new Map();
       const jobShortfallsByJobId = state._jobShortfallsByJobId || new Map();
+      const jobReadinessByJobId = state._jobReadinessByJobId || new Map();
       const expanded = state._jobsExpanded || new Set();
       let html = `<div class="jobs-list">`;
       for(const row of rows){
@@ -27002,7 +27770,8 @@ function emptyStateHtml(){
           const itemId = String(line.item_id || '').trim();
           const qtyPlanned = Number(line.qty_planned || 0);
           const stats = computeJobLineStats(itemId, qtyPlanned, reservedMap, inventoryMap);
-          const recordedShortfall = jobShortfalls && jobShortfalls.has(itemId) ? Number(jobShortfalls.get(itemId)) : null;
+          const hasRecorded = jobShortfalls && typeof jobShortfalls.has === 'function' && jobShortfalls.has(itemId);
+          const recordedShortfall = hasRecorded ? shortfallQtyFromEntry(jobShortfalls.get(itemId)) : null;
           const shortfallQty = Number.isFinite(recordedShortfall)
             ? recordedShortfall
             : (usesPlannedShortfall ? stats.shortfall : 0);
@@ -27010,6 +27779,15 @@ function emptyStateHtml(){
           totalOnHand += stats.onHand;
           totalShortage += Math.max(0, shortfallQty);
         });
+        const readiness = jobReadinessByJobId && typeof jobReadinessByJobId.get === 'function'
+          ? jobReadinessByJobId.get(id)
+          : null;
+        const readinessState = readiness ? (readiness.ready ? 'ready' : 'not-ready') : 'unknown';
+        const readinessLabel = readiness ? jobReadinessLabel(readiness.ready) : 'Unknown';
+        const readinessReasons = readiness ? formatJobReadinessReasons(readiness.reasons) : [];
+        const readinessTitle = readiness
+          ? (readinessReasons.length ? `${readinessLabel}: ${readinessReasons.join(', ')}` : readinessLabel)
+          : 'Readiness unavailable';
         const itemCount = bomLines.length;
         const summary = `${itemCount} item${itemCount === 1 ? '' : 's'}`;
         const isExpanded = expanded.has(id);
@@ -27037,6 +27815,7 @@ function emptyStateHtml(){
                 `<div class="job-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
                 `<div class="job-header-meta">`+
                   `<span class="job-status-pill job-status-pill--${escapeHtmlAttr(badgeTone)}">${escapeHtml(badgeLabel)}</span>`+
+                  `<span class="job-readiness-pill job-readiness-pill--${escapeHtmlAttr(readinessState)}" title="${escapeHtmlAttr(readinessTitle)}">${escapeHtml(readinessLabel)}</span>`+
                   `<span class="job-meta">${escapeHtml(created)}</span>`+
                   `<span class="job-summary">${escapeHtml(summary)}</span>`+
                   (totalShortage > 0 ? `<span class="job-shortage" title="${escapeHtmlAttr(shortageLabel)}">${ICONS.alertTriangle}<span>${escapeHtml(shortageLabel)}</span></span>` : '')+
@@ -27067,10 +27846,16 @@ function emptyStateHtml(){
               const stats = computeJobLineStats(itemId, qtyPlanned, reservedMap, inventoryMap);
               const allocatedForJob = jobAllocations && jobAllocations.has(itemId) ? Number(jobAllocations.get(itemId)) : 0;
               const remaining = Number.isFinite(stats.available) ? stats.available : 0;
-              const recordedShortfall = jobShortfalls && jobShortfalls.has(itemId) ? Number(jobShortfalls.get(itemId)) : null;
+              const hasRecorded = jobShortfalls && typeof jobShortfalls.has === 'function' && jobShortfalls.has(itemId);
+              const shortfallEntry = hasRecorded ? jobShortfalls.get(itemId) : null;
+              const recordedShortfall = hasRecorded ? shortfallQtyFromEntry(shortfallEntry) : null;
               const shortfallQty = Number.isFinite(recordedShortfall)
                 ? recordedShortfall
                 : (usesPlannedShortfall ? stats.shortfall : 0);
+              const shortfallId = shortfallIdFromEntry(shortfallEntry);
+              const orderLinkCount = (state._shortfallOrdersLoaded && shortfallId && state._shortfallOrdersById && typeof state._shortfallOrdersById.get === 'function')
+                ? (state._shortfallOrdersById.get(shortfallId) || 0)
+                : null;
               // Check for open POs
               const incoming = incomingMap.get(itemId);
               const hasOpenPO = incoming && incoming.qty > 0;
@@ -27080,7 +27865,9 @@ function emptyStateHtml(){
               let statusClass = 'job-item-status--in-stock';
               let statusIcon = ICONS.check;
               if(shortfallQty > 0){
-                statusText = 'Shortfall';
+                statusText = (orderLinkCount !== null)
+                  ? (orderLinkCount > 0 ? 'Shortfall • Order in progress' : 'Shortfall • No order yet')
+                  : 'Shortfall';
                 statusClass = 'job-item-status--shortage';
                 statusIcon = ICONS.alertTriangle;
               }else if(remaining <= 0){
@@ -27095,6 +27882,7 @@ function emptyStateHtml(){
               const shortage = Math.max(0, shortfallQty);
               const needsOrder = shortfallQty > 0 && !hasOpenPO;
               return {
+                jobId: id,
                 item: itemName,
                 itemName,
                 itemId,
@@ -27109,6 +27897,8 @@ function emptyStateHtml(){
                 statusIcon,
                 needsOrder,
                 shortage,
+                shortfallId,
+                shortfallOrderCount: orderLinkCount,
                 hasOpenPO,
                 incomingQty,
                 incomingOrderCount
@@ -27155,6 +27945,26 @@ function emptyStateHtml(){
         state._jobReservedMap = await sbFetchReservedMap();
         state._jobAllocationsByJobId = await sbFetchAllocationsForJobs(jobIds);
         state._jobShortfallsByJobId = await sbFetchShortfallsForJobs(jobIds);
+        if(canOrdersView()){
+          const shortfallIds = collectShortfallIdsFromMap(state._jobShortfallsByJobId);
+          try{
+            state._shortfallOrdersById = shortfallIds.length
+              ? await sbFetchOrderShortfallLinks(shortfallIds)
+              : new Map();
+            state._shortfallOrdersLoaded = true;
+          }catch(e){
+            state._shortfallOrdersById = new Map();
+            state._shortfallOrdersLoaded = false;
+          }
+        }else{
+          state._shortfallOrdersById = new Map();
+          state._shortfallOrdersLoaded = false;
+        }
+        try{
+          state._jobReadinessByJobId = await sbFetchJobReadiness(jobIds);
+        }catch(e){
+          state._jobReadinessByJobId = new Map();
+        }
         try{
           const allBomLines = [];
           state._jobBomByJobId.forEach(lines=>{
@@ -27173,6 +27983,9 @@ function emptyStateHtml(){
         state._jobReservedMap = new Map();
         state._jobAllocationsByJobId = new Map();
         state._jobShortfallsByJobId = new Map();
+        state._jobReadinessByJobId = new Map();
+        state._shortfallOrdersById = new Map();
+        state._shortfallOrdersLoaded = false;
         state._jobInventoryByItemId = new Map();
         const msg = e && e.message ? e.message : 'Failed to load jobs';
         if(list) list.innerHTML = `<div class="order-empty">${escapeHtml(msg)}</div>`;
@@ -27199,6 +28012,7 @@ function emptyStateHtml(){
       const lines = getJobEditorLines(editor);
       const totals = computeJobTotals(editor);
       const nameOk = !!(job && String(job.name || '').trim());
+      const readiness = editor ? editor.jobReadiness : null;
 
       syncJobActualDraftFromDom();
       ensureJobEditorIcons();
@@ -27206,6 +28020,9 @@ function emptyStateHtml(){
       const statusName = $('jobStatusName');
       const statusBadge = $('jobStatusBadge');
       const statusPill = $('jobStatusPill');
+      const readinessBadge = $('jobReadinessBadge');
+      const readinessValue = $('jobReadinessValue');
+      const readinessReasons = $('jobReadinessReasons');
       const nameInput = $('jobNameInput');
       const notesInput = $('jobNotesInput');
       const createdMeta = $('jobCreatedMeta');
@@ -27240,6 +28057,23 @@ function emptyStateHtml(){
       if(statusPill){
         statusPill.textContent = statusLabel.toUpperCase();
         statusPill.className = `job-status-display job-status-badge--${status}`;
+      }
+      const readinessState = readiness ? (readiness.ready ? 'ready' : 'not-ready') : 'unknown';
+      const readinessText = readiness ? jobReadinessLabel(readiness.ready) : 'Unknown';
+      const readinessReasonText = readiness ? formatJobReadinessReasons(readiness.reasons).join(' • ') : '';
+      if(readinessBadge){
+        readinessBadge.textContent = readinessState === 'unknown' ? 'UNKNOWN' : readinessText.toUpperCase();
+        readinessBadge.className = `job-readiness-badge job-readiness-badge--${readinessState}`;
+        if(readinessReasonText){
+          readinessBadge.title = readinessReasonText;
+        }else{
+          readinessBadge.removeAttribute('title');
+        }
+      }
+      if(readinessValue) readinessValue.textContent = readinessText;
+      if(readinessReasons){
+        readinessReasons.textContent = readinessReasonText;
+        readinessReasons.style.display = readinessReasonText ? 'block' : 'none';
       }
       if(createdMeta){
         const created = job && job.created_at ? formatDateShort(job.created_at) : '';
@@ -27365,9 +28199,8 @@ function emptyStateHtml(){
       const stats = computeJobLineStats(itemId, qtyPlanned, editor.reservedMap, editor.inventoryMap);
       const status = editor && editor.job ? String(editor.job.status || '') : '';
       const usesPlannedShortfall = ['draft', 'quoted'].includes(status);
-      const recordedShortfall = editor.jobShortfalls && editor.jobShortfalls.has(itemId)
-        ? Number(editor.jobShortfalls.get(itemId))
-        : null;
+      const hasRecorded = editor.jobShortfalls && typeof editor.jobShortfalls.has === 'function' && editor.jobShortfalls.has(itemId);
+      const recordedShortfall = hasRecorded ? shortfallQtyFromEntry(editor.jobShortfalls.get(itemId)) : null;
       const shortfallQty = Number.isFinite(recordedShortfall)
         ? recordedShortfall
         : (usesPlannedShortfall ? stats.shortfall : 0);
@@ -27415,13 +28248,19 @@ function emptyStateHtml(){
         const stats = computeJobLineStats(itemId, qtyPlanned, reservedMap, inventoryMap);
         const allocatedForJob = jobAllocations && jobAllocations.has(itemId) ? Number(jobAllocations.get(itemId)) : 0;
         const remaining = Number.isFinite(stats.available) ? stats.available : 0;
-        const recordedShortfall = jobShortfalls && jobShortfalls.has(itemId) ? Number(jobShortfalls.get(itemId)) : null;
+        const hasRecorded = jobShortfalls && typeof jobShortfalls.has === 'function' && jobShortfalls.has(itemId);
+        const shortfallEntry = hasRecorded ? jobShortfalls.get(itemId) : null;
+        const recordedShortfall = hasRecorded ? shortfallQtyFromEntry(shortfallEntry) : null;
         const shortfallQty = Number.isFinite(recordedShortfall)
           ? recordedShortfall
           : (usesPlannedShortfall ? stats.shortfall : 0);
         const shortfall = Math.max(0, shortfallQty);
+        const shortfallId = shortfallIdFromEntry(shortfallEntry);
         const incoming = incomingMap.get(itemId);
         const onOrder = incoming ? Number(incoming.qty || 0) : 0;
+        const orderLinkCount = (state._shortfallOrdersLoaded && shortfallId && state._shortfallOrdersById && typeof state._shortfallOrdersById.get === 'function')
+          ? (state._shortfallOrdersById.get(shortfallId) || 0)
+          : null;
         const statusClass = shortfall > 0
           ? (onOrder >= shortfall ? 'status-pending' : 'status-shortage')
           : 'status-good';
@@ -27481,8 +28320,14 @@ function emptyStateHtml(){
                           `<span>Incoming (Not Yet Received): ${escapeHtml(formatQty(onOrder))}</span>`+
                         `</div>`
                       : '')+
+                    (orderLinkCount !== null && shortfallId
+                      ? `<div class="job-shortfall-link${orderLinkCount > 0 ? ' has-order' : ''}">`+
+                          `${ICONS.shoppingBag}`+
+                          `<span>${orderLinkCount > 0 ? 'Order in progress' : 'No order yet'}</span>`+
+                        `</div>`
+                      : '')+
                   `</div>`+
-                  `<button class="job-add-to-po-btn" type="button" data-bom-order-id="${escapeHtmlAttr(itemId)}" data-bom-order-qty="${escapeHtmlAttr(String(stillNeeded > 0 ? stillNeeded : shortfall))}">`+
+                  `<button class="job-add-to-po-btn" type="button" data-bom-order-id="${escapeHtmlAttr(itemId)}" data-bom-order-job-id="${escapeHtmlAttr(String(job && job.id ? job.id : ''))}" data-bom-order-shortfall-id="${escapeHtmlAttr(String(shortfallId || ''))}" data-bom-order-shortfall-qty="${escapeHtmlAttr(String(shortfall))}" data-bom-order-qty="${escapeHtmlAttr(String(stillNeeded > 0 ? stillNeeded : shortfall))}">`+
                     `${ICONS.shoppingCart}`+
                     `<span>${onOrder >= shortfall ? 'Add More' : '+' + escapeHtml(String(stillNeeded || shortfall))}</span>`+
                   `</button>`+
@@ -27988,11 +28833,41 @@ function emptyStateHtml(){
         const shortfallsByJob = await sbFetchShortfallsForJobs([editor.job.id]);
         jobShortfalls = shortfallsByJob.get(String(editor.job.id)) || new Map();
       }
+      if(canOrdersView()){
+        const shortfallIds = collectShortfallIdsFromMap(jobShortfalls);
+        try{
+          state._shortfallOrdersById = shortfallIds.length
+            ? await sbFetchOrderShortfallLinks(shortfallIds)
+            : new Map();
+          state._shortfallOrdersLoaded = true;
+        }catch(e){
+          state._shortfallOrdersById = new Map();
+          state._shortfallOrdersLoaded = false;
+        }
+      }else{
+        state._shortfallOrdersById = new Map();
+        state._shortfallOrdersLoaded = false;
+      }
+      let jobReadiness = editor.jobReadiness || null;
+      if(editor.job && editor.job.id){
+        try{
+          const readinessMap = await sbFetchJobReadiness([editor.job.id]);
+          const readinessRow = readinessMap.get(String(editor.job.id)) || null;
+          if(readinessRow){
+            jobReadiness = readinessRow;
+            if(!state._jobReadinessByJobId || typeof state._jobReadinessByJobId.set !== 'function'){
+              state._jobReadinessByJobId = new Map();
+            }
+            state._jobReadinessByJobId.set(String(editor.job.id), readinessRow);
+          }
+        }catch(e){}
+      }
       editor.reservedMap = reservedMap;
       editor.inventoryMap = inventoryMap;
       editor.incomingMap = incomingMap;
       editor.jobAllocations = jobAllocations;
       editor.jobShortfalls = jobShortfalls;
+      editor.jobReadiness = jobReadiness;
       state._incomingByItemId = incomingMap;
       let wasFulfillable = true;
       const allLines = bomLines.concat(pendingLines);
@@ -28044,6 +28919,7 @@ function emptyStateHtml(){
         let incomingMap = buildInventoryIncomingMap();
         let jobAllocations = new Map();
         let jobShortfalls = new Map();
+        let jobReadiness = null;
         if(jobId){
           job = state._jobsById.get(String(jobId)) || null;
           if(!job){
@@ -28059,6 +28935,36 @@ function emptyStateHtml(){
             jobAllocations = allocationsByJob.get(String(job.id)) || new Map();
             const shortfallsByJob = await sbFetchShortfallsForJobs([job.id]);
             jobShortfalls = shortfallsByJob.get(String(job.id)) || new Map();
+            if(canOrdersView()){
+              const shortfallIds = collectShortfallIdsFromMap(jobShortfalls);
+              try{
+                state._shortfallOrdersById = shortfallIds.length
+                  ? await sbFetchOrderShortfallLinks(shortfallIds)
+                  : new Map();
+                state._shortfallOrdersLoaded = true;
+              }catch(e){
+                state._shortfallOrdersById = new Map();
+                state._shortfallOrdersLoaded = false;
+              }
+            }else{
+              state._shortfallOrdersById = new Map();
+              state._shortfallOrdersLoaded = false;
+            }
+            try{
+              const readinessMap = await sbFetchJobReadiness([job.id]);
+              const readinessRow = readinessMap.get(String(job.id)) || null;
+              if(readinessRow){
+                jobReadiness = readinessRow;
+                if(!state._jobReadinessByJobId || typeof state._jobReadinessByJobId.set !== 'function'){
+                  state._jobReadinessByJobId = new Map();
+                }
+                state._jobReadinessByJobId.set(String(job.id), readinessRow);
+              }
+            }catch(e){
+              if(state._jobReadinessByJobId && typeof state._jobReadinessByJobId.get === 'function'){
+                jobReadiness = state._jobReadinessByJobId.get(String(job.id)) || jobReadiness;
+              }
+            }
           }
         }else{
           job = { id:null, name:'', status:'draft', notes:'' };
@@ -28085,10 +28991,10 @@ function emptyStateHtml(){
             }
           }
         }
-        state._jobEditor = { job, bomLines, actuals, reservedMap, inventoryMap, incomingMap, jobAllocations, jobShortfalls, wasFulfillable };
+        state._jobEditor = { job, bomLines, actuals, reservedMap, inventoryMap, incomingMap, jobAllocations, jobShortfalls, jobReadiness, wasFulfillable };
         state._incomingByItemId = incomingMap;
       }catch(e){
-        state._jobEditor = { job: { id:null, name:'', status:'draft', notes:'' }, bomLines:[], actuals:[], reservedMap:new Map(), inventoryMap:new Map(), incomingMap:new Map(), jobAllocations:new Map(), jobShortfalls:new Map(), wasFulfillable: true };
+        state._jobEditor = { job: { id:null, name:'', status:'draft', notes:'' }, bomLines:[], actuals:[], reservedMap:new Map(), inventoryMap:new Map(), incomingMap:new Map(), jobAllocations:new Map(), jobShortfalls:new Map(), jobReadiness: null, wasFulfillable: true };
         setJobEditorMessage(e && e.message ? e.message : 'Failed to load job');
       }finally{
         state._jobEditorBusy = false;
@@ -28872,8 +29778,15 @@ function emptyStateHtml(){
       if(orderBtn){
         const itemId = String(orderBtn.getAttribute('data-item-id') || '').trim();
         const shortage = Number(orderBtn.getAttribute('data-shortage') || 0);
+        const jobId = String(orderBtn.getAttribute('data-job-id') || '').trim();
+        const shortfallId = String(orderBtn.getAttribute('data-shortfall-id') || '').trim();
+        const shortfallQty = Number(orderBtn.getAttribute('data-shortfall-qty') || 0);
         if(itemId && shortage > 0){
-          addToOrderFromBom(itemId, shortage);
+          addToOrderFromBom(itemId, shortage, {
+            jobId,
+            shortfallId,
+            shortfallQty
+          });
         }
         return;
       }
@@ -28965,8 +29878,15 @@ function emptyStateHtml(){
       if(orderBtn){
         const itemId = String(orderBtn.getAttribute('data-bom-order-id') || '').trim();
         const qty = Number(orderBtn.getAttribute('data-bom-order-qty') || 0);
+        const jobId = String(orderBtn.getAttribute('data-bom-order-job-id') || '').trim();
+        const shortfallId = String(orderBtn.getAttribute('data-bom-order-shortfall-id') || '').trim();
+        const shortfallQty = Number(orderBtn.getAttribute('data-bom-order-shortfall-qty') || 0);
         if(itemId){
-          addToOrderFromBom(itemId, qty || 1);
+          addToOrderFromBom(itemId, qty || 1, {
+            jobId,
+            shortfallId,
+            shortfallQty
+          });
         }
         return;
       }
@@ -29408,7 +30328,9 @@ function emptyStateHtml(){
       }
     });
     const btnCompanyLocationsClose = $('btnCompanyLocationsClose');
-    if(btnCompanyLocationsClose) btnCompanyLocationsClose.addEventListener('click', ()=>{
+    if(btnCompanyLocationsClose) btnCompanyLocationsClose.addEventListener('click', (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
       void closeCompanyLocationsModal();
     });
     const btnCompanyLocationNew = $('btnCompanyLocationNew');
@@ -29424,8 +30346,7 @@ function emptyStateHtml(){
     if(btnCompanyLocationSave) btnCompanyLocationSave.addEventListener('click', saveCompanyLocation);
     const btnCompanyLocationCancel = $('btnCompanyLocationCancel');
     if(btnCompanyLocationCancel) btnCompanyLocationCancel.addEventListener('click', closeCompanyLocationEditor);
-    const companyLocationsList = $('companyLocationsList');
-    if(companyLocationsList) companyLocationsList.addEventListener('click', async (e)=>{
+    async function handleLocationListClick(e){
       const editBtn = e.target.closest('[data-location-edit]');
       if(editBtn){
         const id = String(editBtn.getAttribute('data-location-edit') || '').trim();
@@ -29488,7 +30409,44 @@ function emptyStateHtml(){
           restoreBtn.textContent = prior || 'Restore';
         }
       }
-    });
+    }
+    const companyLocationsList = $('companyLocationsList');
+    if(companyLocationsList) companyLocationsList.addEventListener('click', handleLocationListClick);
+    const companyLocationsMobileCards = $('companyLocationsMobileCards');
+    if(companyLocationsMobileCards) companyLocationsMobileCards.addEventListener('click', handleLocationListClick);
+    // Super user company selector event handlers
+    const locationsCompanySearch = $('locationsCompanySearch');
+    if(locationsCompanySearch){
+      let searchTimeout;
+      locationsCompanySearch.addEventListener('input', ()=>{
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(()=>{
+          state._locationsCompanySearch = locationsCompanySearch.value;
+          loadLocationsCompanies().catch(e => console.error('Company search error:', e));
+        }, 300);
+      });
+    }
+    const locationsCompanyList = $('locationsCompanyList');
+    if(locationsCompanyList){
+      locationsCompanyList.addEventListener('click', (e)=>{
+        const item = e.target.closest('[data-locations-select-company]');
+        if(!item) return;
+        const companyId = item.getAttribute('data-locations-select-company');
+        const name = item.querySelector('.locations-company-name')?.textContent || '';
+        selectLocationsCompany(companyId, name);
+      });
+    }
+    const btnLocationsClearCompany = $('btnLocationsClearCompany');
+    if(btnLocationsClearCompany){
+      btnLocationsClearCompany.addEventListener('click', ()=>{
+        setCompanyLocationsContext(null);
+        showLocationsCompanySelector(true);
+        const searchInput = $('locationsCompanySearch');
+        if(searchInput) searchInput.value = '';
+        state._locationsCompanySearch = '';
+        loadLocationsCompanies().catch(e => console.error('Failed to reload companies:', e));
+      });
+    }
 
 	    const orderHistoryFilter = $('orderHistoryFilter');
 	    if(orderHistoryFilter){
@@ -29599,9 +30557,18 @@ function emptyStateHtml(){
 	        else { toast(msg); }
 	      }finally{
 	        if(btn){ btn.textContent = priorText || 'Submit Order'; }
-	        renderOrderPreview();
-	      }
+        renderOrderPreview();
+      }
     });
+
+    const orderShortfallAttachToggle = $('orderShortfallAttachToggle');
+    if(orderShortfallAttachToggle){
+      orderShortfallAttachToggle.addEventListener('change', ()=>{
+        const ord = orderState();
+        ord.shortfallAttached = !!orderShortfallAttachToggle.checked;
+        updateOrderWizardReviewSummary();
+      });
+    }
 
     const orderSearch = $('orderSearch');
     if(orderSearch){
@@ -30389,6 +31356,7 @@ function emptyStateHtml(){
         if(id === 'confirmModal') closeConfirmModal(false);
         else if(id === 'msgModal') closeMsgModal();
         else if(id === 'qtyEntryModal') closeQtyEntryModal(null);
+        else if(id === 'companyLocationsModal') void closeCompanyLocationsModal();
         else if(id === 'pasteModal') show('pasteModal', false);
         else if(id) show(id, false);
       }
@@ -30402,6 +31370,7 @@ function emptyStateHtml(){
       if(id === 'confirmModal') closeConfirmModal(false);
       else if(id === 'msgModal') closeMsgModal();
       else if(id === 'qtyEntryModal') closeQtyEntryModal(null);
+      else if(id === 'companyLocationsModal') void closeCompanyLocationsModal();
       else show(id, false);
     });
     function show(id, on = true) {

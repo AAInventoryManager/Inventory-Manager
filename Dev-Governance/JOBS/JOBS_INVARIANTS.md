@@ -12,3 +12,14 @@
 - UI labels are descriptive and do not mutate state.
 - Job-scoped inventory views are read-only.
 - Availability and allocation are derived concepts and will be computed once implemented; Jobs UI shows On Hand and Incoming (Not Yet Received) only.
+
+## Job Readiness (Derived)
+- Job readiness is derived and never user-editable.
+- A job is Ready to Staff iff:
+  - status = approved
+  - no active shortfalls exist for the job
+  - every BOM line is fully allocated for the job (allocated >= qty_planned)
+- Reasons when not ready are deterministic and machine-readable:
+  - job_not_approved
+  - shortfall_exists
+  - allocation_incomplete

@@ -117,6 +117,25 @@ async function fetchActiveShortfalls(jobId: string): Promise<Map<string, number>
   return map;
 }
 
+async function fetchJobReadiness(
+  client: SupabaseClient,
+  companyId: string,
+  jobId: string
+): Promise<{ ready: boolean; reasons: string[] }> {
+  const { data, error } = await client.rpc('get_job_readiness', {
+    p_company_id: companyId,
+    p_job_ids: [jobId]
+  });
+  if (error) throw error;
+  const row = Array.isArray(data)
+    ? data.find(item => String(item && item.job_id ? item.job_id : '') === String(jobId))
+    : null;
+  return {
+    ready: !!(row && row.ready),
+    reasons: Array.isArray(row && row.reasons) ? row.reasons : []
+  };
+}
+
 describe.sequential('Jobs RPCs', () => {
   let companyId: string;
   let adminAuth: SupabaseClient;
@@ -210,6 +229,52 @@ describe.sequential('Jobs RPCs', () => {
 
     const shortfalls = await fetchActiveShortfalls(jobId);
     expect(shortfalls.get(itemId)).toBe(1);
+  });
+
+  it('derives readiness from approval, allocations, and shortfalls', async () => {
+    const itemId = await createInventoryItem(companyId, `Item Ready ${uniqueSuffix}`, 1, adminUserId);
+
+    const { data: jobId } = await adminAuth.rpc('create_job', {
+      p_company_id: companyId,
+      p_name: 'Ready Job',
+      p_notes: null
+    });
+
+    await adminAuth.rpc('upsert_job_bom_line', {
+      p_job_id: jobId,
+      p_item_id: itemId,
+      p_qty_planned: 3
+    });
+
+    const { data: blocked } = await adminAuth.rpc('approve_job', {
+      p_job_id: jobId,
+      p_was_fulfillable: false
+    });
+    expect(blocked?.blocked).toBe(true);
+
+    const blockedReadiness = await fetchJobReadiness(adminAuth, companyId, jobId);
+    expect(blockedReadiness.ready).toBe(false);
+    expect(blockedReadiness.reasons).toEqual(expect.arrayContaining([
+      'job_not_approved',
+      'shortfall_exists',
+      'allocation_incomplete'
+    ]));
+
+    const { error: updateError } = await adminClient
+      .from('inventory_items')
+      .update({ quantity: 5 })
+      .eq('id', itemId);
+    if (updateError) throw updateError;
+
+    const { data: approved } = await adminAuth.rpc('approve_job', {
+      p_job_id: jobId,
+      p_was_fulfillable: true
+    });
+    expect(approved?.status).toBe('approved');
+
+    const readyReadiness = await fetchJobReadiness(adminAuth, companyId, jobId);
+    expect(readyReadiness.ready).toBe(true);
+    expect(readyReadiness.reasons.length).toBe(0);
   });
 
   it('reserves inventory on approval and keeps approvals idempotent', async () => {
