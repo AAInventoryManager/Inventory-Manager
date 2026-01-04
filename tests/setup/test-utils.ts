@@ -23,6 +23,36 @@ export const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
   auth: { autoRefreshToken: false, persistSession: false }
 });
 
+const AUTH_THROTTLE_MS = Number(
+  process.env.AUTH_THROTTLE_MS || (process.env.CI ? '1500' : '0')
+);
+let authQueue = Promise.resolve();
+let lastAuthAt = 0;
+
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function withAuthThrottle<T>(fn: () => Promise<T>): Promise<T> {
+  const run = async () => {
+    if (AUTH_THROTTLE_MS > 0) {
+      const waitMs = Math.max(0, AUTH_THROTTLE_MS - (Date.now() - lastAuthAt));
+      if (waitMs > 0) await sleep(waitMs);
+      lastAuthAt = Date.now();
+    }
+    return fn();
+  };
+  authQueue = authQueue.then(run, run);
+  return authQueue;
+}
+
+function isRateLimitError(error: { message?: string; status?: number } | null): boolean {
+  if (!error) return false;
+  if (error.status === 429) return true;
+  const message = String(error.message || '').toLowerCase();
+  return message.includes('rate limit');
+}
+
 function createAuthStorageKey(seed: string): string {
   const suffix = Math.random().toString(16).slice(2);
   return `sb-test-${seed.replace(/[^a-z0-9]/gi, '-')}-${Date.now()}-${suffix}`;
@@ -51,9 +81,21 @@ export async function createAuthenticatedClient(email: string, password: string)
     }
   });
 
-  const { data, error } = await client.auth.signInWithPassword({ email, password });
-  if (error) throw new Error(`Failed to authenticate ${email}: ${error.message}`);
-  if (!data.session) throw new Error(`No session returned for ${email}`);
+  const maxAttempts = AUTH_THROTTLE_MS > 0 ? 5 : 2;
+  let lastError: { message?: string } | null = null;
+  let data: { session: any } | null = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const result = await withAuthThrottle(() => client.auth.signInWithPassword({ email, password }));
+    data = result.data;
+    if (!result.error) break;
+    lastError = result.error;
+    if (!isRateLimitError(result.error) || attempt === maxAttempts) {
+      break;
+    }
+    await sleep(500 * attempt);
+  }
+  if (lastError) throw new Error(`Failed to authenticate ${email}: ${lastError.message}`);
+  if (!data?.session) throw new Error(`No session returned for ${email}`);
   return client;
 }
 
