@@ -1,0 +1,37 @@
+schema_version: 1
+registry:
+  required_fields:
+    - schema_version
+    - product
+    - features
+  feature:
+    required_fields:
+      - feature_id
+      - name
+      - description
+      - tier_availability
+      - support_impact
+      - status
+    field_types:
+      feature_id: string
+      name: string
+      description: string
+      tier_availability: list
+      support_impact: string
+      status: string
+    enums:
+      tier_availability:
+        - starter
+        - professional
+        - business
+        - enterprise
+      support_impact:
+        - none
+        - low
+        - medium
+        - high
+      status:
+        - planned
+        - in_progress
+        - released
+        - deprecated

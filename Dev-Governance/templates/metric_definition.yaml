@@ -1,0 +1,60 @@
+cat << 'EOF' > /Users/brandon/coding/Dev-Governance/templates/metric_definition.yaml
+metric_id: <UNIQUE_METRIC_ID>
+display_name: <Human readable name>
+tier: <TIER_1 | TIER_2 | TIER_3>
+
+description: >
+  Clear, concise explanation of what this metric measures
+  and why it exists. This should be understandable by a
+  non-technical business stakeholder.
+
+formula:
+  expression: "<Explicit mathematical formula>"
+
+variables:
+  <VARIABLE_NAME>:
+    description: <Plain English definition>
+    source_tables:
+      - <table_name>
+    source_fields:
+      - <field_name>
+    aggregation: <SUM | AVG | COUNT | MIN | MAX | DERIVED>
+    notes: <Optional clarification>
+
+time_semantics:
+  type: <AS_OF | PERIOD_BASED>
+  required_dates:
+    - <as_of_date OR period_start>
+    - <period_end if applicable>
+
+dimensions_supported:
+  - item
+  - category
+  - location
+  - warehouse
+
+edge_cases:
+  - <Explicit handling rule, e.g. division by zero>
+  - <Explicit handling rule, e.g. missing cost data>
+
+output:
+  data_type: <NUMBER | PERCENTAGE | CURRENCY | DAYS | RATIO>
+  precision: <number of decimal places>
+  unit: <optional unit description>
+
+tests:
+  - name: <test_case_name>
+    inputs:
+      <VARIABLE_NAME>: <value>
+    expected_output: <value>
+
+  - name: <test_case_name>
+    inputs:
+      <VARIABLE_NAME>: <value>
+    expected_output: <value>
+
+audit:
+  created_by: <name or role>
+  approved_by: <name or role>
+  approval_date: <YYYY-MM-DD>
+EOF

@@ -1,0 +1,93 @@
+You are implementing the Metric Execution Engine for an enterprise inventory SaaS platform.
+
+You MUST follow the Metric Execution Contract exactly.
+Do not invent behavior, shortcuts, or abstractions.
+
+Reference documents (authoritative):
+- Dev-Governance/METRIC_EXECUTION_CONTRACT.md
+- Dev-Governance/METRIC_REGISTRY_SCHEMA.yaml
+- Dev-Governance/metrics/**/<metric>.yaml
+
+--------------------------------------------------
+OBJECTIVE
+--------------------------------------------------
+Implement a reusable Metric Execution Engine that:
+- Executes governed metrics defined in YAML
+- Enforces pricing tier entitlement
+- Applies time semantics correctly
+- Returns deterministic, testable results
+
+--------------------------------------------------
+CORE RESPONSIBILITIES
+--------------------------------------------------
+1. Load metric definition by metric_id.
+2. Validate requesting_user_tier >= metric.tier.
+3. Reject execution if tier is insufficient.
+4. Resolve time semantics:
+   - AS_OF → compute snapshot at as_of_date
+   - PERIOD_BASED → compute over period_start → period_end
+5. Execute the metric formula EXACTLY as defined.
+6. Apply all edge case handling rules.
+7. Return the metric value with unit and precision.
+
+--------------------------------------------------
+ENGINE DESIGN REQUIREMENTS
+--------------------------------------------------
+- Metric logic MUST NOT live in reports or UI code.
+- Metrics MUST NOT be computed for unauthorized tiers.
+- Formula definitions are authoritative and immutable.
+- Execution must be deterministic and repeatable.
+- The engine must support dimension filters
+  (item, category, location, warehouse).
+
+--------------------------------------------------
+INITIAL IMPLEMENTATION SCOPE
+--------------------------------------------------
+Implement support for the following metric only:
+- INVENTORY_TURNOVER
+
+Future metrics will reuse the same engine.
+
+--------------------------------------------------
+ERROR HANDLING
+--------------------------------------------------
+The engine must raise explicit errors for:
+- MetricNotFound
+- UnauthorizedTier
+- InvalidTimeContext
+- MissingRequiredInputs
+
+--------------------------------------------------
+OUTPUT FORMAT
+--------------------------------------------------
+Return an object containing:
+- metric_id
+- value
+- unit
+- precision
+- time_context
+- dimensions_applied
+
+--------------------------------------------------
+TESTING REQUIREMENTS
+--------------------------------------------------
+- Implement automated tests that use the test cases
+  defined in the metric YAML.
+- Tests must match expected_output values exactly.
+- Tier enforcement must be explicitly tested.
+
+--------------------------------------------------
+FORBIDDEN ACTIONS
+--------------------------------------------------
+- Do not infer missing data.
+- Do not optimize or refactor formulas.
+- Do not bypass tier enforcement.
+- Do not hardcode metric values.
+- Do not expose restricted metrics in any API.
+
+--------------------------------------------------
+DELIVERABLE
+--------------------------------------------------
+- MetricExecutionService (or equivalent)
+- Tests proving correct execution of INVENTORY_TURNOVER
+- Confirmation that tier enforcement is active

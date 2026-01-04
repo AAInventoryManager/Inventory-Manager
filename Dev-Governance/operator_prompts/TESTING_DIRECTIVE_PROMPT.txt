@@ -1,0 +1,10 @@
+After feature implementation:
+
+1) Identify required test layers per TESTING_POLICY.md
+2) Add unit tests for new logic
+3) Add backend entitlement/policy tests for tier and permission behavior
+4) Add integration tests for RPC or RLS changes
+5) Run tests or explicitly report unrun tests with justification
+6) Summarize failures in actionable terms
+
+Do not rely on UI behavior as proof of correctness.

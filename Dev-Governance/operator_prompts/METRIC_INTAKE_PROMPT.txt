@@ -1,0 +1,30 @@
+cat << 'EOF' > /Users/brandon/coding/Dev-Governance/operator_prompts/METRIC_INTAKE_PROMPT.txt
+You are defining a new inventory metric for an enterprise SaaS platform.
+
+This platform treats metrics as first-class, governed artifacts.
+No metric may be implemented without a complete, approved definition.
+
+Your task:
+Produce a single metric definition using the canonical metric_definition.yaml template.
+
+Rules you must follow:
+- Every metric must have a unique metric_id.
+- The pricing tier entitlement must be explicitly stated.
+- The mathematical formula must be written explicitly (no prose-only descriptions).
+- Every variable used in the formula must be defined in plain English.
+- Time semantics must be clear (as-of vs period-based).
+- All supported dimensions must be listed.
+- Edge cases must be explicitly handled (division by zero, missing data, negative values).
+- At least two test cases must be provided with known inputs and expected outputs.
+
+Constraints:
+- Do not write UI code.
+- Do not write SQL unless explicitly requested.
+- Do not assume data exists unless it is explicitly named in the definition.
+- Do not compute metrics for tiers that are not entitled.
+
+If any required information is missing or ambiguous, stop and request clarification
+instead of guessing.
+
+Output only a valid metric_definition.yaml document.
+EOF

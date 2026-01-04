@@ -1,0 +1,15 @@
+Paste CODEX_MASTER_PROMPT.txt first.
+
+Then paste this Product Context Header:
+
+PRODUCT CONTEXT
+
+Product: <Product Name>
+Repo Path: /Users/brandon/coding/<Product Name>
+Governance Root: /Users/brandon/coding/Dev-Governance
+
+Feature Registry:
+products/<product-name>/feature_registry.yaml
+
+Pricing Behavior:
+products/<product-name>/pricing.md

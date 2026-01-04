@@ -1,0 +1,545 @@
+schema_version: 1
+domain: receiving
+description: Schema definitions for Receipt and ReceiptLine entities
+
+# -----------------------------------------------------------------------------
+# RECEIPT HEADER
+# -----------------------------------------------------------------------------
+receipt:
+  table_name: receipts
+  primary_key: id
+
+  required_fields:
+    - field: id
+      type: uuid
+      generated: true
+      write_once: true
+      description: Primary key, auto-generated
+
+    - field: receipt_number
+      type: string
+      generated: true
+      write_once: true
+      format: "RCV-{YYYYMMDD}-{XXXX}"
+      description: Human-readable identifier, auto-generated on create
+
+    - field: company_id
+      type: uuid
+      write_once: true
+      references: companies.id
+      description: Tenant isolation key
+
+    - field: status
+      type: enum
+      default: draft
+      description: Current lifecycle state
+
+    - field: created_at
+      type: timestamp
+      generated: true
+      write_once: true
+      description: Record creation timestamp
+
+    - field: created_by
+      type: uuid
+      write_once: true
+      references: auth.users.id
+      description: User who created the receipt
+
+    - field: updated_at
+      type: timestamp
+      generated: true
+      description: Last modification timestamp
+
+    - field: updated_by
+      type: uuid
+      references: auth.users.id
+      description: User who last updated the receipt
+
+  optional_fields:
+    - field: purchase_order_id
+      type: uuid
+      nullable: true
+      references: purchase_orders.id
+      write_once: false
+      description: FK to originating PO (null for ad-hoc receipts)
+
+    - field: supplier_id
+      type: uuid
+      nullable: true
+      references: suppliers.id
+      write_once: false
+      description: FK to supplier
+
+    - field: notes
+      type: text
+      nullable: true
+      max_length: 2000
+      description: Free-form notes
+
+    - field: submitted_by
+      type: uuid
+      nullable: true
+      references: auth.users.id
+      write_once: true
+      set_on: submit
+      description: User who submitted for approval
+
+    - field: submitted_at
+      type: timestamp
+      nullable: true
+      write_once: true
+      set_on: submit
+      description: Submission timestamp
+
+    - field: received_by
+      type: uuid
+      nullable: true
+      references: auth.users.id
+      write_once: true
+      set_on: approve
+      description: User who approved/completed the receipt
+
+    - field: received_at
+      type: timestamp
+      nullable: true
+      write_once: true
+      set_on: approve
+      description: Approval/completion timestamp
+
+    - field: rejected_by
+      type: uuid
+      nullable: true
+      references: auth.users.id
+      description: User who rejected (cleared on resubmit)
+
+    - field: rejected_at
+      type: timestamp
+      nullable: true
+      description: Rejection timestamp (cleared on resubmit)
+
+    - field: rejection_reason
+      type: text
+      nullable: true
+      max_length: 500
+      description: Reason for rejection (cleared on resubmit)
+
+    - field: voided_by
+      type: uuid
+      nullable: true
+      references: auth.users.id
+      write_once: true
+      set_on: void
+      description: User who voided the receipt
+
+    - field: voided_at
+      type: timestamp
+      nullable: true
+      write_once: true
+      set_on: void
+      description: Void timestamp
+
+    - field: void_reason
+      type: text
+      nullable: true
+      min_length: 10
+      max_length: 500
+      required_on: void
+      write_once: true
+      description: Required explanation for voiding
+
+  allowed_statuses:
+    - status: draft
+      description: Initial state, fully editable
+      editable: true
+      deletable: true
+      transitions_to:
+        - pending
+        - completed  # Professional tier only (skip approval)
+
+    - status: pending
+      description: Awaiting approval
+      editable: false
+      deletable: false
+      transitions_to:
+        - completed
+        - draft  # via reject
+
+    - status: completed
+      description: Approved, inventory updated
+      editable: false
+      deletable: false
+      transitions_to:
+        - voided  # Enterprise tier only
+
+    - status: voided
+      description: Marked void, terminal state
+      editable: false
+      deletable: false
+      transitions_to: []
+
+  write_once_fields:
+    - id
+    - receipt_number
+    - company_id
+    - created_at
+    - created_by
+    - submitted_by
+    - submitted_at
+    - received_by
+    - received_at
+    - voided_by
+    - voided_at
+    - void_reason
+
+  immutable_after_status:
+    - status: completed
+      immutable_fields: all
+      exceptions:
+        - voided_by
+        - voided_at
+        - void_reason
+        - status
+        - updated_at
+        - updated_by
+    - status: voided
+      immutable_fields: all
+      exceptions: []
+
+# -----------------------------------------------------------------------------
+# RECEIPT LINE
+# -----------------------------------------------------------------------------
+receipt_line:
+  table_name: receipt_lines
+  primary_key: id
+
+  required_fields:
+    - field: id
+      type: uuid
+      generated: true
+      write_once: true
+      description: Primary key, auto-generated
+
+    - field: receipt_id
+      type: uuid
+      write_once: true
+      references: receipts.id
+      on_delete: cascade
+      description: FK to parent receipt
+
+    - field: item_id
+      type: uuid
+      write_once: true
+      references: items.id
+      description: FK to inventory item
+
+    - field: received_qty
+      type: integer
+      default: 0
+      min: 0
+      description: Actual quantity received
+
+    - field: created_at
+      type: timestamp
+      generated: true
+      write_once: true
+      description: Record creation timestamp
+
+    - field: created_by
+      type: uuid
+      write_once: true
+      references: auth.users.id
+      description: User who created the receipt line
+
+    - field: updated_at
+      type: timestamp
+      generated: true
+      description: Last modification timestamp
+
+    - field: updated_by
+      type: uuid
+      references: auth.users.id
+      description: User who last updated the receipt line
+
+  optional_fields:
+    - field: po_line_id
+      type: uuid
+      nullable: true
+      references: purchase_order_lines.id
+      write_once: true
+      description: FK to PO line (null for ad-hoc)
+
+    - field: expected_qty
+      type: integer
+      nullable: true
+      min: 0
+      description: Quantity expected per PO line
+
+    - field: rejected_qty
+      type: integer
+      default: 0
+      min: 0
+      description: Quantity rejected (damaged/defective)
+
+    - field: rejection_reason
+      type: text
+      nullable: true
+      max_length: 500
+      required_when: "rejected_qty > 0"
+      description: Reason for rejection
+
+    - field: unit_cost
+      type: decimal
+      precision: 10
+      scale: 2
+      nullable: true
+      min: 0
+      write_once_after: completed
+      description: Cost per unit at time of receipt
+
+    - field: lot_number
+      type: string
+      nullable: true
+      max_length: 100
+      description: Lot/batch number for tracking
+
+    - field: expiration_date
+      type: date
+      nullable: true
+      description: Expiration date for perishables
+
+    - field: notes
+      type: text
+      nullable: true
+      max_length: 1000
+      description: Line-level notes
+
+  allowed_quantities:
+    received_qty:
+      type: integer
+      min: 0
+      max: 999999
+      description: Must be non-negative
+
+    rejected_qty:
+      type: integer
+      min: 0
+      max: 999999
+      description: Must be non-negative
+
+    expected_qty:
+      type: integer
+      min: 0
+      max: 999999
+      nullable: true
+      description: Must be non-negative when provided
+
+  quantity_rules:
+    - rule: non_negative
+      fields: [received_qty, rejected_qty, expected_qty]
+      constraint: "value >= 0"
+      severity: error
+
+    - rule: over_receive_warning
+      fields: [received_qty, rejected_qty, expected_qty]
+      constraint: "received_qty + rejected_qty <= expected_qty"
+      severity: warning
+      message: "Total disposition exceeds expected quantity"
+      applies_when: "expected_qty IS NOT NULL"
+
+    - rule: rejection_requires_reason
+      fields: [rejected_qty, rejection_reason]
+      constraint: "IF rejected_qty > 0 THEN rejection_reason IS NOT NULL"
+      severity: error
+      message: "Rejection reason required when rejecting items"
+
+  write_once_fields:
+    - id
+    - receipt_id
+    - item_id
+    - po_line_id
+    - created_at
+    - created_by
+
+  write_once_after_status:
+    completed:
+      - unit_cost
+      - received_qty
+      - rejected_qty
+      - rejection_reason
+      - lot_number
+      - expiration_date
+
+  immutable_after_parent_status:
+    - parent_status: completed
+      immutable_fields: all
+    - parent_status: voided
+      immutable_fields: all
+
+# -----------------------------------------------------------------------------
+# REQUIRED REFERENCES
+# -----------------------------------------------------------------------------
+references:
+  receipt:
+    required:
+      - target: companies
+        field: company_id
+        enforce: database
+        on_delete: restrict
+        description: Tenant isolation, always required
+
+    conditional:
+      - target: purchase_orders
+        field: purchase_order_id
+        enforce: database
+        on_delete: restrict
+        nullable: true
+        description: Required for PO-based receiving, null for ad-hoc
+
+      - target: suppliers
+        field: supplier_id
+        enforce: database
+        on_delete: set_null
+        nullable: true
+        description: Optional supplier reference
+
+    audit:
+      - target: auth.users
+        fields: [created_by, updated_by, submitted_by, received_by, rejected_by, voided_by]
+        enforce: database
+        on_delete: restrict
+        description: User audit trail references
+
+  receipt_line:
+    required:
+      - target: receipts
+        field: receipt_id
+        enforce: database
+        on_delete: cascade
+        description: Parent receipt, cascades on delete
+
+      - target: items
+        field: item_id
+        enforce: database
+        on_delete: restrict
+        constraint: "item.deleted_at IS NULL"
+        description: Must reference active (non-deleted) item
+
+    conditional:
+      - target: purchase_order_lines
+        field: po_line_id
+        enforce: database
+        on_delete: restrict
+        nullable: true
+        description: Required when parent receipt has purchase_order_id
+
+    audit:
+      - target: auth.users
+        fields: [created_by, updated_by]
+        enforce: database
+        on_delete: restrict
+        description: User audit trail references
+
+# -----------------------------------------------------------------------------
+# CROSS-ENTITY VALIDATION
+# -----------------------------------------------------------------------------
+cross_entity_rules:
+  - rule: company_consistency
+    description: Receipt and all referenced items must belong to same company
+    entities: [receipt, receipt_line, item]
+    constraint: "receipt.company_id = item.company_id"
+    severity: error
+
+  - rule: po_line_consistency
+    description: PO line must belong to the receipt's PO
+    entities: [receipt, receipt_line, purchase_order_line]
+    constraint: "receipt_line.po_line_id.purchase_order_id = receipt.purchase_order_id"
+    applies_when: "receipt.purchase_order_id IS NOT NULL AND receipt_line.po_line_id IS NOT NULL"
+    severity: error
+
+  - rule: item_active
+    description: Cannot add lines for deleted items
+    entities: [receipt_line, item]
+    constraint: "item.deleted_at IS NULL"
+    severity: error
+
+  - rule: submission_requires_lines
+    description: Cannot submit receipt without at least one line
+    entities: [receipt, receipt_line]
+    constraint: "COUNT(receipt_lines) > 0"
+    applies_on: [submit]
+    severity: error
+
+# -----------------------------------------------------------------------------
+# TIER-BASED SCHEMA VARIATIONS
+# -----------------------------------------------------------------------------
+tier_variations:
+  professional:
+    receipt:
+      allowed_statuses:
+        - draft
+        - completed  # Direct completion, no pending state
+      disabled_fields:
+        - voided_by
+        - voided_at
+        - void_reason
+    receipt_line: {}
+
+  business:
+    receipt:
+      allowed_statuses:
+        - draft
+        - pending
+        - completed
+      disabled_fields:
+        - voided_by
+        - voided_at
+        - void_reason
+    receipt_line: {}
+
+  enterprise:
+    receipt:
+      allowed_statuses:
+        - draft
+        - pending
+        - completed
+        - voided
+      disabled_fields: []
+    receipt_line: {}
+
+# -----------------------------------------------------------------------------
+# INDEXING REQUIREMENTS
+# -----------------------------------------------------------------------------
+indexes:
+  receipt:
+    - name: idx_receipts_company_id
+      fields: [company_id]
+      description: Tenant isolation queries
+
+    - name: idx_receipts_status
+      fields: [company_id, status]
+      description: Status-based filtering
+
+    - name: idx_receipts_po
+      fields: [purchase_order_id]
+      where: "purchase_order_id IS NOT NULL"
+      description: PO-based receipt lookup
+
+    - name: idx_receipts_received_at
+      fields: [company_id, received_at]
+      where: "received_at IS NOT NULL"
+      description: Completed receipts by date
+
+  receipt_line:
+    - name: idx_receipt_lines_receipt
+      fields: [receipt_id]
+      description: Lines by receipt
+
+    - name: idx_receipt_lines_item
+      fields: [item_id]
+      description: Receiving history by item
+
+    - name: idx_receipt_lines_po_line
+      fields: [po_line_id]
+      where: "po_line_id IS NOT NULL"
+      description: Receiving against PO lines

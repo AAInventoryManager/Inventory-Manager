@@ -3,6 +3,7 @@
 .env.test
 .env.test.ci
 .env.test.local
+.env.test.remote
 .env.*.local
 *.log
 node_modules/

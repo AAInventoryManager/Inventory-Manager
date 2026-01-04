@@ -1,0 +1,14 @@
+# Feature Registry Template
+# One entry per feature
+
+- feature_id: inventory.example.feature
+  name: Example Feature Name
+  description: Clear, plain-English description of what the feature does
+  tiers:
+    starter: false
+    professional: true
+    business: true
+    enterprise: true
+  support_impact: medium
+  introduced_version: 0.0.0
+  status: planned

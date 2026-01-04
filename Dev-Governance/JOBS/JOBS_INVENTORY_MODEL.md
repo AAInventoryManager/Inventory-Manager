@@ -3,7 +3,7 @@
 ## Inventory Quantities
 - on_hand
 - reserved
-- available = on_hand - reserved
+- available = on_hand - reserved (derived, not a Jobs UI label)
 
 ## Reservations
 - Reservations occur on job approval only.
@@ -16,7 +16,7 @@
 - Completing a job releases all reservations for that job.
 
 ## Variance Handling
-- If qty_actual < qty_planned, the remainder is released back to available.
+- If qty_actual < qty_planned, the remainder is released back to derived availability (on_hand - reserved).
 - If qty_actual > qty_planned, the additional quantity is consumed from on_hand at completion.
 - Completion is blocked if on_hand is insufficient to cover actual consumption.
 
@@ -28,3 +28,8 @@
 - On approval attempt, the system must clearly list:
   - Items blocking approval
   - Required quantities to order
+
+## UI Terminology and Read-Only Context
+- UI labels are descriptive and do not mutate state.
+- Job-scoped inventory views are read-only.
+- Availability and allocation are derived concepts and will be computed once implemented; Jobs UI shows On Hand and Incoming (Not Yet Received) only.

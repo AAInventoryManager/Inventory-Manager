@@ -1,0 +1,45 @@
+schema_version: 1
+product: inventory-manager
+features:
+  - feature_id: inventory.snapshots.ui
+    name: Snapshots UI
+    description: Read-only UI for viewing historical inventory snapshots.
+    tier_availability:
+      - business
+      - enterprise
+    support_impact: medium
+    status: planned
+  - feature_id: inventory.metrics.dashboard
+    name: Metrics Dashboard
+    description: Dashboard showing inventory counts, changes, and basic trends.
+    tier_availability:
+      - professional
+      - business
+      - enterprise
+    support_impact: medium
+    status: planned
+  - feature_id: inventory.security.checklist
+    name: Security Testing Checklist
+    description: Internal security validation checklist for development and releases.
+    tier_availability:
+      - enterprise
+    support_impact: none
+    status: planned
+  - feature_id: inventory.auth.roles
+    name: Role Engine
+    description: Role-based access control for inventory actions.
+    tier_availability:
+      - business
+      - enterprise
+    support_impact: high
+    status: planned
+  - feature_id: inventory.ui.udwe
+    name: Universal Dynamic Width Engine
+    description: Standardized responsive table/modal sizing system with content-driven widths and mobile card layouts.
+    tier_availability:
+      - starter
+      - professional
+      - business
+      - enterprise
+    support_impact: low
+    status: in_progress

@@ -1,0 +1,32 @@
+You are implementing an inventory metric for an enterprise SaaS platform.
+
+Input:
+- A validated metric definition YAML file from Dev-Governance/metrics/
+- The metric has already passed schema validation and approval
+
+Your responsibilities:
+1. Read the metric definition exactly as written.
+2. Implement the metric logic without modifying the formula.
+3. Enforce pricing tier entitlement at the query layer.
+4. Implement aggregation logic exactly as specified.
+5. Do not compute the metric for unauthorized tiers.
+6. Implement all edge case handling rules.
+7. Create automated tests that match the provided test cases exactly.
+8. Ensure test outputs match expected_output values with no rounding drift.
+
+Constraints:
+- Do not infer missing fields.
+- Do not optimize or refactor the math.
+- Do not introduce additional metrics.
+- Do not expose restricted metrics in any API response.
+
+Failure Conditions (halt and report):
+- Missing or ambiguous variable definitions
+- Unclear time semantics
+- Tier entitlement mismatch
+- Test case ambiguity
+
+Output:
+- Query or computation logic
+- Test implementation
+- Confirmation of tier enforcement

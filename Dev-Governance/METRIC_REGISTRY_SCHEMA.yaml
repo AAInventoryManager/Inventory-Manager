@@ -1,0 +1,69 @@
+schema_version: 1.0
+
+required_fields:
+  - metric_id
+  - display_name
+  - tier
+  - description
+  - formula
+  - variables
+  - time_semantics
+  - dimensions_supported
+  - edge_cases
+  - output
+  - tests
+  - audit
+
+allowed_tiers:
+  - TIER_1
+  - TIER_2
+  - TIER_3
+
+formula_rules:
+  require_expression: true
+  prohibit_prose_only: true
+
+variable_rules:
+  require_description: true
+  require_source_tables: true
+  require_aggregation: true
+
+time_semantics_rules:
+  allowed_types:
+    - AS_OF
+    - PERIOD_BASED
+  required_dates_by_type:
+    PERIOD_BASED:
+      - period_start
+      - period_end
+    AS_OF:
+      - as_of_date
+
+dimension_rules:
+  allowed_dimensions:
+    - item
+    - category
+    - location
+    - warehouse
+    - vendor
+    - customer
+    - project
+
+edge_case_rules:
+  minimum_count: 1
+  require_division_by_zero_handling: when_math_operations_includes_division
+
+test_rules:
+  minimum_test_cases: 2
+  require_expected_output: true
+
+audit_rules:
+  require_created_by: true
+  require_approved_by: true
+  require_approval_date: true
+
+enforcement_policy:
+  missing_required_field: BLOCK_IMPLEMENTATION
+  invalid_tier: BLOCK_IMPLEMENTATION
+  insufficient_tests: BLOCK_IMPLEMENTATION
+  ambiguous_time_semantics: BLOCK_IMPLEMENTATION
