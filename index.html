@@ -49,6 +49,8 @@
       --bg:#24292d;--fg:#eaeff7;--muted:#a9b4c0;--accent:#5aa9ff;
       --card:#000000;--border:#1f2a36;--title-min:12px;--title-max:56px;
       --inventory-sticky-offset: 120px;
+      --success:#22c55e;
+      --cyan:#06b6d4;--cyan-light:#22d3ee;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -2111,24 +2113,49 @@
       height:100%;
       min-height:0;
     }
+    #orderModal .modal-header{
+      padding:16px 20px;
+      border-bottom:1px solid var(--border-subtle);
+      background:var(--card);
+    }
+    #orderModal .modal-icon{
+      width:40px;
+      height:40px;
+      border-radius:10px;
+      background:linear-gradient(135deg, rgba(34,197,94,0.2) 0%, rgba(34,197,94,0.1) 100%);
+      border:1px solid rgba(34,197,94,0.2);
+      color:var(--success);
+    }
+    #orderModal .modal-icon svg{
+      width:20px;
+      height:20px;
+    }
+    #orderModal .modal-title{
+      font-size:17px;
+      font-weight:600;
+    }
 
     /* Progress Stepper */
     .order-wizard-stepper{
       display:flex;
       align-items:center;
-      justify-content:center;
-      gap:0;
-      padding:16px 20px 12px;
-      background:rgba(13,19,27,0.6);
-      border-bottom:1px solid rgba(255,255,255,0.06);
+      justify-content:space-between;
+      gap:4px;
+      margin:16px 20px 8px;
+      padding:4px;
+      background:rgba(0,0,0,0.3);
+      border:1px solid var(--border-subtle);
+      border-radius:10px;
       flex-shrink:0;
     }
     .order-wizard-step{
+      flex:1;
       display:flex;
       align-items:center;
-      gap:8px;
-      padding:8px 14px;
-      border-radius:20px;
+      justify-content:center;
+      gap:6px;
+      padding:10px 12px;
+      border-radius:8px;
       font-size:13px;
       font-weight:600;
       color:var(--muted);
@@ -2138,34 +2165,35 @@
     }
     .order-wizard-step:hover{
       background:rgba(255,255,255,0.05);
+      color:var(--fg);
     }
     .order-wizard-step.active{
-      background:rgba(59,130,246,0.15);
-      color:#60a5fa;
+      background:var(--card-elevated);
+      color:var(--fg);
+      box-shadow:0 2px 8px rgba(0,0,0,0.3);
     }
     .order-wizard-step.completed{
-      color:#22c55e;
+      color:var(--success);
     }
     .order-wizard-step-num{
-      width:24px;
-      height:24px;
+      width:20px;
+      height:20px;
       border-radius:50%;
-      border:2px solid currentColor;
+      border:none;
+      background:rgba(255,255,255,0.1);
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:12px;
+      font-size:11px;
       font-weight:700;
       flex-shrink:0;
     }
     .order-wizard-step.active .order-wizard-step-num{
-      background:#3b82f6;
-      border-color:#3b82f6;
+      background:var(--accent);
       color:#fff;
     }
     .order-wizard-step.completed .order-wizard-step-num{
-      background:#22c55e;
-      border-color:#22c55e;
+      background:var(--success);
       color:#fff;
     }
     .order-wizard-step.completed .order-wizard-step-num::after{
@@ -2175,22 +2203,10 @@
       display:none;
     }
     .order-wizard-step-label{
-      display:none;
-    }
-    @media (min-width:480px){
-      .order-wizard-step-label{
-        display:inline;
-      }
+      display:inline;
     }
     .order-wizard-connector{
-      width:24px;
-      height:2px;
-      background:rgba(255,255,255,0.15);
-      margin:0 4px;
-      flex-shrink:0;
-    }
-    .order-wizard-connector.active{
-      background:linear-gradient(90deg, #3b82f6 0%, rgba(255,255,255,0.15) 100%);
+      display:none;
     }
     .order-wizard-connector.completed{
       background:#22c55e;
@@ -2207,7 +2223,7 @@
       position:absolute;
       inset:0;
       overflow-y:auto;
-      padding:16px;
+      padding:16px 20px;
       opacity:0;
       visibility:hidden;
       transform:translateX(20px);
@@ -2222,10 +2238,39 @@
     .order-wizard-panel.exit-left{
       transform:translateX(-20px);
     }
+    @media (max-width:480px){
+      .order-wizard-panel{
+        padding:14px 16px;
+      }
+    }
 
     /* Cart Tab */
     .order-cart-search{
       margin-bottom:12px;
+    }
+    .order-cart-search .input-wrap{
+      max-width:100%;
+    }
+    .order-cart-search .input-wrap::before{
+      content:'';
+      position:absolute;
+      left:14px;
+      top:50%;
+      transform:translateY(-50%);
+      width:16px;
+      height:16px;
+      background-repeat:no-repeat;
+      background-position:center;
+      background-size:contain;
+      opacity:0.7;
+      pointer-events:none;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='8'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>");
+    }
+    .order-cart-search .input-wrap > input{
+      padding-left:42px;
+      background:rgba(0,0,0,0.2);
+      border:1px solid var(--border);
+      font-size:14px;
     }
     .order-cart-results{
       max-height:200px;
@@ -2318,27 +2363,72 @@
       color:var(--muted);
       margin-bottom:10px;
     }
-    .order-cart-items{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-    .order-cart-item{
+    .order-cart-section-title-left{
       display:flex;
       align-items:center;
       gap:8px;
-      padding:8px 10px;
-      min-height:52px;
-      background:rgba(26,31,38,0.7);
-      border:1px solid rgba(255,255,255,0.08);
+    }
+    .order-cart-section-count{
+      font-size:11px;
+      font-weight:600;
+      color:var(--muted);
+      background:rgba(255,255,255,0.06);
+      padding:3px 8px;
       border-radius:10px;
+      text-transform:none;
+    }
+    #btnResetOrderList{
+      width:32px;
+      height:32px;
+      border-radius:8px;
+      box-shadow:none;
+    }
+    #btnResetOrderList svg{
+      width:14px;
+      height:14px;
+    }
+    .order-cart-items{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .order-cart-item{
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      gap:6px;
+      padding:0;
+      min-height:52px;
+      background:rgba(0,0,0,0.2);
+      border:1px solid var(--border-subtle);
+      border-radius:12px;
+      overflow:hidden;
+    }
+    .order-cart-item:hover{
+      border-color:rgba(255,255,255,0.1);
+    }
+    .order-cart-item--warning{
+      border-color:rgba(245,158,11,0.3);
+      background:rgba(245,158,11,0.03);
+    }
+    .order-cart-item--expanded{
+      border-color:rgba(59,130,246,0.3);
+    }
+    .order-cart-item-main{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      width:100%;
+      padding:12px;
     }
     .order-cart-item-info{
       flex:1;
       min-width:0;
       display:flex;
-      align-items:center;
-      gap:8px;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:4px;
+      cursor:pointer;
     }
     .order-cart-item-name{
       font-weight:600;
@@ -2346,15 +2436,186 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      flex:1;
       min-width:0;
     }
-    .order-cart-item-stock{
+    .order-cart-item-toggle{
+      width:28px;
+      height:28px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      border-radius:6px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      transition:color 0.2s ease, background 0.2s ease;
+      flex-shrink:0;
+      cursor:pointer;
+    }
+    .order-cart-item-toggle:hover{
+      background:rgba(255,255,255,0.08);
+      color:var(--fg);
+    }
+    .order-cart-item-toggle svg{
+      width:14px;
+      height:14px;
+      transition:transform 0.2s ease;
+    }
+    .order-cart-item--expanded .order-cart-item-toggle{
+      color:var(--fg);
+    }
+    .order-cart-item--expanded .order-cart-item-toggle svg{
+      transform:rotate(180deg);
+    }
+    .order-cart-item-meta{
+      display:flex;
+      align-items:center;
+      gap:6px;
       font-size:12px;
       color:var(--muted);
-      flex-shrink:0;
-      white-space:nowrap;
+      padding-left:0;
     }
+    .order-cart-item-jobs-meta{
+      color:var(--muted);
+    }
+    .order-cart-item-jobs-meta--draft{
+      color:#fbbf24;
+    }
+    .order-cart-item-availability{
+      font-weight:600;
+    }
+    .order-cart-item-availability.is-negative{
+      color:#f87171;
+    }
+    .order-cart-item-availability.is-zero{
+      color:#f87171;
+    }
+    .order-cart-item-availability.is-positive{
+      color:var(--success);
+    }
+    .order-cart-item-jobs{
+      display:none;
+      border-top:1px solid rgba(255,255,255,0.06);
+      margin-top:0;
+      padding:12px;
+    }
+    .order-cart-item--expanded .order-cart-item-jobs{
+      display:block;
+    }
+    .order-cart-item-jobs-section{
+      margin-top:12px;
+    }
+    .order-cart-item-jobs-section:first-child{
+      margin-top:0;
+    }
+    .order-cart-item-jobs-section-title{
+      font-size:11px;
+      font-weight:700;
+      color:var(--fg);
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+    }
+    .order-cart-item-jobs-helper{
+      margin-top:4px;
+      font-size:11px;
+      color:var(--muted);
+    }
+    .order-cart-item-jobs-cards{
+      margin-top:8px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .mini-card{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.03);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .mini-card--committed{
+      border-color:rgba(34,197,94,0.28);
+      background:linear-gradient(135deg, rgba(34,197,94,0.12), rgba(255,255,255,0.02));
+    }
+    .mini-card--draft{
+      border-color:rgba(251,191,36,0.28);
+      background:linear-gradient(135deg, rgba(251,191,36,0.1), rgba(255,255,255,0.02));
+    }
+    .mini-card--empty{
+      border-color:rgba(255,255,255,0.06);
+      background:rgba(255,255,255,0.02);
+      justify-content:flex-start;
+      color:var(--muted);
+    }
+    .mini-card--empty .mini-card-title{
+      color:var(--muted);
+    }
+    .mini-card-main{
+      min-width:0;
+    }
+    .mini-card-title{
+      font-size:13px;
+      font-weight:600;
+      color:var(--fg);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .mini-card-subtext{
+      margin-top:2px;
+      font-size:11px;
+      color:var(--muted);
+    }
+    .mini-card-meta{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:4px;
+      flex-shrink:0;
+    }
+    .mini-card-qty{
+      font-size:12px;
+      font-weight:600;
+      color:var(--fg);
+    }
+    .mini-card-badge{
+      font-size:10px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.12);
+      color:var(--muted);
+    }
+    .mini-card-badge--committed{
+      color:#34d399;
+      border-color:rgba(34,197,94,0.35);
+      background:rgba(34,197,94,0.12);
+    }
+    .mini-card-badge--draft{
+      color:#fbbf24;
+      border-color:rgba(251,191,36,0.35);
+      background:rgba(251,191,36,0.12);
+    }
+    .mini-card-status{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:6px;
+      font-size:11px;
+      font-weight:600;
+      line-height:1.2;
+      text-align:right;
+      color:var(--muted);
+    }
+    .mini-card-status svg{ width:14px; height:14px; }
+    .mini-card-status--success{ color:#34d399; }
+    .mini-card-status--warning{ color:#fbbf24; }
     .order-cart-item-sub{
       display:none; /* Hidden for compact mode */
     }
@@ -2362,25 +2623,37 @@
       flex-shrink:0;
     }
     .order-cart-item-stepper .qty-stepper{
-      height:36px !important;
+      display:flex;
+      align-items:center;
+      gap:2px;
+      background:rgba(0,0,0,0.3);
+      border-radius:8px;
+      padding:2px;
+      height:auto !important;
     }
     .order-cart-item-stepper .qty-stepper-btn{
-      width:36px !important;
-      height:36px !important;
+      width:32px !important;
+      height:32px !important;
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      border-radius:6px;
     }
     .order-cart-item-stepper .qty-stepper-input{
-      height:36px !important;
-      font-size:16px !important;
-      min-width:2.2rem !important;
+      height:32px !important;
+      font-size:15px !important;
+      min-width:40px !important;
+      background:rgba(255,255,255,0.05);
+      border-radius:6px;
     }
     .order-cart-item-remove{
       flex-shrink:0;
-      width:28px;
-      height:28px;
-      border:none;
-      background:rgba(239,68,68,0.12);
+      width:32px;
+      height:32px;
+      border:1px solid rgba(239,68,68,0.25);
+      background:rgba(239,68,68,0.08);
       color:#ef4444;
-      border-radius:6px;
+      border-radius:8px;
       cursor:pointer;
       display:flex;
       align-items:center;
@@ -2388,7 +2661,8 @@
       transition:background 0.15s;
     }
     .order-cart-item-remove:hover{
-      background:rgba(239,68,68,0.25);
+      background:rgba(239,68,68,0.18);
+      color:#fca5a5;
     }
     .order-cart-summary{
       padding:14px;
@@ -2408,6 +2682,64 @@
       font-size:18px;
       font-weight:800;
       color:#60a5fa;
+    }
+    .order-impact-card{
+      margin-top:12px;
+      padding:14px 16px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:linear-gradient(145deg, rgba(15,23,42,0.75), rgba(2,6,23,0.85));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .order-impact-card--success{
+      border-color:rgba(34,197,94,0.35);
+      box-shadow:inset 0 1px 0 rgba(34,197,94,0.2);
+    }
+    .order-impact-card--warning{
+      border-color:rgba(251,191,36,0.35);
+      box-shadow:inset 0 1px 0 rgba(251,191,36,0.2);
+    }
+    .order-impact-title{
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .order-impact-main{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size:14px;
+      font-weight:600;
+      color:var(--fg);
+    }
+    .order-impact-icon{
+      width:32px;
+      height:32px;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.12);
+    }
+    .order-impact-card--success .order-impact-icon{
+      background:rgba(34,197,94,0.12);
+      border-color:rgba(34,197,94,0.35);
+      color:#34d399;
+    }
+    .order-impact-card--warning .order-impact-icon{
+      background:rgba(251,191,36,0.12);
+      border-color:rgba(251,191,36,0.35);
+      color:#fbbf24;
+    }
+    .order-impact-secondary{
+      margin-top:6px;
+      font-size:12px;
+      color:var(--muted);
     }
     .order-cart-empty{
       padding:32px 16px;
@@ -2757,18 +3089,16 @@
     /* Compact stepper on mobile */
     @media (max-width:400px){
       .order-wizard-stepper{
-        padding:12px 12px 8px;
+        margin:12px 16px 6px;
+        padding:4px;
       }
       .order-wizard-step{
-        padding:6px 8px;
+        padding:8px 6px;
       }
       .order-wizard-step-num{
-        width:22px;
-        height:22px;
-        font-size:11px;
-      }
-      .order-wizard-connector{
-        width:16px;
+        width:18px;
+        height:18px;
+        font-size:10px;
       }
     }
 
@@ -7618,151 +7948,292 @@
     .shipping-address-default{display:flex;align-items:center;gap:12px}
     /* Company Locations Modal */
     .locations-modal{
-      width:96vw;
-      max-width:min(900px,96vw);
+      width:100%;
+      max-width:520px;
+      max-height:calc(100vh - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      box-shadow:0 25px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
     }
     .locations-body{
       padding:0 !important;
-    }
-    .locations-toolbar{
       display:flex;
-      justify-content:flex-end;
-      padding:12px 16px;
-      border-bottom:1px solid var(--border);
+      flex-direction:column;
+      min-height:0;
     }
-    .locations-table-wrap{
-      padding:0 16px 16px;
+    .locations-header{
+      align-items:center;
+      padding:16px 20px;
+      border-bottom:1px solid var(--border-subtle);
+      background:var(--card);
     }
-    .locations-table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:14px;
+    .locations-header-left{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
     }
-    .locations-table thead{
-      position:sticky;
-      top:0;
-      z-index:10;
-      background:#0d131b;
-    }
-    .locations-table th{
-      padding:12px 16px;
-      text-align:left;
-      font-weight:600;
-      color:var(--muted);
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:0.5px;
-      border-bottom:1px solid var(--border);
-      white-space:nowrap;
-    }
-    .locations-table td{
-      padding:14px 16px;
-      border-bottom:1px solid var(--border);
-      vertical-align:middle;
-    }
-    .locations-table tbody tr:hover{background:rgba(255,255,255,0.02)}
-    .locations-table tbody tr:last-child td{border-bottom:none}
-    .location-name-cell{display:flex;align-items:center;gap:12px}
-    .location-edit-btn{
-      width:32px;
-      height:32px;
-      border:1px solid var(--border);
-      background:#101826;
-      border-radius:8px;
-      color:var(--fg);
-      cursor:pointer;
+    .locations-header-icon{
+      width:40px;
+      height:40px;
+      border-radius:10px;
+      background:linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.1) 100%);
+      border:1px solid rgba(59,130,246,0.2);
       display:flex;
       align-items:center;
       justify-content:center;
-      transition:background 0.15s;
       flex-shrink:0;
     }
-    .location-edit-btn:hover{background:#1a2636}
-    .location-edit-btn:disabled{opacity:0.4;cursor:not-allowed}
-    .location-name-text{display:flex;flex-direction:column;gap:2px}
-    .location-name-primary{font-weight:600;color:var(--fg)}
-    .location-id{font-size:11px;color:var(--muted);font-family:monospace}
-    .location-type{color:var(--muted)}
-    .location-address{line-height:1.4;color:var(--fg)}
-    .location-address-line{display:block}
-    .location-address-city{color:var(--muted);font-size:13px}
-    .location-status{
-      display:inline-flex;
+    .locations-header-icon svg{
+      width:20px;
+      height:20px;
+      color:var(--accent);
+    }
+    .locations-header-title{
+      font-size:17px;
+      font-weight:600;
+      color:var(--fg);
+      margin:0;
+    }
+    .locations-company-bar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 20px;
+      background:rgba(59,130,246,0.08);
+      border-bottom:1px solid rgba(59,130,246,0.15);
+    }
+    .locations-company-info{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:14px;
+    }
+    .locations-company-label{ color:var(--muted); }
+    .locations-company-name{ color:var(--fg); font-weight:600; }
+    .locations-toolbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 20px;
+      border-bottom:1px solid var(--border-subtle);
+      background:var(--card);
+    }
+    .locations-count{
+      font-size:13px;
+      color:var(--muted);
+    }
+    .locations-count strong{
+      color:var(--fg);
+      font-weight:600;
+    }
+    .locations-add-btn{
+      width:36px;
+      height:36px;
+      border-radius:10px;
+      border:1px solid rgba(34,197,94,0.3);
+      background:rgba(34,197,94,0.15);
+      color:#4ade80;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .locations-add-btn:hover{
+      background:rgba(34,197,94,0.25);
+      border-color:rgba(34,197,94,0.5);
+      transform:scale(1.05);
+    }
+    .locations-scroll{
+      flex:1;
+      overflow-y:auto;
+      padding:14px 20px;
+      -webkit-overflow-scrolling:touch;
+    }
+    .locations-cards{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .locations-empty{padding:32px 16px;text-align:center;color:var(--muted)}
+    .location-card{
+      background:rgba(0, 0, 0, 0.2);
+      border:1px solid var(--border-subtle);
+      border-radius:12px;
+      padding:14px;
+      transition:border-color 0.15s, background 0.15s;
+    }
+    .location-card.is-default{
+      border-color:rgba(6, 182, 212, 0.2);
+      background:rgba(6, 182, 212, 0.03);
+    }
+    .location-card.is-archived{
+      opacity:0.75;
+    }
+    .card-row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .location-card:hover{
+      border-color:rgba(255,255,255,0.12);
+    }
+    .location-card-edit{
+      width:34px;
+      height:34px;
+      border-radius:8px;
+      flex-shrink:0;
+    }
+    .card-info{
+      flex:1;
+      min-width:0;
+    }
+    .card-info-top{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:4px;
+    }
+    .location-name{
+      font-size:14px;
+      font-weight:600;
+      color:var(--fg);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .type-badge{
+      padding:2px 8px;
+      border-radius:4px;
+      font-size:10px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.3px;
+      background:rgba(255,255,255,0.06);
+      color:var(--muted);
+      flex-shrink:0;
+    }
+    .status-dot{
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:var(--cyan);
+      flex-shrink:0;
+    }
+    .status-dot.archived{ background:var(--muted); }
+    .default-indicators{
+      display:flex;
+      gap:4px;
+      flex-shrink:0;
+    }
+    .default-pip{
+      width:8px;
+      height:8px;
+      border-radius:2px;
+    }
+    .default-pip.ship-to{ background:#3b82f6; }
+    .default-pip.receive-at{ background:var(--cyan); }
+    .card-info-bottom{
+      display:flex;
       align-items:center;
       gap:6px;
       font-size:12px;
-      font-weight:600;
-      text-transform:uppercase;
-      letter-spacing:0.5px;
+      color:var(--muted);
     }
-    .location-status::before{
-      content:'';
-      width:6px;
-      height:6px;
-      background:currentColor;
-      border-radius:50%;
+    .address-text{
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
-    .location-status.active{color:#22c55e}
-    .location-status.archived{color:#f87171}
-    .location-defaults{display:flex;flex-wrap:wrap;gap:6px}
-    .location-default-tag{
-      padding:4px 10px;
+    .card-actions{
+      display:flex;
+      gap:6px;
+      flex-shrink:0;
+      margin-left:8px;
+    }
+    .locations-modal .icon-btn{
+      width:34px;
+      height:34px;
+      border-radius:8px;
+    }
+    .locations-modal .icon-btn svg{ width:15px; height:15px; }
+    .locations-modal .icon-btn[data-tooltip]::after{
+      content:attr(data-tooltip);
+      position:absolute;
+      bottom:calc(100% + 6px);
+      left:50%;
+      transform:translateX(-50%);
+      padding:5px 10px;
+      background:#1e293b;
+      border:1px solid var(--border);
       border-radius:6px;
       font-size:11px;
-      font-weight:700;
-      text-transform:uppercase;
-      letter-spacing:0.5px;
+      font-weight:500;
+      color:var(--fg);
+      white-space:nowrap;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity 0.15s;
+      z-index:10;
     }
-    .location-default-tag.ship-to{
-      background:rgba(59,130,246,0.2);
+    .locations-modal .icon-btn[data-tooltip]:hover::after{ opacity:1; }
+    .locations-modal .icon-btn.ship-to{
+      border-color:rgba(59, 130, 246, 0.3);
+      background:rgba(59, 130, 246, 0.1);
       color:#60a5fa;
-      border:1px solid rgba(59,130,246,0.3);
     }
-    .location-default-tag.receive-at{
-      background:rgba(34,197,94,0.2);
-      color:#4ade80;
-      border:1px solid rgba(34,197,94,0.3);
+    .locations-modal .icon-btn.ship-to.is-set{
+      background:rgba(59, 130, 246, 0.25);
+      border-color:rgba(59, 130, 246, 0.5);
+      color:#93c5fd;
     }
-    .location-no-default{color:var(--muted);font-size:13px}
-    .location-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
-    .locations-empty{padding:32px 16px;text-align:center;color:var(--muted)}
-    /* Mobile Cards */
-    .locations-mobile-cards{display:none;padding:12px 16px;overflow:auto}
-    .location-card{
-      background:#0d131b;
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:16px;
-      margin-bottom:12px;
+    .locations-modal .icon-btn.receive-at{
+      border-color:rgba(6, 182, 212, 0.3);
+      background:rgba(6, 182, 212, 0.1);
+      color:var(--cyan-light);
     }
-    .location-card:last-child{margin-bottom:0}
-    .location-card-header{
+    .locations-modal .icon-btn.receive-at.is-set{
+      background:rgba(6, 182, 212, 0.25);
+      border-color:rgba(6, 182, 212, 0.5);
+      color:var(--cyan-light);
+    }
+    .locations-modal .icon-btn.restore{
+      border-color:rgba(255, 255, 255, 0.2);
+      background:rgba(255, 255, 255, 0.08);
+      color:var(--fg);
+    }
+    .locations-legend{
       display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:12px;
+      align-items:center;
+      justify-content:center;
+      gap:16px;
+      padding:8px 20px;
+      background:rgba(0, 0, 0, 0.2);
+      border-top:1px solid var(--border-subtle);
+      font-size:11px;
+      color:var(--muted);
     }
-    .location-card-name{font-weight:600;font-size:15px;margin-bottom:4px}
-    .location-card-id{font-size:11px;color:var(--muted);font-family:monospace}
-    .location-card-meta{
+    .locations-legend-item{
       display:flex;
-      flex-direction:column;
-      gap:8px;
-      margin-bottom:12px;
-      font-size:14px;
+      align-items:center;
+      gap:6px;
     }
-    .location-card-row{display:flex;gap:8px}
-    .location-card-label{color:var(--muted);min-width:60px}
-    .location-card-defaults{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-    .location-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .location-card-actions .btn-tertiary{width:100%;justify-content:center}
-    .location-card-actions .btn-danger{grid-column:span 2}
-    @media (max-width:768px){
-      .locations-modal{max-height:calc(100vh - 24px);border-radius:12px}
+    .locations-legend-pip{
+      width:8px;
+      height:8px;
+      border-radius:2px;
+    }
+    .locations-legend-pip.ship-to{ background:#3b82f6; }
+    .locations-legend-pip.receive-at{ background:var(--cyan); }
+    @media (max-width:480px){
+      .locations-modal{max-width:100%;border-radius:14px}
+      .locations-header{padding:14px 16px}
+      .locations-company-bar{padding:8px 16px}
       .locations-toolbar{padding:10px 16px}
-      .locations-table-wrap{display:none}
-      .locations-mobile-cards{display:block}
+      .locations-scroll{padding:12px 16px}
+      .location-card{padding:12px}
+      .card-row{flex-wrap:wrap;align-items:flex-start}
+      .card-info{order:1;flex-basis:calc(100% - 46px)}
+      .card-actions{order:2;width:100%;margin-left:0;justify-content:flex-end;margin-top:4px}
+      .locations-legend{padding:8px 16px}
+      .locations-modal .icon-btn[data-tooltip]::after{display:none;}
     }
     /* Location Editor Modal - Redesign */
     .location-editor-modal{
@@ -8003,24 +8474,24 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding:10px 16px;
-      background:rgba(59,130,246,0.1);
-      border-bottom:1px solid var(--border);
+      padding:10px 20px;
+      background:rgba(59,130,246,0.08);
+      border-bottom:1px solid rgba(59,130,246,0.15);
     }
     .locations-selected-company .btn-change-company{
-      background:transparent;
-      border:1px solid var(--border);
-      color:var(--accent);
       padding:6px 12px;
-      border-radius:6px;
-      font-size:13px;
-      font-weight:500;
+      border-radius:8px;
+      border:1px solid rgba(59, 130, 246, 0.3);
+      background:rgba(59, 130, 246, 0.1);
+      color:#93c5fd;
+      font-size:12px;
+      font-weight:600;
       cursor:pointer;
       transition:background 0.15s, border-color 0.15s;
     }
     .locations-selected-company .btn-change-company:hover{
-      background:rgba(59,130,246,0.1);
-      border-color:var(--accent);
+      background:rgba(59, 130, 246, 0.2);
+      border-color:rgba(59, 130, 246, 0.5);
     }
     /* Z-index for nested modals (when opened from other modals) */
     #companyLocationsModal.modal-nested{z-index:10002}
@@ -9533,7 +10004,10 @@
             <div id="orderResultsBody" class="order-cart-results"></div>
             <div class="order-cart-section">
               <div class="order-cart-section-title">
-                <span>Shopping Cart</span>
+                <div class="order-cart-section-title-left">
+                  <span>Shopping Cart</span>
+                  <span class="order-cart-section-count" id="orderCartCountBadge" style="display:none;">0 items</span>
+                </div>
                 <button type="button" id="btnResetOrderList" class="icon-btn icon-btn--default" aria-label="Clear cart" title="Clear cart">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
@@ -9548,6 +10022,7 @@
               <span class="order-cart-summary-label">Items in cart</span>
               <span class="order-cart-summary-value" id="orderCartCount">0</span>
             </div>
+            <div class="order-impact-card" id="orderImpactCard" style="display:none;"></div>
           </div>
 
           <!-- Panel 2: Delivery -->
@@ -9738,14 +10213,14 @@
   <!-- Company locations modal -->
   <div id="companyLocationsModal" class="modal-backdrop" aria-hidden="true">
     <div class="modal locations-modal" role="dialog" aria-modal="true" aria-labelledby="companyLocationsTitle">
-      <div class="modal-header">
-        <div class="modal-title-wrap">
-          <span class="modal-icon">
+      <div class="modal-header locations-header">
+        <div class="locations-header-left">
+          <div class="locations-header-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
             </svg>
-          </span>
-          <h2 id="companyLocationsTitle" class="modal-title">Company Locations</h2>
+          </div>
+          <h2 id="companyLocationsTitle" class="locations-header-title">Company Locations</h2>
         </div>
         <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="companyLocationsModal" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -9761,16 +10236,36 @@
           </div>
           <div id="locationsCompanyList" class="locations-company-list"></div>
         </div>
-        <div id="locationsSelectedCompany" class="locations-selected-company" hidden>
-          <span>Managing: <strong id="locationsSelectedName"></strong></span>
-          <button type="button" id="btnLocationsClearCompany" class="btn-change-company">Change Company</button>
+        <div id="locationsSelectedCompany" class="locations-selected-company locations-company-bar" hidden>
+          <div class="locations-company-info">
+            <span class="locations-company-label">Managing:</span>
+            <span class="locations-company-name" id="locationsSelectedName"></span>
+          </div>
+          <button type="button" id="btnLocationsClearCompany" class="btn-change-company">Change</button>
         </div>
         <div class="locations-toolbar">
-          <button class="btn-primary" id="btnCompanyLocationNew" type="button">+ Add Location</button>
+          <span class="locations-count"><strong id="locationsCountValue">0</strong> <span id="locationsCountLabel">locations</span></span>
+          <button class="icon-btn locations-add-btn" id="btnCompanyLocationNew" type="button" data-tooltip="Add Location" aria-label="Add Location">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
         </div>
-        <div id="companyLocationsList" class="locations-table-wrap" aria-live="polite"></div>
-        <div id="companyLocationsMobileCards" class="locations-mobile-cards"></div>
-        <div id="companyLocationsMsg" class="muted" style="padding:16px 0;"></div>
+        <div class="locations-scroll">
+          <div id="companyLocationsList" class="locations-cards" aria-live="polite"></div>
+          <div id="companyLocationsMsg" class="muted" style="padding:16px 0;"></div>
+        </div>
+      </div>
+      <div class="locations-legend">
+        <div class="locations-legend-item">
+          <span class="locations-legend-pip ship-to"></span>
+          <span>Ship-To</span>
+        </div>
+        <div class="locations-legend-item">
+          <span class="locations-legend-pip receive-at"></span>
+          <span>Receive-At</span>
+        </div>
       </div>
       <div class="modal-footer">
         <div class="footer-right">
@@ -11968,6 +12463,15 @@
 	      _shippingAddressEditing:null,
       _orderShippingOptions:[],
       _orderShippingById:new Map(),
+      _orderCommittedByItemId:new Map(),
+      _orderJobCountByItemId:new Map(),
+      _orderDraftJobCountByItemId:new Map(),
+      _orderCommitmentKey:'',
+      _orderCommitmentLoading:false,
+      _orderCommitmentError:'',
+      _orderLineExpanded:new Set(),
+      _orderJobAllocationsByItemId:new Map(),
+      _orderDraftJobAllocationsByItemId:new Map(),
       _companyLocations:[],
       _companyLocationById:new Map(),
       _companyLocationEditing:null,
@@ -13346,6 +13850,13 @@
 
     function getPlaceAutocompleteText(placeEl){
       if(!placeEl) return '';
+      // Try inputElement property (Google's official way)
+      try{
+        if(placeEl.inputElement && placeEl.inputElement.value){
+          const val = String(placeEl.inputElement.value).trim();
+          if(val) return val;
+        }
+      }catch{}
       try{
         const v = placeEl.value;
         if(typeof v === 'string' && v.trim()) return v.trim();
@@ -13372,6 +13883,16 @@
         const shInput = placeEl.shadowRoot?.querySelector?.('input');
         if(shInput?.value?.trim()) return shInput.value.trim();
       }catch{}
+      // Try to get from internals or attachInternals
+      try{
+        if(placeEl.internals && placeEl.internals.value){
+          return String(placeEl.internals.value).trim();
+        }
+      }catch{}
+      // Try _value internal property
+      try{
+        if(placeEl._value) return String(placeEl._value).trim();
+      }catch{}
       try{
         const a = placeEl.getAttribute?.('value') || placeEl.getAttribute?.('aria-label') || '';
         return String(a).trim();
@@ -13381,8 +13902,18 @@
 
     function syncPlaceAutocompleteToHidden(placeEl, hiddenId){
       const txt = getPlaceAutocompleteText(placeEl);
-      if(txt) setAutocompleteStoredValue(hiddenId, txt);
-      return txt;
+      if(!txt) return '';
+      // Get existing stored value
+      const existing = getAutocompleteStoredValue(hiddenId);
+      // Only overwrite if:
+      // 1. No existing value, OR
+      // 2. New value is longer (more complete address), OR
+      // 3. Existing value is very short (like just a country code)
+      const shouldOverwrite = !existing || txt.length > existing.length || existing.length <= 5;
+      if(shouldOverwrite){
+        setAutocompleteStoredValue(hiddenId, txt);
+      }
+      return shouldOverwrite ? txt : existing;
     }
 
     async function resolvePlaceFromAutocompleteEvent(ev){
@@ -13391,21 +13922,44 @@
       if(directPlace){
         try{
           if(typeof directPlace.fetchFields === 'function'){
-            await directPlace.fetchFields({ fields: ['addressComponents','formattedAddress','id'] });
+            // Use correct field names for new Places API
+            await directPlace.fetchFields({ fields: ['formattedAddress', 'displayName', 'location'] });
           }
-        }catch{}
+        }catch(e){
+          console.warn('[Places] fetchFields failed for directPlace:', e);
+        }
         return directPlace;
       }
       const pred = d?.placePrediction;
-      if(pred && typeof pred.toPlace === 'function'){
-        const p = pred.toPlace();
-        try{
-        if(typeof p.fetchFields === 'function'){
-          await p.fetchFields({ fields: ['addressComponents','formattedAddress','id'] });
+      // Try to extract text from prediction for fallback
+      if(pred){
+        // Store prediction text as fallback before converting to place
+        const predText = pred.text?.text || pred.text?.value || pred.description || '';
+        const mainText = pred.structuredFormat?.mainText?.text || '';
+        const secondaryText = pred.structuredFormat?.secondaryText?.text || '';
+        const fullPredText = pred.description || (mainText && secondaryText ? `${mainText}, ${secondaryText}` : mainText) || predText;
+
+        if(typeof pred.toPlace === 'function'){
+          const p = pred.toPlace();
+          // Attach the prediction text as fallback
+          p._predictionText = fullPredText;
+          try{
+            if(typeof p.fetchFields === 'function'){
+              // Use correct field names for new Places API
+              await p.fetchFields({ fields: ['formattedAddress', 'displayName', 'location'] });
+            }
+          }catch(e){
+            console.warn('[Places] fetchFields failed for prediction:', e);
+            // If fetchFields fails, use the prediction text as formattedAddress
+            if(fullPredText && !p.formattedAddress){
+              p.formattedAddress = fullPredText;
+            }
+          }
+          return p;
         }
-      }catch{}
-      return p;
-    }
+        // If no toPlace, return a mock place with the prediction text
+        return { formattedAddress: fullPredText, _predictionText: fullPredText };
+      }
       return null;
     }
 
@@ -13477,10 +14031,13 @@
 
       syncPlaceAutocompleteToHidden(placeElement, hiddenId);
 
-      if(!placeElement.types) placeElement.types = ['address'];
+      // These properties may not be available in newer API versions - wrap in try/catch
+      try{
+        if(!placeElement.types) placeElement.types = ['address'];
+      }catch(e){ console.warn('[initAddressAutocomplete] Could not set types:', e.message); }
       try{
         if(!placeElement.fields) placeElement.fields = ['addressComponents','formattedAddress','id'];
-      }catch(e){}
+      }catch(e){ console.warn('[initAddressAutocomplete] Could not set fields:', e.message); }
 
       if(currentValue) setAutocompleteStoredValue(inputId, currentValue);
 
@@ -13508,6 +14065,7 @@
         const hiddenId = inputId + 'Value';
         const visibleTxt = syncPlaceAutocompleteToHidden(placeElement, hiddenId);
         const pred = ev?.detail?.placePrediction;
+        // Extract prediction text from various possible structures
         const predText = pred
           ? (
               (pred.text && (pred.text.text || pred.text.value)) ||
@@ -13516,21 +14074,42 @@
               ''
             )
           : '';
-        if(!visibleTxt && predText) setAutocompleteStoredValue(hiddenId, predText);
+        // Also try to get full description from prediction (more complete address)
+        const predFullText = pred
+          ? (
+              pred.description ||
+              (pred.structuredFormat && (
+                (pred.structuredFormat.mainText?.text || '') +
+                (pred.structuredFormat.secondaryText?.text ? ', ' + pred.structuredFormat.secondaryText.text : '')
+              )) ||
+              predText ||
+              ''
+            )
+          : '';
+        // Ensure we have something stored even if API calls fail
+        const fallbackText = visibleTxt || predFullText || predText;
+        if(fallbackText) setAutocompleteStoredValue(hiddenId, fallbackText);
         const place = await resolvePlaceFromAutocompleteEvent(ev);
         if(place){
+          // Try formattedAddress, then prediction text fallback, then our extracted fallback
           const fmt = String(
-            place.formattedAddress || place.formatted_address || ''
+            place.formattedAddress || place.formatted_address || place._predictionText || fallbackText || ''
           ).trim();
+          // Use formatted address from API if available, otherwise keep fallback
           if(fmt) setAutocompleteStoredValue(hiddenId, fmt);
-          try{ populateAddressFields(place, mapping); }catch{}
-        }else if(predText){
-          try{ populateAddressFields([], mapping, String(predText)); }catch{}
+          try{ populateAddressFields(place, mapping, fmt); }catch(e){}
+        }else if(fallbackText){
+          try{ populateAddressFields([], mapping, fallbackText); }catch(e){}
         }
       };
 
       placeElement.addEventListener('gmp-placeselect', onPlacePicked);
       placeElement.addEventListener('gmp-select', onPlacePicked);
+
+      // Also listen to the newer event names
+      placeElement.addEventListener('gmpx-placechange', onPlacePicked);
+      placeElement.addEventListener('place_changed', onPlacePicked);
+
       _autocompleteInstances.set(inputId, { element: placeElement, handler: onPlacePicked, lastValue: currentValue || '' });
     }
 
@@ -23981,6 +24560,488 @@ function emptyStateHtml(){
       const missingLabel = Number.isFinite(ctx.qtyMissing) ? `Missing ${formatQty(ctx.qtyMissing)}` : 'Missing —';
       return `${jobLabel} • ${itemLabel} • ${missingLabel}`;
     }
+    function getOrderCommitmentKey(itemIds){
+      const ids = Array.isArray(itemIds) ? itemIds.map(id => String(id || '').trim()).filter(Boolean) : [];
+      ids.sort();
+      return ids.join('|');
+    }
+    async function loadOrderCommitmentsForCart(itemIds){
+      const ids = Array.isArray(itemIds) ? itemIds.map(id => String(id || '').trim()).filter(Boolean) : [];
+      const key = getOrderCommitmentKey(ids);
+      if(state._orderCommitmentLoading) return false;
+      if(key && state._orderCommitmentKey === key) return false;
+
+      if(!ids.length){
+        state._orderCommittedByItemId = new Map();
+        state._orderJobCountByItemId = new Map();
+        state._orderDraftJobCountByItemId = new Map();
+        state._orderDraftJobAllocationsByItemId = new Map();
+        state._orderCommitmentKey = '';
+        state._orderCommitmentError = '';
+        return true;
+      }
+      if(!SB.ready || !SB.session || !SB.companyId) return false;
+
+      state._orderCommitmentLoading = true;
+      state._orderCommitmentKey = key;
+
+      const committedMap = new Map();
+      const jobCountMap = new Map();
+      const draftCountMap = new Map();
+      const draftRowsByItem = new Map();
+      const draftJobSets = new Map();
+      try{
+        const { data: committedRows, error: committedError } = await SB.client
+          .from('inventory_committed_by_item')
+          .select('item_id,committed_qty')
+          .eq('company_id', SB.companyId)
+          .in('item_id', ids);
+        if(committedError) throw committedError;
+
+        (Array.isArray(committedRows) ? committedRows : []).forEach(row=>{
+          const itemId = String(row && row.item_id ? row.item_id : '').trim();
+          if(!itemId) return;
+          const qty = Number(row.committed_qty || 0);
+          if(!Number.isFinite(qty)) return;
+          committedMap.set(itemId, qty);
+        });
+
+        const { data: jobRows, error: jobError } = await SB.client
+          .from('job_item_allocations')
+          .select('item_id,job_id')
+          .eq('company_id', SB.companyId)
+          .in('item_id', ids)
+          .in('status', ['approved','active']);
+        if(jobError) throw jobError;
+
+        const jobSets = new Map();
+        (Array.isArray(jobRows) ? jobRows : []).forEach(row=>{
+          const itemId = String(row && row.item_id ? row.item_id : '').trim();
+          const jobId = String(row && row.job_id ? row.job_id : '').trim();
+          if(!itemId || !jobId) return;
+          if(!jobSets.has(itemId)) jobSets.set(itemId, new Set());
+          jobSets.get(itemId).add(jobId);
+        });
+        jobSets.forEach((set, itemId)=>{
+          jobCountMap.set(itemId, set.size);
+        });
+
+        const { data: draftRows, error: draftError } = await SB.client
+          .from('job_item_allocations')
+          .select('item_id,job_id,qty_required')
+          .eq('company_id', SB.companyId)
+          .in('item_id', ids)
+          .eq('status', 'planned');
+        if(!draftError && Array.isArray(draftRows)){
+          draftRows.forEach(row=>{
+            const itemId = String(row && row.item_id ? row.item_id : '').trim();
+            const jobId = String(row && row.job_id ? row.job_id : '').trim();
+            if(!itemId || !jobId) return;
+            const qty = Number(row && row.qty_required != null ? row.qty_required : 0);
+            if(!draftRowsByItem.has(itemId)) draftRowsByItem.set(itemId, []);
+            draftRowsByItem.get(itemId).push({ job_id: jobId, qty_required: qty });
+            if(!draftJobSets.has(itemId)) draftJobSets.set(itemId, new Set());
+            draftJobSets.get(itemId).add(jobId);
+          });
+        }
+
+        const missingDraftIds = ids.filter(itemId => !draftRowsByItem.has(itemId));
+        if(missingDraftIds.length){
+          const derivedDraft = await buildDraftDemandSnapshot(missingDraftIds);
+          if(derivedDraft && derivedDraft.rowsByItem && typeof derivedDraft.rowsByItem.forEach === 'function'){
+            derivedDraft.rowsByItem.forEach((rows, itemId)=>{
+              if(!draftRowsByItem.has(itemId)) draftRowsByItem.set(itemId, []);
+              (rows || []).forEach(row=>{
+                const jobId = String(row && row.job_id ? row.job_id : '').trim();
+                if(!jobId) return;
+                draftRowsByItem.get(itemId).push(row);
+                if(!draftJobSets.has(itemId)) draftJobSets.set(itemId, new Set());
+                draftJobSets.get(itemId).add(jobId);
+              });
+            });
+          }
+        }
+
+        draftJobSets.forEach((set, itemId)=>{
+          draftCountMap.set(itemId, set.size);
+        });
+
+        state._orderCommittedByItemId = committedMap;
+        state._orderJobCountByItemId = jobCountMap;
+        state._orderDraftJobCountByItemId = draftCountMap;
+        state._orderDraftJobAllocationsByItemId = new Map();
+        ids.forEach(itemId=>{
+          state._orderDraftJobAllocationsByItemId.set(itemId, {
+            rows: draftRowsByItem.get(itemId) || [],
+            loading: false,
+            loaded: true,
+            error: ''
+          });
+        });
+        state._orderCommitmentError = '';
+        return true;
+      }catch(e){
+        state._orderCommitmentError = e && e.message ? e.message : 'Failed to load commitments';
+        state._orderCommitmentKey = '';
+        state._orderDraftJobCountByItemId = new Map();
+        state._orderDraftJobAllocationsByItemId = new Map();
+        return false;
+      }finally{
+        state._orderCommitmentLoading = false;
+      }
+    }
+    async function buildDraftDemandSnapshot(itemIds){
+      const ids = Array.isArray(itemIds) ? itemIds.map(id => String(id || '').trim()).filter(Boolean) : [];
+      const countMap = new Map();
+      const rowsByItem = new Map();
+      if(!ids.length) return { countMap, rowsByItem };
+      if(!SB.ready || !SB.session || !SB.companyId) return { countMap, rowsByItem };
+
+      let jobs = Array.isArray(state._jobs) ? state._jobs : [];
+      if(!jobs.length){
+        try{
+          jobs = await sbFetchJobs();
+          state._jobs = jobs;
+          state._jobsById = new Map((jobs || []).map(r => [String(r && r.id ? r.id : ''), r]).filter(x => x[0]));
+        }catch(e){
+          return { countMap, rowsByItem };
+        }
+      }
+
+      const draftJobs = (jobs || []).filter(job => ['draft', 'quoted'].includes(String(job && job.status ? job.status : '').trim()));
+      if(!draftJobs.length) return { countMap, rowsByItem };
+      const jobIds = draftJobs.map(job => job && job.id).filter(Boolean);
+      if(!jobIds.length) return { countMap, rowsByItem };
+
+      let jobBomMap = new Map();
+      const bomCache = state._jobBomByJobId && typeof state._jobBomByJobId.get === 'function';
+      const hasBomCache = bomCache && jobIds.every(id => state._jobBomByJobId.has(id));
+      if(hasBomCache){
+        jobBomMap = state._jobBomByJobId;
+      }else{
+        try{
+          jobBomMap = await sbFetchJobBomForJobs(jobIds);
+        }catch(e){
+          jobBomMap = new Map();
+        }
+      }
+
+      let reservedMap = (state._jobReservedMap && typeof state._jobReservedMap.get === 'function')
+        ? state._jobReservedMap
+        : null;
+      if(!reservedMap){
+        try{
+          reservedMap = await sbFetchReservedMap();
+          state._jobReservedMap = reservedMap;
+        }catch(e){
+          reservedMap = new Map();
+        }
+      }
+
+      const inventoryMap = (state._jobInventoryByItemId && typeof state._jobInventoryByItemId.get === 'function')
+        ? state._jobInventoryByItemId
+        : null;
+      const itemSet = new Set(ids);
+      const itemJobQtyMap = new Map();
+
+      draftJobs.forEach(job=>{
+        const jobId = String(job && job.id ? job.id : '').trim();
+        if(!jobId) return;
+        const lines = jobBomMap && typeof jobBomMap.get === 'function' ? (jobBomMap.get(jobId) || []) : [];
+        (lines || []).forEach(line=>{
+          const itemId = String(line && line.item_id ? line.item_id : '').trim();
+          if(!itemId || !itemSet.has(itemId)) return;
+          const qtyPlanned = Number(line && line.qty_planned != null ? line.qty_planned : 0);
+          if(!Number.isFinite(qtyPlanned) || qtyPlanned <= 0) return;
+          if(!itemJobQtyMap.has(itemId)) itemJobQtyMap.set(itemId, new Map());
+          const jobQtyMap = itemJobQtyMap.get(itemId);
+          jobQtyMap.set(jobId, (jobQtyMap.get(jobId) || 0) + qtyPlanned);
+        });
+      });
+
+      const jobSets = new Map();
+      itemJobQtyMap.forEach((jobQtyMap, itemId)=>{
+        jobQtyMap.forEach((qtyPlanned, jobId)=>{
+          const stats = computeJobLineStats(itemId, qtyPlanned, reservedMap, inventoryMap);
+          const shortfall = Math.max(0, Number(stats && stats.shortfall != null ? stats.shortfall : 0));
+          if(shortfall <= 0) return;
+          if(!rowsByItem.has(itemId)) rowsByItem.set(itemId, []);
+          rowsByItem.get(itemId).push({ job_id: jobId, qty_required: qtyPlanned, shortfall });
+          if(!jobSets.has(itemId)) jobSets.set(itemId, new Set());
+          jobSets.get(itemId).add(jobId);
+        });
+      });
+
+      jobSets.forEach((set, itemId)=>{
+        countMap.set(itemId, set.size);
+      });
+      return { countMap, rowsByItem };
+    }
+    function applyOrderCommitmentStats(line, onHandValue){
+      const committedMap = state._orderCommittedByItemId || new Map();
+      const jobCountMap = state._orderJobCountByItemId || new Map();
+      const committed = Number(committedMap.get(line.id) || 0);
+      const jobCount = Number(jobCountMap.get(line.id) || 0);
+      const onHand = Number.isFinite(onHandValue) ? onHandValue : 0;
+      const available = onHand - committed;
+      const shortfall = Math.max(0, committed - onHand);
+      const out = { committed, available, shortfall, jobCount };
+      line._commitment = out;
+      return out;
+    }
+    function isOrderLineExpanded(itemId){
+      const set = state._orderLineExpanded || new Set();
+      return set.has(String(itemId || '').trim());
+    }
+    function toggleOrderLineExpanded(itemId){
+      const id = String(itemId || '').trim();
+      if(!id) return;
+      if(!state._orderLineExpanded) state._orderLineExpanded = new Set();
+      if(state._orderLineExpanded.has(id)){
+        state._orderLineExpanded.delete(id);
+      }else{
+        state._orderLineExpanded.add(id);
+      }
+      renderOrderLines();
+      if(state._orderLineExpanded.has(id)){
+        void loadOrderJobAllocationsForItem(id).then(()=> renderOrderLines());
+      }
+    }
+    function getOrderJobAllocationsState(itemId){
+      if(!state._orderJobAllocationsByItemId) state._orderJobAllocationsByItemId = new Map();
+      const id = String(itemId || '').trim();
+      if(!state._orderJobAllocationsByItemId.has(id)){
+        state._orderJobAllocationsByItemId.set(id, { rows: [], loading: false, loaded: false, error: '' });
+      }
+      return state._orderJobAllocationsByItemId.get(id);
+    }
+    function getOrderJobLabel(jobId){
+      const id = String(jobId || '').trim();
+      if(!id) return 'Job';
+      const row = state._jobsById && typeof state._jobsById.get === 'function'
+        ? state._jobsById.get(id)
+        : null;
+      const name = row ? String(row.name || '').trim() : '';
+      return name || `Job ${shortId(id) || id}`;
+    }
+    async function loadOrderJobAllocationsForItem(itemId){
+      const id = String(itemId || '').trim();
+      if(!id) return;
+      const entry = getOrderJobAllocationsState(id);
+      if(entry.loading) return;
+      if(!SB.ready || !SB.session || !SB.companyId) return;
+
+      entry.loading = true;
+      entry.error = '';
+      try{
+        const { data, error } = await SB.client
+          .from('job_item_allocations')
+          .select('job_id,qty_required,status')
+          .eq('company_id', SB.companyId)
+          .eq('item_id', id)
+          .in('status', ['approved','active']);
+        if(error) throw error;
+        entry.rows = Array.isArray(data) ? data : [];
+        entry.loaded = true;
+      }catch(e){
+        entry.error = e && e.message ? e.message : 'Unable to load jobs';
+        entry.rows = [];
+        entry.loaded = false;
+      }finally{
+        entry.loading = false;
+      }
+    }
+    function getOrderDraftJobAllocationsState(itemId){
+      if(!state._orderDraftJobAllocationsByItemId) state._orderDraftJobAllocationsByItemId = new Map();
+      const id = String(itemId || '').trim();
+      if(!state._orderDraftJobAllocationsByItemId.has(id)){
+        state._orderDraftJobAllocationsByItemId.set(id, { rows: [], loading: false, loaded: false, error: '' });
+      }
+      return state._orderDraftJobAllocationsByItemId.get(id);
+    }
+    async function loadOrderDraftJobAllocationsForItem(itemId){
+      const id = String(itemId || '').trim();
+      if(!id) return;
+      const entry = getOrderDraftJobAllocationsState(id);
+      if(entry.loaded) return;
+      if(entry.loading) return;
+      if(!SB.ready || !SB.session || !SB.companyId) return;
+
+      entry.loading = true;
+      entry.error = '';
+      try{
+        const { data, error } = await SB.client
+          .from('job_item_allocations')
+          .select('job_id,qty_required,status')
+          .eq('company_id', SB.companyId)
+          .eq('item_id', id)
+          .eq('status', 'planned');
+        if(error) throw error;
+        entry.rows = Array.isArray(data) ? data : [];
+        entry.loaded = true;
+      }catch(e){
+        entry.error = e && e.message ? e.message : 'Unable to load draft jobs';
+        entry.rows = [];
+        entry.loaded = false;
+      }finally{
+        entry.loading = false;
+      }
+    }
+    function renderOrderMiniCard({ title, qty, badgeLabel, badgeClass, cardClass, subtext } = {}){
+      const safeTitle = String(title || '').trim() || 'Job';
+      const qtyValue = Number.isFinite(qty) ? `${formatQty(qty)} units` : '';
+      const subText = String(subtext || '').trim();
+      const cardTone = cardClass ? `mini-card ${cardClass}` : 'mini-card';
+      const badgeTone = badgeClass ? `mini-card-badge ${badgeClass}` : 'mini-card-badge';
+      const qtyHtml = qtyValue ? `<div class="mini-card-qty">${escapeHtml(qtyValue)}</div>` : '';
+      const subHtml = subText ? `<div class="mini-card-subtext">${escapeHtml(subText)}</div>` : '';
+      const badgeHtml = badgeLabel
+        ? `<div class="${badgeTone}">${escapeHtml(String(badgeLabel))}</div>`
+        : '';
+      return (
+        `<div class="${cardTone}">`+
+          `<div class="mini-card-main">`+
+            `<div class="mini-card-title">${escapeHtml(safeTitle)}</div>`+
+            subHtml+
+          `</div>`+
+          `<div class="mini-card-meta">`+
+            qtyHtml+
+            badgeHtml+
+          `</div>`+
+        `</div>`
+      );
+    }
+    function renderOrderDraftDemandSummaryCard({ requiredQty, remainingQty } = {}){
+      const req = Number(requiredQty || 0);
+      if(!Number.isFinite(req) || req <= 0) return '';
+      const remaining = Math.max(0, Number(remainingQty || 0));
+      const subtext = `${formatQty(req)} units required`;
+      if(remaining === 0){
+        return (
+          `<div class="mini-card mini-card--committed">`+
+            `<div class="mini-card-main">`+
+              `<div class="mini-card-title">Draft demand</div>`+
+              `<div class="mini-card-subtext">${escapeHtml(subtext)}</div>`+
+            `</div>`+
+            `<div class="mini-card-meta">`+
+              `<div class="mini-card-status mini-card-status--success">`+
+                `${ICONS.checkCircle}`+
+                `<span>This order will unblock all draft jobs</span>`+
+              `</div>`+
+            `</div>`+
+          `</div>`
+        );
+      }
+      return (
+        `<div class="mini-card mini-card--draft">`+
+          `<div class="mini-card-main">`+
+            `<div class="mini-card-title">Draft demand</div>`+
+            `<div class="mini-card-subtext">${escapeHtml(subtext)}</div>`+
+          `</div>`+
+          `<div class="mini-card-meta">`+
+            `<div class="mini-card-status mini-card-status--warning">`+
+              `${ICONS.alertTriangle}`+
+              `<span>${escapeHtml(formatQty(remaining))} more needed to approve jobs</span>`+
+            `</div>`+
+          `</div>`+
+        `</div>`
+      );
+    }
+    function renderOrderMiniCardPlaceholder(text){
+      const label = String(text || '').trim() || 'None';
+      return `<div class="mini-card mini-card--empty"><div class="mini-card-title">${escapeHtml(label)}</div></div>`;
+    }
+    function computeOrderDraftImpact(lines){
+      const result = {
+        totalDraftJobs: 0,
+        unblockedDraftJobs: 0,
+        remainingDraftJobs: 0,
+        ready: false
+      };
+      if(!Array.isArray(lines) || !lines.length) return result;
+      const draftMap = state._orderDraftJobAllocationsByItemId;
+      if(!draftMap || typeof draftMap.get !== 'function') return result;
+
+      const lineQtyByItem = new Map();
+      lines.forEach(line => {
+        const itemId = String(line && line.id ? line.id : '').trim();
+        if(!itemId) return;
+        lineQtyByItem.set(itemId, toInt(line && line.qty != null ? line.qty : 0, 0));
+      });
+
+      const jobItemRequirements = new Map();
+      for(const [itemId, cartQty] of lineQtyByItem.entries()){
+        const entry = draftMap.get(itemId);
+        if(!entry) continue;
+        if(entry.loading || (!entry.loaded && !entry.error)) return result;
+        if(entry.error) return result;
+        if(!Array.isArray(entry.rows) || !entry.rows.length) continue;
+        entry.rows.forEach(row => {
+          const jobId = String(row && row.job_id ? row.job_id : '').trim();
+          if(!jobId) return;
+          const qty = toInt(row && row.qty_required != null ? row.qty_required : 0, 0);
+          if(qty <= 0) return;
+          if(!jobItemRequirements.has(jobId)) jobItemRequirements.set(jobId, new Map());
+          const itemMap = jobItemRequirements.get(jobId);
+          itemMap.set(itemId, (itemMap.get(itemId) || 0) + qty);
+        });
+      }
+
+      if(jobItemRequirements.size === 0){
+        result.ready = true;
+        return result;
+      }
+
+      let unblocked = 0;
+      jobItemRequirements.forEach((itemMap) => {
+        let satisfied = true;
+        itemMap.forEach((requiredQty, itemId) => {
+          const cartQty = lineQtyByItem.get(itemId) || 0;
+          if(cartQty < requiredQty){
+            satisfied = false;
+          }
+        });
+        if(satisfied) unblocked += 1;
+      });
+
+      result.totalDraftJobs = jobItemRequirements.size;
+      result.unblockedDraftJobs = unblocked;
+      result.remainingDraftJobs = Math.max(0, result.totalDraftJobs - unblocked);
+      result.ready = true;
+      return result;
+    }
+    function updateOrderImpactCard(lines){
+      const card = $('orderImpactCard');
+      if(!card) return;
+      const impact = computeOrderDraftImpact(lines);
+      if(!impact.ready || impact.totalDraftJobs === 0){
+        card.style.display = 'none';
+        card.innerHTML = '';
+        return;
+      }
+      const unblocked = impact.unblockedDraftJobs;
+      const remaining = impact.remainingDraftJobs;
+      if(remaining === 0){
+        card.className = 'order-impact-card order-impact-card--success';
+        card.innerHTML =
+          `<div class="order-impact-title">Order impact</div>`+
+          `<div class="order-impact-main">`+
+            `<span class="order-impact-icon">${ICONS.checkCircle}</span>`+
+            `<span>This order will unblock all draft jobs.</span>`+
+          `</div>`+
+          `<div class="order-impact-secondary">${formatQty(unblocked)} ${unblocked === 1 ? 'job' : 'jobs'} can now be approved.</div>`;
+      }else{
+        card.className = 'order-impact-card order-impact-card--warning';
+        card.innerHTML =
+          `<div class="order-impact-title">Order impact</div>`+
+          `<div class="order-impact-main">`+
+            `<span class="order-impact-icon">${ICONS.alertTriangle}</span>`+
+            `<span>This order will unblock ${formatQty(unblocked)} ${unblocked === 1 ? 'draft job' : 'draft jobs'}.</span>`+
+          `</div>`+
+          `<div class="order-impact-secondary">${formatQty(remaining)} ${remaining === 1 ? 'job will' : 'jobs will'} still require inventory.</div>`;
+      }
+      card.style.display = '';
+    }
 
     // =========================================
     // ORDER WIZARD NAVIGATION
@@ -24111,11 +25172,16 @@ function emptyStateHtml(){
       const count = ord.lines.length;
       const summary = $('orderCartSummary');
       const countEl = $('orderCartCount');
+      const countBadge = $('orderCartCountBadge');
       if(summary){
         summary.style.display = count > 0 ? 'flex' : 'none';
       }
       if(countEl){
         countEl.textContent = String(count);
+      }
+      if(countBadge){
+        countBadge.textContent = `${count} ${count === 1 ? 'item' : 'items'}`;
+        countBadge.style.display = count > 0 ? 'inline-flex' : 'none';
       }
     }
 
@@ -24440,6 +25506,10 @@ function emptyStateHtml(){
       ord.lines = [];
       clearOrderShortfallLink();
       try{ orderLineSelection.clear(); }catch(e){}
+      try{ state._orderLineExpanded = new Set(); }catch(e){}
+      try{ state._orderJobAllocationsByItemId = new Map(); }catch(e){}
+      try{ state._orderDraftJobAllocationsByItemId = new Map(); }catch(e){}
+      try{ state._orderDraftJobCountByItemId = new Map(); }catch(e){}
       ids.forEach(id => { try{ syncOrderIndicatorForRow(String(id)); }catch(e){} });
       afterOrderStateChanged();
     }
@@ -24476,6 +25546,10 @@ function emptyStateHtml(){
         clearOrderShortfallLink();
       }
       try{ orderLineSelection.delete(String(id || '').trim()); }catch(e){}
+      try{ if(state._orderLineExpanded) state._orderLineExpanded.delete(String(id || '').trim()); }catch(e){}
+      try{ if(state._orderJobAllocationsByItemId) state._orderJobAllocationsByItemId.delete(String(id || '').trim()); }catch(e){}
+      try{ if(state._orderDraftJobAllocationsByItemId) state._orderDraftJobAllocationsByItemId.delete(String(id || '').trim()); }catch(e){}
+      try{ if(state._orderDraftJobCountByItemId) state._orderDraftJobCountByItemId.delete(String(id || '').trim()); }catch(e){}
       try{ syncOrderIndicatorForRow(String(id)); }catch(e){}
       afterOrderStateChanged();
     }
@@ -25182,17 +26256,35 @@ function emptyStateHtml(){
     }
     function renderCompanyLocationsList(){
       const list = $('companyLocationsList');
-      const mobileList = $('companyLocationsMobileCards');
+      const countValue = $('locationsCountValue');
+      const countLabel = $('locationsCountLabel');
       if(!list) return;
       const rows = Array.isArray(state._companyLocations) ? state._companyLocations : [];
+      const totalCount = rows.length;
+      if(countValue) countValue.textContent = String(totalCount);
+      if(countLabel) countLabel.textContent = totalCount === 1 ? 'location' : 'locations';
       if(!rows.length){
         list.innerHTML = `<div class="locations-empty">No locations yet. Add your first location to enable receiving.</div>`;
-        if(mobileList) mobileList.innerHTML = '';
         return;
       }
       const canManage = canManageCompanyLocations();
-      const editSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>`;
-      const tableRows = rows.map(row => {
+      const editSvg = ICONS.pencil;
+      const shipSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'+
+        '<rect x="1" y="3" width="15" height="13" rx="2"></rect>'+
+        '<polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>'+
+        '<circle cx="5.5" cy="18.5" r="2.5"></circle>'+
+        '<circle cx="18.5" cy="18.5" r="2.5"></circle>'+
+      '</svg>';
+      const receiveSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'+
+        '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>'+
+        '<circle cx="12" cy="10" r="3"></circle>'+
+      '</svg>';
+      const archiveSvg = ICONS.trash2;
+      const restoreSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'+
+        '<path d="M3 12a9 9 0 1 0 3-6.7"></path>'+
+        '<polyline points="3 4 3 10 9 10"></polyline>'+
+      '</svg>';
+      const cards = rows.map(row => {
         const id = String(row && row.id ? row.id : '').trim();
         const name = String(row && row.name ? row.name : '').trim() || 'Location';
         const type = formatLocationTypeLabel(row && row.location_type ? row.location_type : '');
@@ -25201,139 +26293,63 @@ function emptyStateHtml(){
         const addressLine2 = addressLines.line2;
         const addressMuted = !addressLines.full;
         const active = !!(row && row.is_active);
-        const statusText = active ? 'Active' : 'Archived';
-        const statusClass = active ? 'active' : 'archived';
         const shipDefault = !!(row && row.is_default_ship_to);
         const receiveDefault = !!(row && row.is_default_receive_at);
-        const defaultTags = [
-          shipDefault ? `<span class="location-default-tag ship-to">Ship-To</span>` : '',
-          receiveDefault ? `<span class="location-default-tag receive-at">Receive-At</span>` : ''
-        ].filter(Boolean).join('');
+        const isDefault = shipDefault || receiveDefault;
         const disableActions = !canManage;
+        const cardClasses = [
+          'location-card',
+          isDefault ? 'is-default' : '',
+          active ? '' : 'is-archived'
+        ].filter(Boolean).join(' ');
+        const defaultPips = (shipDefault || receiveDefault)
+          ? `<div class="default-indicators">`+
+              `${shipDefault ? '<span class="default-pip ship-to" title="Default Ship-To"></span>' : ''}`+
+              `${receiveDefault ? '<span class="default-pip receive-at" title="Default Receive-At"></span>' : ''}`+
+            `</div>`
+          : '';
         const editBtn = canManage
-          ? `<button class="location-edit-btn" type="button" data-location-edit="${escapeHtmlAttr(id)}"${disableActions ? ' disabled' : ''} title="Edit location" aria-label="Edit location">${editSvg}</button>`
+          ? `<button class="icon-btn location-card-edit" type="button" data-location-edit="${escapeHtmlAttr(id)}" data-tooltip="Edit" aria-label="Edit location"${disableActions ? ' disabled aria-disabled="true"' : ''}>${editSvg}</button>`
           : '';
-        const defaultShipBtn = active
-          ? `<button class="btn-tertiary btn-sm" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="ship_to"${disableActions || shipDefault ? ' disabled' : ''}>Set Ship-To</button>`
+        const shipBtn = active
+          ? `<button class="icon-btn ship-to${shipDefault ? ' is-set' : ''}" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="ship_to" data-tooltip="${shipDefault ? 'Ship-To (Default)' : 'Set as Ship-To'}"${disableActions || shipDefault ? ' disabled aria-disabled="true"' : ''} aria-label="Set Ship-To">${shipSvg}</button>`
           : '';
-        const defaultReceiveBtn = active
-          ? `<button class="btn-tertiary btn-sm" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="receive_at"${disableActions || receiveDefault ? ' disabled' : ''}>Set Receive-At</button>`
+        const receiveBtn = active
+          ? `<button class="icon-btn receive-at${receiveDefault ? ' is-set' : ''}" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="receive_at" data-tooltip="${receiveDefault ? 'Receive-At (Default)' : 'Set as Receive-At'}"${disableActions || receiveDefault ? ' disabled aria-disabled="true"' : ''} aria-label="Set Receive-At">${receiveSvg}</button>`
           : '';
         const archiveBtn = active
-          ? `<button class="btn-tertiary btn-sm btn-danger" type="button" data-location-archive="${escapeHtmlAttr(id)}"${disableActions ? ' disabled' : ''}>Archive</button>`
+          ? `<button class="icon-btn icon-btn--danger" type="button" data-location-archive="${escapeHtmlAttr(id)}" data-tooltip="Archive"${disableActions ? ' disabled aria-disabled="true"' : ''} aria-label="Archive location">${archiveSvg}</button>`
           : '';
         const restoreBtn = !active
-          ? `<button class="btn-tertiary btn-sm" type="button" data-location-restore="${escapeHtmlAttr(id)}"${disableActions ? ' disabled' : ''}>Restore</button>`
+          ? `<button class="icon-btn restore" type="button" data-location-restore="${escapeHtmlAttr(id)}" data-tooltip="Restore"${disableActions ? ' disabled aria-disabled="true"' : ''} aria-label="Restore location">${restoreSvg}</button>`
           : '';
         return (
-          `<tr data-location-id="${escapeHtmlAttr(id)}">`+
-            `<td>`+
-              `<div class="location-name-cell">`+
-                editBtn+
-                `<div class="location-name-text">`+
-                  `<span class="location-name-primary">${escapeHtml(name)}</span>`+
-                  `<span class="location-id">ID: ${escapeHtml(id.slice(0,8))}</span>`+
+          `<div class="${escapeHtmlAttr(cardClasses)}" data-location-id="${escapeHtmlAttr(id)}">`+
+            `<div class="card-row">`+
+              editBtn+
+              `<div class="card-info">`+
+                `<div class="card-info-top">`+
+                  `<span class="location-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</span>`+
+                  `<span class="type-badge">${escapeHtml(type || 'Other')}</span>`+
+                  `<span class="status-dot${active ? '' : ' archived'}" title="${active ? 'Active' : 'Archived'}"></span>`+
+                  `${defaultPips}`+
+                `</div>`+
+                `<div class="card-info-bottom">`+
+                  `<span class="address-text${addressMuted ? ' muted' : ''}">${escapeHtml(addressLine1)}${addressLine2 ? `, ${escapeHtml(addressLine2)}` : ''}</span>`+
                 `</div>`+
               `</div>`+
-            `</td>`+
-            `<td><span class="location-type">${escapeHtml(type || 'Other')}</span></td>`+
-            `<td>`+
-              `<div class="location-address">`+
-                `<span class="location-address-line${addressMuted ? ' muted' : ''}">${escapeHtml(addressLine1)}</span>`+
-                `${addressLine2 ? `<span class="location-address-city">${escapeHtml(addressLine2)}</span>` : ''}`+
-              `</div>`+
-            `</td>`+
-            `<td><span class="location-status ${statusClass}">${statusText}</span></td>`+
-            `<td><div class="location-defaults">${defaultTags || '<span class="location-no-default">None</span>'}</div></td>`+
-            `<td>`+
-              `<div class="location-actions">`+
-                defaultShipBtn+
-                defaultReceiveBtn+
+              `<div class="card-actions">`+
+                shipBtn+
+                receiveBtn+
                 archiveBtn+
                 restoreBtn+
               `</div>`+
-            `</td>`+
-          `</tr>`
+            `</div>`+
+          `</div>`
         );
       }).join('');
-      list.innerHTML =
-        `<table class="locations-table">`+
-          `<thead>`+
-            `<tr>`+
-              `<th>Name</th>`+
-              `<th>Type</th>`+
-              `<th>Address</th>`+
-              `<th>Status</th>`+
-              `<th>Defaults</th>`+
-              `<th style="text-align:right;">Actions</th>`+
-            `</tr>`+
-          `</thead>`+
-          `<tbody>${tableRows}</tbody>`+
-        `</table>`;
-      if(mobileList){
-        const cards = rows.map(row => {
-          const id = String(row && row.id ? row.id : '').trim();
-          const name = String(row && row.name ? row.name : '').trim() || 'Location';
-          const type = formatLocationTypeLabel(row && row.location_type ? row.location_type : '');
-          const addressLines = getLocationAddressLines(row);
-          let addrShort = addressLines.line1;
-          if(addressLines.line2){
-            addrShort = addrShort ? `${addrShort}, ${addressLines.line2}` : addressLines.line2;
-          }
-          if(!addressLines.full){
-            addrShort = 'Address not set';
-          }
-          const active = !!(row && row.is_active);
-          const statusText = active ? 'Active' : 'Archived';
-          const statusClass = active ? 'active' : 'archived';
-          const shipDefault = !!(row && row.is_default_ship_to);
-          const receiveDefault = !!(row && row.is_default_receive_at);
-          const defaultTags = [
-            shipDefault ? `<span class="location-default-tag ship-to">Ship-To</span>` : '',
-            receiveDefault ? `<span class="location-default-tag receive-at">Receive-At</span>` : ''
-          ].filter(Boolean).join('');
-          const disableActions = !canManage;
-          const editBtn = canManage
-            ? `<button class="location-edit-btn" type="button" data-location-edit="${escapeHtmlAttr(id)}"${disableActions ? ' disabled' : ''} title="Edit location">${editSvg}</button>`
-            : '';
-          const defaultShipBtn = active
-            ? `<button class="btn-tertiary btn-sm" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="ship_to"${disableActions || shipDefault ? ' disabled' : ''}>Set Ship-To</button>`
-            : '';
-          const defaultReceiveBtn = active
-            ? `<button class="btn-tertiary btn-sm" type="button" data-location-default="${escapeHtmlAttr(id)}" data-default-type="receive_at"${disableActions || receiveDefault ? ' disabled' : ''}>Set Receive-At</button>`
-            : '';
-          const archiveBtn = active
-            ? `<button class="btn-tertiary btn-sm btn-danger" type="button" data-location-archive="${escapeHtmlAttr(id)}"${disableActions ? ' disabled' : ''}>Archive</button>`
-            : '';
-          const restoreBtn = !active
-            ? `<button class="btn-tertiary btn-sm" type="button" data-location-restore="${escapeHtmlAttr(id)}"${disableActions ? ' disabled' : ''}>Restore</button>`
-            : '';
-          return (
-            `<div class="location-card" data-location-id="${escapeHtmlAttr(id)}">`+
-              `<div class="location-card-header">`+
-                `<div>`+
-                  `<div class="location-card-name">${escapeHtml(name)}</div>`+
-                  `<div class="location-card-id">ID: ${escapeHtml(id.slice(0,8))}</div>`+
-                `</div>`+
-                editBtn+
-              `</div>`+
-              `<div class="location-card-meta">`+
-                `<div class="location-card-row"><span class="location-card-label">Type</span><span>${escapeHtml(type || 'Other')}</span></div>`+
-                `<div class="location-card-row"><span class="location-card-label">Address</span><span>${escapeHtml(addrShort)}</span></div>`+
-                `<div class="location-card-row"><span class="location-card-label">Status</span><span class="location-status ${statusClass}">${statusText}</span></div>`+
-              `</div>`+
-              (defaultTags ? `<div class="location-card-defaults">${defaultTags}</div>` : '')+
-              `<div class="location-card-actions">`+
-                defaultShipBtn+
-                defaultReceiveBtn+
-                archiveBtn+
-                restoreBtn+
-              `</div>`+
-            `</div>`
-          );
-        }).join('');
-        mobileList.innerHTML = cards;
-      }
+      list.innerHTML = cards;
+      try{ initButtonSystem.refresh(); }catch(e){}
     }
     async function sbFetchCompanyLocations(){
       if(!SB.ready || !SB.session) return [];
@@ -25411,11 +26427,13 @@ function emptyStateHtml(){
       const selector = $('locationsCompanySelector');
       const selected = $('locationsSelectedCompany');
       const toolbar = document.querySelector('.locations-toolbar');
-      const tableWrap = $('companyLocationsList');
+      const scroll = document.querySelector('.locations-scroll');
+      const legend = document.querySelector('.locations-legend');
       if(selector) selector.hidden = !showSelector;
       if(selected) selected.hidden = showSelector;
       if(toolbar) toolbar.style.display = showSelector ? 'none' : '';
-      if(tableWrap) tableWrap.style.display = showSelector ? 'none' : '';
+      if(scroll) scroll.style.display = showSelector ? 'none' : '';
+      if(legend) legend.style.display = showSelector ? 'none' : '';
     }
     function selectLocationsCompany(companyId, companyName){
       setCompanyLocationsContext({ companyId, companyName, source: 'super_user_selector' });
@@ -25627,7 +26645,7 @@ function emptyStateHtml(){
         if(pae && isPlaceAutocompleteEl(pae)){
           syncPlaceAutocompleteToHidden(pae, 'companyLocationAddress1Value');
         }
-      }catch{}
+      }catch(e){}
       const addressLine1 = getInputValueById('companyLocationAddress1');
       const storedAddress = String($('companyLocationAddress1Value')?.value || '').trim();
       const formattedAddress = String(storedAddress || addressLine1 || '').trim();
@@ -30367,6 +31385,21 @@ function emptyStateHtml(){
 
       const lines = ord.lines.slice().sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
       pruneOrderLineSelection(lines);
+      const lineItemIds = lines.map(l => String(l && l.id ? l.id : '').trim()).filter(Boolean);
+      const commitmentKey = getOrderCommitmentKey(lineItemIds);
+      if(lineItemIds.length){
+        if(!state._orderCommitmentLoading && state._orderCommitmentKey !== commitmentKey){
+          void loadOrderCommitmentsForCart(lineItemIds).then((updated)=>{
+            if(updated) renderOrderLines();
+          });
+        }
+      }else if(state._orderCommitmentKey){
+        state._orderCommittedByItemId = new Map();
+        state._orderJobCountByItemId = new Map();
+        state._orderDraftJobCountByItemId = new Map();
+        state._orderDraftJobAllocationsByItemId = new Map();
+        state._orderCommitmentKey = '';
+      }
 
       if(!lines.length){
         list.innerHTML = `<div class="order-cart-empty">
@@ -30378,6 +31411,7 @@ function emptyStateHtml(){
           <div>Cart is empty</div>
           <div style="font-size:12px;margin-top:4px;">Search above to add items</div>
         </div>`;
+        updateOrderImpactCard([]);
         renderOrderPreview();
         // Update wizard cart summary and button states
         try{ updateOrderWizardCartSummary(); orderWizardUpdateUI(); }catch(e){}
@@ -30387,29 +31421,146 @@ function emptyStateHtml(){
       for(const l of lines){
         const inv = getInventoryById(l.id);
         const onHand = inv ? toInt(inv.qty, 0) : null;
+        const onHandValue = Number.isFinite(onHand) ? onHand : 0;
+        const commitment = applyOrderCommitmentStats(l, onHandValue);
+        const committed = Number(commitment.committed || 0);
+        const jobCount = Number(commitment.jobCount || 0);
+        const available = Number(commitment.available || 0);
+        const draftCountMap = state._orderDraftJobCountByItemId || new Map();
+        const draftCount = Number(draftCountMap.get(l.id) || 0);
+        let availabilityClass = 'is-positive';
+        if(available < 0) availabilityClass = 'is-negative';
+        else if(available === 0) availabilityClass = 'is-zero';
+        const showCommitment = committed > 0 || draftCount > 0;
+        const expanded = isOrderLineExpanded(l.id);
+        const jobState = expanded ? getOrderJobAllocationsState(l.id) : null;
+        if(expanded && jobState && !jobState.loaded && !jobState.loading){
+          void loadOrderJobAllocationsForItem(l.id).then(()=> renderOrderLines());
+        }
+        const draftState = (expanded && draftCount > 0) ? getOrderDraftJobAllocationsState(l.id) : null;
+        if(expanded && draftCount > 0 && draftState && !draftState.loaded && !draftState.loading){
+          void loadOrderDraftJobAllocationsForItem(l.id).then(()=> renderOrderLines());
+        }
+        let jobsContent = '';
+        if(expanded){
+          let committedCards = '';
+          if(jobState && jobState.loading){
+            committedCards = renderOrderMiniCardPlaceholder('Loading committed jobs...');
+          }else if(jobState && jobState.error){
+            committedCards = renderOrderMiniCardPlaceholder(jobState.error || 'Unable to load committed jobs');
+          }else if(jobState && Array.isArray(jobState.rows) && jobState.rows.length){
+            committedCards = jobState.rows.map(row => {
+              const jobId = String(row && row.job_id ? row.job_id : '').trim();
+              const jobLabel = getOrderJobLabel(jobId);
+              const qty = Number(row && row.qty_required != null ? row.qty_required : 0);
+              return renderOrderMiniCard({
+                title: jobLabel,
+                qty,
+                badgeLabel: 'Committed',
+                badgeClass: 'mini-card-badge--committed',
+                cardClass: 'mini-card--committed'
+              });
+            }).join('');
+          }else{
+            committedCards = renderOrderMiniCardPlaceholder('None');
+          }
+          const committedSection = (
+            `<div class="order-cart-item-jobs-section order-cart-item-jobs-section--committed">`+
+              `<div class="order-cart-item-jobs-section-title">Committed jobs</div>`+
+              `<div class="order-cart-item-jobs-cards">${committedCards}</div>`+
+            `</div>`
+          );
+          let draftSection = '';
+          if(draftCount > 0){
+            let draftCards = '';
+            if(draftState && draftState.loading){
+              draftCards = renderOrderMiniCardPlaceholder('Loading draft jobs...');
+            }else if(draftState && draftState.error){
+              draftCards = renderOrderMiniCardPlaceholder(draftState.error || 'Unable to load draft jobs');
+            }else if(draftState && Array.isArray(draftState.rows) && draftState.rows.length){
+              draftCards = draftState.rows.map(row => {
+                const jobId = String(row && row.job_id ? row.job_id : '').trim();
+                const jobLabel = getOrderJobLabel(jobId);
+                const qty = Number(row && row.qty_required != null ? row.qty_required : 0);
+                return renderOrderMiniCard({
+                  title: jobLabel,
+                  qty,
+                  badgeLabel: 'Draft - blocked',
+                  badgeClass: 'mini-card-badge--draft',
+                  cardClass: 'mini-card--draft',
+                  subtext: 'Awaiting inventory'
+                });
+              }).join('');
+            }else{
+              draftCards = renderOrderMiniCardPlaceholder('None');
+            }
+            draftSection = (
+              `<div class="order-cart-item-jobs-section order-cart-item-jobs-section--draft">`+
+                `<div class="order-cart-item-jobs-section-title">Draft jobs awaiting inventory</div>`+
+                `<div class="order-cart-item-jobs-helper">Draft jobs are not included in committed quantities until approved.</div>`+
+                `<div class="order-cart-item-jobs-cards">${draftCards}</div>`+
+              `</div>`
+            );
+          }
+          let draftSummaryCard = '';
+          if(draftCount > 0 && draftState && Array.isArray(draftState.rows)){
+            const draftRequiredQty = draftState.rows.reduce((sum, row)=>{
+              const qty = toInt(row && row.qty_required != null ? row.qty_required : 0, 0);
+              return sum + qty;
+            }, 0);
+            if(draftRequiredQty > 0){
+              const cartQty = toInt(l.qty, 0);
+              const draftRemaining = Math.max(0, draftRequiredQty - cartQty);
+              draftSummaryCard = renderOrderDraftDemandSummaryCard({
+                requiredQty: draftRequiredQty,
+                remainingQty: draftRemaining
+              });
+            }
+          }
+          jobsContent = committedSection + draftSection + draftSummaryCard;
+        }
 
+        const hasWarning = draftCount > 0;
         const card = document.createElement('div');
-        card.className = 'order-cart-item';
+        card.className = `order-cart-item${expanded ? ' order-cart-item--expanded' : ''}${hasWarning ? ' order-cart-item--warning' : ''}`;
         card.dataset.orderLineId = l.id;
+        const metaLine = showCommitment
+          ? `<div class="order-cart-item-meta">`+
+              `<span class="order-cart-item-availability ${availabilityClass}">Available: ${formatQty(available)}</span>`+
+              (committed > 0
+                ? `<span class="order-cart-item-jobs-meta">• Used by ${jobCount} ${jobCount === 1 ? 'job' : 'jobs'}</span>`
+                : '')+
+              (draftCount > 0
+                ? `<span class="order-cart-item-jobs-meta order-cart-item-jobs-meta--draft">• ${draftCount} ${draftCount === 1 ? 'draft waiting' : 'drafts waiting'}</span>`
+                : '')+
+            `</div>`
+          : '';
         card.innerHTML =
-          `<div class="order-cart-item-info">`+
-            `<div class="order-cart-item-name" title="${escapeHtml(l.name||'')}">${escapeHtml(l.name||'')}</div>`+
-            `<span class="order-cart-item-stock">${onHand===null ? '—' : onHand}</span>`+
-          `</div>`+
-          `<div class="order-cart-item-stepper">`+
-            `<div class="qty-stepper" data-qty-picker-trigger="${l.id}">`+
-              `<button class="qty-stepper-btn" data-line-dec="${l.id}">−</button>`+
-              `<input type="text" inputmode="numeric" pattern="[0-9]*" class="qty-stepper-input" data-line-qty-input="${l.id}" value="${toInt(l.qty,0)}" aria-label="Order quantity">`+
-              `<button class="qty-stepper-btn" data-line-inc="${l.id}">+</button>`+
+          `<div class="order-cart-item-main">`+
+            `<button class="order-cart-item-toggle" type="button" data-order-line-toggle="${escapeHtmlAttr(l.id)}" aria-label="Toggle item details">${ICONS.chevronDown}</button>`+
+            `<div class="order-cart-item-info" data-order-line-toggle="${escapeHtmlAttr(l.id)}">`+
+              `<div class="order-cart-item-name" title="${escapeHtml(l.name||'')}">${escapeHtml(l.name||'')}</div>`+
+              `${metaLine}`+
             `</div>`+
+            `<div class="order-cart-item-stepper">`+
+              `<div class="qty-stepper" data-qty-picker-trigger="${l.id}">`+
+                `<button class="qty-stepper-btn" data-line-dec="${l.id}">−</button>`+
+                `<input type="text" inputmode="numeric" pattern="[0-9]*" class="qty-stepper-input" data-line-qty-input="${l.id}" value="${toInt(l.qty,0)}" aria-label="Order quantity">`+
+                `<button class="qty-stepper-btn" data-line-inc="${l.id}">+</button>`+
+              `</div>`+
+            `</div>`+
+            `<button class="order-cart-item-remove" data-remove-order-id="${l.id}" title="Remove">`+
+              `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>`+
+            `</button>`+
           `</div>`+
-          `<button class="order-cart-item-remove" data-remove-order-id="${l.id}" title="Remove">`+
-            `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>`+
-          `</button>`;
+          `<div class="order-cart-item-jobs">`+
+            `${expanded ? jobsContent : ''}`+
+          `</div>`;
         list.appendChild(card);
       }
 
       renderOrderPreview();
+      updateOrderImpactCard(lines);
       // Update wizard cart summary and button states
       try{ updateOrderWizardCartSummary(); orderWizardUpdateUI(); }catch(e){}
     }
@@ -31130,6 +32281,26 @@ function emptyStateHtml(){
     if(btnCompanyLocationSave) btnCompanyLocationSave.addEventListener('click', saveCompanyLocation);
     const btnCompanyLocationCancel = $('btnCompanyLocationCancel');
     if(btnCompanyLocationCancel) btnCompanyLocationCancel.addEventListener('click', closeCompanyLocationEditor);
+    function setLocationActionBusy(btn, isBusy, fallbackLabel){
+      if(!btn) return;
+      if(isBusy){
+        btn.disabled = true;
+        btn.setAttribute('data-loading', 'true');
+        btn.setAttribute('aria-busy', 'true');
+        if(!btn.querySelector('svg') && fallbackLabel){
+          if(!btn.dataset.label) btn.dataset.label = btn.textContent;
+          btn.textContent = fallbackLabel;
+        }
+        return;
+      }
+      btn.disabled = false;
+      btn.removeAttribute('data-loading');
+      btn.removeAttribute('aria-busy');
+      if(btn.dataset.label){
+        btn.textContent = btn.dataset.label;
+        delete btn.dataset.label;
+      }
+    }
     async function handleLocationListClick(e){
       const editBtn = e.target.closest('[data-location-edit]');
       if(editBtn){
@@ -31143,9 +32314,7 @@ function emptyStateHtml(){
         const id = String(defaultBtn.getAttribute('data-location-default') || '').trim();
         const type = String(defaultBtn.getAttribute('data-default-type') || '').trim();
         if(!id || !type) return;
-        const prior = defaultBtn.textContent;
-        defaultBtn.disabled = true;
-        defaultBtn.textContent = 'Saving...';
+        setLocationActionBusy(defaultBtn, true, 'Saving...');
         setCompanyLocationsMessage('');
         try{
           await setDefaultCompanyLocation(id, type);
@@ -31153,8 +32322,7 @@ function emptyStateHtml(){
         }catch(err){
           setCompanyLocationsMessage(err && err.message ? err.message : 'Default update failed');
         }finally{
-          defaultBtn.disabled = false;
-          defaultBtn.textContent = prior || 'Set Default';
+          setLocationActionBusy(defaultBtn, false);
         }
         return;
       }
@@ -31162,17 +32330,14 @@ function emptyStateHtml(){
       if(archiveBtn){
         const id = String(archiveBtn.getAttribute('data-location-archive') || '').trim();
         if(!id) return;
-        const prior = archiveBtn.textContent;
-        archiveBtn.disabled = true;
-        archiveBtn.textContent = 'Archiving...';
+        setLocationActionBusy(archiveBtn, true, 'Archiving...');
         setCompanyLocationsMessage('');
         try{
           await archiveCompanyLocation(id);
         }catch(err){
           setCompanyLocationsMessage(err && err.message ? err.message : 'Archive failed');
         }finally{
-          archiveBtn.disabled = false;
-          archiveBtn.textContent = prior || 'Archive';
+          setLocationActionBusy(archiveBtn, false);
         }
         return;
       }
@@ -31180,24 +32345,19 @@ function emptyStateHtml(){
       if(restoreBtn){
         const id = String(restoreBtn.getAttribute('data-location-restore') || '').trim();
         if(!id) return;
-        const prior = restoreBtn.textContent;
-        restoreBtn.disabled = true;
-        restoreBtn.textContent = 'Restoring...';
+        setLocationActionBusy(restoreBtn, true, 'Restoring...');
         setCompanyLocationsMessage('');
         try{
           await restoreCompanyLocation(id);
         }catch(err){
           setCompanyLocationsMessage(err && err.message ? err.message : 'Restore failed');
         }finally{
-          restoreBtn.disabled = false;
-          restoreBtn.textContent = prior || 'Restore';
+          setLocationActionBusy(restoreBtn, false);
         }
       }
     }
     const companyLocationsList = $('companyLocationsList');
     if(companyLocationsList) companyLocationsList.addEventListener('click', handleLocationListClick);
-    const companyLocationsMobileCards = $('companyLocationsMobileCards');
-    if(companyLocationsMobileCards) companyLocationsMobileCards.addEventListener('click', handleLocationListClick);
     // Super user company selector event handlers
     const locationsCompanySearch = $('locationsCompanySearch');
     if(locationsCompanySearch){
@@ -31644,6 +32804,15 @@ function emptyStateHtml(){
         }
         renderOrderResults();
         renderOrderLines();
+        return;
+      }
+
+      const toggleEl = e.target.closest('[data-order-line-toggle]');
+      if(toggleEl){
+        if(e.target.closest('.order-cart-item-stepper') || e.target.closest('.qty-stepper-input')) return;
+        const id = String(toggleEl.dataset.orderLineToggle || '').trim();
+        if(!id) return;
+        toggleOrderLineExpanded(id);
         return;
       }
     });
