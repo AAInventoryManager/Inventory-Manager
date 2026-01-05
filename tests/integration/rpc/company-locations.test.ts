@@ -58,12 +58,9 @@ async function setRolePermission(roleName: string, permissionKey: string, value:
 type LocationInput = {
   name: string;
   locationType?: string;
-  addressLine1?: string;
-  addressLine2?: string;
-  city?: string;
-  stateRegion?: string;
-  postalCode?: string;
-  countryCode?: string;
+  googleFormattedAddress?: string;
+  googlePlaceId?: string | null;
+  googleAddressComponents?: Record<string, unknown> | null;
   defaultShipTo?: boolean;
   defaultReceiveAt?: boolean;
 };
@@ -72,12 +69,9 @@ function baseLocationInput(name: string): LocationInput {
   return {
     name,
     locationType: 'warehouse',
-    addressLine1: '123 Main St',
-    addressLine2: '',
-    city: 'Austin',
-    stateRegion: 'TX',
-    postalCode: '78701',
-    countryCode: 'US',
+    googleFormattedAddress: '123 Main St, Austin, TX 78701, USA',
+    googlePlaceId: null,
+    googleAddressComponents: null,
     defaultShipTo: false,
     defaultReceiveAt: false
   };
@@ -88,12 +82,9 @@ async function createLocation(client: SupabaseClient, companyId: string, input: 
     p_company_id: companyId,
     p_name: input.name,
     p_location_type: input.locationType || 'warehouse',
-    p_address_line1: input.addressLine1 || '123 Main St',
-    p_address_line2: input.addressLine2 || null,
-    p_city: input.city || 'Austin',
-    p_state_region: input.stateRegion || 'TX',
-    p_postal_code: input.postalCode || '78701',
-    p_country_code: input.countryCode || 'US',
+    p_google_formatted_address: input.googleFormattedAddress || '123 Main St, Austin, TX 78701, USA',
+    p_google_place_id: input.googlePlaceId || null,
+    p_google_address_components: input.googleAddressComponents || null,
     p_set_default_ship_to: input.defaultShipTo || false,
     p_set_default_receive_at: input.defaultReceiveAt || false
   };
@@ -130,7 +121,8 @@ function guessValue(column: ColumnInfo): unknown {
   const name = column.column_name.toLowerCase();
   if (name.includes('status')) return 'draft';
   if (name.includes('type')) return 'other';
-  if (name.includes('country_code')) return 'US';
+  if (name.includes('google_formatted_address')) return '123 Main St, Austin, TX 78701, USA';
+  if (name.includes('google_place_id')) return `place_${uniqueSuffix}`;
   if (name.includes('email')) return `test+${uniqueSuffix}@test.local`;
   const dataType = column.data_type.toLowerCase();
   if (dataType.includes('uuid')) return randomUUID();
@@ -372,12 +364,9 @@ describe('RPC: company locations', () => {
       p_location_id: loc,
       p_name: payload.name,
       p_location_type: payload.locationType,
-      p_address_line1: payload.addressLine1,
-      p_address_line2: payload.addressLine2,
-      p_city: payload.city,
-      p_state_region: payload.stateRegion,
-      p_postal_code: payload.postalCode,
-      p_country_code: payload.countryCode
+      p_google_formatted_address: payload.googleFormattedAddress,
+      p_google_place_id: payload.googlePlaceId,
+      p_google_address_components: payload.googleAddressComponents
     });
     expect(updateError).toBeNull();
     expect(updated?.success).toBe(true);
@@ -404,12 +393,9 @@ describe('RPC: company locations', () => {
       p_company_id: companyId,
       p_name: payload.name,
       p_location_type: payload.locationType,
-      p_address_line1: payload.addressLine1,
-      p_address_line2: payload.addressLine2,
-      p_city: payload.city,
-      p_state_region: payload.stateRegion,
-      p_postal_code: payload.postalCode,
-      p_country_code: payload.countryCode,
+      p_google_formatted_address: payload.googleFormattedAddress,
+      p_google_place_id: payload.googlePlaceId,
+      p_google_address_components: payload.googleAddressComponents,
       p_set_default_ship_to: false,
       p_set_default_receive_at: false
     });

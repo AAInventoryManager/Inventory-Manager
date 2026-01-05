@@ -10,7 +10,8 @@ These are hard constraints, not guidelines.
 ## Required Address Fields
 - Required fields for a location are defined in COMPANY_LOCATIONS_MODEL.md.
 - Required fields must be present and non-empty.
-- country_code must be a valid ISO-3166-1 alpha-2 code.
+- google_formatted_address is the canonical address; if google_place_id is
+  provided it must be a valid Google Places identifier.
 
 ## Defaults
 - Exactly one default_ship_to_location_id per company when at least one active

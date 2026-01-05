@@ -18,18 +18,14 @@ Allowed values:
 - other
 
 ## Address Field Allowlist
-Only the following address fields are permitted in the canonical location
-record. Required fields are listed in the Minimum Viable Location Record
-section.
+Locations store a single canonical address from Google Places. Structured
+address parts are not persisted in the location record.
 
 - name (display label)
 - location_type
-- address_line1
-- address_line2 (optional)
-- city
-- state_region
-- postal_code
-- country_code (ISO-3166-1 alpha-2)
+- google_formatted_address (canonical, full address string)
+- google_place_id (optional)
+- google_address_components (optional, jsonb)
 - contact_name (optional)
 - contact_phone (optional)
 - contact_email (optional)
@@ -48,11 +44,7 @@ The following fields are required and must be non-empty:
 - company_id
 - name
 - location_type
-- address_line1
-- city
-- state_region
-- postal_code
-- country_code
+- google_formatted_address
 
 ## Relationships
 - Purchase Orders reference ship_to_location_id.

@@ -93,11 +93,9 @@ async function createLocation(companyId: string): Promise<void> {
     company_id: companyId,
     name: 'Primary Warehouse',
     location_type: 'warehouse',
-    address_line1: '123 Main St',
-    city: 'Austin',
-    state_region: 'TX',
-    postal_code: '78701',
-    country_code: 'US',
+    google_formatted_address: '123 Main St, Austin, TX 78701, USA',
+    google_place_id: null,
+    google_address_components: null,
     is_active: true
   });
   if (error) throw error;

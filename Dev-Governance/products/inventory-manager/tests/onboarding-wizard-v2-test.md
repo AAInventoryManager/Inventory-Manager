@@ -23,13 +23,13 @@
 | 1.1.2 | Autocomplete appears on address field | Click in Address 1 field, type "123 Main" | Dropdown with Google Places suggestions appears |
 | 1.1.3 | Styling matches theme | View autocomplete dropdown | Dark theme, white text, proper z-index |
 
-### 1.2 Address Auto-population
+### 1.2 Address Storage
 | # | Test Case | Steps | Expected Result |
 |---|-----------|-------|-----------------|
-| 1.2.1 | US address | Select "123 Main St, Austin, TX 78701" | All fields populate correctly |
-| 1.2.2 | Canadian address | Select "123 King St W, Toronto, ON" | Country = Canada, Province populated |
-| 1.2.3 | International address | Select address in UK or Germany | Correct country code, city, postal |
-| 1.2.4 | Address with unit | Select "123 Main St #400" | Unit in Address 2 field |
+| 1.2.1 | US address | Select "123 Main St, Austin, TX 78701" | Formatted address stored and shown |
+| 1.2.2 | Canadian address | Select "123 King St W, Toronto, ON" | Formatted address stored and shown |
+| 1.2.3 | International address | Select address in UK or Germany | Formatted address stored and shown |
+| 1.2.4 | Address with unit | Select "123 Main St #400" | Unit preserved in formatted address |
 
 ### 1.3 Edge Cases
 | # | Test Case | Steps | Expected Result |

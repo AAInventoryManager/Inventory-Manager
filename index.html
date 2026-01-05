@@ -1270,162 +1270,300 @@
 	    }
 
     /* Edit Item Modal - Tabbed Interface */
-    .edit-header{
+    #editItemModal .modal{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      width:100%;
+      max-width:480px;
+      max-height:calc(100vh - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      box-shadow:0 25px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    #editItemModal .edit-header{
       display:flex;
       align-items:center;
       justify-content:space-between;
       padding:16px 20px;
       border-bottom:1px solid rgba(255,255,255,0.06);
+      background:var(--card);
+      flex-shrink:0;
     }
-    .edit-header-left{
+    #editItemModal .edit-header-left{
       display:flex;
       align-items:center;
       gap:12px;
       min-width:0;
       flex:1;
     }
-    .edit-header-icon{
-      width:40px;
-      height:40px;
-      border-radius:10px;
-      background:rgba(34,197,94,0.15);
+    #editItemModal .edit-header-icon{
+      width:44px;
+      height:44px;
+      border-radius:12px;
+      background:linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.08));
+      border:1px solid rgba(34,197,94,0.25);
       display:flex;
       align-items:center;
       justify-content:center;
       flex-shrink:0;
     }
-    .edit-header-icon svg{
+    #editItemModal .edit-header-icon svg{
       width:20px;
       height:20px;
       color:#22c55e;
     }
-    .edit-header-info{
+    #editItemModal .edit-header-info{
       min-width:0;
       flex:1;
     }
-    .edit-header-title{
+    #editItemModal .edit-header-title{
       margin:0;
-      font-size:16px;
+      font-size:17px;
       font-weight:600;
-      color:#eaeff7;
+      color:var(--fg);
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
-    .edit-header-sub{
-      margin:2px 0 0 0;
+    #editItemModal .edit-header-sub{
+      margin:3px 0 0;
       font-size:13px;
-      color:#64748b;
+      color:var(--muted);
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
-    .edit-tabs{
+    #editItemModal .edit-tabs{
       display:flex;
-      border-bottom:1px solid rgba(255,255,255,0.06);
+      padding:12px 20px 0;
+      background:var(--card);
+      flex-shrink:0;
     }
-    .edit-tab{
+    #editItemModal .edit-tabs-inner{
+      display:flex;
+      width:100%;
+      background:rgba(0,0,0,0.3);
+      border-radius:10px;
+      padding:4px;
+      gap:4px;
+    }
+    #editItemModal .edit-tab{
       flex:1;
-      padding:12px 16px;
+      padding:10px 12px;
       border:none;
       background:transparent;
-      color:#64748b;
+      color:var(--muted);
       font-size:14px;
-      font-weight:500;
-      cursor:pointer;
-      border-bottom:2px solid transparent;
-      transition:all 0.15s ease;
-    }
-    .edit-tab:hover{ color:#94a3b8; }
-    .edit-tab.is-active{
-      color:#22c55e;
-      border-bottom-color:#22c55e;
-    }
-    .edit-tab-content{
-      display:none;
-      padding:16px 20px;
-    }
-    .edit-tab-content.is-active{ display:block; }
-
-    /* Inventory Tab - Big Display */
-    .inventory-display{
-      display:flex;
-      align-items:stretch;
-      background:rgba(0,0,0,0.2);
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,0.06);
-      margin-bottom:16px;
-      overflow:hidden;
-    }
-    .inventory-item{
-      flex:1;
-      padding:16px;
-      text-align:center;
-    }
-    .inventory-item + .inventory-item{
-      border-left:1px solid rgba(255,255,255,0.06);
-    }
-    .inventory-label{
-      font-size:10px;
       font-weight:600;
-      color:#64748b;
+      cursor:pointer;
+      border-radius:8px;
+      transition:all 0.2s ease;
+    }
+    #editItemModal .edit-tab:hover:not(.is-active){
+      color:var(--fg);
+      background:rgba(255,255,255,0.05);
+    }
+    #editItemModal .edit-tab.is-active{
+      background:rgba(255,255,255,0.06);
+      color:var(--fg);
+      box-shadow:0 2px 8px rgba(0,0,0,0.3);
+    }
+    #editItemModal .edit-tab-content{
+      display:none;
+      padding:20px;
+    }
+    #editItemModal .edit-tab-content.is-active{ display:block; }
+
+    /* Details Tab */
+    #editItemModal .edit-field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    #editItemModal .edit-field label{
+      font-size:11px;
+      font-weight:600;
       text-transform:uppercase;
       letter-spacing:0.5px;
-      margin-bottom:8px;
+      color:var(--muted);
     }
-    .inventory-value{
-      font-size:32px;
-      font-weight:800;
-      color:#eaeff7;
-      font-variant-numeric:tabular-nums;
-      line-height:1;
-      margin-bottom:8px;
+    #editItemModal .edit-field input,
+    #editItemModal .edit-field select,
+    #editItemModal .edit-field textarea{
+      width:100%;
+      padding:12px 14px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.2);
+      color:var(--fg);
+      font-size:15px;
+      font-family:inherit;
+      transition:border-color 0.15s, box-shadow 0.15s;
     }
-    .inventory-value.editable{
-      cursor:pointer;
+    #editItemModal .edit-field input:focus,
+    #editItemModal .edit-field select:focus,
+    #editItemModal .edit-field textarea:focus{
+      outline:none;
+      border-color:rgba(90,169,255,0.55);
+      box-shadow:0 0 0 3px rgba(90,169,255,0.18);
+    }
+    #editItemModal .edit-field textarea{
+      min-height:80px;
+      resize:vertical;
+    }
+    #editItemModal .edit-grid-2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    #editItemModal .field-spacer{ height:14px; }
+
+    /* Inventory Tab */
+    #editItemModal .inventory-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    #editItemModal .inventory-card{
+      background:rgba(0,0,0,0.25);
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius:12px;
+      padding:16px;
       position:relative;
-      padding-right:24px;
-      border-bottom:2px dashed rgba(96,165,250,0.4);
-      transition:border-color 0.15s, color 0.15s;
+      overflow:hidden;
     }
-    .inventory-value.editable:hover{
-      color:#60a5fa;
-      border-bottom-color:rgba(96,165,250,0.7);
-    }
-    .inventory-value.editable::after{
+    #editItemModal .inventory-card::before{
       content:'';
       position:absolute;
+      top:0;
+      left:0;
       right:0;
-      top:50%;
-      transform:translateY(-50%);
+      height:3px;
+      background:var(--card-accent, var(--border));
+      opacity:0.7;
+    }
+    #editItemModal .inventory-card.on-hand{ --card-accent:#22c55e; }
+    #editItemModal .inventory-card.incoming{ --card-accent:#f59e0b; }
+    #editItemModal .inventory-card.allocated{ --card-accent:#3b82f6; }
+    #editItemModal .inventory-card.remaining{ --card-accent:#94a3b8; }
+    #editItemModal .inventory-label{
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    #editItemModal .inventory-value{
+      font-size:32px;
+      font-weight:800;
+      color:var(--fg);
+      font-variant-numeric:tabular-nums;
+      line-height:1;
+      margin-bottom:6px;
+    }
+    #editItemModal .inventory-value.calculated{ color:var(--muted); }
+    #editItemModal .inventory-value.positive{ color:#22c55e; }
+    #editItemModal .inventory-value.negative{ color:#ef4444; }
+    #editItemModal .inventory-calc-hint{
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.3;
+    }
+    #editItemModal .inventory-info-banner{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      padding:12px 14px;
+      background:rgba(90,169,255,0.1);
+      border:1px solid rgba(90,169,255,0.2);
+      border-radius:10px;
+      margin-top:16px;
+    }
+    #editItemModal .inventory-info-banner svg{
+      width:18px;
+      height:18px;
+      color:var(--accent);
+      flex-shrink:0;
+      margin-top:1px;
+    }
+    #editItemModal .inventory-info-banner span{
+      font-size:13px;
+      color:#93c5fd;
+      line-height:1.45;
+    }
+
+    /* Settings Tab */
+    #editItemModal .settings-card{
+      background:rgba(0,0,0,0.25);
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius:12px;
+      padding:16px;
+      margin-bottom:16px;
+    }
+    #editItemModal .settings-card-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:6px;
+    }
+    #editItemModal .settings-card-title{
+      font-size:15px;
+      font-weight:600;
+      color:var(--fg);
+    }
+    #editItemModal .settings-card-desc{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.4;
+    }
+    #editItemModal .settings-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 0;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    #editItemModal .settings-row:last-of-type{ border-bottom:none; }
+    #editItemModal .settings-label{
+      font-size:14px;
+      color:#94a3b8;
+    }
+    #editItemModal .settings-help{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      margin-top:20px;
+      padding:12px 14px;
+      background:rgba(90,169,255,0.1);
+      border:1px solid rgba(90,169,255,0.2);
+      border-radius:10px;
+      font-size:13px;
+      color:#94a3b8;
+      line-height:1.5;
+    }
+    #editItemModal .settings-help svg{
       width:16px;
       height:16px;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360a5fa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z'/%3E%3C/svg%3E");
-      background-size:contain;
-      background-repeat:no-repeat;
-      opacity:0.5;
-      transition:opacity 0.15s;
+      color:var(--accent);
+      flex-shrink:0;
+      margin-top:2px;
     }
-    .inventory-value.editable:hover::after{ opacity:1; }
-    .inventory-value.calculated{ color:#64748b; font-style:italic; }
-    .inventory-value.positive{ color:#22c55e; }
-    .inventory-value.negative{ color:#ef4444; }
-    .inventory-calc-hint{
-      font-size:10px;
-      color:#64748b;
-      font-style:italic;
-    }
-    .inventory-stepper{
+
+    /* Inline Stepper */
+    #editItemModal .stepper-inline{
       display:flex;
-      justify-content:center;
+      align-items:center;
       gap:8px;
-      margin-top:8px;
     }
-    .inventory-stepper-btn{
-      width:40px;
-      height:32px;
-      border-radius:8px;
-      border:1px solid rgba(255,255,255,0.1);
+    #editItemModal .stepper-inline-btn{
+      width:36px;
+      height:36px;
+      border-radius:10px;
+      border:1px solid var(--border);
       background:rgba(16,24,38,0.8);
       color:#fff;
       font-size:18px;
@@ -1436,199 +1574,153 @@
       justify-content:center;
       transition:all 0.15s ease;
     }
-    .inventory-stepper-btn:hover{
+    #editItemModal .stepper-inline-btn:hover{
       background:rgba(16,24,38,1);
       border-color:rgba(255,255,255,0.2);
     }
-    .inventory-stepper-btn:active{ transform:scale(0.95); }
-
-    /* Quick Add Buttons */
-    .quick-actions{
-      display:flex;
-      gap:8px;
-      justify-content:center;
-      flex-wrap:wrap;
-    }
-    .quick-btn{
-      padding:10px 16px;
-      border-radius:8px;
-      border:1px solid rgba(34,197,94,0.3);
-      background:rgba(34,197,94,0.1);
-      color:#22c55e;
-      font-size:14px;
-      font-weight:600;
-      cursor:pointer;
-      transition:all 0.15s ease;
-    }
-    .quick-btn:hover{
-      background:rgba(34,197,94,0.2);
-      border-color:rgba(34,197,94,0.5);
-    }
-    .quick-btn:active{ transform:scale(0.97); }
-    @media (max-width:400px){
-      .quick-btn{ flex:1 1 calc(50% - 4px); text-align:center; }
-    }
-    @media (max-width:360px){
-      .inventory-display{ flex-direction:column; }
-      .inventory-item + .inventory-item{ border-left:none; border-top:1px solid rgba(255,255,255,0.06); }
-      .inventory-value{ font-size:24px; }
-    }
-
-    /* Settings Tab */
-    .settings-card{
-      background:rgba(0,0,0,0.2);
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,0.06);
-      padding:14px;
-      margin-bottom:16px;
-    }
-    .settings-card-header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:6px;
-    }
-    .settings-card-title{
-      font-size:14px;
-      font-weight:600;
-      color:#eaeff7;
-    }
-    .settings-card-desc{
-      margin:0;
-      font-size:12px;
-      color:#64748b;
-      line-height:1.4;
-    }
-    .settings-row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:12px 0;
-      border-bottom:1px solid rgba(255,255,255,0.04);
-    }
-    .settings-row:last-of-type{ border-bottom:none; }
-    .settings-label{
-      font-size:14px;
-      color:#94a3b8;
-    }
-    .settings-help{
-      display:flex;
-      align-items:flex-start;
-      gap:10px;
-      margin-top:20px;
-      padding:12px;
-      background:rgba(59,130,246,0.1);
-      border-radius:8px;
-      border:1px solid rgba(59,130,246,0.2);
-      font-size:13px;
-      color:#94a3b8;
-      line-height:1.5;
-    }
-    .settings-help svg{
-      width:16px;
-      height:16px;
-      color:#3b82f6;
-      flex-shrink:0;
-      margin-top:2px;
-    }
-
-    /* Inline Stepper */
-    .stepper-inline{
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    .stepper-inline-btn{
-      width:32px;
-      height:32px;
-      border-radius:8px;
-      border:1px solid rgba(255,255,255,0.1);
-      background:rgba(16,24,38,0.8);
-      color:#fff;
-      font-size:16px;
-      font-weight:600;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      transition:all 0.15s ease;
-    }
-    .stepper-inline-btn:hover{
-      background:rgba(16,24,38,1);
-      border-color:rgba(255,255,255,0.2);
-    }
-    .stepper-inline-btn:active{ transform:scale(0.95); }
-    .stepper-inline-value{
-      min-width:40px;
+    #editItemModal .stepper-inline-btn:active{ transform:scale(0.95); }
+    #editItemModal .stepper-inline-value{
+      min-width:48px;
       text-align:center;
-      font-size:16px;
+      font-size:18px;
       font-weight:700;
       font-variant-numeric:tabular-nums;
-      color:#eaeff7;
+      color:var(--fg);
     }
 
     /* Toggle Switch */
-    .toggle-label-wrap{
+    #editItemModal .toggle-label-wrap{
       display:flex;
       align-items:center;
       cursor:pointer;
     }
-    .toggle-switch-new{
-      width:44px;
-      height:24px;
-      border-radius:12px;
+    #editItemModal .toggle-switch-new{
+      width:48px;
+      height:26px;
+      border-radius:13px;
       background:rgba(255,255,255,0.1);
       position:relative;
       transition:background 0.2s ease;
       cursor:pointer;
     }
-    .toggle-switch-new::after{
+    #editItemModal .toggle-switch-new::after{
       content:'';
       position:absolute;
-      top:2px;
-      left:2px;
+      top:3px;
+      left:3px;
       width:20px;
       height:20px;
       border-radius:50%;
-      background:#94a3b8;
+      background:#64748b;
       transition:all 0.2s ease;
     }
-    .toggle-input:checked + .toggle-switch-new{
+    #editItemModal .toggle-input:checked + .toggle-switch-new{
       background:rgba(34,197,94,0.3);
     }
-    .toggle-input:checked + .toggle-switch-new::after{
-      left:22px;
+    #editItemModal .toggle-input:checked + .toggle-switch-new::after{
+      left:25px;
       background:#22c55e;
     }
 
     /* Edit Modal Footer */
-    .edit-footer{
+    #editItemModal .edit-footer{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding:16px 20px;
+      padding:16px 20px calc(16px + env(safe-area-inset-bottom));
       border-top:1px solid rgba(255,255,255,0.06);
-      background:rgba(0,0,0,0.2);
+      background:rgba(0,0,0,0.15);
+      flex-shrink:0;
     }
-    .edit-footer-right{
+    #editItemModal .edit-footer-right{
       display:flex;
       gap:10px;
     }
-    .btn-delete{
+    #editItemModal .btn-delete{
       padding:10px 16px;
       border-radius:10px;
       border:1px solid rgba(239,68,68,0.3);
       background:rgba(239,68,68,0.1);
-      color:#ef4444;
+      color:#f87171;
       font-size:14px;
-      font-weight:500;
+      font-weight:600;
       cursor:pointer;
       transition:all 0.15s ease;
     }
-    .btn-delete:hover{ background:rgba(239,68,68,0.2); }
+    #editItemModal .btn-delete:hover{
+      background:rgba(239,68,68,0.2);
+      border-color:rgba(239,68,68,0.4);
+    }
+    #editItemModal #editItemMsg{
+      padding:0 20px 12px;
+      font-size:13px;
+      color:var(--muted);
+    }
 
     /* Edit modal body override for tabs */
-    #editItemModal .modal-body{ padding:0; }
+    #editItemModal .modal-body{
+      padding:0;
+      flex:1;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    @media (max-width: 480px){
+      #editItemModal .modal{
+        border-radius:14px;
+        max-height:calc(100vh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      }
+      #editItemModal .edit-header{
+        padding:14px 16px;
+      }
+      #editItemModal .edit-header-icon{
+        width:40px;
+        height:40px;
+        border-radius:10px;
+      }
+      #editItemModal .edit-header-title{
+        font-size:16px;
+      }
+      #editItemModal .edit-tabs{
+        padding:10px 16px 0;
+      }
+      #editItemModal .edit-tab{
+        padding:9px 10px;
+        font-size:13px;
+      }
+      #editItemModal .edit-tab-content{
+        padding:16px;
+      }
+      #editItemModal .inventory-grid{
+        gap:10px;
+      }
+      #editItemModal .inventory-card{
+        padding:14px;
+      }
+      #editItemModal .inventory-value{
+        font-size:28px;
+      }
+      #editItemModal .edit-footer{
+        padding:14px 16px calc(14px + env(safe-area-inset-bottom));
+        flex-wrap:wrap;
+        gap:10px;
+      }
+      #editItemModal .btn-delete{
+        order:3;
+        width:100%;
+        text-align:center;
+        margin-top:4px;
+      }
+      #editItemModal .edit-footer-right{
+        order:1;
+        width:100%;
+        justify-content:flex-end;
+      }
+    }
+    @media (max-width: 360px){
+      #editItemModal .inventory-grid{
+        grid-template-columns:1fr;
+      }
+    }
 
     .qty-stepper.qty-stepper--modal,
     .qty-stepper.qty-stepper--table{
@@ -2378,6 +2470,7 @@
       font-size:13px;
       color:var(--muted);
       line-height:1.5;
+      white-space:pre-line;
     }
 
     /* Review Tab */
@@ -2473,6 +2566,15 @@
       font-size:14px;
       font-weight:600;
       color:var(--text);
+    }
+    .order-review-summary-sub{
+      display:block;
+      margin-top:2px;
+      font-size:12px;
+      font-weight:500;
+      color:var(--muted);
+      white-space:pre-line;
+      text-align:right;
     }
     .order-review-summary-value.accent{
       color:#60a5fa;
@@ -3719,6 +3821,90 @@
     .job-items-summary .job-total-short{
       color:var(--alert-warning, #d29922);
     }
+    /* Job BOM Mini Cards */
+    .job-bom-cards{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .job-bom-card{
+      background:linear-gradient(145deg, rgba(26,31,38,0.7) 0%, rgba(18,22,28,0.8) 100%);
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.06);
+      border-left:3px solid #22c55e;
+      padding:12px;
+      position:relative;
+    }
+    .job-bom-card.shortage{ border-left-color:#f59e0b; }
+    .job-bom-card.out-of-stock{ border-left-color:#ef4444; }
+    .job-bom-card-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .job-bom-card-name{
+      font-weight:600;
+      font-size:14px;
+      color:#f1f5f9;
+      line-height:1.3;
+    }
+    .job-bom-card-sku{
+      font-size:11px;
+      color:#64748b;
+      margin-top:2px;
+    }
+    .job-bom-card-status{
+      display:flex;
+      align-items:center;
+      gap:4px;
+      font-size:11px;
+      font-weight:600;
+      padding:4px 8px;
+      border-radius:6px;
+      flex-shrink:0;
+    }
+    .job-bom-card-status svg{ width:12px; height:12px; }
+    .job-bom-card-status.in-stock{ background:rgba(34,197,94,0.15); color:#22c55e; }
+    .job-bom-card-status.shortage{ background:rgba(249,115,22,0.15); color:#f97316; }
+    .job-bom-card-status.out-of-stock{ background:rgba(239,68,68,0.15); color:#ef4444; }
+    .job-bom-card-stats{
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:8px;
+    }
+    .job-bom-stat{
+      background:rgba(0,0,0,0.25);
+      border-radius:8px;
+      padding:8px;
+      text-align:center;
+    }
+    .job-bom-stat-value{
+      font-size:16px;
+      font-weight:700;
+      color:#e2e8f0;
+      font-variant-numeric:tabular-nums;
+    }
+    .job-bom-stat-value.on-hand-out{ color:#ef4444; }
+    .job-bom-stat-value.on-hand-low{ color:#f59e0b; }
+    .job-bom-stat-label{
+      font-size:10px;
+      color:#64748b;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      margin-top:2px;
+    }
+    .job-bom-card-footer{
+      display:flex;
+      justify-content:flex-end;
+      margin-top:10px;
+      padding-top:8px;
+      border-top:1px solid rgba(255,255,255,0.04);
+    }
+    @media (max-width: 480px){
+      .job-bom-card-stats{ grid-template-columns:repeat(2, 1fr); }
+    }
     @media (max-width: 640px){
       .job-items-table thead{ display:none; }
       .job-items-table tr{
@@ -4475,6 +4661,77 @@
       transition:all 0.15s ease;
     }
     .job-add-to-po-btn svg{ width:16px; height:16px; }
+    /* Cart feedback animation */
+    .job-bom-order-btn.cart-added{
+      background:rgba(34,197,94,0.25) !important;
+      border-color:#22c55e !important;
+      color:#22c55e !important;
+      transform:scale(1.1);
+    }
+    .job-bom-order-btn.cart-added svg{
+      color:#22c55e;
+    }
+    .job-bom-card-footer{
+      overflow:visible;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+    }
+    .job-bom-delete-btn{
+      opacity:0.6;
+      transition:opacity 0.15s ease;
+    }
+    .job-bom-delete-btn:hover{
+      opacity:1;
+    }
+    .cart-feedback-toast{
+      position:fixed;
+      bottom:80px;
+      left:50%;
+      transform:translateX(-50%);
+      background:linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      color:#fff;
+      font-size:13px;
+      font-weight:600;
+      padding:10px 18px;
+      border-radius:10px;
+      box-shadow:0 8px 24px rgba(34,197,94,0.35);
+      z-index:10010;
+      animation:cartToastIn 0.3s ease;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .cart-feedback-toast svg{
+      width:18px;
+      height:18px;
+    }
+    @keyframes cartToastIn{
+      0%{ opacity:0; transform:translateX(-50%) translateY(20px) scale(0.9); }
+      100%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+    }
+    @keyframes cartToastOut{
+      0%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+      100%{ opacity:0; transform:translateX(-50%) translateY(-10px) scale(0.9); }
+    }
+    /* Persistent "In Cart" badge for job BOM cards */
+    .job-bom-in-cart{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:12px;
+      font-weight:600;
+      color:#22c55e;
+      background:rgba(34,197,94,0.15);
+      padding:6px 12px;
+      border-radius:8px;
+      border:1px solid rgba(34,197,94,0.3);
+    }
+    .job-bom-in-cart svg{
+      width:14px;
+      height:14px;
+    }
     .job-expand-hint{
       position:absolute;
       bottom:6px;
@@ -7507,15 +7764,206 @@
       .locations-table-wrap{display:none}
       .locations-mobile-cards{display:block}
     }
-    .company-location-form{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-      gap:10px;
-      margin-top:10px;
+    /* Location Editor Modal - Redesign */
+    .location-editor-modal{
+      width:100%;
+      max-width:480px;
+      max-height:calc(100vh - 48px);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
     }
-    .company-location-form .field{display:flex;flex-direction:column;gap:6px}
-    .company-location-form .field.full{grid-column:1 / -1}
-    .company-location-defaults{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
+    .location-editor-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px 20px;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      background:var(--card);
+    }
+    .location-editor-header-left{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+      flex:1;
+    }
+    .location-editor-icon{
+      width:44px;
+      height:44px;
+      border-radius:12px;
+      background:linear-gradient(135deg,rgba(59,130,246,0.2) 0%,rgba(59,130,246,0.1) 100%);
+      border:1px solid rgba(59,130,246,0.2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+    }
+    .location-editor-icon svg{width:20px;height:20px;color:#3b82f6}
+    .location-editor-info{min-width:0;flex:1}
+    .location-editor-title{
+      margin:0;
+      font-size:17px;
+      font-weight:600;
+      color:var(--fg);
+    }
+    .location-editor-sub{
+      margin:3px 0 0;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .location-editor-body{
+      flex:1;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      padding:20px;
+    }
+    .location-editor-field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-bottom:14px;
+    }
+    .location-editor-field:last-child{margin-bottom:0}
+    .location-editor-field label{
+      font-size:11px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      color:var(--muted);
+    }
+    .location-editor-field input,
+    .location-editor-field select,
+    .location-editor-field textarea{
+      width:100%;
+      padding:12px 14px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.2);
+      color:var(--fg);
+      font-size:15px;
+      font-family:inherit;
+      transition:border-color 0.15s,box-shadow 0.15s;
+    }
+    .location-editor-field input:focus,
+    .location-editor-field select:focus{
+      outline:none;
+      border-color:rgba(59,130,246,0.5);
+      box-shadow:0 0 0 3px rgba(59,130,246,0.15);
+    }
+    .location-editor-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .location-editor-grid .location-editor-field{margin-bottom:0}
+    .location-editor-grid .location-editor-field.full{grid-column:1 / -1}
+    .location-editor-card{
+      background:rgba(0,0,0,0.25);
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius:12px;
+      padding:16px;
+      margin-top:20px;
+    }
+    .location-editor-card-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:6px;
+    }
+    .location-editor-card-title{
+      font-size:15px;
+      font-weight:600;
+      color:var(--fg);
+    }
+    .location-editor-card-desc{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.4;
+    }
+    .location-toggle-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px 0;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    .location-toggle-row:last-of-type{border-bottom:none}
+    .location-toggle-label{font-size:14px;color:#94a3b8;flex:1;min-width:0}
+    .location-toggle-control{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      flex-shrink:0;
+    }
+    .location-toggle-switch{
+      width:48px;
+      height:26px;
+      border-radius:13px;
+      background:rgba(255,255,255,0.1);
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+      transition:background 0.2s ease;
+      cursor:pointer;
+    }
+    .location-toggle-switch::after{
+      content:'';
+      position:absolute;
+      top:3px;
+      left:3px;
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      background:#64748b;
+      transition:all 0.2s ease;
+    }
+    .location-toggle-input{position:absolute;opacity:0;width:0;height:0}
+    .location-toggle-input:checked + .location-toggle-switch{background:rgba(59,130,246,0.3)}
+    .location-toggle-input:checked + .location-toggle-switch::after{left:25px;background:#3b82f6}
+    .location-toggle-input:disabled + .location-toggle-switch{opacity:0.5;cursor:not-allowed}
+    .location-editor-msg{
+      padding:10px 14px;
+      margin-top:16px;
+      background:rgba(59,130,246,0.1);
+      border:1px solid rgba(59,130,246,0.2);
+      border-radius:10px;
+      font-size:13px;
+      color:#93c5fd;
+      line-height:1.45;
+    }
+    .location-editor-msg:empty{display:none}
+    .location-editor-msg.error{
+      background:rgba(239,68,68,0.1);
+      border-color:rgba(239,68,68,0.2);
+      color:#fca5a5;
+    }
+    .location-editor-footer{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:10px;
+      padding:16px 20px;
+      border-top:1px solid rgba(255,255,255,0.06);
+      background:rgba(0,0,0,0.15);
+    }
+    @media (max-width:480px){
+      .location-editor-modal{max-width:100%}
+      .location-editor-header{padding:14px 16px}
+      .location-editor-icon{width:40px;height:40px;border-radius:10px}
+      .location-editor-title{font-size:16px}
+      .location-editor-body{padding:16px}
+      .location-editor-grid{gap:10px}
+      .location-editor-footer{padding:14px 16px}
+    }
+    @media (max-width:380px){
+      .location-editor-grid{grid-template-columns:1fr}
+      .location-editor-grid .location-editor-field.full{grid-column:1}
+    }
     /* Company Selector for Super Users */
     .locations-company-selector{
       border-bottom:1px solid var(--border);
@@ -8721,19 +9169,22 @@
 
       <!-- Tab Bar -->
       <div class="edit-tabs" role="tablist" aria-label="Edit item sections">
-        <button class="edit-tab is-active" role="tab" id="editTabDetails" data-tab="details" aria-selected="true" aria-controls="editPanelDetails" type="button">Details</button>
-        <button class="edit-tab" role="tab" id="editTabInventory" data-tab="inventory" aria-selected="false" aria-controls="editPanelInventory" type="button">Inventory</button>
-        <button class="edit-tab" role="tab" id="editTabSettings" data-tab="settings" aria-selected="false" aria-controls="editPanelSettings" type="button">Settings</button>
+        <div class="edit-tabs-inner">
+          <button class="edit-tab is-active" role="tab" id="editTabDetails" data-tab="details" aria-selected="true" aria-controls="editPanelDetails" type="button">Details</button>
+          <button class="edit-tab" role="tab" id="editTabInventory" data-tab="inventory" aria-selected="false" aria-controls="editPanelInventory" type="button">Inventory</button>
+          <button class="edit-tab" role="tab" id="editTabSettings" data-tab="settings" aria-selected="false" aria-controls="editPanelSettings" type="button">Settings</button>
+        </div>
       </div>
 
       <div class="modal-body">
         <!-- Details Tab -->
         <div class="edit-tab-content is-active" id="editPanelDetails" data-tab="details" role="tabpanel" aria-labelledby="editTabDetails">
-          <div class="edit-field" style="margin-bottom:12px;">
+          <div class="edit-field">
             <label for="editItemName">Item Name</label>
             <input id="editItemName" type="text" placeholder="Item name" autocapitalize="off" autocomplete="off" spellcheck="false" />
           </div>
-          <div class="edit-grid-2" style="margin-bottom:12px;">
+          <div class="field-spacer"></div>
+          <div class="edit-grid-2">
             <div class="edit-field">
               <label for="editItemSku">SKU</label>
               <input id="editItemSku" type="text" placeholder="Optional" autocapitalize="off" autocomplete="off" spellcheck="false" />
@@ -8743,10 +9194,12 @@
               <select id="editItemUom"></select>
             </div>
           </div>
-          <div class="edit-field" style="margin-bottom:12px;">
+          <div class="field-spacer"></div>
+          <div class="edit-field">
             <label for="editItemDesc">Description</label>
-            <textarea id="editItemDesc" rows="2" placeholder="Optional description" autocapitalize="off" autocomplete="off" spellcheck="false" style="min-height:70px;"></textarea>
+            <textarea id="editItemDesc" rows="2" placeholder="Optional description" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea>
           </div>
+          <div class="field-spacer"></div>
           <div class="edit-grid-2">
             <div class="edit-field">
               <label for="editItemLocation">Location</label>
@@ -8762,27 +9215,35 @@
 
         <!-- Inventory Tab -->
         <div class="edit-tab-content" id="editPanelInventory" data-tab="inventory" role="tabpanel" aria-labelledby="editTabInventory">
-          <div class="inventory-display">
-            <div class="inventory-item">
+          <div class="inventory-grid">
+            <div class="inventory-card on-hand">
               <div class="inventory-label">On Hand</div>
               <div class="inventory-value calculated" id="editInvOnHandValue">0</div>
               <div class="inventory-calc-hint">Inventory updates only via Receiving</div>
             </div>
-            <div class="inventory-item">
+            <div class="inventory-card incoming">
               <div class="inventory-label">Incoming (Not Yet Received)</div>
               <div class="inventory-value calculated" id="editInvIncomingValue">0</div>
-              <div class="inventory-calc-hint">(open orders)</div>
+              <div class="inventory-calc-hint">Open orders</div>
             </div>
-            <div class="inventory-item">
+            <div class="inventory-card allocated">
               <div class="inventory-label">Allocated</div>
               <div class="inventory-value calculated" id="editInvAllocatedValue">0</div>
-              <div class="inventory-calc-hint">(from orders)</div>
+              <div class="inventory-calc-hint">Allocated to jobs</div>
             </div>
-            <div class="inventory-item">
+            <div class="inventory-card remaining">
               <div class="inventory-label">Remaining</div>
               <div class="inventory-value calculated" id="editInvRemainingValue">0</div>
-              <div class="inventory-calc-hint">(derived)</div>
+              <div class="inventory-calc-hint">On Hand - Allocated</div>
             </div>
+          </div>
+          <div class="inventory-info-banner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span>On Hand updates via Receiving. Allocations are created when items are added to jobs.</span>
           </div>
         </div>
 
@@ -8829,7 +9290,7 @@
           <input type="hidden" id="editItemReorderQty" />
         </div>
 
-        <div id="editItemMsg" class="muted" style="padding:0 20px 10px;"></div>
+        <div id="editItemMsg" class="muted"></div>
       </div>
 
       <!-- Footer -->
@@ -9322,18 +9783,19 @@
 
   <!-- Company location editor modal -->
   <div id="companyLocationEditorModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal modal--md" role="dialog" aria-modal="true" aria-labelledby="companyLocationEditorTitle">
-      <div class="modal-header">
-        <div class="modal-title-wrap">
-          <span class="modal-icon">
+    <div class="modal location-editor-modal" role="dialog" aria-modal="true" aria-labelledby="companyLocationEditorTitle">
+      <!-- Header -->
+      <div class="location-editor-header">
+        <div class="location-editor-header-left">
+          <div class="location-editor-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path>
               <circle cx="12" cy="10" r="3"></circle>
             </svg>
-          </span>
-          <div class="modal-title-text">
-            <h2 id="companyLocationEditorTitle" class="modal-title">Add Location</h2>
-            <div class="modal-subtitle">Keep locations current for receiving and shipping.</div>
+          </div>
+          <div class="location-editor-info">
+            <h2 id="companyLocationEditorTitle" class="location-editor-title">Add Location</h2>
+            <p class="location-editor-sub">Receiving and shipping address</p>
           </div>
         </div>
         <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="companyLocationEditorModal" aria-label="Close">
@@ -9343,72 +9805,58 @@
           </svg>
         </button>
       </div>
-      <div class="modal-body">
-        <div class="form-section">
-          <div class="section-label">Location Details</div>
-          <div class="company-location-form">
-            <div class="field">
-              <label for="companyLocationName">Name</label>
-              <input id="companyLocationName" type="text" placeholder="Main Warehouse" />
-            </div>
-            <div class="field">
-              <label for="companyLocationType">Location Type</label>
-              <select id="companyLocationType">
-                <option value="warehouse">Warehouse</option>
-                <option value="yard">Yard</option>
-                <option value="office">Office</option>
-                <option value="job_site">Job Site</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div class="field full">
-              <label for="companyLocationAddress1">Address Line 1</label>
-              <input id="companyLocationAddress1" type="text" placeholder="123 Main St" autocomplete="off" />
-            </div>
-            <div class="field full">
-              <label for="companyLocationAddress2">Address Line 2</label>
-              <input id="companyLocationAddress2" type="text" placeholder="Suite 200" />
-            </div>
-            <div class="field">
-              <label for="companyLocationCity">City</label>
-              <input id="companyLocationCity" type="text" placeholder="Austin" />
-            </div>
-            <div class="field">
-              <label for="companyLocationState">State/Region</label>
-              <input id="companyLocationState" type="text" placeholder="TX" />
-            </div>
-            <div class="field">
-              <label for="companyLocationPostal">Postal Code</label>
-              <input id="companyLocationPostal" type="text" placeholder="78701" />
-            </div>
-            <div class="field">
-              <label for="companyLocationCountry">Country</label>
-              <select id="companyLocationCountry"></select>
-            </div>
+      <!-- Body -->
+      <div class="location-editor-body">
+        <div class="location-editor-grid">
+          <div class="location-editor-field">
+            <label for="companyLocationName">Location Name</label>
+            <input id="companyLocationName" type="text" placeholder="Main Warehouse" autocapitalize="off" autocomplete="off" spellcheck="false" />
+          </div>
+          <div class="location-editor-field">
+            <label for="companyLocationType">Type</label>
+            <select id="companyLocationType">
+              <option value="warehouse">Warehouse</option>
+              <option value="yard">Yard</option>
+              <option value="office">Office</option>
+              <option value="job_site">Job Site</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="location-editor-field full">
+            <label for="companyLocationAddress1">Address</label>
+            <input id="companyLocationAddress1" type="text" placeholder="Start typing to search..." autocomplete="off" />
+            <input id="companyLocationAddress1Value" type="hidden" />
+            <input id="companyLocationPlaceId" type="hidden" />
+            <input id="companyLocationAddressComponents" type="hidden" />
           </div>
         </div>
-        <div class="form-section">
-          <div class="section-label">Defaults</div>
-          <div class="company-location-defaults">
-            <label class="toggle-switch">
-              <input id="companyLocationDefaultShipTo" type="checkbox" />
-              <span class="toggle-slider"></span>
-            </label>
-            <label for="companyLocationDefaultShipTo" class="muted" style="font-size:13px;cursor:pointer;">Set as Default Ship-To</label>
-            <label class="toggle-switch">
-              <input id="companyLocationDefaultReceiveAt" type="checkbox" />
-              <span class="toggle-slider"></span>
-            </label>
-            <label for="companyLocationDefaultReceiveAt" class="muted" style="font-size:13px;cursor:pointer;">Set as Default Receive-At</label>
+        <!-- Defaults Card -->
+        <div class="location-editor-card">
+          <div class="location-editor-card-header">
+            <span class="location-editor-card-title">Default Settings</span>
           </div>
-          <div id="companyLocationEditorMsg" class="muted" style="margin-top:8px;"></div>
+          <p class="location-editor-card-desc">Set this location as the default for orders</p>
+          <div class="location-toggle-row">
+            <span class="location-toggle-label">Default Ship-To</span>
+            <label class="location-toggle-control">
+              <input id="companyLocationDefaultShipTo" type="checkbox" class="location-toggle-input" />
+              <span class="location-toggle-switch"></span>
+            </label>
+          </div>
+          <div class="location-toggle-row">
+            <span class="location-toggle-label">Default Receive-At</span>
+            <label class="location-toggle-control">
+              <input id="companyLocationDefaultReceiveAt" type="checkbox" class="location-toggle-input" />
+              <span class="location-toggle-switch"></span>
+            </label>
+          </div>
         </div>
+        <div id="companyLocationEditorMsg" class="location-editor-msg"></div>
       </div>
-      <div class="modal-footer">
-        <div class="footer-right">
-          <button class="btn-secondary" id="btnCompanyLocationCancel" type="button" data-modal-close="companyLocationEditorModal">Cancel</button>
-          <button class="btn-primary" id="btnCompanyLocationSave" type="button">Save</button>
-        </div>
+      <!-- Footer -->
+      <div class="location-editor-footer">
+        <button class="btn-secondary" id="btnCompanyLocationCancel" type="button" data-modal-close="companyLocationEditorModal">Cancel</button>
+        <button class="btn-primary" id="btnCompanyLocationSave" type="button">Save Location</button>
       </div>
     </div>
   </div>
@@ -11769,12 +12217,13 @@
       { id:'item', key:'item', label:'Item', type:'item', locked:true, lock:true, minWidth:180, minCellWidth:180, maxWidth:360, defaultVisible:true, dataCol:'name', sortable:true, align:'left', optional:false },
       { id:'sku', key:'sku', label:'SKU', type:'text', locked:false, lock:false, minWidth:140, minCellWidth:140, maxWidth:180, defaultVisible:true, dataCol:'sku', sortable:true, align:'left', optional:true },
       { id:'on_hand', key:'on_hand', label:'On Hand', type:'number', locked:false, lock:false, minWidth:110, minCellWidth:110, defaultVisible:true, dataCol:'qty', sortable:true, align:'center', optional:true },
+      { id:'incoming', key:'incoming', label:'Incoming', type:'number', locked:false, lock:false, minWidth:120, minCellWidth:120, defaultVisible:false, dataCol:'incoming', sortable:true, align:'center', optional:true },
+      { id:'reserved', key:'reserved', label:'Allocated', type:'number', locked:false, lock:false, minWidth:110, minCellWidth:110, defaultVisible:false, dataCol:'reserved', sortable:true, align:'center', optional:true },
       { id:'available', key:'available', label:'Available', type:'number', locked:false, lock:false, minWidth:110, minCellWidth:110, defaultVisible:true, dataCol:'available', sortable:true, align:'center', optional:true },
       { id:'reorder_point', key:'reorder_point', label:'Reorder Point', type:'number', locked:false, lock:false, minWidth:120, minCellWidth:120, defaultVisible:true, dataCol:'reorderPoint', sortable:true, align:'center', optional:true },
       { id:'reorder_qty', key:'reorder_qty', label:'Reorder Qty', type:'number', locked:false, lock:false, minWidth:120, minCellWidth:120, defaultVisible:false, dataCol:'reorderQty', sortable:true, align:'center', optional:true },
       { id:'description', key:'description', label:'Description', type:'text', locked:false, lock:false, minWidth:220, minCellWidth:220, maxWidth:280, defaultVisible:false, dataCol:'desc', sortable:true, align:'left', optional:true },
       { id:'location', key:'location', label:'Location', type:'text', locked:false, lock:false, minWidth:140, minCellWidth:140, maxWidth:180, defaultVisible:false, dataCol:'location', sortable:true, align:'left', optional:true },
-      { id:'reserved', key:'reserved', label:'Reserved', type:'number', locked:false, lock:false, minWidth:110, minCellWidth:110, defaultVisible:false, dataCol:'reserved', sortable:true, align:'center', optional:true },
       { id:'category', key:'category', label:'Category', type:'text', locked:false, lock:false, minWidth:140, minCellWidth:140, maxWidth:180, defaultVisible:false, dataCol:'category', sortable:true, align:'left', optional:true }
     ];
     const INVENTORY_ROW_ACTION_ORDER = ['edit_item', 'add_to_job', 'order_item', 'delete_item'];
@@ -12707,6 +13156,16 @@
     function safePlaceField(place, key){
       if(!place) return undefined;
       try{
+        // Check if it's a getter that might throw
+        const descriptor = Object.getOwnPropertyDescriptor(place, key) ||
+          Object.getOwnPropertyDescriptor(Object.getPrototypeOf(place) || {}, key);
+        if(descriptor && typeof descriptor.get === 'function'){
+          try{
+            return descriptor.get.call(place);
+          }catch(e){
+            return undefined;
+          }
+        }
         return place[key];
       }catch(e){
         return undefined;
@@ -12765,11 +13224,9 @@
       if(!_googlePlacesReady) return;
       initAddressAutocomplete('companyLocationAddress1', {
         address1: 'companyLocationAddress1',
-        address2: 'companyLocationAddress2',
-        city: 'companyLocationCity',
-        state: 'companyLocationState',
-        postal: 'companyLocationPostal',
-        country: 'companyLocationCountry'
+        formatted: 'companyLocationAddress1Value',
+        placeId: 'companyLocationPlaceId',
+        components: 'companyLocationAddressComponents'
       });
     }
 
@@ -12796,8 +13253,38 @@
       return el;
     }
 
-    function getInputValueById(inputId){
-      const el = $(inputId);
+    function getAutocompleteStoredValue(inputId){
+      const key = String(inputId || '');
+      const hiddenId = key.endsWith('Value') ? key : key + 'Value';
+      const baseId = key.endsWith('Value') ? key.slice(0, -5) : key;
+      const hidden = $(hiddenId);
+      if(hidden && typeof hidden.value === 'string' && hidden.value) return String(hidden.value);
+      const instance = _autocompleteInstances.get(baseId) || _autocompleteInstances.get(key);
+      if(instance && typeof instance.lastValue === 'string' && instance.lastValue) return instance.lastValue;
+      return '';
+    }
+
+    function setAutocompleteStoredValue(inputId, value){
+      const next = String(value || '');
+      const key = String(inputId || '');
+      const hiddenId = key.endsWith('Value') ? key : key + 'Value';
+      const baseId = key.endsWith('Value') ? key.slice(0, -5) : key;
+      const instance = _autocompleteInstances.get(baseId) || _autocompleteInstances.get(key);
+      if(instance) instance.lastValue = next;
+      const hidden = $(hiddenId);
+      if(hidden && typeof hidden.value !== 'undefined') hidden.value = next;
+    }
+
+    function getInputValueById(id){
+      const el = $(id);
+      if(el && isPlaceAutocompleteEl(el)){
+        const hidden = document.getElementById(id + 'Value');
+        const hv = hidden ? String(hidden.value || '').trim() : '';
+        if(hv) return hv;
+        const txt = getPlaceAutocompleteText(el);
+        if(txt) setAutocompleteStoredValue(id + 'Value', txt);
+        return txt || '';
+      }
       if(!el) return '';
       if(isPlaceAutocompleteHost(el)){
         // First check our cached value
@@ -12813,11 +13300,13 @@
         const childInput = el.querySelector('input');
         if(childInput && childInput.value) return String(childInput.value);
         try{
-          if(typeof el.value === 'string') return el.value;
+          if(typeof el.value === 'string' && el.value) return el.value;
         }catch(e){}
+        const stored = getAutocompleteStoredValue(id);
+        if(stored) return stored;
         return '';
       }
-      const input = getAutocompleteInputElement(inputId);
+      const input = getAutocompleteInputElement(id);
       return input ? String(input.value || '') : '';
     }
 
@@ -12828,6 +13317,7 @@
       if(isPlaceAutocompleteHost(el)){
         // Always cache the value
         el._imLastValue = next;
+        setAutocompleteStoredValue(inputId, next);
         // Try inputElement property
         if(el.inputElement) el.inputElement.value = next;
         // Try shadow DOM
@@ -12847,7 +13337,79 @@
       if(input) input.value = next;
     }
 
-    function initAddressAutocomplete(inputId, fieldMapping, force = false) {
+    // ---- PlaceAutocompleteElement value sync helpers ----
+    function isPlaceAutocompleteEl(el){
+      if(!el) return false;
+      const tag = String(el.tagName||'').toLowerCase();
+      return tag === 'gmp-place-autocomplete' || tag.includes('place-autocomplete');
+    }
+
+    function getPlaceAutocompleteText(placeEl){
+      if(!placeEl) return '';
+      try{
+        const v = placeEl.value;
+        if(typeof v === 'string' && v.trim()) return v.trim();
+        if(v && typeof v === 'object'){
+          const t = v.text;
+          if(typeof t === 'string' && t.trim()) return t.trim();
+          if(t && typeof t === 'object'){
+            const tVal = t.text || t.value;
+            if(typeof tVal === 'string' && tVal.trim()) return tVal.trim();
+          }
+          const desc = v.description || v.formattedAddress || v.formatted_address || v.name;
+          if(typeof desc === 'string' && desc.trim()) return desc.trim();
+          try{
+            const str = String(v);
+            if(str && str !== '[object Object]') return str.trim();
+          }catch{}
+        }
+      }catch{}
+      try{
+        const lightInput = placeEl.querySelector?.('input');
+        if(lightInput?.value?.trim()) return lightInput.value.trim();
+      }catch{}
+      try{
+        const shInput = placeEl.shadowRoot?.querySelector?.('input');
+        if(shInput?.value?.trim()) return shInput.value.trim();
+      }catch{}
+      try{
+        const a = placeEl.getAttribute?.('value') || placeEl.getAttribute?.('aria-label') || '';
+        return String(a).trim();
+      }catch{}
+      return '';
+    }
+
+    function syncPlaceAutocompleteToHidden(placeEl, hiddenId){
+      const txt = getPlaceAutocompleteText(placeEl);
+      if(txt) setAutocompleteStoredValue(hiddenId, txt);
+      return txt;
+    }
+
+    async function resolvePlaceFromAutocompleteEvent(ev){
+      const d = ev?.detail || ev;
+      const directPlace = d?.place;
+      if(directPlace){
+        try{
+          if(typeof directPlace.fetchFields === 'function'){
+            await directPlace.fetchFields({ fields: ['addressComponents','formattedAddress','id'] });
+          }
+        }catch{}
+        return directPlace;
+      }
+      const pred = d?.placePrediction;
+      if(pred && typeof pred.toPlace === 'function'){
+        const p = pred.toPlace();
+        try{
+        if(typeof p.fetchFields === 'function'){
+          await p.fetchFields({ fields: ['addressComponents','formattedAddress','id'] });
+        }
+      }catch{}
+      return p;
+    }
+      return null;
+    }
+
+    function initAddressAutocomplete(inputId, mapping, force = false) {
       const host = $(inputId);
       if(!host || !hasPlaceAutocomplete()) return;
       if(_autocompleteInstances.has(inputId)){
@@ -12882,7 +13444,45 @@
         if(host.parentNode) host.parentNode.replaceChild(placeElement, host);
       }
 
+      const hiddenId = inputId + 'Value';
+
+      ['input','change','blur','keyup'].forEach(evt=>{
+        placeElement.addEventListener(evt, () =>
+          syncPlaceAutocompleteToHidden(placeElement, hiddenId),
+          { passive:true }
+        );
+      });
+
+      try{
+        const tryBindInternal = () => {
+          const internal =
+            placeElement.querySelector?.('input') ||
+            placeElement.shadowRoot?.querySelector?.('input');
+          if(internal && !internal.__invBound){
+            internal.__invBound = true;
+            ['input','change','blur','keyup'].forEach(evt=>{
+              internal.addEventListener(evt, () =>
+                syncPlaceAutocompleteToHidden(placeElement, hiddenId),
+                { passive:true }
+              );
+            });
+          }
+        };
+        tryBindInternal();
+        setTimeout(tryBindInternal, 0);
+        setTimeout(tryBindInternal, 250);
+        const mo = new MutationObserver(tryBindInternal);
+        mo.observe(placeElement, { subtree:true, childList:true });
+      }catch{}
+
+      syncPlaceAutocompleteToHidden(placeElement, hiddenId);
+
       if(!placeElement.types) placeElement.types = ['address'];
+      try{
+        if(!placeElement.fields) placeElement.fields = ['addressComponents','formattedAddress','id'];
+      }catch(e){}
+
+      if(currentValue) setAutocompleteStoredValue(inputId, currentValue);
 
       const wireInput = () => {
         const inputEl = getAutocompleteInputElement(inputId);
@@ -12895,75 +13495,82 @@
         inputEl.spellcheck = false;
         if(currentValue) inputEl.value = currentValue;
         placeElement._imLastValue = inputEl.value || currentValue || '';
+        setAutocompleteStoredValue(inputId, placeElement._imLastValue);
         inputEl.addEventListener('input', ()=>{
           placeElement._imLastValue = inputEl.value || '';
+          setAutocompleteStoredValue(inputId, placeElement._imLastValue);
         });
       };
       wireInput();
       setTimeout(wireInput, 0);
 
-      const handleSelect = async (event)=>{
-        const place = event && event.place ? event.place : null;
-        if(!place) return;
-        const inputFallback = getInputValueById(inputId);
-        let formattedAddress = safePlaceField(place, 'formattedAddress') || inputFallback || '';
-        let components = safePlaceField(place, 'addressComponents') || [];
-
-        if(typeof place.fetchFields === 'function' && (!Array.isArray(components) || components.length === 0 || !formattedAddress)){
-          try{
-            await place.fetchFields({ fields: ['addressComponents','formattedAddress'] });
-          }catch(e){}
+      const onPlacePicked = async (ev) => {
+        const hiddenId = inputId + 'Value';
+        const visibleTxt = syncPlaceAutocompleteToHidden(placeElement, hiddenId);
+        const pred = ev?.detail?.placePrediction;
+        const predText = pred
+          ? (
+              (pred.text && (pred.text.text || pred.text.value)) ||
+              pred.description ||
+              (pred.structuredFormat && pred.structuredFormat.mainText && pred.structuredFormat.mainText.text) ||
+              ''
+            )
+          : '';
+        if(!visibleTxt && predText) setAutocompleteStoredValue(hiddenId, predText);
+        const place = await resolvePlaceFromAutocompleteEvent(ev);
+        if(place){
+          const fmt = String(
+            place.formattedAddress || place.formatted_address || ''
+          ).trim();
+          if(fmt) setAutocompleteStoredValue(hiddenId, fmt);
+          try{ populateAddressFields(place, mapping); }catch{}
+        }else if(predText){
+          try{ populateAddressFields([], mapping, String(predText)); }catch{}
         }
-
-        formattedAddress = safePlaceField(place, 'formattedAddress') || formattedAddress || inputFallback || '';
-        components = safePlaceField(place, 'addressComponents') || components || [];
-        populateAddressFields(components, fieldMapping, formattedAddress);
-
-        // Ensure address1 has a value - use formattedAddress as fallback
-        const currentAddr1 = getInputValueById(inputId);
-        if(!currentAddr1 && formattedAddress){
-          setInputValueById(inputId, formattedAddress);
-        }
-        // Always cache the final value
-        placeElement._imLastValue = getInputValueById(inputId) || formattedAddress || inputFallback || '';
       };
 
-      placeElement.addEventListener('gmp-select', handleSelect);
-      _autocompleteInstances.set(inputId, { element: placeElement, handler: handleSelect });
+      placeElement.addEventListener('gmp-placeselect', onPlacePicked);
+      placeElement.addEventListener('gmp-select', onPlacePicked);
+      _autocompleteInstances.set(inputId, { element: placeElement, handler: onPlacePicked, lastValue: currentValue || '' });
     }
 
     function populateAddressFields(components, mapping, formattedAddress) {
+      let placeId = '';
+      if(components && !Array.isArray(components) && typeof components === 'object'){
+        const place = components;
+        components = place.addressComponents || place.address_components || [];
+        formattedAddress = formattedAddress
+          || place.formattedAddress
+          || place.formatted_address
+          || '';
+        placeId = String(place.id || place.placeId || place.place_id || '').trim();
+      }
+      const formatted = String(formattedAddress || '').trim();
+      if(mapping.formatted && formatted){
+        setInputValueById(mapping.formatted, formatted);
+      }
+      if(mapping.placeId){
+        setInputValueById(mapping.placeId, placeId);
+      }
+      if(mapping.components){
+        const payload = Array.isArray(components) ? components : [];
+        if(payload.length){
+          try{
+            setInputValueById(mapping.components, JSON.stringify(payload));
+          }catch(e){
+            setInputValueById(mapping.components, '');
+          }
+        }else{
+          setInputValueById(mapping.components, '');
+        }
+      }
       const hasComponents = Array.isArray(components) && components.length > 0;
       if(!hasComponents){
-        if(formattedAddress){
-          const parts = formattedAddress.split(',').map(s => s.trim()).filter(Boolean);
-          if(mapping.address1 && parts[0]) setInputValueById(mapping.address1, parts[0]);
-          if(mapping.city && parts[1]) setInputValueById(mapping.city, parts[1]);
-          if(parts[2]){
-            const statePostal = parts[2].split(' ').filter(Boolean);
-            if(mapping.state && statePostal[0]) setInputValueById(mapping.state, statePostal[0]);
-            if(mapping.postal && statePostal.length > 1) setInputValueById(mapping.postal, statePostal.slice(1).join(' '));
-          }
-          if(mapping.country && parts[3]){
-            const el = $(mapping.country);
-            if(el && el.tagName === 'SELECT'){
-              const option = Array.from(el.options).find(
-                opt => opt.value === parts[3] || opt.textContent === parts[3]
-              );
-              if(option) el.value = option.value;
-            }else{
-              setInputValueById(mapping.country, parts[3]);
-            }
-          }
+        if(mapping.address1 && formatted){
+          setInputValueById(mapping.address1, formatted);
         }
         return;
       }
-
-      const fields = ['address2', 'city', 'state', 'postal', 'country'];
-      fields.forEach(f => {
-        const fieldId = mapping[f];
-        if(fieldId) setInputValueById(fieldId, '');
-      });
 
       let streetNumber = '';
       let route = '';
@@ -12971,44 +13578,22 @@
       components.forEach(component => {
         const types = Array.isArray(component.types) ? component.types : [];
         const longName = component.longText || component.long_name || component.name || '';
-        const shortName = component.shortText || component.short_name || longName;
 
         if(types.includes('street_number')){
           streetNumber = longName;
         } else if(types.includes('route')){
           route = longName;
-        } else if(types.includes('subpremise')){
-          if(mapping.address2) setInputValueById(mapping.address2, longName);
-        } else if(types.includes('locality') || types.includes('postal_town') || types.includes('sublocality_level_1')){
-          if(mapping.city){
-            const existing = getInputValueById(mapping.city);
-            if(!existing) setInputValueById(mapping.city, longName);
-          }
-        } else if(types.includes('administrative_area_level_1')){
-          if(mapping.state) setInputValueById(mapping.state, shortName);
-        } else if(types.includes('postal_code')){
-          if(mapping.postal) setInputValueById(mapping.postal, longName);
-        } else if(types.includes('country')){
-          if(mapping.country){
-            const el = $(mapping.country);
-            if(el && el.tagName === 'SELECT'){
-              const option = Array.from(el.options).find(
-                opt => opt.value === shortName || opt.textContent === longName
-              );
-              if(option) el.value = option.value;
-            }else{
-              setInputValueById(mapping.country, shortName);
-            }
-          }
         }
       });
 
       if(mapping.address1){
-        const streetAddress = [streetNumber, route].filter(Boolean).join(' ');
-        if(streetAddress){
-          setInputValueById(mapping.address1, streetAddress);
-        } else if(formattedAddress){
-          setInputValueById(mapping.address1, formattedAddress);
+        if(formatted){
+          setInputValueById(mapping.address1, formatted);
+        } else {
+          const streetAddress = [streetNumber, route].filter(Boolean).join(' ');
+          if(streetAddress){
+            setInputValueById(mapping.address1, streetAddress);
+          }
         }
       }
     }
@@ -13017,6 +13602,10 @@
       const instance = _autocompleteInstances.get(inputId);
       if(instance && instance.element && instance.handler){
         instance.element.removeEventListener('gmp-select', instance.handler);
+        instance.element.removeEventListener('gmp-placeselect', instance.handler);
+        if(instance.inputHandler){
+          instance.element.removeEventListener('input', instance.inputHandler);
+        }
       }
       _autocompleteInstances.delete(inputId);
     }
@@ -19801,6 +20390,16 @@
       const v = Number(item.reserved);
       return Number.isFinite(v) ? v : null;
     }
+    function getInventoryIncomingQty(itemId){
+      const id = String(itemId || '').trim();
+      if(!id) return 0;
+      const incomingMap = (state._incomingByItemId && typeof state._incomingByItemId.get === 'function')
+        ? state._incomingByItemId
+        : buildInventoryIncomingMap();
+      state._incomingByItemId = incomingMap;
+      const entry = incomingMap.get(id);
+      return entry ? Number(entry.qty || 0) : 0;
+    }
     function getInventoryReorderPoint(item){
       if(!item) return null;
       if(Object.prototype.hasOwnProperty.call(item, 'reorderPoint') && item.reorderPoint !== null && typeof item.reorderPoint !== 'undefined'){
@@ -19902,7 +20501,7 @@ function adjustTitleSize(){
 	function rebuildMobileSortOptions(defs){
 	  const sel = $('mobileSort');
 	  if(!sel) return;
-	  const numericCols = new Set(['qty','reserved','available','reorderPoint','reorderQty']);
+	  const numericCols = new Set(['qty','incoming','reserved','available','reorderPoint','reorderQty']);
 	  const dateCols = new Set(['updatedAt']);
 	  const opts = ['<option value=\"\">No sort</option>'];
 	  (Array.isArray(defs) ? defs : []).forEach(def=>{
@@ -19947,9 +20546,18 @@ function adjustTitleSize(){
 	  if(!srt) return arr;
 	  const dir = srt.dir === 'desc' ? -1 : 1;
 	  const col = srt.col || 'name';
+	  const incomingMap = (state._incomingByItemId && typeof state._incomingByItemId.get === 'function')
+	    ? state._incomingByItemId
+	    : buildInventoryIncomingMap();
+	  state._incomingByItemId = incomingMap;
 	  const rows = arr.map((item, index) => ({ item, index }));
 	  const getValue = (it)=>{
 	    if(col === 'qty') return { type:'number', value: toInt(it.qty,0) };
+	    if(col === 'incoming'){
+	      const entry = incomingMap.get(String(it.id || '').trim());
+	      const incomingQty = entry ? Number(entry.qty || 0) : 0;
+	      return { type:'number', value: incomingQty };
+	    }
 	    if(col === 'reserved') return { type:'number', value: getInventoryReservedQty(it) };
 	    if(col === 'available'){
 	      const reserved = getInventoryReservedQty(it);
@@ -20196,6 +20804,7 @@ function adjustTitleSize(){
 		  if(def.key === 'sku') return String(it.sku || '').trim();
 		  if(def.key === 'location') return inventoryLocationLabel(it);
 		  if(def.key === 'on_hand') return formatQty(toInt(it.qty,0));
+		  if(def.key === 'incoming') return formatQty(getInventoryIncomingQty(it.id));
 		  if(def.key === 'reserved'){
 		    const reserved = getInventoryReservedQty(it);
 		    return Number.isFinite(reserved) ? formatQty(reserved) : '';
@@ -20318,6 +20927,9 @@ function adjustTitleSize(){
 		  if(def.key === 'location'){
 		    const loc = inventoryLocationLabel(it);
 		    return renderTextCell(loc);
+		  }
+		  if(def.key === 'incoming'){
+		    return renderNumberCell(getInventoryIncomingQty(it.id));
 		  }
 		  if(def.key === 'reserved'){
 		    const reserved = getInventoryReservedQty(it);
@@ -20445,16 +21057,16 @@ function adjustTitleSize(){
 		              `<span class="inv-detail-value">${escapeHtml(formatQty(qty))}</span>`+
 		            `</div>`+
 		            `<div class="inv-detail-metric">`+
-		              `<span class="inv-detail-label">Reserved</span>`+
+		              `<span class="inv-detail-label">Incoming</span>`+
+		              `<span class="inv-detail-value">${incomingHtml}</span>`+
+		            `</div>`+
+		            `<div class="inv-detail-metric">`+
+		              `<span class="inv-detail-label">Allocated</span>`+
 		              `<span class="inv-detail-value">${(reserved === null || typeof reserved === 'undefined') ? '<span class=\"muted\">—</span>' : escapeHtml(formatQty(reserved))}</span>`+
 		            `</div>`+
 		            `<div class="inv-detail-metric">`+
 		              `<span class="inv-detail-label">Available</span>`+
 		              `<span class="inv-detail-value">${escapeHtml(formatQty(available))}</span>`+
-		            `</div>`+
-		            `<div class="inv-detail-metric">`+
-		              `<span class="inv-detail-label">Incoming</span>`+
-		              `<span class="inv-detail-value">${incomingHtml}</span>`+
 		            `</div>`+
 		          `</div>`+
 		        `</div>`+
@@ -20798,16 +21410,22 @@ function emptyStateHtml(){
       const config = getInventoryColumnConfig();
       const order = Array.isArray(config.order) ? config.order : [];
       const visible = new Set(Array.isArray(config.visible) ? config.visible : []);
+      const incomingMap = (state._incomingByItemId && typeof state._incomingByItemId.get === 'function')
+        ? state._incomingByItemId
+        : buildInventoryIncomingMap();
+      state._incomingByItemId = incomingMap;
 
       // Define field types for card layout
       const TEXT_FIELDS = new Set(['description', 'sku', 'location']);
-      const STAT_FIELDS = new Set(['on_hand', 'reserved', 'reorder_point']);
+      const STAT_FIELDS = new Set(['on_hand', 'incoming', 'reserved', 'available', 'reorder_point']);
       const FIELD_LABELS = {
         description: 'Desc',
         sku: 'SKU',
         location: 'Location',
         on_hand: 'On Hand',
-        reserved: 'Reserved',
+        incoming: 'Incoming',
+        reserved: 'Allocated',
+        available: 'Available',
         reorder_point: 'Min Stock'
       };
 
@@ -20825,12 +21443,18 @@ function emptyStateHtml(){
         const orderTitle = inOrder ? 'Remove from order' : 'Add to order';
 
         // Prepare field values
+        const onHand = toInt(item.qty, 0);
+        const reservedQty = (() => { const v = getInventoryReservedQty(item); return Number.isFinite(v) ? v : 0; })();
+        const incomingEntry = incomingMap.get(String(item.id || '').trim());
+        const incomingQty = incomingEntry ? Number(incomingEntry.qty || 0) : 0;
         const fieldValues = {
           description: escapeHtml(String(item.desc || '')),
           sku: escapeHtml(String(item.sku || '')),
           location: escapeHtml(inventoryLocationLabel(item) || ''),
-          on_hand: toInt(item.qty, 0),
-          reserved: (() => { const v = getInventoryReservedQty(item); return Number.isFinite(v) ? v : 0; })(),
+          on_hand: onHand,
+          incoming: incomingQty,
+          reserved: reservedQty,
+          available: Math.max(0, onHand - reservedQty),
           reorder_point: effectiveLowStockQty(item)
         };
 
@@ -23548,6 +24172,7 @@ function emptyStateHtml(){
       if(shipToEl){
         const addressId = ord.shippingAddressId;
         let shipLabel = '—';
+        let shipAddress = '';
         if(addressId){
           const row = (state._orderShippingById && typeof state._orderShippingById.get === 'function'
             ? state._orderShippingById.get(addressId)
@@ -23557,9 +24182,18 @@ function emptyStateHtml(){
               : null);
           if(row){
             shipLabel = row.label || 'Address';
+            shipAddress = row.address || '';
           }
         }
-        shipToEl.textContent = shipLabel;
+        if(shipLabel === '—' && !shipAddress){
+          shipToEl.textContent = '—';
+        }else{
+          const labelHtml = escapeHtml(shipLabel || 'Address');
+          const addressHtml = shipAddress
+            ? `<span class="order-review-summary-sub">${escapeHtml(shipAddress)}</span>`
+            : '';
+          shipToEl.innerHTML = `${labelHtml}${addressHtml}`;
+        }
       }
       const shortfallCtx = getOrderShortfallContext(ord);
       if(shortfallCtx){
@@ -23763,6 +24397,42 @@ function emptyStateHtml(){
       try{ updateOrderCounterBadge(); }catch(e){}
       refreshInventoryCardsForOrderState();
       try{ orderWizardUpdateUI(); }catch(e){}
+      try{ refreshJobBomCardsForOrderState(); }catch(e){}
+    }
+    // Update job BOM card indicators when cart changes
+    function refreshJobBomCardsForOrderState(){
+      // Update all visible "In Cart" badges and order buttons
+      document.querySelectorAll('.job-bom-card').forEach(card => {
+        const badge = card.querySelector('.job-bom-in-cart');
+        const btn = card.querySelector('.job-bom-order-btn');
+        const itemId = badge ? badge.getAttribute('data-item-id') : (btn ? btn.getAttribute('data-item-id') : null);
+        if(!itemId) return;
+
+        const inCartQty = getOrderQtyForItem(itemId);
+        const footer = card.querySelector('.job-bom-card-footer');
+
+        if(inCartQty > 0){
+          // Item is in cart - show badge, hide button
+          if(btn) btn.remove();
+          if(!badge && footer){
+            const newBadge = document.createElement('span');
+            newBadge.className = 'job-bom-in-cart';
+            newBadge.setAttribute('data-item-id', itemId);
+            newBadge.innerHTML = `${ICONS.shoppingCart} ${inCartQty} in cart`;
+            footer.innerHTML = '';
+            footer.appendChild(newBadge);
+          }else if(badge){
+            badge.innerHTML = `${ICONS.shoppingCart} ${inCartQty} in cart`;
+          }
+        }else{
+          // Item not in cart - remove badge (button will reappear on re-render)
+          if(badge){
+            // Need to restore the order button - easier to just trigger a re-render of job list
+            try{ renderJobsList(); }catch(e){}
+            return; // Exit early since we re-rendered
+          }
+        }
+      });
     }
     function clearAllOrderLines(){
       const ord = orderState();
@@ -23808,6 +24478,27 @@ function emptyStateHtml(){
       try{ orderLineSelection.delete(String(id || '').trim()); }catch(e){}
       try{ syncOrderIndicatorForRow(String(id)); }catch(e){}
       afterOrderStateChanged();
+    }
+    function showCartAddedFeedback(btn, qty){
+      if(!btn) return;
+      // Add highlight class to button
+      btn.classList.add('cart-added');
+      // Remove any existing toast
+      const existingToast = document.querySelector('.cart-feedback-toast');
+      if(existingToast) existingToast.remove();
+      // Create fixed toast notification
+      const toast = document.createElement('div');
+      toast.className = 'cart-feedback-toast';
+      toast.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg><span>+${qty} added to order</span>`;
+      document.body.appendChild(toast);
+      // Remove after animation
+      setTimeout(()=>{
+        toast.style.animation = 'cartToastOut 0.3s ease forwards';
+        setTimeout(()=>{
+          toast.remove();
+          btn.classList.remove('cart-added');
+        }, 300);
+      }, 1700);
     }
     function addToOrderFromBom(itemId, shortage, opts = {}){
       const item = getInventoryById(itemId);
@@ -24316,7 +25007,7 @@ function emptyStateHtml(){
       if(!SB.ready || !SB.session || !SB.companyId) return [];
       const { data, error } = await SB.client
         .from('company_locations')
-        .select('id,name,location_type,address_line1,address_line2,city,state_region,postal_code,country_code,is_active,is_default_ship_to')
+        .select('id,name,location_type,google_formatted_address,google_place_id,google_address_components,is_active,is_default_ship_to')
         .eq('company_id', SB.companyId)
         .eq('is_active', true)
         .order('is_default_ship_to', { ascending:false })
@@ -24421,28 +25112,6 @@ function emptyStateHtml(){
       }
     }
 
-    const LOCATION_COUNTRY_OPTIONS = [
-      { code:'US', label:'United States' },
-      { code:'CA', label:'Canada' },
-      { code:'MX', label:'Mexico' },
-      { code:'GB', label:'United Kingdom' },
-      { code:'IE', label:'Ireland' },
-      { code:'AU', label:'Australia' },
-      { code:'NZ', label:'New Zealand' },
-      { code:'DE', label:'Germany' },
-      { code:'FR', label:'France' },
-      { code:'ES', label:'Spain' },
-      { code:'IT', label:'Italy' },
-      { code:'NL', label:'Netherlands' },
-      { code:'SE', label:'Sweden' },
-      { code:'NO', label:'Norway' },
-      { code:'DK', label:'Denmark' },
-      { code:'CH', label:'Switzerland' },
-      { code:'AT', label:'Austria' },
-      { code:'BE', label:'Belgium' },
-      { code:'PT', label:'Portugal' },
-      { code:'JP', label:'Japan' }
-    ];
     function setCompanyLocationsContext(context){
       if(context && context.companyId){
         state._companyLocationsContext = {
@@ -24476,26 +25145,40 @@ function emptyStateHtml(){
       const el = $('companyLocationsMsg'); if(!el) return;
       el.textContent = String(msg || '');
     }
-    function setCompanyLocationEditorMessage(msg){
+    function setCompanyLocationEditorMessage(msg, isError = true){
       const el = $('companyLocationEditorMsg'); if(!el) return;
       el.textContent = String(msg || '');
+      el.classList.toggle('error', isError && !!msg);
     }
     function formatLocationTypeLabel(value){
       return formatStateToken(value || '');
     }
+    function splitLocationAddress(raw){
+      const value = String(raw || '').trim();
+      if(!value) return [];
+      if(value.includes('\n')){
+        return value.split('\n').map(s => s.trim()).filter(Boolean);
+      }
+      return value.split(',').map(s => s.trim()).filter(Boolean);
+    }
     function formatLocationAddress(row){
-      const line1 = String(row && row.address_line1 ? row.address_line1 : '').trim();
-      const line2 = String(row && row.address_line2 ? row.address_line2 : '').trim();
-      const city = String(row && row.city ? row.city : '').trim();
-      const region = String(row && row.state_region ? row.state_region : '').trim();
-      const postal = String(row && row.postal_code ? row.postal_code : '').trim();
-      const country = String(row && row.country_code ? row.country_code : '').trim();
-      let cityLine = '';
-      if(city && region) cityLine = `${city}, ${region}`;
-      else cityLine = city || region;
-      if(postal) cityLine = cityLine ? `${cityLine} ${postal}` : postal;
-      const parts = [line1, line2, cityLine, country].filter(Boolean);
-      return parts.join('\n');
+      const raw = String(row && row.google_formatted_address ? row.google_formatted_address : '').trim();
+      if(!raw) return '';
+      const parts = splitLocationAddress(raw);
+      if(!parts.length) return '';
+      if(parts.length === 1) return parts[0];
+      return `${parts[0]}\n${parts.slice(1).join(', ')}`;
+    }
+    function getLocationAddressLines(row){
+      const raw = String(row && row.google_formatted_address ? row.google_formatted_address : '').trim();
+      const parts = splitLocationAddress(raw);
+      const line1 = parts[0] || '';
+      const line2 = parts.length > 1 ? parts.slice(1).join(', ') : '';
+      return {
+        line1,
+        line2,
+        full: parts.length ? [line1, line2].filter(Boolean).join('\n') : ''
+      };
     }
     function renderCompanyLocationsList(){
       const list = $('companyLocationsList');
@@ -24513,17 +25196,10 @@ function emptyStateHtml(){
         const id = String(row && row.id ? row.id : '').trim();
         const name = String(row && row.name ? row.name : '').trim() || 'Location';
         const type = formatLocationTypeLabel(row && row.location_type ? row.location_type : '');
-        const line1 = String(row && row.address_line1 ? row.address_line1 : '').trim();
-        const line2 = String(row && row.address_line2 ? row.address_line2 : '').trim();
-        const city = String(row && row.city ? row.city : '').trim();
-        const region = String(row && row.state_region ? row.state_region : '').trim();
-        const postal = String(row && row.postal_code ? row.postal_code : '').trim();
-        const country = String(row && row.country_code ? row.country_code : '').trim();
-        let cityLine = '';
-        if(city && region) cityLine = `${city}, ${region}`;
-        else cityLine = city || region;
-        if(postal) cityLine = cityLine ? `${cityLine} ${postal}` : postal;
-        if(country) cityLine = cityLine ? `${cityLine}, ${country}` : country;
+        const addressLines = getLocationAddressLines(row);
+        const addressLine1 = addressLines.line1 || 'Address not set';
+        const addressLine2 = addressLines.line2;
+        const addressMuted = !addressLines.full;
         const active = !!(row && row.is_active);
         const statusText = active ? 'Active' : 'Archived';
         const statusClass = active ? 'active' : 'archived';
@@ -24563,8 +25239,8 @@ function emptyStateHtml(){
             `<td><span class="location-type">${escapeHtml(type || 'Other')}</span></td>`+
             `<td>`+
               `<div class="location-address">`+
-                `<span class="location-address-line">${escapeHtml(line1)}${line2 ? ' ' + escapeHtml(line2) : ''}</span>`+
-                `<span class="location-address-city">${escapeHtml(cityLine)}</span>`+
+                `<span class="location-address-line${addressMuted ? ' muted' : ''}">${escapeHtml(addressLine1)}</span>`+
+                `${addressLine2 ? `<span class="location-address-city">${escapeHtml(addressLine2)}</span>` : ''}`+
               `</div>`+
             `</td>`+
             `<td><span class="location-status ${statusClass}">${statusText}</span></td>`+
@@ -24599,16 +25275,14 @@ function emptyStateHtml(){
           const id = String(row && row.id ? row.id : '').trim();
           const name = String(row && row.name ? row.name : '').trim() || 'Location';
           const type = formatLocationTypeLabel(row && row.location_type ? row.location_type : '');
-          const line1 = String(row && row.address_line1 ? row.address_line1 : '').trim();
-          const city = String(row && row.city ? row.city : '').trim();
-          const region = String(row && row.state_region ? row.state_region : '').trim();
-          const postal = String(row && row.postal_code ? row.postal_code : '').trim();
-          let addrShort = line1;
-          let cityPart = '';
-          if(city && region) cityPart = `${city}, ${region}`;
-          else cityPart = city || region;
-          if(postal) cityPart = cityPart ? `${cityPart} ${postal}` : postal;
-          if(cityPart) addrShort = addrShort ? `${addrShort}, ${cityPart}` : cityPart;
+          const addressLines = getLocationAddressLines(row);
+          let addrShort = addressLines.line1;
+          if(addressLines.line2){
+            addrShort = addrShort ? `${addrShort}, ${addressLines.line2}` : addressLines.line2;
+          }
+          if(!addressLines.full){
+            addrShort = 'Address not set';
+          }
           const active = !!(row && row.is_active);
           const statusText = active ? 'Active' : 'Archived';
           const statusClass = active ? 'active' : 'archived';
@@ -24661,21 +25335,6 @@ function emptyStateHtml(){
         mobileList.innerHTML = cards;
       }
     }
-    function renderCompanyLocationCountryOptions(selected){
-      const select = $('companyLocationCountry');
-      if(!select) return;
-      const current = String(selected || select.value || '').trim().toUpperCase();
-      select.innerHTML = LOCATION_COUNTRY_OPTIONS
-        .map(opt => `<option value="${escapeHtmlAttr(opt.code)}"${current === opt.code ? ' selected' : ''}>${escapeHtml(opt.label)} (${escapeHtml(opt.code)})</option>`)
-        .join('');
-      if(current && !LOCATION_COUNTRY_OPTIONS.some(opt => opt.code === current)){
-        const custom = document.createElement('option');
-        custom.value = current;
-        custom.textContent = `${current} (custom)`;
-        custom.selected = true;
-        select.appendChild(custom);
-      }
-    }
     async function sbFetchCompanyLocations(){
       if(!SB.ready || !SB.session) return [];
       if(!canAccessCompanyLocations()) return [];
@@ -24683,7 +25342,7 @@ function emptyStateHtml(){
       if(!companyId) return [];
       const { data, error } = await SB.client
         .from('company_locations')
-        .select('id,company_id,name,location_type,address_line1,address_line2,city,state_region,postal_code,country_code,is_active,is_default_ship_to,is_default_receive_at,created_at,updated_at')
+        .select('id,company_id,name,location_type,google_formatted_address,google_place_id,google_address_components,is_active,is_default_ship_to,is_default_receive_at,created_at,updated_at')
         .eq('company_id', companyId)
         .order('is_active', { ascending:false })
         .order('name', { ascending:true });
@@ -24741,8 +25400,9 @@ function emptyStateHtml(){
         const badge = count === 0
           ? '<span class="locations-no-locations">No Locations</span>'
           : `<span class="locations-has-locations">${count} location${count !== 1 ? 's' : ''}</span>`;
+        const displayName = String(c.company_name || c.company_slug || '').trim() || 'Unnamed Company';
         return `<div class="locations-company-item" data-locations-select-company="${escapeHtmlAttr(c.company_id)}">
-          <span class="locations-company-name">${escapeHtml(c.company_name || c.company_id)}</span>
+          <span class="locations-company-name">${escapeHtml(displayName)}</span>
           ${badge}
         </div>`;
       }).join('');
@@ -24760,7 +25420,10 @@ function emptyStateHtml(){
     function selectLocationsCompany(companyId, companyName){
       setCompanyLocationsContext({ companyId, companyName, source: 'super_user_selector' });
       const nameEl = $('locationsSelectedName');
-      if(nameEl) nameEl.textContent = companyName || companyId;
+      if(nameEl) nameEl.textContent = companyName || 'Unnamed Company';
+      // Show the selected company header
+      const selectedDiv = $('locationsSelectedCompany');
+      if(selectedDiv) selectedDiv.hidden = false;
       showLocationsCompanySelector(false);
       // Re-enable the Add Location button now that a company is selected
       const btnNew = $('btnCompanyLocationNew');
@@ -24775,11 +25438,10 @@ function emptyStateHtml(){
       const name = $('companyLocationName'); if(name) name.value = '';
       const type = $('companyLocationType'); if(type) type.value = 'warehouse';
       setInputValueById('companyLocationAddress1', '');
-      const addr2 = $('companyLocationAddress2'); if(addr2) addr2.value = '';
-      const city = $('companyLocationCity'); if(city) city.value = '';
-      const region = $('companyLocationState'); if(region) region.value = '';
-      const postal = $('companyLocationPostal'); if(postal) postal.value = '';
-      renderCompanyLocationCountryOptions('US');
+      setAutocompleteStoredValue('companyLocationAddress1', '');
+      setInputValueById('companyLocationAddress1Value', '');
+      const placeId = $('companyLocationPlaceId'); if(placeId) placeId.value = '';
+      const components = $('companyLocationAddressComponents'); if(components) components.value = '';
       const ship = $('companyLocationDefaultShipTo'); if(ship){ ship.checked = false; ship.disabled = false; }
       const receive = $('companyLocationDefaultReceiveAt'); if(receive){ receive.checked = false; receive.disabled = false; }
       const title = $('companyLocationEditorTitle'); if(title) title.textContent = 'Add Location';
@@ -24796,12 +25458,22 @@ function emptyStateHtml(){
         const title = $('companyLocationEditorTitle'); if(title) title.textContent = row.is_active ? 'Edit Location' : 'Edit Location (Archived)';
         const name = $('companyLocationName'); if(name) name.value = row.name || '';
         const type = $('companyLocationType'); if(type) type.value = row.location_type || 'warehouse';
-        setInputValueById('companyLocationAddress1', row.address_line1 || '');
-        const addr2 = $('companyLocationAddress2'); if(addr2) addr2.value = row.address_line2 || '';
-        const city = $('companyLocationCity'); if(city) city.value = row.city || '';
-        const region = $('companyLocationState'); if(region) region.value = row.state_region || '';
-        const postal = $('companyLocationPostal'); if(postal) postal.value = row.postal_code || '';
-        renderCompanyLocationCountryOptions(row.country_code || 'US');
+        const formatted = String(row.google_formatted_address || '').trim();
+        setInputValueById('companyLocationAddress1', formatted);
+        setInputValueById('companyLocationAddress1Value', formatted);
+        setAutocompleteStoredValue('companyLocationAddress1', formatted);
+        const placeId = $('companyLocationPlaceId'); if(placeId) placeId.value = row.google_place_id || '';
+        const components = $('companyLocationAddressComponents');
+        if(components){
+          const rawComponents = row.google_address_components;
+          if(typeof rawComponents === 'string'){
+            components.value = rawComponents;
+          }else if(rawComponents){
+            try{ components.value = JSON.stringify(rawComponents); }catch(e){ components.value = ''; }
+          }else{
+            components.value = '';
+          }
+        }
         const isArchived = !row.is_active;
         const ship = $('companyLocationDefaultShipTo');
         if(ship){
@@ -24834,11 +25506,9 @@ function emptyStateHtml(){
         }
         initAddressAutocomplete('companyLocationAddress1', {
           address1: 'companyLocationAddress1',
-          address2: 'companyLocationAddress2',
-          city: 'companyLocationCity',
-          state: 'companyLocationState',
-          postal: 'companyLocationPostal',
-          country: 'companyLocationCountry'
+          formatted: 'companyLocationAddress1Value',
+          placeId: 'companyLocationPlaceId',
+          components: 'companyLocationAddressComponents'
         }, true);
       });
     }
@@ -24861,11 +25531,19 @@ function emptyStateHtml(){
           return;
         }
       }
-      setCompanyLocationsContext(ctx);
+      // If no context provided, default to current user's company
+      const currentCompanyName = SB.company
+        ? String(SB.company.company_name || SB.company.company_slug || '').trim()
+        : '';
+      const effectiveCtx = ctx || {
+        companyId: SB.companyId,
+        companyName: currentCompanyName,
+        source: 'current_user'
+      };
+      setCompanyLocationsContext(effectiveCtx);
       updateCompanyLocationsContextDisplay();
-      // Super users without context see company selector first
-      const showCompanySelector = isEffectiveSuperUser() && !ctx;
-      if(!showCompanySelector && !canAccessCompanyLocations()){
+
+      if(!canAccessCompanyLocations()){
         toast('Company admin access required');
         setCompanyLocationsContext(null);
         updateCompanyLocationsContextDisplay();
@@ -24875,43 +25553,36 @@ function emptyStateHtml(){
       if(list) list.innerHTML = `<div class="muted">Loading locations...</div>`;
       setCompanyLocationsMessage('');
       show('companyLocationsModal', true);
+
       const btnNew = $('btnCompanyLocationNew');
       if(btnNew){
-        const canManage = showCompanySelector ? false : canManageCompanyLocations();
+        const canManage = canManageCompanyLocations();
         btnNew.disabled = !canManage;
         btnNew.setAttribute('aria-disabled', canManage ? 'false' : 'true');
       }
-      if(showCompanySelector){
-        // Show company selector for super users
-        showLocationsCompanySelector(true);
-        try{
-          await loadLocationsCompanies();
-        }catch(e){
-          console.error('Failed to load companies:', e);
-          setCompanyLocationsMessage('Failed to load companies');
-        }
+
+      // Always hide the company selector initially, show locations directly
+      showLocationsCompanySelector(false);
+
+      // For super users, show the "Managing: Company" header with "Change Company" option
+      const selectedDiv = $('locationsSelectedCompany');
+      if(isEffectiveSuperUser()){
+        const nameEl = $('locationsSelectedName');
+        if(nameEl) nameEl.textContent = effectiveCtx.companyName || 'Unnamed Company';
+        if(selectedDiv) selectedDiv.hidden = false;
       }else{
-        // Show locations directly
-        showLocationsCompanySelector(false);
-        // Update selected company header for super users with context
-        if(isEffectiveSuperUser() && ctx){
-          const nameEl = $('locationsSelectedName');
-          if(nameEl) nameEl.textContent = ctx.companyName || ctx.companyId;
-          const selectedDiv = $('locationsSelectedCompany');
-          if(selectedDiv) selectedDiv.hidden = false;
+        // Non-super users don't see the company header at all
+        if(selectedDiv) selectedDiv.hidden = true;
+      }
+
+      try{
+        await loadCompanyLocations();
+      }catch(e){
+        const msg = e && e.message ? e.message : 'Failed to load locations';
+        if(isMissingRelationError(e)){
+          setCompanyLocationsMessage('Locations are not available yet.');
         }else{
-          const selectedDiv = $('locationsSelectedCompany');
-          if(selectedDiv) selectedDiv.hidden = true;
-        }
-        try{
-          await loadCompanyLocations();
-        }catch(e){
-          const msg = e && e.message ? e.message : 'Failed to load locations';
-          if(isMissingRelationError(e)){
-            setCompanyLocationsMessage('Locations are not available yet.');
-          }else{
-            setCompanyLocationsMessage(msg);
-          }
+          setCompanyLocationsMessage(msg);
         }
       }
     }
@@ -24951,15 +25622,34 @@ function emptyStateHtml(){
       setTimeout(()=>{ void handleOnboardingRoute(); }, 500);
     }
     function companyLocationFormPayload(){
+      try{
+        const pae = document.getElementById('companyLocationAddress1');
+        if(pae && isPlaceAutocompleteEl(pae)){
+          syncPlaceAutocompleteToHidden(pae, 'companyLocationAddress1Value');
+        }
+      }catch{}
+      const addressLine1 = getInputValueById('companyLocationAddress1');
+      const storedAddress = String($('companyLocationAddress1Value')?.value || '').trim();
+      const formattedAddress = String(storedAddress || addressLine1 || '').trim();
+      if(formattedAddress && formattedAddress !== storedAddress){
+        setInputValueById('companyLocationAddress1Value', formattedAddress);
+      }
+      const placeId = String($('companyLocationPlaceId')?.value || '').trim();
+      const componentsRaw = String($('companyLocationAddressComponents')?.value || '').trim();
+      let components = null;
+      if(componentsRaw){
+        try{
+          components = JSON.parse(componentsRaw);
+        }catch(e){
+          components = null;
+        }
+      }
       return {
         name: String($('companyLocationName')?.value || '').trim(),
         locationType: String($('companyLocationType')?.value || '').trim(),
-        addressLine1: String(getInputValueById('companyLocationAddress1') || '').trim(),
-        addressLine2: String($('companyLocationAddress2')?.value || '').trim(),
-        city: String($('companyLocationCity')?.value || '').trim(),
-        stateRegion: String($('companyLocationState')?.value || '').trim(),
-        postalCode: String($('companyLocationPostal')?.value || '').trim(),
-        countryCode: String($('companyLocationCountry')?.value || '').trim().toUpperCase(),
+        googleFormattedAddress: formattedAddress,
+        googlePlaceId: placeId,
+        googleAddressComponents: components,
         setDefaultShipTo: !!$('companyLocationDefaultShipTo')?.checked,
         setDefaultReceiveAt: !!$('companyLocationDefaultReceiveAt')?.checked
       };
@@ -24967,11 +25657,7 @@ function emptyStateHtml(){
     function validateCompanyLocationPayload(payload){
       if(!payload.name) return 'Name is required.';
       if(!payload.locationType) return 'Location type is required.';
-      if(!payload.addressLine1) return 'Address Line 1 is required.';
-      if(!payload.city) return 'City is required.';
-      if(!payload.stateRegion) return 'State/Region is required.';
-      if(!payload.postalCode) return 'Postal Code is required.';
-      if(!payload.countryCode || payload.countryCode.length !== 2) return 'Country code is required.';
+      if(!payload.googleFormattedAddress) return 'Address is required.';
       return '';
     }
     async function saveCompanyLocation(){
@@ -25001,12 +25687,9 @@ function emptyStateHtml(){
             p_location_id: locationId,
             p_name: payload.name,
             p_location_type: payload.locationType,
-            p_address_line1: payload.addressLine1,
-            p_address_line2: payload.addressLine2 || null,
-            p_city: payload.city,
-            p_state_region: payload.stateRegion,
-            p_postal_code: payload.postalCode,
-            p_country_code: payload.countryCode
+            p_google_formatted_address: payload.googleFormattedAddress,
+            p_google_place_id: payload.googlePlaceId || null,
+            p_google_address_components: payload.googleAddressComponents || null
           });
           if(error) throw error;
           if(data && data.success === false){
@@ -25041,12 +25724,9 @@ function emptyStateHtml(){
             p_company_id: companyId,
             p_name: payload.name,
             p_location_type: payload.locationType,
-            p_address_line1: payload.addressLine1,
-            p_address_line2: payload.addressLine2 || null,
-            p_city: payload.city,
-            p_state_region: payload.stateRegion,
-            p_postal_code: payload.postalCode,
-            p_country_code: payload.countryCode,
+            p_google_formatted_address: payload.googleFormattedAddress,
+            p_google_place_id: payload.googlePlaceId || null,
+            p_google_address_components: payload.googleAddressComponents || null,
             p_set_default_ship_to: payload.setDefaultShipTo,
             p_set_default_receive_at: payload.setDefaultReceiveAt
           });
@@ -27736,6 +28416,67 @@ function emptyStateHtml(){
       mobileSecondaryKeys: ['needed', 'onHand', 'allocated', 'remaining', 'status', 'actions']
     };
 
+    function renderJobBomCards(bomData){
+      if(!bomData || !bomData.length) return '<div class="muted">No items in this job.</div>';
+      return `<div class="job-bom-cards">${bomData.map(row => {
+        const onHandNum = parseFloat(String(row.onHand || '0').replace(/,/g, ''));
+        const neededNum = parseFloat(String(row.needed || '0').replace(/,/g, ''));
+        const onHandClass = onHandNum <= 0 ? 'on-hand-out' : (onHandNum < neededNum ? 'on-hand-low' : '');
+        const cardClass = row.needsOrder || row.shortage > 0 ? 'shortage' : (onHandNum <= 0 ? 'out-of-stock' : '');
+        const statusClass = row.needsOrder || row.shortage > 0 ? 'shortage' : (onHandNum <= 0 ? 'out-of-stock' : 'in-stock');
+        const statusLabel = row.shortage > 0 ? 'Shortfall' : (onHandNum <= 0 ? 'Out of Stock' : 'In Stock');
+
+        // Check if item is in cart
+        const inCartQty = getOrderQtyForItem(row.itemId);
+        const isInCart = inCartQty > 0;
+
+        let cartBtn = '';
+        if(isInCart){
+          // Show "In Cart" badge instead of order button
+          cartBtn = `<span class="job-bom-in-cart" data-item-id="${escapeHtmlAttr(row.itemId)}">${ICONS.shoppingCart} ${inCartQty} in cart</span>`;
+        }else if(row.needsOrder){
+          cartBtn = `<button class="icon-btn icon-btn--default icon-btn--sm job-bom-order-btn" data-item-id="${escapeHtmlAttr(row.itemId)}" data-shortage="${escapeHtmlAttr(String(row.shortage))}" data-job-id="${escapeHtmlAttr(String(row.jobId || ''))}" data-shortfall-id="${escapeHtmlAttr(String(row.shortfallId || ''))}" data-shortfall-qty="${escapeHtmlAttr(String(row.shortage || 0))}" aria-label="Add to purchase order" title="Order ${row.shortage} more">${ICONS.shoppingCart}</button>`;
+        }else if(row.hasOpenPO){
+          const orderText = row.incomingOrderCount === 1 ? '1 order' : `${row.incomingOrderCount} orders`;
+          cartBtn = `<span class="job-bom-incoming" title="Incoming (Not Yet Received): +${row.incomingQty} (${orderText})">${ICONS.package}</span>`;
+        }
+
+        // Trash button for removing from job (only for draft/quoted jobs)
+        const deleteBtn = row.canDelete
+          ? `<button class="icon-btn icon-btn--danger icon-btn--sm job-bom-delete-btn" data-job-id="${escapeHtmlAttr(String(row.jobId || ''))}" data-item-id="${escapeHtmlAttr(row.itemId)}" aria-label="Remove from job" title="Remove from job">${ICONS.trash2}</button>`
+          : '';
+
+        return `<div class="job-bom-card ${cardClass}">
+          <div class="job-bom-card-header">
+            <div>
+              <div class="job-bom-card-name" title="${escapeHtmlAttr(row.itemName || '')}">${escapeHtml(row.itemName || '')}</div>
+              ${row.sku ? `<div class="job-bom-card-sku">${escapeHtml(row.sku)}</div>` : ''}
+            </div>
+            <span class="job-bom-card-status ${statusClass}">${row.statusIcon}<span>${escapeHtml(statusLabel)}</span></span>
+          </div>
+          <div class="job-bom-card-stats">
+            <div class="job-bom-stat">
+              <div class="job-bom-stat-value">${escapeHtml(row.needed)}</div>
+              <div class="job-bom-stat-label">Qty</div>
+            </div>
+            <div class="job-bom-stat">
+              <div class="job-bom-stat-value ${onHandClass}">${escapeHtml(row.onHand)}</div>
+              <div class="job-bom-stat-label">On Hand</div>
+            </div>
+            <div class="job-bom-stat">
+              <div class="job-bom-stat-value">${escapeHtml(row.allocated)}</div>
+              <div class="job-bom-stat-label">Allocated</div>
+            </div>
+            <div class="job-bom-stat">
+              <div class="job-bom-stat-value">${escapeHtml(row.remaining)}</div>
+              <div class="job-bom-stat-label">Remaining</div>
+            </div>
+          </div>
+          ${(cartBtn || deleteBtn) ? `<div class="job-bom-card-footer">${cartBtn}${deleteBtn}</div>` : ''}
+        </div>`;
+      }).join('')}</div>`;
+    }
+
     function renderJobsList(){
       const list = $('jobsList');
       if(!list) return;
@@ -27883,6 +28624,8 @@ function emptyStateHtml(){
               const needsOrder = shortfallQty > 0 && !hasOpenPO;
               return {
                 jobId: id,
+                jobStatus: status,
+                canDelete: ['draft', 'quoted'].includes(status),
                 item: itemName,
                 itemName,
                 itemId,
@@ -27905,7 +28648,7 @@ function emptyStateHtml(){
               };
             });
             html += `<div class="job-detail">`;
-            html += UDWE.renderTable(JOBS_BOM_CONFIG, bomData);
+            html += renderJobBomCards(bomData);
             html += (
               `<div class="job-items-summary">`+
                 `<span><span>Total Needed</span><span>${escapeHtml(formatQty(totalNeeded))}</span></span>`+
@@ -28103,8 +28846,10 @@ function emptyStateHtml(){
         approveSection.style.display = (job && job.id && canApproveJob(status)) ? 'block' : 'none';
         const btn = $('btnJobApprove');
         if(btn){
-          btn.textContent = totals.totalShortfall > 0 ? 'Approve Job & Reserve Stock' : 'Approve Job';
-          btn.disabled = !(job && job.id && canApproveJob(status) && canAdmin);
+          const hasShortfall = totals.totalShortfall > 0;
+          btn.textContent = hasShortfall ? 'Approve Job & Reserve Stock' : 'Approve Job';
+          btn.disabled = !(job && job.id && canApproveJob(status) && canAdmin) || hasShortfall;
+          btn.title = hasShortfall ? 'Resolve all shortfalls before approving' : '';
         }
       }
       if(completeSection){
@@ -28545,12 +29290,12 @@ function emptyStateHtml(){
       const statReserved = $('atjStatReserved');
       const qtyHelper = $('atjQtyHelper');
       if(statOnHand){
-        statOnHand.textContent = formatNumber(onHand);
+        statOnHand.textContent = onHand.toLocaleString();
         statOnHand.classList.remove('on-hand-good', 'on-hand-low', 'on-hand-out');
         statOnHand.classList.add(onHand <= 0 ? 'on-hand-out' : 'on-hand-good');
       }
-      if(statReserved) statReserved.textContent = formatNumber(reserved);
-      if(qtyHelper) qtyHelper.textContent = `On Hand: ${formatNumber(onHand)}`;
+      if(statReserved) statReserved.textContent = reserved.toLocaleString();
+      if(qtyHelper) qtyHelper.textContent = `On Hand: ${onHand.toLocaleString()}`;
 
       // Tabs
       const tabExisting = $('atjTabExisting');
@@ -29260,6 +30005,23 @@ function emptyStateHtml(){
         setJobBomMessage(e && e.message ? e.message : 'Failed to update BOM');
       }
     }
+    // Remove BOM line from jobs list (not job editor)
+    async function removeJobBomLineFromList(jobId, itemId){
+      if(!jobId || !itemId) return;
+      if(!(await openConfirmModal('Remove from job?', 'Remove this material from the job?', { okText:'Remove', cancelText:'Cancel' }))) return;
+      try{
+        const { error } = await SB.client
+          .from('job_bom')
+          .delete()
+          .eq('job_id', jobId)
+          .eq('item_id', itemId);
+        if(error) throw error;
+        toast('Material removed from job');
+        await refreshJobs();
+      }catch(e){
+        toast(e && e.message ? e.message : 'Failed to remove material');
+      }
+    }
     async function removeJobBomLine(itemId){
       const editor = state._jobEditor;
       if(!editor || !editor.job || !editor.job.id) return;
@@ -29787,6 +30549,17 @@ function emptyStateHtml(){
             shortfallId,
             shortfallQty
           });
+          // Show cart feedback animation
+          showCartAddedFeedback(orderBtn, shortage);
+        }
+        return;
+      }
+      const deleteBtn = e.target.closest('.job-bom-delete-btn');
+      if(deleteBtn){
+        const jobId = String(deleteBtn.getAttribute('data-job-id') || '').trim();
+        const itemId = String(deleteBtn.getAttribute('data-item-id') || '').trim();
+        if(jobId && itemId){
+          await removeJobBomLineFromList(jobId, itemId);
         }
         return;
       }
@@ -29991,31 +30764,46 @@ function emptyStateHtml(){
       const jobId = editor && editor.job ? editor.job.id : null;
       if(jobId) voidJob(jobId);
     });
-    // Add to Job modal event listeners
-    const btnAddToJobConfirm = $('btnAddToJobConfirm');
-    if(btnAddToJobConfirm) btnAddToJobConfirm.addEventListener('click', confirmAddToJob);
-
-    // Tab switching
-    const atjTabExisting = $('atjTabExisting');
-    const atjTabNew = $('atjTabNew');
-    if(atjTabExisting) atjTabExisting.addEventListener('click', ()=> switchAtjTab('existing'));
-    if(atjTabNew) atjTabNew.addEventListener('click', ()=> switchAtjTab('new'));
-
-    // Dropdown toggle
-    const atjDropdownTrigger = $('atjDropdownTrigger');
-    if(atjDropdownTrigger) atjDropdownTrigger.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      toggleAtjDropdown();
-    });
-
-    // Dropdown item selection
-    const atjDropdownMenu = $('atjDropdownMenu');
-    if(atjDropdownMenu) atjDropdownMenu.addEventListener('click', (e)=>{
-      const item = e.target.closest('[data-job-id]');
-      if(!item) return;
-      const jobId = item.getAttribute('data-job-id');
-      if(jobId) selectAtjJob(jobId);
-    });
+    // Add to Job modal event listeners (use delegation for reliability)
+    const addToJobModal = $('addToJobModal');
+    if(addToJobModal){
+      addToJobModal.addEventListener('click', (e)=>{
+        // Confirm button
+        if(e.target.closest('#btnAddToJobConfirm')){
+          confirmAddToJob();
+          return;
+        }
+        // Tab switching
+        const tabBtn = e.target.closest('[data-atj-tab]');
+        if(tabBtn){
+          const tab = tabBtn.getAttribute('data-atj-tab');
+          if(tab) switchAtjTab(tab);
+          return;
+        }
+        // Dropdown trigger
+        if(e.target.closest('#atjDropdownTrigger')){
+          e.stopPropagation();
+          toggleAtjDropdown();
+          return;
+        }
+        // Dropdown item selection
+        const dropdownItem = e.target.closest('[data-job-id]');
+        if(dropdownItem){
+          const jobId = dropdownItem.getAttribute('data-job-id');
+          if(jobId) selectAtjJob(jobId);
+          return;
+        }
+        // Quantity buttons
+        if(e.target.closest('#atjQtyMinus')){
+          adjustAtjQty(-1);
+          return;
+        }
+        if(e.target.closest('#atjQtyPlus')){
+          adjustAtjQty(1);
+          return;
+        }
+      });
+    }
 
     // Close dropdown when clicking outside
     document.addEventListener('click', (e)=>{
@@ -30036,16 +30824,12 @@ function emptyStateHtml(){
       state._addToJob.newJobDesc = String(atjNewJobDesc.value || '');
     });
 
-    // Quantity stepper
+    // Quantity input (typing)
     const atjQtyInput = $('atjQtyInput');
     if(atjQtyInput) atjQtyInput.addEventListener('input', ()=>{
       if(!state._addToJob) return;
       state._addToJob.qty = Math.max(1, toInt(atjQtyInput.value, 1));
     });
-    const atjQtyMinus = $('atjQtyMinus');
-    if(atjQtyMinus) atjQtyMinus.addEventListener('click', ()=> adjustAtjQty(-1));
-    const atjQtyPlus = $('atjQtyPlus');
-    if(atjQtyPlus) atjQtyPlus.addEventListener('click', ()=> adjustAtjQty(1));
     const btnTrashReload = $('btnTrashReload');
     if(btnTrashReload) btnTrashReload.addEventListener('click', refreshTrash);
     const trashFilter = $('trashFilter');

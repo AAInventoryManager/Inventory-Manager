@@ -17,27 +17,21 @@ Enhanced onboarding wizard with improved UX, Google Places integration, and mode
 
 ### 1. Google Places Autocomplete
 
-**Purpose:** Streamline address entry for company locations.
+**Purpose:** Streamline address entry for company locations with Google as the canonical source.
 
 **Implementation:**
 - Google Places API integration with API key
 - Autocomplete on location address field (`companyLocationAddress1`)
-- Auto-population of address components:
-  - Street address (address1, address2)
-  - City
-  - State/Province
-  - Postal code
-  - Country
+- Store the selected formatted address as the canonical location address
+- Persist optional Google metadata when available (place ID + components)
 
 **Field Mapping:**
 ```javascript
 {
   address1: 'companyLocationAddress1',
-  address2: 'companyLocationAddress2',
-  city: 'companyLocationCity',
-  state: 'companyLocationState',
-  postal: 'companyLocationPostal',
-  country: 'companyLocationCountry'
+  formatted: 'companyLocationAddress1Value',
+  placeId: 'companyLocationPlaceId',
+  components: 'companyLocationAddressComponents'
 }
 ```
 
