@@ -65,31 +65,34 @@
     header{
       padding:calc(10px + env(safe-area-inset-top)) 16px 8px;
       border-bottom:1px solid var(--border);
-      position:sticky;top:0;background:var(--bg);z-index:20;text-align:center;
+      position:fixed;top:0;left:0;right:0;background:var(--bg);z-index:20;text-align:center;
     }
+    body{ padding-top:140px; overflow:hidden; height:100vh; }
+    @supports (padding-top: env(safe-area-inset-top)){
+      body{ padding-top:calc(140px + env(safe-area-inset-top)); }
+    }
+    /* Onboarding view needs normal scroll behavior */
+    body.onboarding-route{ overflow:auto; height:auto; padding-top:0; }
     .header-inner{ max-width:1100px; margin:0 auto; padding:0 24px; }
 .status{margin-top:8px;display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;background:#0d1420;color:#9fb3c8;appearance:none;-webkit-appearance:none;cursor:pointer;text-align:left}
 .status.online{color:#ffffff;background:#0f2d18;border-color:#1b5432}
 .status.offline{color:#ffffff;background:#2a1212;border-color:#5a1c1c}
     h1{margin:0;text-align:left;font-family:'Barlow',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; font-weight:800; font-size:clamp(var(--title-min), 6vw, var(--title-max)); letter-spacing:1px}
     main{padding:12px;max-width:1100px;margin:0 auto}
-    #appMain{max-width:none;width:100%;margin:0}
-    #appMain > .card{width:100%}
+    #appMain{max-width:none;width:100%;margin:0;height:calc(100vh - 140px);display:flex;flex-direction:column;padding:0}
+    @supports (height: calc(100vh - env(safe-area-inset-top))){
+      #appMain{height:calc(100vh - 140px - env(safe-area-inset-top));}
+    }
+    #appMain > .card{width:100%;flex:1;display:flex;flex-direction:column;overflow:hidden;border-radius:0;border-left:none;border-right:none;border-bottom:none}
     .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .toolbar{display:flex;flex-wrap:wrap;gap:0;align-items:center}
     .toolbar .spacer{flex:1}
-    /* Sticky toolbar for inventory list - sticks below header */
+    /* Toolbar stays in normal flow - no scrolling */
     #appMain .toolbar{
-      position:sticky;
-      top:calc(70px + env(safe-area-inset-top, 0px));
+      flex-shrink:0;
       z-index:19;
       background:var(--card);
-      margin:-12px -12px 0;
-      padding:12px;
-      border-bottom:1px solid var(--border);
-    }
-    @supports not (top: env(safe-area-inset-top)){
-      #appMain .toolbar{ top:70px; }
+      padding:25px 12px 4px;
     }
     :root{
       --glass-btn-blur: 14px;
@@ -266,7 +269,9 @@
     .muted{color:var(--muted);font-size:12px}
     .time{font-size:12px;color:var(--muted)}
     .scroll{overflow:auto;max-height:70vh;border-radius:10px;position:relative;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-    #tableWrap{ overflow-x:hidden; position:relative; width:100%; max-width:100%; min-width:0; }
+    /* Inventory scroll container - fills remaining space in flex layout */
+    #tableWrap{ overflow-y:auto; overflow-x:hidden; position:relative; width:100%; max-width:100%; min-width:0; flex:1; margin-top:0; max-height:none; }
+    #invCardGrid{ margin-top:0; flex:1; overflow-y:auto; }
     table{width:100%;border-collapse:collapse;font-size:15px}
     #invTable{ width:100%; table-layout:fixed; min-width:0; }
     #invTable th,
@@ -804,17 +809,17 @@
 	    .inv-filter-pills{
 	      display:flex;
 	      align-items:center;
-	      gap:8px;
+	      gap:6px;
 	      flex-wrap:wrap;
 	    }
 	    .inv-filter-pill{
-	      min-height:36px;
-	      padding:6px 14px;
+	      min-height:32px;
+	      padding:5px 12px;
 	      border-radius:999px;
 	      border:1px solid rgba(148,163,184,0.2);
 	      background:rgba(12,16,22,0.5);
 	      color:#cbd5f5;
-	      font-size:12px;
+	      font-size:13px;
 	      font-weight:600;
 	      letter-spacing:0.01em;
 	      transition:background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
@@ -2503,6 +2508,9 @@
     .order-cart-item-jobs-meta--draft{
       color:#fbbf24;
     }
+    .order-cart-item-jobs-meta--incoming{
+      color:#93c5fd;
+    }
     .order-cart-item-availability{
       font-weight:600;
     }
@@ -2541,6 +2549,18 @@
       margin-top:4px;
       font-size:11px;
       color:var(--muted);
+    }
+    .order-cart-item-incoming{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 8px;
+      border-radius:8px;
+      font-size:11px;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.04);
+      margin:2px 0 6px;
     }
     .order-cart-item-jobs-cards{
       margin-top:8px;
@@ -2759,6 +2779,11 @@
       color:#fbbf24;
     }
     .order-impact-secondary{
+      margin-top:6px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .order-impact-note{
       margin-top:6px;
       font-size:12px;
       color:var(--muted);
@@ -6590,24 +6615,24 @@
       justify-content:center;
       align-items:center;
       width:100%;
-      margin-bottom:12px;
+      margin-bottom:0;
     }
     .inv-header-tabs{
       display:inline-flex;
-      gap:8px;
+      gap:4px;
       background:rgba(0,0,0,0.3);
-      border-radius:12px;
+      border-radius:10px;
       padding:4px;
     }
     .inv-header-tab{
       display:flex;
       align-items:center;
-      gap:8px;
-      padding:10px 16px;
+      gap:6px;
+      padding:8px 14px;
       border:none;
       background:transparent;
       color:var(--muted);
-      font-size:13px;
+      font-size:18px;
       font-weight:600;
       cursor:pointer;
       border-radius:8px;
@@ -6623,27 +6648,27 @@
       box-shadow:0 2px 8px rgba(0,0,0,0.3);
     }
     .inv-header-tab svg{
-      width:16px;
-      height:16px;
+      width:18px;
+      height:18px;
     }
 
     /* ==================== TAB CONTENT ==================== */
     .inv-tab-content{
       max-height:0;
       overflow:hidden;
-      padding:0 16px;
+      padding:0 12px;
       background:rgba(0,0,0,0.2);
       border:1px solid transparent;
-      border-radius:12px;
+      border-radius:10px;
       margin-bottom:0;
       opacity:0;
       transition:all 0.25s ease;
     }
     .inv-tab-content.is-active{
       max-height:500px;
-      padding:16px;
+      padding:12px;
       border-color:rgba(255,255,255,0.06);
-      margin-bottom:16px;
+      margin-bottom:0;
       opacity:1;
       overflow-y:auto;
     }
@@ -6657,7 +6682,7 @@
     .inv-layout-group{
       display:flex;
       flex-direction:column;
-      gap:8px;
+      gap:6px;
     }
     .inv-layout-group-label{
       font-size:11px;
@@ -6669,15 +6694,15 @@
     .inv-layout-toggle{
       display:flex;
       background:rgba(0,0,0,0.3);
-      border-radius:8px;
-      padding:4px;
+      border-radius:6px;
+      padding:3px;
     }
     .inv-layout-btn{
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:6px;
-      padding:8px 14px;
+      gap:5px;
+      padding:6px 12px;
       border:none;
       background:transparent;
       color:var(--muted);
@@ -6749,20 +6774,20 @@
     .inv-sort-options{
       display:flex;
       flex-wrap:wrap;
-      gap:8px;
+      gap:6px;
     }
     .inv-sort-option{
       display:flex;
       align-items:center;
-      gap:8px;
-      padding:10px 14px;
+      gap:6px;
+      padding:6px 12px;
       border:1px solid var(--border);
       background:rgba(255,255,255,0.03);
       color:var(--muted);
       font-size:13px;
       font-weight:500;
       cursor:pointer;
-      border-radius:8px;
+      border-radius:6px;
       transition:all 0.15s;
     }
     .inv-sort-option:hover{
@@ -6779,8 +6804,8 @@
       height:14px;
     }
     .inv-sort-direction{
-      width:24px;
-      height:24px;
+      width:22px;
+      height:22px;
       border-radius:4px;
       background:rgba(0,0,0,0.2);
       display:flex;
@@ -6788,30 +6813,40 @@
       justify-content:center;
       margin-left:auto;
     }
+    .inv-sort-direction svg{
+      width:12px;
+      height:12px;
+    }
     .inv-sort-option.is-active .inv-sort-direction{
       background:rgba(59,130,246,0.3);
     }
 
-    /* Stats Row - grid layout */
+    /* Stats Row - flex layout, no wrap, equal width cards that shrink to fit */
     .inv-stats-row{
-      display:grid;
-      grid-template-columns:repeat(4, 1fr);
-      gap:10px;
+      display:flex;
+      flex-wrap:nowrap;
+      justify-content:center;
+      gap:6px;
       width:100%;
-      margin-bottom:12px;
+      margin-top:10px;
+      margin-bottom:4px;
     }
     .inv-stat-card{
-      padding:12px;
+      flex:1 1 0;
+      min-width:0;
+      max-width:110px;
+      padding:6px 6px;
       background:rgba(0,0,0,0.2);
       border:1px solid rgba(255,255,255,0.06);
-      border-radius:10px;
+      border-radius:8px;
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:2px;
+      gap:1px;
       text-align:center;
       cursor:pointer;
       transition:all 0.15s;
+      overflow:hidden;
     }
     .inv-stat-card:hover{
       border-color:rgba(255,255,255,0.1);
@@ -6822,22 +6857,22 @@
       background:rgba(59,130,246,0.08);
     }
     .inv-stat-value{
-      font-size:24px;
+      font-size:22px;
       font-weight:700;
       font-variant-numeric:tabular-nums;
-      margin-bottom:2px;
       line-height:1;
       color:var(--fg);
     }
     .inv-stat-value--green{ color:#22c55e; }
     .inv-stat-value--yellow{ color:#f59e0b; }
+    .inv-stat-value--red{ color:#ef4444; }
     .inv-stat-value--muted{ color:#94a3b8; }
     .inv-stat-label{
-      font-size:11px;
+      font-size:10px;
       font-weight:600;
       color:#64748b;
       text-transform:uppercase;
-      letter-spacing:0.5px;
+      letter-spacing:0.3px;
     }
 
     /* View Toggle */
@@ -7286,17 +7321,21 @@
 
     /* Responsive adjustments for inventory redesign */
     @media (max-width:768px){
-      .inv-stats-row{ grid-template-columns:repeat(2, 1fr); }
       .inv-tabs-container{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
       .inv-header-tabs{ flex-shrink:0; }
-      .inv-header-tab{ white-space:nowrap; }
+      .inv-header-tab{ white-space:nowrap; font-size:16px; }
       .inv-layout-options{ flex-direction:column; }
+      .inv-stats-row{ gap:4px; }
+      .inv-stat-card{ padding:5px 4px; max-width:none; }
+      .inv-stat-value{ font-size:18px; }
+      .inv-stat-label{ font-size:9px; letter-spacing:0; }
     }
     @media (max-width:640px){
-      .inv-stats-row{ gap:8px; }
-      .inv-stat-card{ padding:8px 10px; }
-      .inv-stat-value{ font-size:20px; }
-      .inv-stat-label{ font-size:9px; }
+      .inv-stats-row{ gap:3px; }
+      .inv-stat-card{ padding:4px 3px; }
+      .inv-stat-value{ font-size:16px; }
+      .inv-stat-label{ font-size:8px; }
+      .inv-header-tab{ font-size:14px; padding:6px 10px; }
       .inv-card-grid{ grid-template-columns:1fr; }
       .inv-view-toggle{ display:flex; }
       .inv-view-btn{ width:36px; height:36px; }
@@ -7310,13 +7349,23 @@
         from{ transform:translateY(20px); opacity:0; }
         to{ transform:translateY(0); opacity:1; }
       }
-      /* Adjust sticky positions for mobile */
-      #appMain .toolbar{ top:calc(58px + env(safe-area-inset-top, 0px)); }
+      /* Mobile: adjust body padding and appMain height for header */
+      body{ padding-top:120px; }
+      @supports (padding-top: env(safe-area-inset-top)){
+        body{ padding-top:calc(120px + env(safe-area-inset-top)); }
+      }
+      #appMain{ height:calc(100vh - 120px); }
+      @supports (height: calc(100vh - env(safe-area-inset-top))){
+        #appMain{ height:calc(100vh - 120px - env(safe-area-inset-top)); }
+      }
       .order-pill-container{ top:calc(180px + env(safe-area-inset-top, 0px)); }
     }
     @media (max-width:400px){
-      .inv-stat-card{ padding:6px 8px; }
-      .inv-stat-value{ font-size:16px; }
+      .inv-stats-row{ gap:2px; }
+      .inv-stat-card{ padding:3px 2px; }
+      .inv-stat-value{ font-size:14px; }
+      .inv-stat-label{ font-size:7px; }
+      .inv-header-tab{ font-size:13px; padding:5px 8px; }
     }
 
 	    @media (max-width:640px){
@@ -7324,7 +7373,6 @@
 	      .toolbar .btn-primary,
 	      .toolbar .btn-secondary,
 	      .toolbar .btn-tertiary{flex:1}
-	      .scroll{max-height:calc(100vh - 240px); max-height:calc(100svh - 240px); max-height:calc(100dvh - 240px)}
 	    }
     /* no right-side logo anymore */
     @media (max-width:360px){ .toolbar{gap:4px} }
@@ -9707,7 +9755,7 @@
       <div class="header-row">
         <div class="header-left">
           <div class="brandtext">
-            <img class="title-logo" src="./assets/modulus/logo/inventory-manager-logo.svg" alt="Inventory Manager logo" />
+            <img class="title-logo" src="./assets/modulus/logo/inventory-manager-header.svg" alt="Inventory Manager logo" />
           </div>
         </div>
         <div class="header-right">
@@ -10124,6 +10172,10 @@
 	            <span class="inv-stat-label">Low Stock</span>
 	          </div>
 	          <div class="inv-stat-card" data-stat-filter="out_of_stock">
+	            <span class="inv-stat-value inv-stat-value--red" id="statOutOfStock">0</span>
+	            <span class="inv-stat-label">Out of Stock</span>
+	          </div>
+	          <div class="inv-stat-card">
 	            <span class="inv-stat-value inv-stat-value--muted" id="statTotalQty">0</span>
 	            <span class="inv-stat-label">Total Qty</span>
 	          </div>
@@ -10294,6 +10346,7 @@
 	        <span id="totalItems" class="muted">Total Items: 0</span>
 	        <span id="totalInStock" class="muted">In Stock: 0</span>
 	        <span id="totalLowStock" class="muted">Low Stock: 0</span>
+	        <span id="totalOutOfStock" class="muted">Out of Stock: 0</span>
 	        <span id="totalQty" class="muted">Total Qty: 0</span>
 	      </div>
 
@@ -22665,6 +22718,7 @@ function emptyStateHtml(){
 	  if(key === 'items') return compact ? 'Items' : 'Total Items';
 	  if(key === 'inStock') return compact ? 'Stock' : 'In Stock';
 	  if(key === 'lowStock') return compact ? 'Low' : 'Low Stock';
+	  if(key === 'outOfStock') return compact ? 'Out' : 'Out of Stock';
 	  if(key === 'qty') return compact ? 'Qty' : 'Total Qty';
 	  return String(key || '');
 	}
@@ -22681,16 +22735,18 @@ function emptyStateHtml(){
 	  return toInt(m[1], 0);
 	}
 	function setTotalsMetric(elId, key, value){
-	  const el = $(elId);
-	  if(!el) return;
 	  const v = Math.max(0, toInt(value,0));
-	  if(el.dataset) el.dataset.value = String(v);
-	  el.textContent = `${totalsLabel(key)}: ${v}`;
+	  const el = $(elId);
+	  if(el){
+	    if(el.dataset) el.dataset.value = String(v);
+	    el.textContent = `${totalsLabel(key)}: ${v}`;
+	  }
 	  // Update new stat cards
 	  const statMap = {
 	    totalItems: 'statTotalItems',
 	    totalInStock: 'statInStock',
 	    totalLowStock: 'statLowStock',
+	    totalOutOfStock: 'statOutOfStock',
 	    totalQty: 'statTotalQty'
 	  };
 	  const statElId = statMap[elId];
@@ -22703,6 +22759,7 @@ function emptyStateHtml(){
       const vItems = getTotalsValue('totalItems'); if(vItems !== null) setTotalsMetric('totalItems','items', vItems);
       const vStock = getTotalsValue('totalInStock'); if(vStock !== null) setTotalsMetric('totalInStock','inStock', vStock);
       const vLow = getTotalsValue('totalLowStock'); if(vLow !== null) setTotalsMetric('totalLowStock','lowStock', vLow);
+      const vOut = getTotalsValue('totalOutOfStock'); if(vOut !== null) setTotalsMetric('totalOutOfStock','outOfStock', vOut);
       const vQty = getTotalsValue('totalQty'); if(vQty !== null) setTotalsMetric('totalQty','qty', vQty);
     }
     function updateInventoryStickyOffset(){
@@ -22737,14 +22794,25 @@ function emptyStateHtml(){
       items = sortItems(items);
       const incomingMap = buildInventoryIncomingMap();
       state._incomingByItemId = incomingMap;
-      const totalQty = items.reduce((sum, it) => sum + toInt(it.qty,0), 0);
-		      const totalItems = items.length;
-		      const inStock = items.reduce((count, it) => count + (toInt(it.qty,0) > 0 ? 1 : 0), 0);
-		      const lowStock = items.reduce((count, it) => count + (isLowStockItem(it) ? 1 : 0), 0);
-		      setTotalsMetric('totalQty', 'qty', totalQty);
+		      // Calculate stats from ALL items, not filtered items
+		      const allItems = Array.isArray(state.items) ? state.items : [];
+		      const totalItems = allItems.length;
+		      const totalQty = allItems.reduce((sum, it) => sum + toInt(it.qty,0), 0);
+		      let inStock = 0, lowStock = 0, outOfStock = 0;
+		      for(const it of allItems){
+		        const qty = toInt(it && it.qty, 0);
+		        if(qty === 0){ outOfStock++; }
+		        else {
+		          const minStock = effectiveLowStockQty(it);
+		          if(qty <= minStock) lowStock++;
+		          else inStock++;
+		        }
+		      }
 		      setTotalsMetric('totalItems', 'items', totalItems);
+		      setTotalsMetric('totalQty', 'qty', totalQty);
 		      setTotalsMetric('totalInStock', 'inStock', inStock);
 		      setTotalsMetric('totalLowStock', 'lowStock', lowStock);
+		      setTotalsMetric('totalOutOfStock', 'outOfStock', outOfStock);
 		      if(items.length===0){
 	      const tr=document.createElement('tr');
 	      const colCount = 1 + columnDefs.length + (layout.showActions ? 1 : 0);
@@ -22982,7 +23050,7 @@ function emptyStateHtml(){
 
       return items.filter(item => {
         const status = getStockStatus(item);
-        // Filter match
+        // Filter match - use getStockStatus() for consistency with stat cards
         if(filter === 'in_stock' && status !== 'good') return false;
         if(filter === 'low_stock' && status !== 'low') return false;
         if(filter === 'out_of_stock' && status !== 'out') return false;
@@ -23052,11 +23120,20 @@ function emptyStateHtml(){
           sortOptions.forEach(o => o.classList.remove('is-active'));
           opt.classList.add('is-active');
 
-          // Sync with hidden select and trigger sort
-          if(mobileSort){
-            mobileSort.value = sortValue;
-            mobileSort.dispatchEvent(new Event('change'));
+          // Parse sort value and apply directly
+          const parts = sortValue.split(':');
+          const col = (parts[0] || '').trim();
+          const dir = (parts[1] || '').trim() === 'desc' ? 'desc' : 'asc';
+          if(col){
+            state._sort = { col, dir };
+          } else {
+            state._sort = null;
           }
+          renderTable();
+          save();
+
+          // Also sync the hidden select for consistency
+          if(mobileSort) mobileSort.value = sortValue;
         });
       });
 
@@ -25592,6 +25669,7 @@ function emptyStateHtml(){
         state._orderJobCountByItemId = new Map();
         state._orderDraftJobCountByItemId = new Map();
         state._orderDraftJobAllocationsByItemId = new Map();
+        state._orderIncomingByItemId = {};
         state._orderCommitmentKey = '';
         state._orderCommitmentError = '';
         return true;
@@ -25607,6 +25685,7 @@ function emptyStateHtml(){
       const draftRowsByItem = new Map();
       const draftJobSets = new Map();
       try{
+        const incomingByItemId = await sbFetchIncomingInventoryByItem(SB.companyId, ids);
         const { data: committedRows, error: committedError } = await SB.client
           .from('inventory_committed_by_item')
           .select('item_id,committed_qty')
@@ -25685,6 +25764,7 @@ function emptyStateHtml(){
         state._orderCommittedByItemId = committedMap;
         state._orderJobCountByItemId = jobCountMap;
         state._orderDraftJobCountByItemId = draftCountMap;
+        state._orderIncomingByItemId = incomingByItemId || {};
         state._orderDraftJobAllocationsByItemId = new Map();
         ids.forEach(itemId=>{
           state._orderDraftJobAllocationsByItemId.set(itemId, {
@@ -25701,6 +25781,7 @@ function emptyStateHtml(){
         state._orderCommitmentKey = '';
         state._orderDraftJobCountByItemId = new Map();
         state._orderDraftJobAllocationsByItemId = new Map();
+        state._orderIncomingByItemId = {};
         return false;
       }finally{
         state._orderCommitmentLoading = false;
@@ -25796,12 +25877,14 @@ function emptyStateHtml(){
     function applyOrderCommitmentStats(line, onHandValue){
       const committedMap = state._orderCommittedByItemId || new Map();
       const jobCountMap = state._orderJobCountByItemId || new Map();
+      const incomingMap = state._orderIncomingByItemId || {};
       const committed = Number(committedMap.get(line.id) || 0);
       const jobCount = Number(jobCountMap.get(line.id) || 0);
       const onHand = Number.isFinite(onHandValue) ? onHandValue : 0;
-      const available = onHand - committed;
-      const shortfall = Math.max(0, committed - onHand);
-      const out = { committed, available, shortfall, jobCount };
+      const incoming = Number(incomingMap[line.id] || 0);
+      const available = onHand + incoming - committed;
+      const shortfall = Math.max(0, committed - (onHand + incoming));
+      const out = { committed, available, shortfall, jobCount, incoming };
       line._commitment = out;
       return out;
     }
@@ -26047,8 +26130,26 @@ function emptyStateHtml(){
       const remaining = impact.remainingDraftJobs;
       const unblockedJobIds = Array.isArray(impact.unblockedJobIds) ? impact.unblockedJobIds : [];
       const unblockedLabels = unblockedJobIds.map(id => getOrderJobLabel(id)).filter(Boolean);
+      const incomingMap = state._orderIncomingByItemId || {};
+      let hasIncomingForDraft = false;
+      if(remaining > 0 && Array.isArray(lines)){
+        const draftMap = state._orderDraftJobAllocationsByItemId;
+        if(draftMap && typeof draftMap.get === 'function'){
+          lines.forEach(line=>{
+            const itemId = String(line && line.id ? line.id : '').trim();
+            if(!itemId) return;
+            const entry = draftMap.get(itemId);
+            if(!entry || !Array.isArray(entry.rows) || !entry.rows.length) return;
+            const incoming = Number(incomingMap[itemId] || 0);
+            if(incoming > 0) hasIncomingForDraft = true;
+          });
+        }
+      }
       const showJobs = unblockedLabels.length > 0;
       const isExpanded = !!state._orderImpactExpanded;
+      const incomingNote = (remaining > 0 && hasIncomingForDraft)
+        ? `<div class="order-impact-note">Some items are already on order.</div>`
+        : '';
       const jobsMarkup = showJobs
         ? (
           `<div class="order-impact-jobs">`+
@@ -26081,6 +26182,7 @@ function emptyStateHtml(){
             `<span>This order will unblock ${formatQty(unblocked)} ${unblocked === 1 ? 'draft job' : 'draft jobs'}.</span>`+
           `</div>`+
           `<div class="order-impact-secondary">${formatQty(remaining)} ${remaining === 1 ? 'job will' : 'jobs will'} still require inventory.</div>`+
+          incomingNote+
           jobsMarkup;
       }
       card.style.display = '';
@@ -30370,6 +30472,7 @@ function emptyStateHtml(){
         return { ready_for_approval: true, blocking_items: [] };
       }
 
+      const incomingByItem = await sbFetchIncomingInventoryByItem(SB.companyId, itemIds);
       const { data: inventoryRows, error: inventoryError } = await SB.client
         .from('inventory_items')
         .select('id,quantity')
@@ -30407,14 +30510,17 @@ function emptyStateHtml(){
         const committedTotal = committedMap.get(itemId) || 0;
         const committedForJob = committedByItemForJob.get(itemId) || 0;
         const committedOther = Math.max(0, committedTotal - committedForJob);
-        const availableQty = onHand - committedOther;
-        if(availableQty < requiredQty){
-          const shortfallQty = Math.max(0, requiredQty - availableQty);
+        const incomingQty = Number(incomingByItem[itemId] || 0) || 0;
+        const availableQty = onHand + incomingQty - committedOther;
+        const availableNow = onHand - committedOther;
+        if(availableNow < requiredQty){
+          const shortfallQty = Math.max(0, requiredQty - availableNow);
           blockingItems.push({
             itemId,
             requiredQty,
             availableQty,
-            shortfallQty
+            shortfallQty,
+            incoming_qty: incomingQty
           });
         }
       });
@@ -30470,26 +30576,28 @@ function emptyStateHtml(){
       return map;
     }
     async function sbFetchIncomingInventoryByItem(companyId, itemIds){
-      if(!SB.ready) throw new Error('Supabase not configured');
-      if(!SB.session) throw new Error('Sign in required');
-      const company = String(companyId || SB.companyId || '').trim();
-      if(!company) throw new Error('No company selected');
-      const ids = Array.isArray(itemIds) ? itemIds.map(id => String(id || '').trim()).filter(Boolean) : [];
-      if(!ids.length) return new Map();
-      const { data, error } = await SB.client
-        .from('inventory_incoming_by_item')
-        .select('item_id,incoming_qty')
-        .eq('company_id', company)
-        .in('item_id', ids);
-      if(error) throw error;
-      const map = new Map();
-      ids.forEach(id => map.set(id, 0));
-      (Array.isArray(data) ? data : []).forEach(row=>{
-        const id = String(row && row.item_id ? row.item_id : '').trim();
-        if(!id) return;
-        map.set(id, toInt(row && row.incoming_qty != null ? row.incoming_qty : 0, 0));
-      });
-      return map;
+      try{
+        const ids = (itemIds || []).map(id => String(id || '').trim()).filter(Boolean);
+        const company = String(companyId || '').trim();
+        if(!company || !ids.length) return {};
+        if(!SB.ready || !SB.session) return {};
+        const { data, error } = await SB.client
+          .from('inventory_incoming_by_item')
+          .select('item_id,incoming_qty')
+          .eq('company_id', company)
+          .in('item_id', ids);
+        if(error) throw error;
+        const m = {};
+        (data || []).forEach(r => {
+          const itemId = String(r && r.item_id ? r.item_id : '').trim();
+          if(!itemId) return;
+          m[itemId] = Number(r && r.incoming_qty != null ? r.incoming_qty : 0) || 0;
+        });
+        return m;
+      }catch(e){
+        console.warn('sbFetchIncomingInventoryByItem failed', e);
+        return {};
+      }
     }
     async function ensureInventoryLoaded(){
       if(!state.items || !state.items.length){
@@ -31090,15 +31198,20 @@ function emptyStateHtml(){
             const availableQty = formatQty(item.availableQty);
             const shortfallVal = toInt(item.shortfallQty, 0);
             const shortfallQty = formatQty(shortfallVal);
+            const incomingQtyVal = toInt(item.incoming_qty, 0);
+            const incomingQty = formatQty(incomingQtyVal);
             const inCart = itemId && orderItemIds.has(itemId);
             const orderQty = orderQtyByItem.get(itemId) || 0;
             const willResolve = inCart && shortfallVal > 0 && orderQty >= shortfallVal;
+            const willBeAvailable = incomingQtyVal > 0 && shortfallVal > 0 && incomingQtyVal >= shortfallVal;
             return (
               `<div class="job-blocking-card">`+
                 `<div class="job-blocking-info">`+
                   `<div class="job-blocking-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
                   `<div class="job-blocking-meta">Required: ${escapeHtml(requiredQty)} • Available: ${escapeHtml(availableQty)}</div>`+
                   `<div class="job-blocking-shortfall">Shortfall: ${escapeHtml(shortfallQty)}</div>`+
+                  `${incomingQtyVal > 0 ? `<div class="job-blocking-note">Incoming: ${escapeHtml(incomingQty)}</div>` : ''}`+
+                  `${willBeAvailable ? '<div class="job-blocking-note">Will be available when received.</div>' : ''}`+
                   `${willResolve ? '<div class="job-blocking-note">Will be resolved when this order is received.</div>' : ''}`+
                 `</div>`+
                 `${inCart ? '<span class="job-blocking-badge">In current order</span>' : ''}`+
@@ -32763,6 +32876,7 @@ function emptyStateHtml(){
         state._orderJobCountByItemId = new Map();
         state._orderDraftJobCountByItemId = new Map();
         state._orderDraftJobAllocationsByItemId = new Map();
+        state._orderIncomingByItemId = {};
         state._orderCommitmentKey = '';
       }
 
@@ -32791,6 +32905,7 @@ function emptyStateHtml(){
         const committed = Number(commitment.committed || 0);
         const jobCount = Number(commitment.jobCount || 0);
         const available = Number(commitment.available || 0);
+        const incoming = Number(commitment.incoming || 0);
         const draftCountMap = state._orderDraftJobCountByItemId || new Map();
         const draftCount = Number(draftCountMap.get(l.id) || 0);
         const draftAllocMap = state._orderDraftJobAllocationsByItemId;
@@ -32807,7 +32922,7 @@ function emptyStateHtml(){
         let availabilityClass = 'is-positive';
         if(available < 0) availabilityClass = 'is-negative';
         else if(available === 0) availabilityClass = 'is-zero';
-        const showCommitment = committed > 0 || draftCount > 0;
+        const showCommitment = committed > 0 || draftCount > 0 || incoming > 0;
         const expanded = isOrderLineExpanded(l.id);
         const jobState = expanded ? getOrderJobAllocationsState(l.id) : null;
         if(expanded && jobState && !jobState.loaded && !jobState.loading){
@@ -32893,7 +33008,10 @@ function emptyStateHtml(){
               });
             }
           }
-          jobsContent = committedSection + draftSection + draftSummaryCard;
+          const incomingPill = incoming > 0
+            ? `<div class="order-cart-item-incoming">Incoming: ${escapeHtml(formatQty(incoming))} (ordered/shipped)</div>`
+            : '';
+          jobsContent = incomingPill + committedSection + draftSection + draftSummaryCard;
         }
 
         const hasWarning = draftCount > 0;
@@ -32909,6 +33027,9 @@ function emptyStateHtml(){
         const metaLine = showCommitment
           ? `<div class="order-cart-item-meta">`+
               `<span class="order-cart-item-availability ${availabilityClass}">Available: ${formatQty(available)}</span>`+
+              (incoming > 0
+                ? `<span class="order-cart-item-jobs-meta order-cart-item-jobs-meta--incoming">• Incoming: ${formatQty(incoming)}</span>`
+                : '')+
               (committed > 0
                 ? `<span class="order-cart-item-jobs-meta">• Used by ${jobCount} ${jobCount === 1 ? 'job' : 'jobs'}</span>`
                 : '')+
