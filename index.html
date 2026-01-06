@@ -3297,6 +3297,15 @@
       color:#94a3b8;
       line-height:1.5;
     }
+    .order-info-box-text--stacked{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .order-info-box-meta{
+      font-size:12px;
+      color:var(--muted);
+    }
     .order-info-box--muted{
       background:rgba(59,130,246,0.06);
       border-color:rgba(59,130,246,0.18);
@@ -3319,6 +3328,53 @@
     .order-info-box-dismiss:hover{
       background:rgba(255,255,255,0.08);
       color:var(--fg);
+    }
+
+    .order-draft-selector{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      margin-bottom:14px;
+      background:rgba(15,23,42,0.35);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:10px;
+    }
+    .order-draft-label{
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      color:var(--muted);
+      flex-shrink:0;
+    }
+    .order-draft-select{
+      flex:1;
+      padding:8px 10px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.2);
+      color:var(--fg);
+      font-size:13px;
+      font-family:inherit;
+    }
+    .order-draft-meta{
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+      flex-shrink:0;
+    }
+    @media (max-width:540px){
+      .order-draft-selector{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .order-draft-select{
+        width:100%;
+      }
+      .order-draft-meta{
+        align-self:flex-end;
+      }
     }
 
     /* Review Summary Card */
@@ -6881,8 +6937,11 @@
       justify-content:center;
       gap:6px;
       width:100%;
-      margin-top:10px;
+      margin-top:25px;
       margin-bottom:4px;
+    }
+    @media (max-width:768px){
+      .inv-stats-row{ margin-top:10px; }
     }
     .inv-stat-card{
       flex:1 1 0;
@@ -10938,15 +10997,22 @@
                   <line x1="12" y1="8" x2="12.01" y2="8"></line>
                 </svg>
               </span>
-              <span class="order-info-box-text">
-                This draft order was created from job blockers. Quantities account for on-hand and incoming inventory.
-              </span>
+              <div class="order-info-box-text order-info-box-text--stacked">
+                <span id="orderBlockerBannerText">This draft order was created from job blockers. Quantities account for on-hand and incoming inventory.</span>
+                <span id="orderBlockerBannerMeta" class="order-info-box-meta" style="display:none;"></span>
+                <span id="orderBlockerBannerMeta2" class="order-info-box-meta" style="display:none;"></span>
+              </div>
               <button class="order-info-box-dismiss" id="orderBlockerBannerDismiss" type="button" aria-label="Dismiss">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
               </button>
+            </div>
+            <div id="orderDraftSelector" class="order-draft-selector" style="display:none;">
+              <label class="order-draft-label" for="orderDraftSelect">Draft orders</label>
+              <select id="orderDraftSelect" class="order-draft-select"></select>
+              <span id="orderDraftMeta" class="order-draft-meta"></span>
             </div>
             <div class="order-cart-search">
               <div class="input-wrap" style="max-width:100%;">
@@ -13435,8 +13501,18 @@
         shippingAddressId:'',
         shippingAddressSnapshot:null,
         shortfall:null,
-        shortfallAttached:false
+        shortfallAttached:false,
+        source:'',
+        relatedJobId:'',
+        supplierId:'',
+        supplierName:'',
+        blockerBannerDismissed:false,
+        blockerMultiSupplier:false,
+        blockerHasUnknownSupplier:false,
+        draftId:''
       },
+      _orderDraftQueue:[],
+      _vendorsById:new Map(),
       _orderHistoryLinesByPo:new Map(),
       _receiveOrder:null,
       _shippingAddresses:[],
@@ -23166,16 +23242,22 @@ function emptyStateHtml(){
       const tabs = document.querySelectorAll('.inv-header-tab[data-inv-tab]');
       const contents = document.querySelectorAll('.inv-tab-content[data-inv-tab-content]');
 
+      function closeActiveTab(){
+        if(!activeTab) return;
+        const tabBtn = document.querySelector(`.inv-header-tab[data-inv-tab="${activeTab}"]`);
+        const tabContent = document.querySelector(`.inv-tab-content[data-inv-tab-content="${activeTab}"]`);
+        if(tabBtn) tabBtn.classList.remove('is-active');
+        if(tabContent) tabContent.classList.remove('is-active');
+        tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+        activeTab = null;
+      }
+
       function toggleTab(tabName){
         const tabBtn = document.querySelector(`.inv-header-tab[data-inv-tab="${tabName}"]`);
         const tabContent = document.querySelector(`.inv-tab-content[data-inv-tab-content="${tabName}"]`);
 
         if(activeTab === tabName){
-          // Close current tab
-          if(tabBtn) tabBtn.classList.remove('is-active');
-          if(tabContent) tabContent.classList.remove('is-active');
-          tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
-          activeTab = null;
+          closeActiveTab();
           return;
         }
 
@@ -23203,6 +23285,16 @@ function emptyStateHtml(){
         });
       });
 
+      document.addEventListener('click', (e)=>{
+        if(!activeTab) return;
+        const target = e && e.target ? e.target : null;
+        if(target && target.closest){
+          if(target.closest('.inv-header-tabs')) return;
+          if(target.closest('.inv-tab-content')) return;
+        }
+        closeActiveTab();
+      }, { passive:true });
+
       // Bind sort option handlers
       const sortOptions = document.querySelectorAll('.inv-sort-option[data-sort]');
       const mobileSort = $('mobileSort');
@@ -23218,7 +23310,11 @@ function emptyStateHtml(){
           // Parse sort value and apply directly
           const parts = sortValue.split(':');
           const col = (parts[0] || '').trim();
-          const dir = (parts[1] || '').trim() === 'desc' ? 'desc' : 'asc';
+          const current = getSort();
+          let dir = (parts[1] || '').trim() === 'desc' ? 'desc' : 'asc';
+          if(current && current.col === col){
+            dir = current.dir === 'asc' ? 'desc' : 'asc';
+          }
           if(col){
             state._sort = { col, dir };
           } else {
@@ -23229,7 +23325,7 @@ function emptyStateHtml(){
           save();
 
           // Also sync the hidden select for consistency
-          if(mobileSort) mobileSort.value = sortValue;
+          if(mobileSort && col) mobileSort.value = `${col}:${dir}`;
         });
       });
 
@@ -25690,31 +25786,44 @@ function emptyStateHtml(){
         .slice()
         .sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
     }
+    function createEmptyOrderState(){
+      return {
+        lines:[],
+        email:'',
+        companyPoNumber:'',
+        internalPoNumber:'',
+        subject:'',
+        notes:'',
+        contactName:'',
+        search:'',
+        shippingAddressId:'',
+        shippingAddressSnapshot:null,
+        shortfall:null,
+        shortfallAttached:false,
+        source:'',
+        relatedJobId:'',
+        supplierId:'',
+        supplierName:'',
+        blockerBannerDismissed:false,
+        blockerMultiSupplier:false,
+        blockerHasUnknownSupplier:false,
+        draftId: randomUUID()
+      };
+    }
     function orderState(){
       if(!state._order){
-        state._order = {
-          lines:[],
-          email:'',
-          companyPoNumber:'',
-          internalPoNumber:'',
-          subject:'',
-          notes:'',
-          contactName:'',
-          search:'',
-          shippingAddressId:'',
-          shippingAddressSnapshot:null,
-          shortfall:null,
-          shortfallAttached:false,
-          source:'',
-          relatedJobId:'',
-          blockerBannerDismissed:false
-        };
+        state._order = createEmptyOrderState();
       }
       if(!Object.prototype.hasOwnProperty.call(state._order, 'shortfall')) state._order.shortfall = null;
       if(!Object.prototype.hasOwnProperty.call(state._order, 'shortfallAttached')) state._order.shortfallAttached = false;
       if(!Object.prototype.hasOwnProperty.call(state._order, 'source')) state._order.source = '';
       if(!Object.prototype.hasOwnProperty.call(state._order, 'relatedJobId')) state._order.relatedJobId = '';
+      if(!Object.prototype.hasOwnProperty.call(state._order, 'supplierId')) state._order.supplierId = '';
+      if(!Object.prototype.hasOwnProperty.call(state._order, 'supplierName')) state._order.supplierName = '';
       if(!Object.prototype.hasOwnProperty.call(state._order, 'blockerBannerDismissed')) state._order.blockerBannerDismissed = false;
+      if(!Object.prototype.hasOwnProperty.call(state._order, 'blockerMultiSupplier')) state._order.blockerMultiSupplier = false;
+      if(!Object.prototype.hasOwnProperty.call(state._order, 'blockerHasUnknownSupplier')) state._order.blockerHasUnknownSupplier = false;
+      if(!state._order.draftId) state._order.draftId = randomUUID();
       ensureOrderIdentifiers(state._order);
       return state._order;
     }
@@ -25759,6 +25868,167 @@ function emptyStateHtml(){
       const ids = Array.isArray(itemIds) ? itemIds.map(id => String(id || '').trim()).filter(Boolean) : [];
       ids.sort();
       return ids.join('|');
+    }
+    function normalizeSupplierId(value){
+      const id = String(value || '').trim();
+      return id;
+    }
+    function getItemSupplierId(item){
+      if(!item) return '';
+      const preferred = normalizeSupplierId(item.preferredSupplierId || item.preferred_supplier_id);
+      if(preferred) return preferred;
+      const fallback = normalizeSupplierId(item.defaultSupplierId || item.default_supplier_id);
+      return fallback;
+    }
+    async function sbFetchItemSupplierMap(itemIds){
+      const ids = Array.isArray(itemIds) ? itemIds.map(id => String(id || '').trim()).filter(Boolean) : [];
+      if(!ids.length) return new Map();
+      if(!SB.ready || !SB.session || !SB.companyId) return new Map();
+      let data = null;
+      for(let attempt = 0; attempt < 2; attempt++){
+        let sel = 'id';
+        if(SB.itemsHasPreferredSupplierId !== false) sel += ',preferred_supplier_id';
+        if(SB.itemsHasDefaultSupplierId !== false) sel += ',default_supplier_id';
+        if(sel === 'id') return new Map();
+        const res = await SB.client
+          .from('inventory_items')
+          .select(sel)
+          .eq('company_id', SB.companyId)
+          .in('id', ids)
+          .is('deleted_at', null);
+        if(!res.error){
+          data = res.data || [];
+          if(sel.includes('preferred_supplier_id')) SB.itemsHasPreferredSupplierId = true;
+          if(sel.includes('default_supplier_id')) SB.itemsHasDefaultSupplierId = true;
+          break;
+        }
+        const msg = errToText(res.error).toLowerCase();
+        let changed = false;
+        if(msg.includes('preferred_supplier_id')){
+          if(SB.itemsHasPreferredSupplierId !== false) changed = true;
+          SB.itemsHasPreferredSupplierId = false;
+        }
+        if(msg.includes('default_supplier_id')){
+          if(SB.itemsHasDefaultSupplierId !== false) changed = true;
+          SB.itemsHasDefaultSupplierId = false;
+        }
+        if(!changed){
+          console.warn('Supplier lookup failed', res.error);
+          return new Map();
+        }
+      }
+      const map = new Map();
+      (Array.isArray(data) ? data : []).forEach(row=>{
+        const id = String(row && row.id ? row.id : '').trim();
+        if(!id) return;
+        map.set(id, {
+          preferred: normalizeSupplierId(row.preferred_supplier_id),
+          fallback: normalizeSupplierId(row.default_supplier_id)
+        });
+      });
+      return map;
+    }
+    async function sbFetchVendorsByIds(ids){
+      const list = Array.isArray(ids) ? ids.map(id => String(id || '').trim()).filter(Boolean) : [];
+      if(!list.length) return new Map();
+      if(!SB.ready || !SB.session || !SB.companyId) return new Map();
+      const { data, error } = await SB.client
+        .from('vendors')
+        .select('id,name')
+        .eq('company_id', SB.companyId)
+        .in('id', list);
+      if(error){
+        console.warn('Vendor lookup failed', error);
+        return new Map();
+      }
+      const map = state._vendorsById && typeof state._vendorsById.get === 'function'
+        ? state._vendorsById
+        : new Map();
+      (Array.isArray(data) ? data : []).forEach(row=>{
+        const id = String(row && row.id ? row.id : '').trim();
+        if(!id) return;
+        map.set(id, String(row && row.name ? row.name : '').trim());
+      });
+      state._vendorsById = map;
+      return map;
+    }
+    async function ensureVendorMap(ids){
+      const map = state._vendorsById && typeof state._vendorsById.get === 'function'
+        ? state._vendorsById
+        : new Map();
+      const missing = Array.isArray(ids)
+        ? ids.filter(id => {
+            const key = String(id || '').trim();
+            return key && !map.has(key);
+          })
+        : [];
+      if(missing.length){
+        await sbFetchVendorsByIds(missing);
+      }
+      return state._vendorsById || new Map();
+    }
+    function getOrderDraftQueue(){
+      if(!Array.isArray(state._orderDraftQueue)) state._orderDraftQueue = [];
+      return state._orderDraftQueue;
+    }
+    function ensureOrderDraftQueue(){
+      const queue = getOrderDraftQueue();
+      const ord = orderState();
+      if(!queue.some(o => o && o.draftId === ord.draftId)){
+        queue.unshift(ord);
+      }
+      return queue;
+    }
+    function syncOrderInputsFromState(){
+      const ord = orderState();
+      const s = $('orderSearch'); if(s) s.value = ord.search || '';
+      const e = $('orderEmail'); if(e) e.value = ord.email || '';
+      const companyPo = $('orderCompanyPoNumber'); if(companyPo) companyPo.value = ord.companyPoNumber || '';
+      const internalPo = $('orderInternalPoNumber'); if(internalPo) internalPo.value = ord.internalPoNumber || '';
+      const sub = $('orderSubject'); if(sub) sub.value = ord.subject || composeOrderSubject(ord);
+      const n = $('orderNotes'); if(n) n.value = ord.notes || '';
+      try{ updateOrderSearchClearBtn(); }catch(e){}
+      try{ renderOrderShippingOptionsList(); }catch(e){}
+      try{ renderOrderPreview(); }catch(e){}
+      try{ updateOrderWizardReviewSummary(); }catch(e){}
+      try{ updateOrderWizardCartSummary(); }catch(e){}
+    }
+    function updateOrderDraftSelector(){
+      const wrap = $('orderDraftSelector');
+      const sel = $('orderDraftSelect');
+      const meta = $('orderDraftMeta');
+      if(!wrap || !sel) return;
+      const queue = getOrderDraftQueue();
+      if(queue.length <= 1){
+        wrap.style.display = 'none';
+        return;
+      }
+      wrap.style.display = 'flex';
+      const options = queue.map((ord, idx)=>{
+        const supplierLabel = ord.supplierName
+          || (ord.supplierId ? `Supplier ${shortId(ord.supplierId)}` : 'Unassigned supplier');
+        const count = (ord.lines || []).length;
+        const itemsLabel = `${count} ${count === 1 ? 'item' : 'items'}`;
+        return `<option value="${escapeHtmlAttr(ord.draftId)}">${escapeHtml(supplierLabel)} • ${escapeHtml(itemsLabel)}</option>`;
+      });
+      sel.innerHTML = options.join('');
+      const activeId = orderState().draftId;
+      if(activeId) sel.value = activeId;
+      if(meta) meta.textContent = `${queue.length} draft orders`;
+    }
+    function setActiveOrderDraft(draftId){
+      const queue = getOrderDraftQueue();
+      const id = String(draftId || '').trim();
+      if(!id) return;
+      const ord = queue.find(o => o && o.draftId === id);
+      if(!ord) return;
+      state._order = ord;
+      ensureOrderIdentifiers(state._order);
+      syncOrderInputsFromState();
+      renderOrderResults();
+      renderOrderLines();
+      updateOrderDraftSelector();
+      try{ orderWizardUpdateUI(); }catch(e){}
     }
     async function loadOrderCommitmentsForCart(itemIds){
       const ids = Array.isArray(itemIds) ? itemIds.map(id => String(id || '').trim()).filter(Boolean) : [];
@@ -26718,6 +26988,7 @@ function emptyStateHtml(){
     function afterOrderStateChanged(){
       try{ updateOrderCounterBadge(); }catch(e){}
       refreshInventoryCardsForOrderState();
+      try{ updateOrderDraftSelector(); }catch(e){}
       try{ orderWizardUpdateUI(); }catch(e){}
       try{ refreshJobBomCardsForOrderState(); }catch(e){}
     }
@@ -26763,7 +27034,11 @@ function emptyStateHtml(){
       clearOrderShortfallLink();
       ord.source = '';
       ord.relatedJobId = '';
+      ord.supplierId = '';
+      ord.supplierName = '';
       ord.blockerBannerDismissed = false;
+      ord.blockerMultiSupplier = false;
+      ord.blockerHasUnknownSupplier = false;
       try{ orderLineSelection.clear(); }catch(e){}
       try{ state._orderLineExpanded = new Set(); }catch(e){}
       try{ state._orderJobAllocationsByItemId = new Map(); }catch(e){}
@@ -26897,42 +27172,150 @@ function emptyStateHtml(){
       });
       return neededByItem;
     }
-    function applyJobBlockerOrderLines(jobId, blockingItems){
-      const neededByItem = buildJobBlockerOrderLines(blockingItems);
-      if(!neededByItem.size){
-        toast('All blockers are already covered by on-hand and incoming inventory.');
-        return false;
+    function addOrderLineToDraft(ord, item, qty){
+      if(!ord || !item || !item.id) return;
+      const nextQty = Math.max(0, toInt(qty, 0));
+      const existing = ord.lines.find(l => l && l.id === item.id);
+      if(existing){
+        existing.qty = Math.max(toInt(existing.qty, 0), nextQty);
+        existing._manualQty = true;
+        existing._autoQtyApplied = true;
+        return;
       }
-      const ord = orderState();
+      ord.lines.push({
+        id: item.id,
+        name: String(item.name || '').trim(),
+        desc: String(item.desc || '').trim(),
+        qty: nextQty,
+        includeReorder: false,
+        _manualQty: true,
+        _autoQtyApplied: true
+      });
+    }
+    function finalizeDraftLines(ord){
+      if(!ord || !Array.isArray(ord.lines)) return;
+      ord.lines.sort((a,b)=> toKey(a.name).localeCompare(toKey(b.name)));
+    }
+    async function resolveSupplierByItemIds(itemIds){
+      const ids = Array.isArray(itemIds) ? itemIds.map(id => String(id || '').trim()).filter(Boolean) : [];
+      const map = new Map();
+      const missing = [];
+      ids.forEach(id=>{
+        const item = getInventoryById(id);
+        const supplierId = getItemSupplierId(item);
+        if(supplierId){
+          map.set(id, supplierId);
+        }else{
+          missing.push(id);
+        }
+      });
+      if(missing.length){
+        const fetched = await sbFetchItemSupplierMap(missing);
+        missing.forEach(id=>{
+          const entry = fetched.get(id);
+          const supplierId = entry ? (entry.preferred || entry.fallback) : '';
+          if(supplierId) map.set(id, supplierId);
+        });
+      }
+      return map;
+    }
+    function buildJobBlockerSupplierGroups(neededByItem, supplierByItem){
+      const groups = new Map();
+      neededByItem.forEach((neededQty, itemId)=>{
+        const supplierId = normalizeSupplierId(supplierByItem.get(itemId) || '');
+        if(!groups.has(supplierId)) groups.set(supplierId, []);
+        groups.get(supplierId).push({ itemId, qty: neededQty });
+      });
+      return groups;
+    }
+    function applyJobBlockerGroupToOrder(ord, jobId, group, opts = {}){
+      if(!ord || !group) return;
+      const supplierId = String(group.supplierId || '').trim();
+      const vendorMap = opts.vendorMap && typeof opts.vendorMap.get === 'function' ? opts.vendorMap : new Map();
       ord.source = 'job_blockers';
       ord.relatedJobId = String(jobId || '').trim();
       ord.blockerBannerDismissed = false;
-      neededByItem.forEach((neededQty, itemId)=>{
+      ord.blockerMultiSupplier = !!opts.multiSupplier;
+      ord.blockerHasUnknownSupplier = !!opts.hasUnknownSupplier;
+      ord.supplierId = supplierId;
+      ord.supplierName = supplierId ? String(vendorMap.get(supplierId) || '').trim() : '';
+      (group.items || []).forEach(entry=>{
+        const itemId = String(entry && entry.itemId ? entry.itemId : '').trim();
+        if(!itemId) return;
         const item = getInventoryById(itemId);
         if(!item) return;
-        const existing = ord.lines.find(l => l && l.id === itemId);
-        const nextQty = Math.max(existing ? toInt(existing.qty, 0) : 0, toInt(neededQty, 0));
-        if(existing){
-          existing.qty = nextQty;
-          existing._manualQty = true;
-          existing._autoQtyApplied = true;
-        }else{
-          upsertOrderLineFromItem(item, nextQty);
-          const line = ord.lines.find(l => l && l.id === itemId);
-          if(line){
-            line._manualQty = true;
-            line._autoQtyApplied = true;
-          }
-        }
+        addOrderLineToDraft(ord, item, entry.qty);
         try{ syncOrderIndicatorForRow(String(itemId)); }catch(e){}
       });
-      afterOrderStateChanged();
-      return true;
+      finalizeDraftLines(ord);
+      ensureOrderIdentifiers(ord);
     }
-    function createOrderFromJobBlockers(jobId, blockingItems){
-      const ok = applyJobBlockerOrderLines(jobId, blockingItems);
-      if(!ok) return;
-      void openOrderModal({ addSelected:false });
+    async function createOrderFromJobBlockers(jobId, blockingItems){
+      try{
+        const neededByItem = buildJobBlockerOrderLines(blockingItems);
+        if(!neededByItem.size){
+          toast('All blockers are already covered by on-hand and incoming inventory.');
+          return;
+        }
+        const itemIds = Array.from(neededByItem.keys());
+        const supplierByItem = await resolveSupplierByItemIds(itemIds);
+        const groupMap = buildJobBlockerSupplierGroups(neededByItem, supplierByItem);
+        const groups = Array.from(groupMap.entries()).map(([supplierId, items])=>({ supplierId, items }));
+        if(!groups.length){
+          toast('No blockers require ordering.');
+          return;
+        }
+        const vendorMap = await ensureVendorMap(groups.map(g => g.supplierId).filter(Boolean));
+        const multiSupplier = groups.length > 1;
+        const hasUnknownSupplier = groupMap.has('');
+        const baseOrd = orderState();
+        const baseHasLines = Array.isArray(baseOrd.lines) && baseOrd.lines.length > 0;
+        const baseSameJob = baseOrd.source === 'job_blockers' && String(baseOrd.relatedJobId || '').trim() === String(jobId || '').trim();
+        const baseSupplier = normalizeSupplierId(baseOrd.supplierId);
+        const drafts = [];
+        let remaining = groups.slice();
+        if(!baseHasLines || baseSameJob){
+          let baseGroup = null;
+          if(baseSupplier){
+            baseGroup = remaining.find(group => String(group.supplierId || '').trim() === baseSupplier);
+          }
+          if(!baseGroup){
+            baseGroup = remaining[0];
+          }
+          if(baseGroup){
+            applyJobBlockerGroupToOrder(baseOrd, jobId, baseGroup, {
+              vendorMap,
+              multiSupplier,
+              hasUnknownSupplier
+            });
+            drafts.push(baseOrd);
+            remaining = remaining.filter(group => group !== baseGroup);
+          }
+        }
+        remaining.forEach(group=>{
+          const ord = createEmptyOrderState();
+          applyJobBlockerGroupToOrder(ord, jobId, group, {
+            vendorMap,
+            multiSupplier,
+            hasUnknownSupplier
+          });
+          drafts.push(ord);
+        });
+        if(drafts.length === 0){
+          toast('No blockers require ordering.');
+          return;
+        }
+        if(baseHasLines && !drafts.includes(baseOrd)){
+          drafts.push(baseOrd);
+        }
+        state._orderDraftQueue = drafts;
+        state._order = drafts[0];
+        ensureOrderIdentifiers(state._order);
+        void openOrderModal({ addSelected:false });
+      }catch(e){
+        console.warn('Create PO from blockers failed', e);
+        toast('Unable to create draft orders.');
+      }
     }
     function setOrderQty(id, qty, opts = {}){
       const ord = orderState();
@@ -33031,9 +33414,30 @@ function emptyStateHtml(){
     function updateOrderBlockerBanner(){
       const banner = $('orderBlockerBanner');
       if(!banner) return;
+      const text = $('orderBlockerBannerText');
+      const meta = $('orderBlockerBannerMeta');
+      const meta2 = $('orderBlockerBannerMeta2');
       const ord = orderState();
       const show = ord && ord.source === 'job_blockers' && !ord.blockerBannerDismissed;
       banner.style.display = show ? 'flex' : 'none';
+      if(!show) return;
+      if(text){
+        text.textContent = 'This draft order was created from job blockers. Quantities account for on-hand and incoming inventory.';
+      }
+      if(meta){
+        const msg = ord.blockerMultiSupplier
+          ? 'Items were split into multiple draft orders based on supplier.'
+          : '';
+        meta.textContent = msg;
+        meta.style.display = msg ? 'block' : 'none';
+      }
+      if(meta2){
+        const msg = ord.blockerHasUnknownSupplier
+          ? 'Some items do not have a supplier assigned yet.'
+          : '';
+        meta2.textContent = msg;
+        meta2.style.display = msg ? 'block' : 'none';
+      }
     }
     function renderOrderLines(){
       const ord = orderState();
@@ -33306,6 +33710,8 @@ function emptyStateHtml(){
 	      }
 
 	      ensureOrderIdentifiers(ord);
+        ensureOrderDraftQueue();
+        updateOrderDraftSelector();
 	      ord.subject = composeOrderSubject(ord);
 
       const s = $('orderSearch'); if(s) s.value = ord.search || '';
@@ -33445,7 +33851,7 @@ function emptyStateHtml(){
       const blockingItems = detail && Array.isArray(detail.blocking_items) ? detail.blocking_items : [];
       if(!jobId || !blockingItems.length) return;
       if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
-      createOrderFromJobBlockers(jobId, blockingItems);
+      void createOrderFromJobBlockers(jobId, blockingItems);
     });
     const jobItemPickerSearch = $('jobItemPickerSearch');
     if(jobItemPickerSearch){
@@ -34166,6 +34572,10 @@ function emptyStateHtml(){
       const ord = orderState();
       ord.blockerBannerDismissed = true;
       updateOrderBlockerBanner();
+    });
+    const orderDraftSelect = $('orderDraftSelect');
+    if(orderDraftSelect) orderDraftSelect.addEventListener('change', ()=>{
+      setActiveOrderDraft(orderDraftSelect.value);
     });
     const btnOrderCopy = $('btnOrderCopy');
     if(btnOrderCopy) btnOrderCopy.addEventListener('click', copyOrderToClipboard);
