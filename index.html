@@ -48,6 +48,7 @@
     :root{
       --bg:#24292d;--fg:#eaeff7;--muted:#a9b4c0;--accent:#5aa9ff;
       --card:#000000;--border:#1f2a36;--title-min:12px;--title-max:56px;
+      --app-header-offset: 140px;
       --inventory-sticky-offset: 120px;
       --success:#22c55e;
       --cyan:#06b6d4;--cyan-light:#22d3ee;
@@ -67,10 +68,7 @@
       border-bottom:1px solid var(--border);
       position:fixed;top:0;left:0;right:0;background:var(--bg);z-index:20;text-align:center;
     }
-    body{ padding-top:140px; overflow:hidden; height:100vh; }
-    @supports (padding-top: env(safe-area-inset-top)){
-      body{ padding-top:calc(140px + env(safe-area-inset-top)); }
-    }
+    body{ padding-top:var(--app-header-offset, 140px); overflow:hidden; height:100vh; }
     /* Onboarding view needs normal scroll behavior */
     body.onboarding-route{ overflow:auto; height:auto; padding-top:0; }
     .header-inner{ max-width:1100px; margin:0 auto; padding:0 24px; }
@@ -79,10 +77,7 @@
 .status.offline{color:#ffffff;background:#2a1212;border-color:#5a1c1c}
     h1{margin:0;text-align:left;font-family:'Barlow',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; font-weight:800; font-size:clamp(var(--title-min), 6vw, var(--title-max)); letter-spacing:1px}
     main{padding:12px;max-width:1100px;margin:0 auto}
-    #appMain{max-width:none;width:100%;margin:0;height:calc(100vh - 140px);display:flex;flex-direction:column;padding:0}
-    @supports (height: calc(100vh - env(safe-area-inset-top))){
-      #appMain{height:calc(100vh - 140px - env(safe-area-inset-top));}
-    }
+    #appMain{max-width:none;width:100%;margin:0;height:calc(100vh - var(--app-header-offset, 140px));display:flex;flex-direction:column;padding:0}
     #appMain > .card{width:100%;flex:1;display:flex;flex-direction:column;overflow:hidden;border-radius:0;border-left:none;border-right:none;border-bottom:none}
     .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
     .toolbar{display:flex;flex-wrap:wrap;gap:0;align-items:center}
@@ -1058,15 +1053,27 @@
 	    }
     td.editing{padding:6px}
     .toast{
-      position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));
+      position:relative;
+      left:auto;
+      bottom:auto;
+      transform:none;
       background:rgba(255,255,255,0.96);
       border:1px solid rgba(0,0,0,0.12);
       color:#0b1020;
       font-weight:800;
-      padding:10px 14px;border-radius:10px;
+      padding:10px 14px;
+      border-radius:10px;
       box-shadow:0 12px 30px rgba(0,0,0,.55);
-      z-index:300;
-      display:none
+      display:none;
+      max-width:min(560px, 92vw);
+      text-align:center;
+      margin-top:4px;
+    }
+    .header-notices{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
     }
 	    .modal-backdrop{
 	      display:none;
@@ -1610,6 +1617,12 @@
       display:flex;
       align-items:center;
       cursor:pointer;
+    }
+    #editItemModal .toggle-input{
+      position:absolute;
+      opacity:0;
+      width:0;
+      height:0;
     }
     #editItemModal .toggle-switch-new{
       width:48px;
@@ -5589,10 +5602,10 @@
       opacity:1;
     }
     .cart-feedback-toast{
-      position:fixed;
-      bottom:80px;
-      left:50%;
-      transform:translateX(-50%);
+      position:relative;
+      left:auto;
+      bottom:auto;
+      transform:none;
       background:linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
       color:#fff;
       font-size:13px;
@@ -5600,7 +5613,6 @@
       padding:10px 18px;
       border-radius:10px;
       box-shadow:0 8px 24px rgba(34,197,94,0.35);
-      z-index:10010;
       animation:cartToastIn 0.3s ease;
       display:flex;
       align-items:center;
@@ -5611,12 +5623,12 @@
       height:18px;
     }
     @keyframes cartToastIn{
-      0%{ opacity:0; transform:translateX(-50%) translateY(20px) scale(0.9); }
-      100%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+      0%{ opacity:0; transform:translateY(20px) scale(0.9); }
+      100%{ opacity:1; transform:translateY(0) scale(1); }
     }
     @keyframes cartToastOut{
-      0%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
-      100%{ opacity:0; transform:translateX(-50%) translateY(-10px) scale(0.9); }
+      0%{ opacity:1; transform:translateY(0) scale(1); }
+      100%{ opacity:0; transform:translateY(-10px) scale(0.9); }
     }
     /* Persistent "In Cart" badge for job BOM cards */
     .job-bom-in-cart{
@@ -7349,16 +7361,7 @@
         from{ transform:translateY(20px); opacity:0; }
         to{ transform:translateY(0); opacity:1; }
       }
-      /* Mobile: adjust body padding and appMain height for header */
-      body{ padding-top:120px; }
-      @supports (padding-top: env(safe-area-inset-top)){
-        body{ padding-top:calc(120px + env(safe-area-inset-top)); }
-      }
-      #appMain{ height:calc(100vh - 120px); }
-      @supports (height: calc(100vh - env(safe-area-inset-top))){
-        #appMain{ height:calc(100vh - 120px - env(safe-area-inset-top)); }
-      }
-      .order-pill-container{ top:calc(180px + env(safe-area-inset-top, 0px)); }
+      .order-pill-container{ top:var(--inventory-sticky-offset, 150px); }
     }
     @media (max-width:400px){
       .inv-stats-row{ gap:2px; }
@@ -7622,18 +7625,17 @@
     }
     /* Main app order pill - positioned below sticky toolbar, sticky */
     .order-pill-container{
-      position:sticky;
-      top:calc(150px + env(safe-area-inset-top, 0px));
-      z-index:17;
+      position:relative;
+      top:auto;
+      z-index:1;
       display:flex;
       justify-content:center;
-      padding:10px 0;
-      margin-left:-12px;
-      margin-right:-12px;
-      background:linear-gradient(to bottom, var(--card) 60%, transparent 100%);
+      padding:0;
+      margin:4px 0 2px;
+      background:transparent;
     }
     @supports not (top: env(safe-area-inset-top)){
-      .order-pill-container{ top:150px; }
+      .order-pill-container{ top:auto; }
     }
     .order-pill{
       width:auto;
@@ -9998,6 +10000,23 @@
           </div>
         </div>
       </div>
+      <div class="header-notices" id="headerNotices">
+        <div class="order-pill-container" id="orderPillContainer" style="display:none;">
+          <div class="order-pill" id="orderPill" role="status" aria-live="polite">
+            <span class="order-pill-value" id="orderPillValue">0</span>
+            <span class="order-pill-label">Items in Cart</span>
+            <div class="order-pill-actions">
+              <button class="order-pill-btn" id="orderPillOpen" type="button" title="Create Order" aria-label="Create Order">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.6a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6l1.65-8.6H6"></path></svg>
+              </button>
+              <button class="order-pill-btn order-pill-btn--clear" id="orderPillClear" type="button" title="Clear Cart" aria-label="Clear Cart" data-order-reset>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      </div>
     </div>
   </header>
 
@@ -10348,21 +10367,6 @@
 	        <span id="totalLowStock" class="muted">Low Stock: 0</span>
 	        <span id="totalOutOfStock" class="muted">Out of Stock: 0</span>
 	        <span id="totalQty" class="muted">Total Qty: 0</span>
-	      </div>
-
-	      <div class="order-pill-container" id="orderPillContainer" style="display:none;">
-	        <div class="order-pill" id="orderPill" role="status" aria-live="polite">
-	          <span class="order-pill-value" id="orderPillValue">0</span>
-	          <span class="order-pill-label">Items in Cart</span>
-	          <div class="order-pill-actions">
-	            <button class="order-pill-btn" id="orderPillOpen" type="button" title="Create Order" aria-label="Create Order">
-	              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.6a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6l1.65-8.6H6"></path></svg>
-	            </button>
-	            <button class="order-pill-btn order-pill-btn--clear" id="orderPillClear" type="button" title="Clear Cart" aria-label="Clear Cart" data-order-reset>
-	              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
-	            </button>
-	          </div>
-	        </div>
 	      </div>
 
 	      <!-- Card View (hidden by default) -->
@@ -13297,8 +13301,6 @@
       </div>
     </div>
   </div>
-
-	  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script type="module" src="./src/utils.js"></script>
 
@@ -22768,6 +22770,9 @@ function emptyStateHtml(){
       const headerHeight = header ? header.getBoundingClientRect().height : 0;
       const toolbarHeight = toolbar ? toolbar.getBoundingClientRect().height : 0;
       const offset = Math.round(headerHeight + toolbarHeight + 6);
+      if(headerHeight > 0){
+        document.documentElement.style.setProperty('--app-header-offset', `${Math.round(headerHeight)}px`);
+      }
       document.documentElement.style.setProperty('--inventory-sticky-offset', `${offset}px`);
     }
 	    function renderTable(columnDefsOverride, layoutOverride){
@@ -26611,6 +26616,7 @@ function emptyStateHtml(){
           syncReportOrderIndicators();
         }
       }catch(e){}
+      try{ updateInventoryStickyOffset(); }catch(e){}
     }
     function afterOrderStateChanged(){
       try{ updateOrderCounterBadge(); }catch(e){}
@@ -26717,13 +26723,20 @@ function emptyStateHtml(){
       const toast = document.createElement('div');
       toast.className = 'cart-feedback-toast';
       toast.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg><span>+${qty} added to order</span>`;
-      document.body.appendChild(toast);
+      const notices = $('headerNotices');
+      if(notices){
+        notices.appendChild(toast);
+      }else{
+        document.body.appendChild(toast);
+      }
+      try{ updateInventoryStickyOffset(); }catch(e){}
       // Remove after animation
       setTimeout(()=>{
         toast.style.animation = 'cartToastOut 0.3s ease forwards';
         setTimeout(()=>{
           toast.remove();
           btn.classList.remove('cart-added');
+          try{ updateInventoryStickyOffset(); }catch(e){}
         }, 300);
       }, 1700);
     }
@@ -30167,7 +30180,8 @@ function emptyStateHtml(){
     function syncJobActualDraftFromDom(){
       const editor = state._jobEditor;
       if(!editor) return;
-      const rows = Array.from(document.querySelectorAll('[data-actual-item-id]'));
+      // Only select the card containers, not the buttons inside them
+      const rows = Array.from(document.querySelectorAll('.job-completion-card[data-actual-item-id]'));
       if(!rows.length) return;
       const map = new Map();
       rows.forEach(row=>{
@@ -31608,7 +31622,8 @@ function emptyStateHtml(){
       }
     }
     function collectJobActuals(){
-      const rows = Array.from(document.querySelectorAll('[data-actual-item-id]'));
+      // Only select the card containers, not the buttons inside them
+      const rows = Array.from(document.querySelectorAll('.job-completion-card[data-actual-item-id]'));
       return rows.map(row=>{
         const itemId = String(row.getAttribute('data-actual-item-id') || '').trim();
         const input = row.querySelector('[data-actual-qty-input]');
@@ -35087,7 +35102,18 @@ function emptyStateHtml(){
 		      e.preventDefault();
 		      closeQtyEntryModal(null);
 		    });
-		    function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._tmr); t._tmr=setTimeout(()=> t.style.display='none', 2000); }
+		    function toast(msg){
+		      const t=$('toast');
+		      if(!t) return;
+		      t.textContent=msg;
+		      t.style.display='block';
+		      try{ updateInventoryStickyOffset(); }catch(e){}
+		      clearTimeout(t._tmr);
+		      t._tmr=setTimeout(()=> {
+		        t.style.display='none';
+		        try{ updateInventoryStickyOffset(); }catch(e){}
+		      }, 2000);
+		    }
 
     // iOS keyboard-safe scroll height
     document.addEventListener('focusin', (e)=>{
