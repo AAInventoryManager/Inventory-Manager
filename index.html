@@ -917,10 +917,14 @@
 	      display:flex;
 	      flex-direction:column;
 	      gap:6px;
-	      margin-top:10px;
-	      max-height:300px;
-	      overflow:auto;
+	      margin-top:0;
+	      max-height:260px;
+	      overflow-y:auto;
 	      padding-right:4px;
+	    }
+	    /* Column builder inline mode for layout tab */
+	    .inv-column-sorter .column-builder-list{
+	      margin-top:0;
 	    }
 	    .column-option{
 	      display:flex;
@@ -6580,34 +6584,248 @@
        Inventory List Redesign - Glassmorphism
        ============================================ */
 
-    /* Stats Row - inside toolbar sticky header */
-    .inv-stats-row{
+    /* ==================== CENTERED TABS ==================== */
+    .inv-tabs-container{
       display:flex;
-      gap:10px;
-      flex-wrap:wrap;
+      justify-content:center;
+      align-items:center;
       width:100%;
+      margin-bottom:12px;
+    }
+    .inv-header-tabs{
+      display:inline-flex;
+      gap:8px;
+      background:rgba(0,0,0,0.3);
+      border-radius:12px;
+      padding:4px;
+    }
+    .inv-header-tab{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 16px;
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      border-radius:8px;
+      transition:all 0.2s ease;
+    }
+    .inv-header-tab:hover:not(.is-active){
+      background:rgba(255,255,255,0.03);
+      color:var(--fg);
+    }
+    .inv-header-tab.is-active{
+      background:var(--card-elevated, #1a2332);
+      color:var(--fg);
+      box-shadow:0 2px 8px rgba(0,0,0,0.3);
+    }
+    .inv-header-tab svg{
+      width:16px;
+      height:16px;
+    }
+
+    /* ==================== TAB CONTENT ==================== */
+    .inv-tab-content{
+      max-height:0;
+      overflow:hidden;
+      padding:0 16px;
+      background:rgba(0,0,0,0.2);
+      border:1px solid transparent;
+      border-radius:12px;
+      margin-bottom:0;
+      opacity:0;
+      transition:all 0.25s ease;
+    }
+    .inv-tab-content.is-active{
+      max-height:500px;
+      padding:16px;
+      border-color:rgba(255,255,255,0.06);
+      margin-bottom:16px;
+      opacity:1;
+      overflow-y:auto;
+    }
+
+    /* Layout tab sections */
+    .inv-layout-options{
+      display:flex;
+      flex-wrap:wrap;
+      gap:16px;
+    }
+    .inv-layout-group{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .inv-layout-group-label{
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      color:var(--muted);
+    }
+    .inv-layout-toggle{
+      display:flex;
+      background:rgba(0,0,0,0.3);
+      border-radius:8px;
+      padding:4px;
+    }
+    .inv-layout-btn{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding:8px 14px;
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:500;
+      cursor:pointer;
+      border-radius:6px;
+      transition:all 0.15s;
+    }
+    .inv-layout-btn:hover:not(.is-active){
+      background:rgba(255,255,255,0.05);
+      color:var(--fg);
+    }
+    .inv-layout-btn.is-active{
+      background:var(--card-elevated, #1a2332);
+      color:var(--fg);
+      box-shadow:0 2px 6px rgba(0,0,0,0.2);
+    }
+    .inv-layout-btn svg{
+      width:16px;
+      height:16px;
+    }
+
+    /* Column sorter section in layout tab */
+    .inv-column-sorter{
+      margin-top:16px;
+      padding-top:16px;
+      border-top:1px solid rgba(255,255,255,0.06);
+    }
+    .inv-column-sorter-header{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .inv-column-sorter-hint{
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    /* Row tap section */
+    .inv-row-tap-section{
+      margin-top:16px;
+      padding-top:16px;
+      border-top:1px solid rgba(255,255,255,0.06);
+    }
+    .inv-row-tap-options{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
       margin-top:10px;
     }
-    .inv-stat-card{
-      flex:1 1 100px;
-      min-width:80px;
+    .inv-row-tap-option{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size:13px;
+      color:var(--fg);
+      cursor:pointer;
+      padding:8px 12px;
+      border-radius:8px;
+      transition:background 0.15s;
+    }
+    .inv-row-tap-option:hover{
+      background:rgba(255,255,255,0.03);
+    }
+
+    /* Sort tab */
+    .inv-sort-options{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .inv-sort-option{
+      display:flex;
+      align-items:center;
+      gap:8px;
       padding:10px 14px;
-      background:rgba(26,31,38,0.7);
-      backdrop-filter:blur(16px);
-      -webkit-backdrop-filter:blur(16px);
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      color:var(--muted);
+      font-size:13px;
+      font-weight:500;
+      cursor:pointer;
+      border-radius:8px;
+      transition:all 0.15s;
+    }
+    .inv-sort-option:hover{
+      border-color:rgba(255,255,255,0.2);
+      color:var(--fg);
+    }
+    .inv-sort-option.is-active{
+      border-color:var(--accent);
+      background:rgba(59,130,246,0.15);
+      color:#e0edff;
+    }
+    .inv-sort-option svg{
+      width:14px;
+      height:14px;
+    }
+    .inv-sort-direction{
+      width:24px;
+      height:24px;
+      border-radius:4px;
+      background:rgba(0,0,0,0.2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-left:auto;
+    }
+    .inv-sort-option.is-active .inv-sort-direction{
+      background:rgba(59,130,246,0.3);
+    }
+
+    /* Stats Row - grid layout */
+    .inv-stats-row{
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:10px;
+      width:100%;
+      margin-bottom:12px;
+    }
+    .inv-stat-card{
+      padding:12px;
+      background:rgba(0,0,0,0.2);
+      border:1px solid rgba(255,255,255,0.06);
       border-radius:10px;
-      border:1px solid rgba(255,255,255,0.08);
-      box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.05);
       display:flex;
       flex-direction:column;
       align-items:center;
       gap:2px;
       text-align:center;
+      cursor:pointer;
+      transition:all 0.15s;
+    }
+    .inv-stat-card:hover{
+      border-color:rgba(255,255,255,0.1);
+      background:rgba(0,0,0,0.25);
+    }
+    .inv-stat-card.is-active{
+      border-color:rgba(59,130,246,0.4);
+      background:rgba(59,130,246,0.08);
     }
     .inv-stat-value{
-      font-size:22px;
-      font-weight:800;
+      font-size:24px;
+      font-weight:700;
       font-variant-numeric:tabular-nums;
+      margin-bottom:2px;
       line-height:1;
       color:var(--fg);
     }
@@ -6615,10 +6833,11 @@
     .inv-stat-value--yellow{ color:#f59e0b; }
     .inv-stat-value--muted{ color:#94a3b8; }
     .inv-stat-label{
-      font-size:10px;
-      color:#94a3b8;
+      font-size:11px;
+      font-weight:600;
+      color:#64748b;
       text-transform:uppercase;
-      letter-spacing:0.4px;
+      letter-spacing:0.5px;
     }
 
     /* View Toggle */
@@ -7066,10 +7285,17 @@
     }
 
     /* Responsive adjustments for inventory redesign */
+    @media (max-width:768px){
+      .inv-stats-row{ grid-template-columns:repeat(2, 1fr); }
+      .inv-tabs-container{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+      .inv-header-tabs{ flex-shrink:0; }
+      .inv-header-tab{ white-space:nowrap; }
+      .inv-layout-options{ flex-direction:column; }
+    }
     @media (max-width:640px){
       .inv-stats-row{ gap:8px; }
-      .inv-stat-card{ padding:8px 10px; min-width:70px; }
-      .inv-stat-value{ font-size:18px; }
+      .inv-stat-card{ padding:8px 10px; }
+      .inv-stat-value{ font-size:20px; }
       .inv-stat-label{ font-size:9px; }
       .inv-card-grid{ grid-template-columns:1fr; }
       .inv-view-toggle{ display:flex; }
@@ -7089,7 +7315,7 @@
       .order-pill-container{ top:calc(180px + env(safe-area-inset-top, 0px)); }
     }
     @media (max-width:400px){
-      .inv-stat-card{ min-width:60px; padding:6px 8px; }
+      .inv-stat-card{ padding:6px 8px; }
       .inv-stat-value{ font-size:16px; }
     }
 
@@ -9880,116 +10106,186 @@
 
   <main id="appMain">
     <section class="card">
-	      <div class="toolbar" role="toolbar" aria-label="Inventory actions" style="justify-content:center;">
+	      <div class="toolbar" role="toolbar" aria-label="Inventory actions">
 	        <input type="file" id="fileImport" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.docx,.doc,.pdf" style="display:none" />
-	        <div class="inv-controls">
-	          <div class="inv-filter-group">
-	            <div class="input-wrap">
-	              <input id="filterBox" type="text" placeholder="Filter items…" aria-label="Filter items" />
-	              <button class="icon-btn icon-btn--default clear-input-btn" id="btnClearFilter" type="button" aria-label="Clear filter" title="Clear filter" style="display:none">
-	                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-	                  <path d="M18 6L6 18"></path>
-	                  <path d="M6 6l12 12"></path>
-	                </svg>
-	              </button>
-	            </div>
-	            <div class="inv-filter-pills" id="invQuickFilters" role="group" aria-label="Quick filters">
-	              <button class="inv-filter-pill is-active" type="button" data-filter="all" aria-pressed="true">All</button>
-	              <button class="inv-filter-pill" type="button" data-filter="in_stock" aria-pressed="false">In Stock</button>
-	              <button class="inv-filter-pill" type="button" data-filter="low_stock" aria-pressed="false">Low Stock</button>
-	              <button class="inv-filter-pill" type="button" data-filter="out_of_stock" aria-pressed="false">Out of Stock</button>
-	            </div>
-	          </div>
-	          <div class="sort-wrap" id="mobileSortWrap">
-	            <select id="mobileSort" aria-label="Sort items">
-	              <option value="name:asc">Item (A–Z)</option>
-	              <option value="name:desc">Item (Z–A)</option>
-	              <option value="desc:asc">Description (A–Z)</option>
-	              <option value="desc:desc">Description (Z–A)</option>
-	              <option value="qty:asc">Qty (Low–High)</option>
-	              <option value="qty:desc">Qty (High–Low)</option>
-	              <option value="updatedAt:desc">Last Modified (Newest)</option>
-	              <option value="updatedAt:asc">Last Modified (Oldest)</option>
-	            </select>
-	          </div>
-	          <div class="inv-view-toggle" id="invViewToggle" role="group" aria-label="View mode">
-	            <button class="inv-view-btn" id="btnViewCards" type="button" title="Card View" aria-pressed="false">
-	              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-	                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-	                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-	                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-	                <rect x="14" y="14" width="7" height="7" rx="1"></rect>
-	              </svg>
-	            </button>
-	            <button class="inv-view-btn is-active" id="btnViewTable" type="button" title="Table View" aria-pressed="true">
-	              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-	                <path d="M3 6h18M3 12h18M3 18h18"></path>
-	              </svg>
-	            </button>
-	          </div>
-	          <div class="columns-wrap">
-	            <button class="btn-secondary btn-with-icon" id="btnColumnBuilder" type="button" aria-haspopup="dialog" aria-expanded="false">
-	              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-	                <rect x="3" y="3" width="7" height="18"></rect>
-	                <rect x="14" y="3" width="7" height="18"></rect>
-	              </svg>
-	              <span>Display</span>
-	            </button>
-	            <div class="column-builder" id="columnBuilder" role="dialog" aria-label="Display settings" aria-hidden="true">
-	              <div class="column-builder-header">
-	                <div>
-	                  <div class="column-builder-title">Display Settings</div>
-	                  <div class="column-builder-subtitle">Fields shown in Table and Card views</div>
-	                </div>
-	                <button class="column-builder-drag" id="columnBuilderDrag" type="button" aria-label="Move column builder" title="Drag to move"></button>
-	              </div>
-	              <div class="column-builder-list" id="columnBuilderList"></div>
-	              <div class="column-builder-section">
-                <div class="column-builder-section-title">Row Tap</div>
-                <div class="column-builder-tap" id="columnBuilderTap">
-                  <label for="rowTapExpandDetails" data-tap-option="expand_details">
-                    <input type="radio" id="rowTapExpandDetails" name="rowTapPref" value="expand_details">
-                    Expand details
-                  </label>
-                  <label for="rowTapOrder" data-tap-option="add_to_order">
-                    <input type="radio" id="rowTapOrder" name="rowTapPref" value="add_to_order">
-                    Add to order
-                  </label>
-                  <label for="rowTapJob" data-tap-option="add_to_job">
-                    <input type="radio" id="rowTapJob" name="rowTapPref" value="add_to_job">
-                    Add to job
-                  </label>
-                  <label for="rowTapEdit" data-tap-option="edit_item">
-                    <input type="radio" id="rowTapEdit" name="rowTapPref" value="edit_item">
-                    Edit item
-                  </label>
-                </div>
-              </div>
-	              <div class="column-builder-actions">
-	                <button class="btn-tertiary btn-sm" id="btnColumnsReset" type="button">Reset to defaults</button>
-	                <button class="btn-secondary" id="btnColumnsClose" type="button">Close</button>
-	              </div>
-	            </div>
-	          </div>
-	        </div>
-	        <!-- Stats Cards Row - inside toolbar for sticky header -->
+
+	        <!-- Stats Cards Row -->
 	        <div class="inv-stats-row" id="invStatsRow" aria-live="polite">
-	          <div class="inv-stat-card">
+	          <div class="inv-stat-card" data-stat-filter="all">
 	            <span class="inv-stat-value" id="statTotalItems">0</span>
 	            <span class="inv-stat-label">Total Items</span>
 	          </div>
-	          <div class="inv-stat-card">
+	          <div class="inv-stat-card" data-stat-filter="in_stock">
 	            <span class="inv-stat-value inv-stat-value--green" id="statInStock">0</span>
 	            <span class="inv-stat-label">In Stock</span>
 	          </div>
-	          <div class="inv-stat-card">
+	          <div class="inv-stat-card" data-stat-filter="low_stock">
 	            <span class="inv-stat-value inv-stat-value--yellow" id="statLowStock">0</span>
 	            <span class="inv-stat-label">Low Stock</span>
 	          </div>
-	          <div class="inv-stat-card">
+	          <div class="inv-stat-card" data-stat-filter="out_of_stock">
 	            <span class="inv-stat-value inv-stat-value--muted" id="statTotalQty">0</span>
 	            <span class="inv-stat-label">Total Qty</span>
 	          </div>
+	        </div>
+
+	        <!-- Centered Tabs -->
+	        <div class="inv-tabs-container">
+	          <div class="inv-header-tabs" role="tablist">
+	            <button class="inv-header-tab" data-inv-tab="filter" type="button" role="tab" aria-selected="false">
+	              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+	                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+	              </svg>
+	              <span>Search &amp; Filter</span>
+	            </button>
+	            <button class="inv-header-tab" data-inv-tab="layout" type="button" role="tab" aria-selected="false">
+	              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+	                <rect x="3" y="3" width="7" height="7"></rect>
+	                <rect x="14" y="3" width="7" height="7"></rect>
+	                <rect x="14" y="14" width="7" height="7"></rect>
+	                <rect x="3" y="14" width="7" height="7"></rect>
+	              </svg>
+	              <span>Layout</span>
+	            </button>
+	            <button class="inv-header-tab" data-inv-tab="sort" type="button" role="tab" aria-selected="false">
+	              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+	                <line x1="4" y1="6" x2="20" y2="6"></line>
+	                <line x1="4" y1="12" x2="16" y2="12"></line>
+	                <line x1="4" y1="18" x2="12" y2="18"></line>
+	              </svg>
+	              <span>Sort</span>
+	            </button>
+	          </div>
+	        </div>
+
+	        <!-- Filter Tab Content -->
+	        <div class="inv-tab-content" data-inv-tab-content="filter" role="tabpanel">
+	          <div class="input-wrap" style="margin-bottom:12px;">
+	            <input id="filterBox" type="text" placeholder="Search items…" aria-label="Filter items" />
+	            <button class="icon-btn icon-btn--default clear-input-btn" id="btnClearFilter" type="button" aria-label="Clear filter" title="Clear filter" style="display:none">
+	              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+	                <path d="M18 6L6 18"></path>
+	                <path d="M6 6l12 12"></path>
+	              </svg>
+	            </button>
+	          </div>
+	          <div class="inv-filter-pills" id="invQuickFilters" role="group" aria-label="Quick filters">
+	            <button class="inv-filter-pill is-active" type="button" data-filter="all" aria-pressed="true">All</button>
+	            <button class="inv-filter-pill" type="button" data-filter="in_stock" aria-pressed="false">In Stock</button>
+	            <button class="inv-filter-pill" type="button" data-filter="low_stock" aria-pressed="false">Low Stock</button>
+	            <button class="inv-filter-pill" type="button" data-filter="out_of_stock" aria-pressed="false">Out of Stock</button>
+	          </div>
+	        </div>
+
+	        <!-- Layout Tab Content -->
+	        <div class="inv-tab-content" data-inv-tab-content="layout" role="tabpanel">
+	          <div class="inv-layout-options">
+	            <div class="inv-layout-group">
+	              <div class="inv-layout-group-label">View</div>
+	              <div class="inv-layout-toggle" id="invViewToggle" role="group" aria-label="View mode">
+	                <button class="inv-layout-btn" id="btnViewCards" type="button" title="Card View" aria-pressed="false">
+	                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+	                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+	                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+	                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+	                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+	                  </svg>
+	                  Grid
+	                </button>
+	                <button class="inv-layout-btn is-active" id="btnViewTable" type="button" title="Table View" aria-pressed="true">
+	                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+	                    <path d="M3 6h18M3 12h18M3 18h18"></path>
+	                  </svg>
+	                  List
+	                </button>
+	              </div>
+	            </div>
+	          </div>
+
+	          <!-- Column Sorter Section - PRESERVED for hysteresis drag -->
+	          <div class="inv-column-sorter">
+	            <div class="inv-column-sorter-header">
+	              <div class="inv-layout-group-label">Column Sorter</div>
+	              <div class="inv-column-sorter-hint">Drag to reorder • Uncheck to hide</div>
+	            </div>
+	            <div class="columns-wrap" style="position:static;">
+	              <div class="column-builder" id="columnBuilder" role="region" aria-label="Column settings" style="position:static;display:block;background:transparent;border:none;padding:0;box-shadow:none;">
+	                <div class="column-builder-list" id="columnBuilderList"></div>
+	              </div>
+	            </div>
+	          </div>
+
+	          <!-- Row Tap Section -->
+	          <div class="inv-row-tap-section">
+	            <div class="inv-layout-group-label">Row Tap</div>
+	            <div class="column-builder-tap" id="columnBuilderTap">
+	              <label for="rowTapExpandDetails" data-tap-option="expand_details" class="inv-row-tap-option">
+	                <input type="radio" id="rowTapExpandDetails" name="rowTapPref" value="expand_details">
+	                Expand details
+	              </label>
+	              <label for="rowTapOrder" data-tap-option="add_to_order" class="inv-row-tap-option">
+	                <input type="radio" id="rowTapOrder" name="rowTapPref" value="add_to_order">
+	                Add to order
+	              </label>
+	              <label for="rowTapJob" data-tap-option="add_to_job" class="inv-row-tap-option">
+	                <input type="radio" id="rowTapJob" name="rowTapPref" value="add_to_job">
+	                Add to job
+	              </label>
+	              <label for="rowTapEdit" data-tap-option="edit_item" class="inv-row-tap-option">
+	                <input type="radio" id="rowTapEdit" name="rowTapPref" value="edit_item">
+	                Edit item
+	              </label>
+	            </div>
+	          </div>
+	        </div>
+
+	        <!-- Sort Tab Content -->
+	        <div class="inv-tab-content" data-inv-tab-content="sort" role="tabpanel">
+	          <div class="inv-sort-options" id="invSortOptions">
+	            <button class="inv-sort-option is-active" data-sort="name:asc" type="button">
+	              Item Name
+	              <span class="inv-sort-direction">
+	                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+	                  <polyline points="18 15 12 9 6 15"></polyline>
+	                </svg>
+	              </span>
+	            </button>
+	            <button class="inv-sort-option" data-sort="sku:asc" type="button">
+	              SKU
+	              <span class="inv-sort-direction">
+	                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+	                  <polyline points="18 15 12 9 6 15"></polyline>
+	                </svg>
+	              </span>
+	            </button>
+	            <button class="inv-sort-option" data-sort="qty:desc" type="button">
+	              On Hand
+	              <span class="inv-sort-direction">
+	                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+	                  <polyline points="6 9 12 15 18 9"></polyline>
+	                </svg>
+	              </span>
+	            </button>
+	            <button class="inv-sort-option" data-sort="updatedAt:desc" type="button">
+	              Last Updated
+	              <span class="inv-sort-direction">
+	                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+	                  <polyline points="6 9 12 15 18 9"></polyline>
+	                </svg>
+	              </span>
+	            </button>
+	          </div>
+	          <!-- Hidden select for existing sort functionality -->
+	          <select id="mobileSort" aria-label="Sort items" style="display:none;">
+	            <option value="name:asc">Item (A–Z)</option>
+	            <option value="name:desc">Item (Z–A)</option>
+	            <option value="desc:asc">Description (A–Z)</option>
+	            <option value="desc:desc">Description (Z–A)</option>
+	            <option value="qty:asc">Qty (Low–High)</option>
+	            <option value="qty:desc">Qty (High–Low)</option>
+	            <option value="updatedAt:desc">Last Modified (Newest)</option>
+	            <option value="updatedAt:asc">Last Modified (Oldest)</option>
+	          </select>
 	        </div>
 	      </div>
 
@@ -22701,6 +22997,96 @@ function emptyStateHtml(){
       });
     }
 
+    // Inventory header tabs toggle
+    function initInventoryTabs(){
+      let activeTab = null;
+      const tabs = document.querySelectorAll('.inv-header-tab[data-inv-tab]');
+      const contents = document.querySelectorAll('.inv-tab-content[data-inv-tab-content]');
+
+      function toggleTab(tabName){
+        const tabBtn = document.querySelector(`.inv-header-tab[data-inv-tab="${tabName}"]`);
+        const tabContent = document.querySelector(`.inv-tab-content[data-inv-tab-content="${tabName}"]`);
+
+        if(activeTab === tabName){
+          // Close current tab
+          if(tabBtn) tabBtn.classList.remove('is-active');
+          if(tabContent) tabContent.classList.remove('is-active');
+          tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+          activeTab = null;
+          return;
+        }
+
+        // Close all tabs
+        tabs.forEach(t => {
+          t.classList.remove('is-active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        contents.forEach(c => c.classList.remove('is-active'));
+
+        // Open selected tab
+        if(tabBtn){
+          tabBtn.classList.add('is-active');
+          tabBtn.setAttribute('aria-selected', 'true');
+        }
+        if(tabContent) tabContent.classList.add('is-active');
+        activeTab = tabName;
+      }
+
+      // Bind tab click handlers
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabName = tab.getAttribute('data-inv-tab');
+          if(tabName) toggleTab(tabName);
+        });
+      });
+
+      // Bind sort option handlers
+      const sortOptions = document.querySelectorAll('.inv-sort-option[data-sort]');
+      const mobileSort = $('mobileSort');
+      sortOptions.forEach(opt => {
+        opt.addEventListener('click', () => {
+          const sortValue = opt.getAttribute('data-sort');
+          if(!sortValue) return;
+
+          // Update visual state
+          sortOptions.forEach(o => o.classList.remove('is-active'));
+          opt.classList.add('is-active');
+
+          // Sync with hidden select and trigger sort
+          if(mobileSort){
+            mobileSort.value = sortValue;
+            mobileSort.dispatchEvent(new Event('change'));
+          }
+        });
+      });
+
+      // Bind stat card click handlers for quick filtering
+      const statCards = document.querySelectorAll('.inv-stat-card[data-stat-filter]');
+      statCards.forEach(card => {
+        card.addEventListener('click', () => {
+          const filter = card.getAttribute('data-stat-filter');
+          if(!filter) return;
+
+          // Update stat card visual state
+          statCards.forEach(c => c.classList.remove('is-active'));
+          if(filter !== 'all') card.classList.add('is-active');
+
+          // Trigger filter pill
+          const pill = document.querySelector(`.inv-filter-pill[data-filter="${filter}"]`);
+          if(pill) pill.click();
+        });
+      });
+
+      // Bind layout button handlers (Grid/List)
+      const layoutBtns = document.querySelectorAll('.inv-layout-btn');
+      layoutBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          layoutBtns.forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+        });
+      });
+    }
+
     function initInventoryViews(){
       _invViewMode = getInventoryViewMode();
       const btnCards = $('btnViewCards');
@@ -22879,14 +23265,14 @@ function emptyStateHtml(){
     }
 
 	    function initColumnBuilder(){
-	      const btn = $('btnColumnBuilder');
+	      const btn = $('btnColumnBuilder'); // May be null in new inline design
 	      const panel = $('columnBuilder');
 	      const list = $('columnBuilderList');
-	      const resetBtn = $('btnColumnsReset');
-	      const closeBtn = $('btnColumnsClose');
-	      const dragHandle = $('columnBuilderDrag');
+	      const resetBtn = $('btnColumnsReset'); // May be null in new inline design
+	      const closeBtn = $('btnColumnsClose'); // May be null in new inline design
+	      const dragHandle = $('columnBuilderDrag'); // May be null in new inline design
 	      const tapWrap = $('columnBuilderTap');
-	      if(!btn || !panel || !list) return;
+	      if(!panel || !list) return; // Only require panel and list for drag functionality
 	      const syncTapUI = ()=>{
 	        if(!tapWrap) return;
 	        const allowed = getAllowedInventoryRowTapOptions();
@@ -22930,16 +23316,16 @@ function emptyStateHtml(){
 	        }
 	        panel.classList.add('open');
 	        panel.setAttribute('aria-hidden', 'false');
-	        btn.setAttribute('aria-expanded', 'true');
+	        if(btn) btn.setAttribute('aria-expanded', 'true');
 	        syncTapUI();
 	      };
 	      const close = ()=>{
 	        panel.classList.remove('open');
 	        panel.setAttribute('aria-hidden', 'true');
-	        btn.setAttribute('aria-expanded', 'false');
+	        if(btn) btn.setAttribute('aria-expanded', 'false');
 	      };
 
-	      if(!btn._wired){
+	      if(btn && !btn._wired){
 	        btn._wired = true;
 	        btn.addEventListener('click', (e)=>{
 	          e.preventDefault();
@@ -35423,6 +35809,7 @@ function emptyStateHtml(){
       updateInventoryStickyOffset();
       initColumnBuilder();
       initInventoryViews();
+      initInventoryTabs();
       initButtonSystem();
       storeOnboardingIntentFromUrl();
       loadOnboardingIntent();
