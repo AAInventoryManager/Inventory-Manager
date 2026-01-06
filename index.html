@@ -933,7 +933,7 @@
 	      border-radius:12px;
 	      border:1px solid rgba(148,163,184,0.18);
 	      background:rgba(12,16,22,0.6);
-	      transition:background 0.16s ease, border-color 0.16s ease, transform 0.22s ease;
+	      transition:background 0.16s ease, border-color 0.16s ease, transform 0.28s cubic-bezier(0.2, 0, 0, 1);
 	      will-change:transform;
 	    }
 	    .column-option input{ width:18px; height:18px; }
@@ -946,10 +946,17 @@
 	    .column-option.is-draggable{ cursor:grab; }
 	    .column-option.is-draggable:active{ cursor:grabbing; }
 	    .column-option.dragging{
-	      opacity:0.85;
-	      background:#0b1420;
-	      border-color:#1f3c57;
-	      box-shadow:0 12px 28px rgba(0,0,0,0.35);
+	      position:fixed;
+	      z-index:10000;
+	      pointer-events:none;
+	      box-shadow:0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(99,179,237,0.4);
+	      background:#0f1a28;
+	      border-color:#3b82f6;
+	      opacity:0.95;
+	    }
+	    .column-option.drag-placeholder{
+	      opacity:0.4;
+	      border-style:dashed;
 	    }
 	    .drag-handle{
 	      width:20px;
@@ -966,7 +973,6 @@
 	      user-select:none;
 	      touch-action:none;
 	      margin-left:auto;
-	      pointer-events:none;
 	    }
 	    .drag-handle:active{ cursor:grabbing; }
 	    .drag-handle.disabled{
@@ -2130,23 +2136,30 @@
       width:20px;
       height:20px;
     }
+    #orderModal .modal{
+      max-width:540px;
+    }
     #orderModal .modal-title{
       font-size:17px;
       font-weight:600;
     }
 
     /* Progress Stepper */
+    .order-wizard-stepper-wrap{
+      padding:14px 20px;
+      border-bottom:1px solid var(--border-subtle);
+      background:var(--card);
+      flex-shrink:0;
+    }
     .order-wizard-stepper{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:4px;
-      margin:16px 20px 8px;
       padding:4px;
       background:rgba(0,0,0,0.3);
       border:1px solid var(--border-subtle);
       border-radius:10px;
-      flex-shrink:0;
     }
     .order-wizard-step{
       flex:1;
@@ -2411,6 +2424,10 @@
       border-color:rgba(245,158,11,0.3);
       background:rgba(245,158,11,0.03);
     }
+    .order-cart-item.has-warning{
+      border-color:rgba(245,158,11,0.3);
+      background:rgba(245,158,11,0.03);
+    }
     .order-cart-item--expanded{
       border-color:rgba(59,130,246,0.3);
     }
@@ -2471,6 +2488,7 @@
       display:flex;
       align-items:center;
       gap:6px;
+      flex-wrap:wrap;
       font-size:12px;
       color:var(--muted);
       padding-left:0;
@@ -2741,6 +2759,57 @@
       font-size:12px;
       color:var(--muted);
     }
+    .order-impact-jobs{
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid rgba(255,255,255,0.08);
+    }
+    .order-impact-toggle{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:600;
+      cursor:pointer;
+      padding:0;
+    }
+    .order-impact-toggle:hover{
+      color:var(--fg);
+    }
+    .order-impact-toggle svg{
+      width:12px;
+      height:12px;
+      transition:transform 0.2s ease;
+    }
+    .order-impact-toggle.is-expanded svg{
+      transform:rotate(180deg);
+    }
+    .order-impact-joblist{
+      display:none;
+      margin-top:8px;
+      flex-direction:column;
+      gap:6px;
+    }
+    .order-impact-joblist.is-expanded{
+      display:flex;
+    }
+    .order-impact-job{
+      padding:6px 8px;
+      border-radius:8px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.08);
+      font-size:12px;
+      color:var(--fg);
+    }
+    .order-impact-card--success .order-impact-job{
+      border-color:rgba(34,197,94,0.25);
+    }
+    .order-impact-card--warning .order-impact-job{
+      border-color:rgba(251,191,36,0.25);
+    }
     .order-cart-empty{
       padding:32px 16px;
       text-align:center;
@@ -2752,6 +2821,320 @@
       height:48px;
       margin-bottom:12px;
       opacity:0.4;
+    }
+
+    /* Order Modal Form Styles */
+    #orderModal .section-title{
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      color:var(--muted);
+      margin:12px 0 8px;
+    }
+    #orderModal .form-card{
+      background:rgba(0,0,0,0.2);
+      border:1px solid var(--border-subtle);
+      border-radius:12px;
+      padding:16px;
+      margin-bottom:16px;
+    }
+    #orderModal .form-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    #orderModal .form-row:last-child{
+      margin-bottom:0;
+    }
+    #orderModal .form-field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    #orderModal .form-field.full-width{
+      grid-column:1 / -1;
+    }
+    #orderModal .form-label{
+      font-size:12px;
+      color:var(--muted);
+    }
+    #orderModal .form-input{
+      width:100%;
+      padding:10px 12px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.2);
+      color:var(--fg);
+      font-size:14px;
+      font-family:inherit;
+      transition:border-color 0.15s, box-shadow 0.15s;
+    }
+    #orderModal .form-input:focus{
+      outline:none;
+      border-color:rgba(59,130,246,0.5);
+      box-shadow:0 0 0 3px rgba(59,130,246,0.15);
+    }
+    #orderModal .form-input[readonly]{
+      background:rgba(0,0,0,0.3);
+      color:var(--muted);
+      cursor:not-allowed;
+    }
+    #orderModal .form-input.textarea{
+      min-height:70px;
+      resize:vertical;
+    }
+    #orderModal .order-shipping-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    #orderModal .order-shipping-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    #orderModal .order-shipping-manage{
+      padding:8px 12px;
+      border-radius:8px;
+      font-size:12px;
+      font-weight:600;
+    }
+    #orderModal .order-shipping-select{
+      position:absolute;
+      left:-9999px;
+      width:1px;
+      height:1px;
+      overflow:hidden;
+    }
+    #orderModal .order-shipping-options{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-bottom:16px;
+    }
+    #orderModal .order-shipping-option{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      padding:12px;
+      background:rgba(0,0,0,0.2);
+      border:1px solid var(--border-subtle);
+      border-radius:10px;
+      cursor:pointer;
+      transition:border-color 0.15s, background 0.15s;
+      text-align:left;
+      width:100%;
+      appearance:none;
+      -webkit-appearance:none;
+      font:inherit;
+      color:inherit;
+    }
+    #orderModal .order-shipping-option:hover{
+      border-color:rgba(255,255,255,0.15);
+    }
+    #orderModal .order-shipping-option.is-selected{
+      border-color:rgba(59,130,246,0.5);
+      background:rgba(59,130,246,0.08);
+    }
+    #orderModal .order-shipping-radio{
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      border:2px solid var(--border);
+      background:rgba(0,0,0,0.3);
+      flex-shrink:0;
+      margin-top:2px;
+      position:relative;
+      transition:border-color 0.15s, background 0.15s;
+    }
+    #orderModal .order-shipping-option.is-selected .order-shipping-radio{
+      border-color:var(--accent);
+      background:var(--accent);
+    }
+    #orderModal .order-shipping-option.is-selected .order-shipping-radio::after{
+      content:'';
+      position:absolute;
+      top:4px;
+      left:4px;
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:#fff;
+    }
+    #orderModal .order-shipping-info{
+      flex:1;
+      min-width:0;
+    }
+    #orderModal .order-shipping-name{
+      font-size:14px;
+      font-weight:600;
+      color:var(--fg);
+      margin-bottom:2px;
+    }
+    #orderModal .order-shipping-address{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.4;
+      white-space:pre-line;
+    }
+    #orderModal .order-shipping-badge{
+      font-size:10px;
+      font-weight:600;
+      text-transform:uppercase;
+      padding:3px 8px;
+      border-radius:4px;
+      background:rgba(59,130,246,0.15);
+      color:#60a5fa;
+      flex-shrink:0;
+      margin-top:2px;
+    }
+    #orderModal .order-shipping-empty{
+      padding:12px;
+      border-radius:10px;
+      border:1px dashed var(--border-subtle);
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    #orderModal .summary-card{
+      background:rgba(0,0,0,0.2);
+      border:1px solid var(--border-subtle);
+      border-radius:12px;
+      overflow:hidden;
+      margin-bottom:16px;
+    }
+    #orderModal .summary-row{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      padding:12px 14px;
+      border-bottom:1px solid var(--border-subtle);
+      gap:12px;
+    }
+    #orderModal .summary-row:last-child{
+      border-bottom:none;
+    }
+    #orderModal .summary-label{
+      font-size:13px;
+      color:var(--muted);
+      flex-shrink:0;
+    }
+    #orderModal .summary-value{
+      font-size:13px;
+      font-weight:500;
+      color:var(--fg);
+      text-align:right;
+    }
+    #orderModal .summary-value.highlight{
+      color:var(--accent);
+      font-weight:600;
+    }
+    #orderModal .summary-value .address{
+      display:block;
+      font-weight:400;
+      color:var(--muted);
+      font-size:12px;
+      margin-top:2px;
+      white-space:pre-line;
+    }
+    #orderModal .job-link{
+      color:#fbbf24;
+      text-decoration:none;
+      font-weight:500;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      transition:color 0.15s;
+    }
+    #orderModal .job-link:hover{
+      color:#fbbf24;
+      text-decoration:underline;
+    }
+    #orderModal .job-link svg{
+      width:12px;
+      height:12px;
+      opacity:0.7;
+    }
+
+    #orderModal .toggle-option{
+      background:rgba(245,158,11,0.08);
+      border:1px solid rgba(245,158,11,0.2);
+      border-radius:10px;
+      padding:12px 14px;
+      margin-bottom:16px;
+    }
+    #orderModal .toggle-row{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    #orderModal .toggle-content{
+      flex:1;
+    }
+    #orderModal .toggle-label{
+      font-size:13px;
+      font-weight:600;
+      color:var(--fg);
+      margin-bottom:2px;
+    }
+    #orderModal .toggle-hint{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.4;
+    }
+    #orderModal .toggle-wrap{
+      display:flex;
+      align-items:center;
+      cursor:pointer;
+      flex-shrink:0;
+    }
+    #orderModal .toggle-input{
+      position:absolute;
+      opacity:0;
+      width:0;
+      height:0;
+    }
+    #orderModal .toggle-switch{
+      width:44px;
+      height:24px;
+      border-radius:12px;
+      background:rgba(255,255,255,0.1);
+      position:relative;
+      transition:background 0.2s ease;
+      cursor:pointer;
+    }
+    #orderModal .toggle-switch::after{
+      content:'';
+      position:absolute;
+      top:2px;
+      left:2px;
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      background:#64748b;
+      transition:all 0.2s ease;
+    }
+    #orderModal .toggle-input:checked + .toggle-switch{
+      background:rgba(34,197,94,0.3);
+    }
+    #orderModal .toggle-input:checked + .toggle-switch::after{
+      left:22px;
+      background:#22c55e;
+    }
+    #orderModal .btn-ghost{
+      border:1px solid transparent;
+      background:transparent;
+      color:var(--muted);
+    }
+    #orderModal .btn-ghost:hover{
+      background:rgba(255,255,255,0.05);
+      color:var(--fg);
     }
 
     /* Delivery Tab */
@@ -2897,7 +3280,7 @@
     .order-review-summary-value{
       font-size:14px;
       font-weight:600;
-      color:var(--text);
+      color:var(--fg);
     }
     .order-review-summary-sub{
       display:block;
@@ -2943,7 +3326,7 @@
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      padding:14px 16px;
+      padding:14px 20px;
       background:rgba(13,19,27,0.8);
       border-top:1px solid rgba(255,255,255,0.06);
       flex-shrink:0;
@@ -3088,9 +3471,8 @@
 
     /* Compact stepper on mobile */
     @media (max-width:400px){
-      .order-wizard-stepper{
-        margin:12px 16px 6px;
-        padding:4px;
+      .order-wizard-stepper-wrap{
+        padding:12px 16px;
       }
       .order-wizard-step{
         padding:8px 6px;
@@ -4512,6 +4894,32 @@
       color:#94a3b8;
       border-color:rgba(148,163,184,0.3);
     }
+    .job-autosave-status{
+      font-size:11px;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:5px;
+      margin-left:auto;
+      opacity:0;
+      transition:opacity 0.2s;
+    }
+    .job-autosave-status.visible{
+      opacity:1;
+    }
+    .job-autosave-status.saving{
+      color:#f59e0b;
+    }
+    .job-autosave-status.saved{
+      color:#22c55e;
+    }
+    .job-autosave-status.error{
+      color:#ef4444;
+    }
+    .job-autosave-status svg{
+      width:12px;
+      height:12px;
+    }
     .job-readiness-detail{
       display:flex;
       flex-direction:column;
@@ -4526,6 +4934,142 @@
     .job-readiness-detail .job-readiness-reasons{
       font-size:11px;
       color:var(--muted);
+    }
+    .job-readiness-section{
+      margin-bottom:16px;
+    }
+    .job-readiness-section-title{
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .job-readiness-card{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      padding:14px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(0,0,0,0.2);
+    }
+    .job-readiness-card--ready{
+      border-color:rgba(34,197,94,0.35);
+      background:rgba(34,197,94,0.08);
+    }
+    .job-readiness-card--not-ready{
+      border-color:rgba(245,158,11,0.35);
+      background:rgba(245,158,11,0.08);
+    }
+    .job-readiness-card--unknown{
+      border-color:rgba(148,163,184,0.3);
+      background:rgba(148,163,184,0.08);
+    }
+    .job-readiness-card-icon{
+      width:34px;
+      height:34px;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+      border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.06);
+      color:var(--muted);
+    }
+    .job-readiness-card--ready .job-readiness-card-icon{
+      border-color:rgba(34,197,94,0.35);
+      color:#22c55e;
+      background:rgba(34,197,94,0.15);
+    }
+    .job-readiness-card--not-ready .job-readiness-card-icon{
+      border-color:rgba(245,158,11,0.35);
+      color:#f59e0b;
+      background:rgba(245,158,11,0.15);
+    }
+    .job-readiness-card-content{
+      flex:1;
+      min-width:0;
+    }
+    .job-readiness-card-title{
+      font-size:14px;
+      font-weight:700;
+      color:#e2e8f0;
+      margin-bottom:4px;
+    }
+    .job-readiness-card-sub{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.4;
+    }
+    .job-blocking-section{
+      margin-top:12px;
+    }
+    .job-blocking-title{
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .job-blocking-list{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .job-blocking-card{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid rgba(245,158,11,0.3);
+      background:rgba(245,158,11,0.08);
+    }
+    .job-blocking-info{
+      flex:1;
+      min-width:0;
+    }
+    .job-blocking-name{
+      font-size:13px;
+      font-weight:600;
+      color:#f1f5f9;
+      margin-bottom:4px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .job-blocking-meta{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .job-blocking-shortfall{
+      margin-top:4px;
+      font-size:12px;
+      font-weight:600;
+      color:#fbbf24;
+    }
+    .job-blocking-note{
+      margin-top:4px;
+      font-size:11px;
+      color:#94a3b8;
+    }
+    .job-blocking-badge{
+      align-self:flex-start;
+      padding:4px 8px;
+      border-radius:6px;
+      font-size:10px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.3px;
+      background:rgba(59,130,246,0.18);
+      color:#60a5fa;
+      border:1px solid rgba(59,130,246,0.3);
+      flex-shrink:0;
     }
     .job-status-badge--draft{
       background:rgba(59,130,246,0.2);
@@ -9944,7 +10488,7 @@
 
   <!-- Order modal (3-step wizard) -->
   <div id="orderModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal modal--lg" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle" style="display:flex;flex-direction:column;max-height:90vh;">
+    <div class="modal modal--lg" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle" style="display:flex;flex-direction:column;">
       <div class="modal-header" style="flex-shrink:0;">
         <div class="modal-title-wrap">
           <span class="modal-icon">
@@ -9969,20 +10513,22 @@
 
       <div class="order-wizard" style="flex:1;min-height:0;display:flex;flex-direction:column;">
         <!-- Progress Stepper -->
-        <div class="order-wizard-stepper">
-          <div class="order-wizard-step active" data-step="0" id="orderWizStep0">
-            <span class="order-wizard-step-num"><span>1</span></span>
-            <span class="order-wizard-step-label">Cart</span>
-          </div>
-          <div class="order-wizard-connector" id="orderWizConn1"></div>
-          <div class="order-wizard-step" data-step="1" id="orderWizStep1">
-            <span class="order-wizard-step-num"><span>2</span></span>
-            <span class="order-wizard-step-label">Delivery</span>
-          </div>
-          <div class="order-wizard-connector" id="orderWizConn2"></div>
-          <div class="order-wizard-step" data-step="2" id="orderWizStep2">
-            <span class="order-wizard-step-num"><span>3</span></span>
-            <span class="order-wizard-step-label">Review</span>
+        <div class="order-wizard-stepper-wrap">
+          <div class="order-wizard-stepper">
+            <div class="order-wizard-step active" data-step="0" id="orderWizStep0">
+              <span class="order-wizard-step-num"><span>1</span></span>
+              <span class="order-wizard-step-label">Cart</span>
+            </div>
+            <div class="order-wizard-connector" id="orderWizConn1"></div>
+            <div class="order-wizard-step" data-step="1" id="orderWizStep1">
+              <span class="order-wizard-step-num"><span>2</span></span>
+              <span class="order-wizard-step-label">Delivery</span>
+            </div>
+            <div class="order-wizard-connector" id="orderWizConn2"></div>
+            <div class="order-wizard-step" data-step="2" id="orderWizStep2">
+              <span class="order-wizard-step-num"><span>3</span></span>
+              <span class="order-wizard-step-label">Review</span>
+            </div>
           </div>
         </div>
 
@@ -10005,7 +10551,7 @@
             <div class="order-cart-section">
               <div class="order-cart-section-title">
                 <div class="order-cart-section-title-left">
-                  <span>Shopping Cart</span>
+                  <span>Cart</span>
                   <span class="order-cart-section-count" id="orderCartCountBadge" style="display:none;">0 items</span>
                 </div>
                 <button type="button" id="btnResetOrderList" class="icon-btn icon-btn--default" aria-label="Clear cart" title="Clear cart">
@@ -10039,68 +10585,73 @@
                 An email will be sent to the recipient with the order details and shipping information. They can reply directly to confirm or ask questions.
               </span>
             </div>
-            <div class="order-delivery-section">
-              <div class="order-delivery-label">Recipient Email</div>
-              <input id="orderEmail" type="email" placeholder="recipient@example.com" autocomplete="email" inputmode="email" />
-              <div id="orderEmailSuggest" class="order-delivery-suggestions" aria-label="Email suggestions"></div>
-            </div>
-            <div class="order-delivery-section">
-              <div class="order-delivery-label">Shipping Address</div>
-              <div style="display:flex;gap:10px;align-items:center;">
-                <select id="orderShippingAddress" aria-label="Shipping address" style="flex:1;"></select>
-                <button class="btn-secondary" id="btnOrderShippingManage" type="button" style="flex-shrink:0;">Locations</button>
-              </div>
-              <div id="orderShippingPreview" class="order-delivery-address-card" style="margin-top:10px;display:none;">
-                <div class="order-delivery-address-name" id="orderShippingPreviewName"></div>
-                <div class="order-delivery-address-text" id="orderShippingPreviewText"></div>
+            <div class="section-title">Recipient</div>
+            <div class="form-card">
+              <div class="form-row">
+                <div class="form-field full-width">
+                  <label class="form-label" for="orderEmail">Email Address</label>
+                  <input id="orderEmail" type="email" class="form-input" placeholder="recipient@example.com" autocomplete="email" inputmode="email" />
+                  <div id="orderEmailSuggest" class="order-delivery-suggestions" aria-label="Email suggestions"></div>
+                </div>
               </div>
             </div>
+            <div class="order-shipping-header">
+              <div class="section-title">Ship To</div>
+              <button class="btn-secondary order-shipping-manage" id="btnOrderShippingManage" type="button">Locations</button>
+            </div>
+            <select id="orderShippingAddress" class="form-input order-shipping-select" aria-hidden="true" tabindex="-1"></select>
+            <div id="orderShippingOptions" class="order-shipping-options" role="listbox" aria-label="Shipping locations"></div>
           </div>
 
           <!-- Panel 3: Review -->
           <div class="order-wizard-panel" id="orderWizPanel2">
             <!-- Order Summary Card -->
-            <div class="order-review-summary" id="orderReviewSummary">
-              <div class="order-review-summary-row">
-                <span class="order-review-summary-label">Items</span>
-                <span class="order-review-summary-value accent" id="orderReviewItemCount">0</span>
+            <div class="order-review-summary summary-card" id="orderReviewSummary">
+              <div class="order-review-summary-row summary-row">
+                <span class="order-review-summary-label summary-label">Items</span>
+                <span class="order-review-summary-value summary-value highlight" id="orderReviewItemCount">0</span>
               </div>
-              <div class="order-review-summary-row">
-                <span class="order-review-summary-label">Recipient</span>
-                <span class="order-review-summary-value" id="orderReviewRecipient">—</span>
+              <div class="order-review-summary-row summary-row">
+                <span class="order-review-summary-label summary-label">Recipient</span>
+                <span class="order-review-summary-value summary-value" id="orderReviewRecipient">—</span>
               </div>
-              <div class="order-review-summary-row">
-                <span class="order-review-summary-label">Ship To</span>
-                <span class="order-review-summary-value" id="orderReviewShipTo">—</span>
+              <div class="order-review-summary-row summary-row">
+                <span class="order-review-summary-label summary-label">Ship To</span>
+                <span class="order-review-summary-value summary-value" id="orderReviewShipTo">—</span>
               </div>
-              <div class="order-review-summary-row" id="orderReviewShortfallRow" style="display:none;">
-                <span class="order-review-summary-label">Shortfall</span>
-                <span class="order-review-summary-value" id="orderReviewShortfallValue">—</span>
+              <div class="order-review-summary-row summary-row" id="orderReviewShortfallRow" style="display:none;">
+                <span class="order-review-summary-label summary-label">Shortfall</span>
+                <span class="order-review-summary-value summary-value" id="orderReviewShortfallValue">—</span>
               </div>
             </div>
-            <div class="order-review-shortfall-toggle" id="orderReviewShortfallToggle" style="display:none;">
-              <label class="order-shortfall-toggle">
-                <input type="checkbox" id="orderShortfallAttachToggle" />
-                Attach shortfall to this order
-              </label>
-              <div id="orderReviewShortfallHint" class="order-shortfall-hint"></div>
+            <div class="order-review-shortfall-toggle toggle-option" id="orderReviewShortfallToggle" style="display:none;">
+              <div class="toggle-row">
+                <div class="toggle-content">
+                  <div class="toggle-label">Attach shortfall to this order</div>
+                  <div id="orderReviewShortfallHint" class="toggle-hint"></div>
+                </div>
+                <label class="toggle-wrap">
+                  <input type="checkbox" id="orderShortfallAttachToggle" class="toggle-input" />
+                  <span class="toggle-switch"></span>
+                </label>
+              </div>
             </div>
             <div class="order-review-section">
-              <div class="order-review-label">Order Details</div>
+              <div class="section-title">Order Details</div>
               <div class="order-review-po-grid">
                 <div>
-                  <label for="orderCompanyPoNumber">Company PO (optional)</label>
-                  <input id="orderCompanyPoNumber" type="text" placeholder="Company PO #" />
+                  <label class="form-label" for="orderCompanyPoNumber">Company PO (optional)</label>
+                  <input id="orderCompanyPoNumber" class="form-input" type="text" placeholder="Company PO #" />
                 </div>
                 <div>
-                  <label for="orderInternalPoNumber">Internal PO ID</label>
-                  <input id="orderInternalPoNumber" type="text" readonly />
+                  <label class="form-label" for="orderInternalPoNumber">Internal PO ID</label>
+                  <input id="orderInternalPoNumber" class="form-input" type="text" readonly />
                 </div>
               </div>
             </div>
             <div class="order-review-section">
-              <label for="orderNotes">Notes (optional)</label>
-              <textarea id="orderNotes" rows="2" placeholder="Any notes for this order…"></textarea>
+              <label class="form-label" for="orderNotes">Notes (optional)</label>
+              <textarea id="orderNotes" class="form-input textarea" rows="2" placeholder="Any notes for this order…"></textarea>
             </div>
             <div class="order-review-section">
               <div class="order-review-preview">
@@ -10124,14 +10675,14 @@
         <div class="order-wizard-footer">
           <div class="order-wizard-footer-left">
             <button class="order-wizard-btn order-wizard-btn-prev" id="btnOrderWizPrev" type="button" style="display:none;">Back</button>
-            <button class="btn-secondary" id="btnOrderCopy" type="button" style="display:none;">
+            <button class="btn-ghost" id="btnOrderCopy" type="button" style="display:none;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
               Copy
             </button>
-            <button class="btn-secondary" id="btnOrderHistory" type="button" style="display:none;">
+            <button class="btn-ghost" id="btnOrderHistory" type="button" style="display:none;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
@@ -10476,6 +11027,7 @@
           <div class="job-status-name" id="jobStatusName">Untitled Job</div>
           <div id="jobStatusBadge" class="job-status-badge job-status-badge--draft">DRAFT</div>
           <div id="jobReadinessBadge" class="job-readiness-badge job-readiness-badge--unknown">UNKNOWN</div>
+          <div id="jobAutosaveStatus" class="job-autosave-status" aria-live="polite"></div>
         </div>
         <div class="job-progress-stepper" id="jobProgressStepper" aria-label="Job progress">
           <button class="job-step-item" type="button" data-job-step="details" aria-label="Details step">
@@ -10528,6 +11080,20 @@
               <div id="jobReadinessDetail" class="job-readiness-detail">
                 <span id="jobReadinessValue" class="job-readiness-value">Unknown</span>
                 <span id="jobReadinessReasons" class="job-readiness-reasons"></span>
+              </div>
+            </div>
+            <div class="job-readiness-section">
+              <div class="job-readiness-section-title">Job readiness</div>
+              <div id="jobReadinessCard" class="job-readiness-card job-readiness-card--unknown">
+                <span id="jobReadinessCardIcon" class="job-readiness-card-icon"></span>
+                <div class="job-readiness-card-content">
+                  <div id="jobReadinessCardTitle" class="job-readiness-card-title">Checking readiness…</div>
+                  <div id="jobReadinessCardSub" class="job-readiness-card-sub">Calculating required inventory.</div>
+                </div>
+              </div>
+              <div id="jobBlockingItemsSection" class="job-blocking-section" style="display:none;">
+                <div class="job-blocking-title">Blocking items</div>
+                <div id="jobBlockingItemsList" class="job-blocking-list"></div>
               </div>
             </div>
             <div class="job-field-group">
@@ -20906,7 +21472,7 @@
         const rowClass = `${!isLocked ? ' is-draggable' : ''}`;
         const handle = `<span class="drag-handle${isLocked ? ' disabled' : ''}" aria-hidden="true"></span>`;
         return (
-          `<div class="column-option${rowClass}" data-col-key="${escapeHtmlAttr(def.key)}" data-draggable="${draggable}" draggable="${draggable}">`+
+          `<div class="column-option${rowClass}" data-col-key="${escapeHtmlAttr(def.key)}" data-draggable="${draggable}">`+
             `<input type="checkbox" data-col-key="${escapeHtmlAttr(def.key)}"${checked}${disabled}>`+
             `<span class="column-option-label">${escapeHtml(def.label)}</span>`+
             `${handle}`+
@@ -22511,81 +23077,145 @@ function emptyStateHtml(){
 	          renderTable();
 	          if(_invViewMode === 'cards') renderInventoryCards();
 	        });
-	        list.addEventListener('dragstart', (e)=>{
-	          const row = e.target && e.target.closest ? e.target.closest('.column-option') : null;
+	        // Pointer-based drag for real-time row movement
+	        list.addEventListener('pointerdown', (e)=>{
+	          const handle = e.target && e.target.closest ? e.target.closest('.drag-handle') : null;
+	          if(!handle || handle.classList.contains('disabled')) return;
+	          const row = handle.closest('.column-option');
 	          if(!row) return;
 	          if(String(row.getAttribute('data-draggable') || '') !== 'true') return;
 	          const key = row.getAttribute('data-col-key');
 	          if(!key || key === INVENTORY_ANCHOR_KEY) return;
+	          e.preventDefault();
+
+	          // Capture initial state
+	          const rect = row.getBoundingClientRect();
 	          dragState.key = key;
 	          dragState.initialOrder = getListOrder();
-	          dragState.dropped = false;
-	          dragState.lastTargetKey = null;
-	          dragState.lastAfter = null;
+	          dragState.offsetX = e.clientX - rect.left;
+	          dragState.offsetY = e.clientY - rect.top;
+
+	          // Create placeholder in original position
+	          const placeholder = document.createElement('div');
+	          placeholder.className = 'column-option drag-placeholder';
+	          placeholder.style.height = rect.height + 'px';
+	          placeholder.setAttribute('data-placeholder', 'true');
+	          row.parentNode.insertBefore(placeholder, row);
+	          dragState.placeholder = placeholder;
+
+	          // Move row to body to avoid transform issues with position:fixed
+	          document.body.appendChild(row);
 	          row.classList.add('dragging');
-	          if(e.dataTransfer){
-	            e.dataTransfer.effectAllowed = 'move';
-	            try{ e.dataTransfer.setData('text/plain', key); }catch(err){}
-	            if(e.dataTransfer.setDragImage){
-	              try{ e.dataTransfer.setDragImage(row, 16, 16); }catch(err){}
+	          row.style.width = rect.width + 'px';
+	          row.style.left = (e.clientX - dragState.offsetX) + 'px';
+	          row.style.top = (e.clientY - dragState.offsetY) + 'px';
+
+	          // iOS-style drag with hysteresis to prevent glitching
+	          const SWAP_THRESHOLD = 20; // pixels to trigger initial swap
+	          const HYSTERESIS = 30; // extra pixels needed to reverse direction
+	          let lastSwapDirection = null; // 'up', 'down', or null
+	          let lastSwapY = null; // cursor Y when last swap occurred
+
+	          const onMove = (ev)=>{
+	            if(!dragState.key) return;
+	            row.style.left = (ev.clientX - dragState.offsetX) + 'px';
+	            row.style.top = (ev.clientY - dragState.offsetY) + 'px';
+
+	            const placeholderRect = placeholder.getBoundingClientRect();
+	            const placeholderMid = placeholderRect.top + placeholderRect.height / 2;
+	            const cursorY = ev.clientY;
+
+	            // Calculate thresholds with hysteresis
+	            // If last swap was UP, need to move further DOWN to reverse (and vice versa)
+	            const upThreshold = lastSwapDirection === 'down'
+	              ? placeholderMid - SWAP_THRESHOLD - HYSTERESIS
+	              : placeholderMid - SWAP_THRESHOLD;
+	            const downThreshold = lastSwapDirection === 'up'
+	              ? placeholderMid + SWAP_THRESHOLD + HYSTERESIS
+	              : placeholderMid + SWAP_THRESHOLD;
+
+	            if(cursorY < upThreshold){
+	              // Dragging UP - find item directly above placeholder
+	              const itemAbove = placeholder.previousElementSibling;
+	              if(itemAbove && itemAbove.classList.contains('column-option') && !itemAbove.hasAttribute('data-placeholder')){
+	                const targetKey = itemAbove.getAttribute('data-col-key');
+	                if(targetKey && targetKey !== INVENTORY_ANCHOR_KEY){
+	                  // FLIP animation
+	                  const firstRect = itemAbove.getBoundingClientRect();
+	                  itemAbove.before(placeholder);
+	                  const lastRect = itemAbove.getBoundingClientRect();
+	                  const deltaY = firstRect.top - lastRect.top;
+	                  if(Math.abs(deltaY) > 1){
+	                    itemAbove.style.transform = `translateY(${deltaY}px)`;
+	                    itemAbove.style.transition = 'transform 0s';
+	                    requestAnimationFrame(()=>{
+	                      itemAbove.style.transition = '';
+	                      itemAbove.style.transform = '';
+	                    });
+	                  }
+	                  lastSwapDirection = 'up';
+	                  lastSwapY = cursorY;
+	                }
+	              }
+	            } else if(cursorY > downThreshold){
+	              // Dragging DOWN - find item directly below placeholder
+	              const itemBelow = placeholder.nextElementSibling;
+	              if(itemBelow && itemBelow.classList.contains('column-option') && !itemBelow.hasAttribute('data-placeholder')){
+	                const targetKey = itemBelow.getAttribute('data-col-key');
+	                if(targetKey && targetKey !== INVENTORY_ANCHOR_KEY){
+	                  // FLIP animation
+	                  const firstRect = itemBelow.getBoundingClientRect();
+	                  itemBelow.after(placeholder);
+	                  const lastRect = itemBelow.getBoundingClientRect();
+	                  const deltaY = firstRect.top - lastRect.top;
+	                  if(Math.abs(deltaY) > 1){
+	                    itemBelow.style.transform = `translateY(${deltaY}px)`;
+	                    itemBelow.style.transition = 'transform 0s';
+	                    requestAnimationFrame(()=>{
+	                      itemBelow.style.transition = '';
+	                      itemBelow.style.transform = '';
+	                    });
+	                  }
+	                  lastSwapDirection = 'down';
+	                  lastSwapY = cursorY;
+	                }
+	              }
 	            }
-	          }
-	        });
-	        list.addEventListener('dragover', (e)=>{
-	          if(!dragState.key) return;
-	          const row = e.target && e.target.closest ? e.target.closest('.column-option') : null;
-	          if(!row) return;
-	          const targetKey = row.getAttribute('data-col-key');
-	          if(!targetKey || targetKey === dragState.key) return;
-	          e.preventDefault();
-	          if(dragState.overEl && dragState.overEl !== row) dragState.overEl.classList.remove('drag-over');
-	          dragState.overEl = row;
-	          row.classList.add('drag-over');
-	          const rect = row.getBoundingClientRect();
-	          let after = e.clientY > rect.top + rect.height / 2;
-	          if(targetKey === INVENTORY_ANCHOR_KEY) after = true;
-	          if(dragState.lastTargetKey !== targetKey || dragState.lastAfter !== after){
-	            dragState.lastTargetKey = targetKey;
-	            dragState.lastAfter = after;
-	            if(moveDomItem(dragState.key, targetKey, after)){
-	              updateTablePreview(normalizeInventoryOrder(getListOrder()));
+	          };
+
+	          const onUp = ()=>{
+	            if(!dragState.key) return;
+	            document.removeEventListener('pointermove', onMove);
+	            document.removeEventListener('pointerup', onUp);
+
+	            // Clear styles before moving back
+	            row.classList.remove('dragging');
+	            row.style.width = '';
+	            row.style.left = '';
+	            row.style.top = '';
+
+	            // Move row back to list at placeholder position
+	            if(dragState.placeholder && dragState.placeholder.parentNode){
+	              dragState.placeholder.parentNode.insertBefore(row, dragState.placeholder);
+	              dragState.placeholder.remove();
 	            }
-	          }
-	          if(e.dataTransfer) e.dataTransfer.dropEffect = 'move';
-	        });
-	        list.addEventListener('dragleave', (e)=>{
-	          const row = e.target && e.target.closest ? e.target.closest('.column-option') : null;
-	          if(row && dragState.overEl === row){
-	            row.classList.remove('drag-over');
-	            dragState.overEl = null;
-	          }
-	        });
-	        list.addEventListener('drop', (e)=>{
-	          if(!dragState.key) return;
-	          e.preventDefault();
-	          // Save the current DOM order regardless of drop target
-	          const config = loadInventoryColumnConfig();
-	          const order = normalizeInventoryOrder(getListOrder());
-	          saveInventoryColumnConfig({ order, visible: config.visible });
-	          getInventoryColumnConfig();
-	          const layout = getInventoryLayoutFromConfig({ order, visible: config.visible }, { force: true });
-	          renderTable(layout.columnDefs, layout);
-	          if(_invViewMode === 'cards') renderInventoryCards();
-	          dragState.dropped = true;
-	          clearDragStyles();
-	          dragState.key = null;
-	        });
-	        list.addEventListener('dragend', ()=>{
-	          clearDragStyles();
-	          // Always save the current DOM order on dragend
-	          const config = loadInventoryColumnConfig();
-	          const order = normalizeInventoryOrder(getListOrder());
-	          saveInventoryColumnConfig({ order, visible: config.visible });
-	          const layout = getInventoryLayoutFromConfig({ order, visible: config.visible }, { force: true });
-	          renderInventoryTableShell({ order, visible: config.visible });
-	          renderTable(layout.columnDefs, layout);
-	          if(_invViewMode === 'cards') renderInventoryCards();
-	          dragState.key = null;
+
+	            // Save new order
+	            const config = loadInventoryColumnConfig();
+	            const order = normalizeInventoryOrder(getListOrder());
+	            saveInventoryColumnConfig({ order, visible: config.visible });
+	            getInventoryColumnConfig();
+	            const layout = getInventoryLayoutFromConfig({ order, visible: config.visible }, { force: true });
+	            renderInventoryTableShell({ order, visible: config.visible });
+	            renderTable(layout.columnDefs, layout);
+	            if(_invViewMode === 'cards') renderInventoryCards();
+
+	            dragState.key = null;
+	            dragState.placeholder = null;
+	          };
+
+	          document.addEventListener('pointermove', onMove);
+	          document.addEventListener('pointerup', onUp);
 	        });
 	      }
 
@@ -24956,7 +25586,8 @@ function emptyStateHtml(){
         totalDraftJobs: 0,
         unblockedDraftJobs: 0,
         remainingDraftJobs: 0,
-        ready: false
+        ready: false,
+        unblockedJobIds: []
       };
       if(!Array.isArray(lines) || !lines.length) return result;
       const draftMap = state._orderDraftJobAllocationsByItemId;
@@ -24993,7 +25624,8 @@ function emptyStateHtml(){
       }
 
       let unblocked = 0;
-      jobItemRequirements.forEach((itemMap) => {
+      const unblockedJobIds = [];
+      jobItemRequirements.forEach((itemMap, jobId) => {
         let satisfied = true;
         itemMap.forEach((requiredQty, itemId) => {
           const cartQty = lineQtyByItem.get(itemId) || 0;
@@ -25001,26 +25633,49 @@ function emptyStateHtml(){
             satisfied = false;
           }
         });
-        if(satisfied) unblocked += 1;
+        if(satisfied){
+          unblocked += 1;
+          if(jobId) unblockedJobIds.push(jobId);
+        }
       });
 
       result.totalDraftJobs = jobItemRequirements.size;
       result.unblockedDraftJobs = unblocked;
       result.remainingDraftJobs = Math.max(0, result.totalDraftJobs - unblocked);
+      result.unblockedJobIds = unblockedJobIds;
       result.ready = true;
       return result;
     }
     function updateOrderImpactCard(lines){
       const card = $('orderImpactCard');
       if(!card) return;
+      if(typeof state._orderImpactExpanded !== 'boolean') state._orderImpactExpanded = false;
       const impact = computeOrderDraftImpact(lines);
       if(!impact.ready || impact.totalDraftJobs === 0){
+        state._orderImpactExpanded = false;
         card.style.display = 'none';
         card.innerHTML = '';
         return;
       }
       const unblocked = impact.unblockedDraftJobs;
       const remaining = impact.remainingDraftJobs;
+      const unblockedJobIds = Array.isArray(impact.unblockedJobIds) ? impact.unblockedJobIds : [];
+      const unblockedLabels = unblockedJobIds.map(id => getOrderJobLabel(id)).filter(Boolean);
+      const showJobs = unblockedLabels.length > 0;
+      const isExpanded = !!state._orderImpactExpanded;
+      const jobsMarkup = showJobs
+        ? (
+          `<div class="order-impact-jobs">`+
+            `<button type="button" class="order-impact-toggle${isExpanded ? ' is-expanded' : ''}" data-order-impact-toggle="true">`+
+              `<span>${isExpanded ? 'Hide jobs' : `Show ${unblockedLabels.length} ${unblockedLabels.length === 1 ? 'job' : 'jobs'}`}</span>`+
+              `${ICONS.chevronDown}`+
+            `</button>`+
+            `<div class="order-impact-joblist${isExpanded ? ' is-expanded' : ''}">`+
+              `${unblockedLabels.map(label => `<div class="order-impact-job">${escapeHtml(label)}</div>`).join('')}`+
+            `</div>`+
+          `</div>`
+        )
+        : '';
       if(remaining === 0){
         card.className = 'order-impact-card order-impact-card--success';
         card.innerHTML =
@@ -25029,7 +25684,8 @@ function emptyStateHtml(){
             `<span class="order-impact-icon">${ICONS.checkCircle}</span>`+
             `<span>This order will unblock all draft jobs.</span>`+
           `</div>`+
-          `<div class="order-impact-secondary">${formatQty(unblocked)} ${unblocked === 1 ? 'job' : 'jobs'} can now be approved.</div>`;
+          `<div class="order-impact-secondary">${formatQty(unblocked)} ${unblocked === 1 ? 'job' : 'jobs'} can now be approved.</div>`+
+          jobsMarkup;
       }else{
         card.className = 'order-impact-card order-impact-card--warning';
         card.innerHTML =
@@ -25038,9 +25694,17 @@ function emptyStateHtml(){
             `<span class="order-impact-icon">${ICONS.alertTriangle}</span>`+
             `<span>This order will unblock ${formatQty(unblocked)} ${unblocked === 1 ? 'draft job' : 'draft jobs'}.</span>`+
           `</div>`+
-          `<div class="order-impact-secondary">${formatQty(remaining)} ${remaining === 1 ? 'job will' : 'jobs will'} still require inventory.</div>`;
+          `<div class="order-impact-secondary">${formatQty(remaining)} ${remaining === 1 ? 'job will' : 'jobs will'} still require inventory.</div>`+
+          jobsMarkup;
       }
       card.style.display = '';
+      const toggle = card.querySelector('[data-order-impact-toggle]');
+      if(toggle){
+        toggle.addEventListener('click', ()=>{
+          state._orderImpactExpanded = !state._orderImpactExpanded;
+          updateOrderImpactCard(orderState().lines || []);
+        });
+      }
     }
 
     // =========================================
@@ -25187,6 +25851,7 @@ function emptyStateHtml(){
 
     function updateOrderWizardShippingPreview(){
       const ord = orderState();
+      renderOrderShippingOptionsList();
       const previewWrap = $('orderShippingPreview');
       const nameEl = $('orderShippingPreviewName');
       const textEl = $('orderShippingPreviewText');
@@ -25256,7 +25921,7 @@ function emptyStateHtml(){
         }else{
           const labelHtml = escapeHtml(shipLabel || 'Address');
           const addressHtml = shipAddress
-            ? `<span class="order-review-summary-sub">${escapeHtml(shipAddress)}</span>`
+            ? `<span class="address">${escapeHtml(shipAddress)}</span>`
             : '';
           shipToEl.innerHTML = `${labelHtml}${addressHtml}`;
         }
@@ -26018,9 +26683,41 @@ function emptyStateHtml(){
         );
       }).join('');
     }
+    function renderOrderShippingOptionsList(){
+      const wrap = $('orderShippingOptions');
+      if(!wrap) return;
+      const rows = Array.isArray(state._orderShippingOptions) ? state._orderShippingOptions : [];
+      if(!rows.length){
+        wrap.innerHTML = '<div class="order-shipping-empty">No locations available.</div>';
+        return;
+      }
+      const ord = orderState();
+      const selectedId = String(ord.shippingAddressId || '').trim();
+      wrap.innerHTML = rows.map(row => {
+        const id = String(row && row.id ? row.id : '').trim();
+        if(!id) return '';
+        const label = String(row.label || row.address || 'Location').trim() || 'Location';
+        const address = String(row.address || '').trim() || 'Address not provided';
+        const isSelected = id === selectedId;
+        const badge = row.is_default ? '<span class="order-shipping-badge">Default</span>' : '';
+        return (
+          `<button type="button" class="order-shipping-option${isSelected ? ' is-selected' : ''}" data-order-shipping-id="${escapeHtmlAttr(id)}" aria-pressed="${isSelected ? 'true' : 'false'}">`+
+            `<span class="order-shipping-radio"></span>`+
+            `<span class="order-shipping-info">`+
+              `<span class="order-shipping-name">${escapeHtml(label)}</span>`+
+              `<span class="order-shipping-address">${escapeHtml(address)}</span>`+
+            `</span>`+
+            `${badge}`+
+          `</button>`
+        );
+      }).join('');
+    }
     function renderShippingAddressSelect(){
       const select = $('orderShippingAddress');
-      if(!select) return;
+      if(!select){
+        renderOrderShippingOptionsList();
+        return;
+      }
       const rows = Array.isArray(state._orderShippingOptions) ? state._orderShippingOptions : [];
       select.innerHTML = '';
       const placeholder = document.createElement('option');
@@ -26052,6 +26749,7 @@ function emptyStateHtml(){
         manageBtn.disabled = !canAccessCompanyLocations();
         manageBtn.style.display = canAccessCompanyLocations() ? '' : 'none';
       }
+      renderOrderShippingOptionsList();
     }
     function mapLocationToOrderShipping(row){
       if(!row) return null;
@@ -29247,6 +29945,98 @@ function emptyStateHtml(){
       });
       return map;
     }
+    function normalizeJobAllocationStatus(status){
+      const raw = String(status || '').trim().toLowerCase();
+      return raw === 'draft' ? 'planned' : raw;
+    }
+    async function sbFetchJobReadinessDetails(jobId){
+      if(!SB.ready) throw new Error('Supabase not configured');
+      if(!SB.session) throw new Error('Sign in required');
+      if(!SB.companyId) throw new Error('No company selected');
+      const id = String(jobId || '').trim();
+      if(!id) return null;
+
+      const { data: allocationRows, error: allocationError } = await SB.client
+        .from('job_item_allocations')
+        .select('item_id,qty_required,status')
+        .eq('company_id', SB.companyId)
+        .eq('job_id', id)
+        .in('status', ['draft','planned','approved','active']);
+      if(allocationError) throw allocationError;
+
+      const requiredByItem = new Map();
+      const committedByItemForJob = new Map();
+      (Array.isArray(allocationRows) ? allocationRows : []).forEach(row=>{
+        const itemId = String(row && row.item_id ? row.item_id : '').trim();
+        if(!itemId) return;
+        const qty = toInt(row && row.qty_required != null ? row.qty_required : 0, 0);
+        if(qty <= 0) return;
+        requiredByItem.set(itemId, (requiredByItem.get(itemId) || 0) + qty);
+        const status = normalizeJobAllocationStatus(row && row.status);
+        if(status === 'approved' || status === 'active'){
+          committedByItemForJob.set(itemId, (committedByItemForJob.get(itemId) || 0) + qty);
+        }
+      });
+
+      const itemIds = Array.from(requiredByItem.keys());
+      if(!itemIds.length){
+        return { ready_for_approval: true, blocking_items: [] };
+      }
+
+      const { data: inventoryRows, error: inventoryError } = await SB.client
+        .from('inventory_items')
+        .select('id,quantity')
+        .eq('company_id', SB.companyId)
+        .in('id', itemIds)
+        .is('deleted_at', null);
+      if(inventoryError) throw inventoryError;
+
+      const onHandMap = new Map();
+      (Array.isArray(inventoryRows) ? inventoryRows : []).forEach(row=>{
+        const itemId = String(row && row.id ? row.id : '').trim();
+        if(!itemId) return;
+        onHandMap.set(itemId, toInt(row && row.quantity != null ? row.quantity : 0, 0));
+      });
+
+      const { data: committedRows, error: committedError } = await SB.client
+        .from('inventory_committed_by_item')
+        .select('item_id,committed_qty')
+        .eq('company_id', SB.companyId)
+        .in('item_id', itemIds);
+      if(committedError) throw committedError;
+
+      const committedMap = new Map();
+      (Array.isArray(committedRows) ? committedRows : []).forEach(row=>{
+        const itemId = String(row && row.item_id ? row.item_id : '').trim();
+        if(!itemId) return;
+        const qty = Number(row && row.committed_qty != null ? row.committed_qty : 0);
+        committedMap.set(itemId, Number.isFinite(qty) ? qty : 0);
+      });
+
+      const blockingItems = [];
+      itemIds.forEach(itemId=>{
+        const requiredQty = requiredByItem.get(itemId) || 0;
+        const onHand = onHandMap.get(itemId) || 0;
+        const committedTotal = committedMap.get(itemId) || 0;
+        const committedForJob = committedByItemForJob.get(itemId) || 0;
+        const committedOther = Math.max(0, committedTotal - committedForJob);
+        const availableQty = onHand - committedOther;
+        if(availableQty < requiredQty){
+          const shortfallQty = Math.max(0, requiredQty - availableQty);
+          blockingItems.push({
+            itemId,
+            requiredQty,
+            availableQty,
+            shortfallQty
+          });
+        }
+      });
+
+      return {
+        ready_for_approval: blockingItems.length === 0,
+        blocking_items: blockingItems
+      };
+    }
     function getJobBomItemIds(lines){
       const ids = new Set();
       (Array.isArray(lines) ? lines : []).forEach(line=>{
@@ -29289,6 +30079,28 @@ function emptyStateHtml(){
         const id = String(row && row.id ? row.id : '').trim();
         if(!id) return;
         map.set(id, { onHand: toInt(row.quantity, 0) });
+      });
+      return map;
+    }
+    async function sbFetchIncomingInventoryByItem(companyId, itemIds){
+      if(!SB.ready) throw new Error('Supabase not configured');
+      if(!SB.session) throw new Error('Sign in required');
+      const company = String(companyId || SB.companyId || '').trim();
+      if(!company) throw new Error('No company selected');
+      const ids = Array.isArray(itemIds) ? itemIds.map(id => String(id || '').trim()).filter(Boolean) : [];
+      if(!ids.length) return new Map();
+      const { data, error } = await SB.client
+        .from('inventory_incoming_by_item')
+        .select('item_id,incoming_qty')
+        .eq('company_id', company)
+        .in('item_id', ids);
+      if(error) throw error;
+      const map = new Map();
+      ids.forEach(id => map.set(id, 0));
+      (Array.isArray(data) ? data : []).forEach(row=>{
+        const id = String(row && row.item_id ? row.item_id : '').trim();
+        if(!id) return;
+        map.set(id, toInt(row && row.incoming_qty != null ? row.incoming_qty : 0, 0));
       });
       return map;
     }
@@ -29774,6 +30586,7 @@ function emptyStateHtml(){
       const totals = computeJobTotals(editor);
       const nameOk = !!(job && String(job.name || '').trim());
       const readiness = editor ? editor.jobReadiness : null;
+      const readinessDetail = editor ? editor.jobReadinessDetail : null;
 
       syncJobActualDraftFromDom();
       ensureJobEditorIcons();
@@ -29784,6 +30597,12 @@ function emptyStateHtml(){
       const readinessBadge = $('jobReadinessBadge');
       const readinessValue = $('jobReadinessValue');
       const readinessReasons = $('jobReadinessReasons');
+      const readinessCard = $('jobReadinessCard');
+      const readinessCardIcon = $('jobReadinessCardIcon');
+      const readinessCardTitle = $('jobReadinessCardTitle');
+      const readinessCardSub = $('jobReadinessCardSub');
+      const blockingSection = $('jobBlockingItemsSection');
+      const blockingList = $('jobBlockingItemsList');
       const nameInput = $('jobNameInput');
       const notesInput = $('jobNotesInput');
       const createdMeta = $('jobCreatedMeta');
@@ -29835,6 +30654,75 @@ function emptyStateHtml(){
       if(readinessReasons){
         readinessReasons.textContent = readinessReasonText;
         readinessReasons.style.display = readinessReasonText ? 'block' : 'none';
+      }
+      if(readinessCard){
+        let cardState = 'unknown';
+        let titleText = 'Checking readiness…';
+        let subText = 'Calculating required inventory.';
+        let iconHtml = ICONS.info;
+        if(readinessDetail && !readinessDetail.error){
+          if(readinessDetail.ready_for_approval){
+            cardState = 'ready';
+            titleText = 'This job is ready for approval.';
+            subText = 'All required inventory is available.';
+            iconHtml = ICONS.checkCircle;
+          }else{
+            cardState = 'not-ready';
+            titleText = 'This job is waiting on inventory.';
+            subText = 'Approval is blocked by missing items.';
+            iconHtml = ICONS.alertTriangle;
+          }
+        }else if(readinessDetail && readinessDetail.error){
+          titleText = 'Readiness unavailable.';
+          subText = 'Unable to compute blocking items.';
+          iconHtml = ICONS.info;
+        }
+        readinessCard.className = `job-readiness-card job-readiness-card--${cardState}`;
+        if(readinessCardIcon) readinessCardIcon.innerHTML = iconHtml;
+        if(readinessCardTitle) readinessCardTitle.textContent = titleText;
+        if(readinessCardSub) readinessCardSub.textContent = subText;
+      }
+      if(blockingSection && blockingList){
+        const blockingItems = readinessDetail && Array.isArray(readinessDetail.blocking_items)
+          ? readinessDetail.blocking_items
+          : [];
+        if(readinessDetail && !readinessDetail.error && !readinessDetail.ready_for_approval && blockingItems.length){
+          const orderLines = orderState().lines || [];
+          const orderItemIds = new Set(orderLines.map(line => String(line && line.id ? line.id : '').trim()).filter(Boolean));
+          const orderQtyByItem = new Map();
+          orderLines.forEach(line=>{
+            const itemId = String(line && line.id ? line.id : '').trim();
+            if(!itemId) return;
+            orderQtyByItem.set(itemId, toInt(line && line.qty != null ? line.qty : 0, 0));
+          });
+          blockingList.innerHTML = blockingItems.map(item=>{
+            const itemId = String(item.itemId || '').trim();
+            const inv = itemId ? getInventoryById(itemId) : null;
+            const name = inv && inv.name ? String(inv.name || '').trim() : (itemId ? `Item ${shortId(itemId)}` : 'Item');
+            const requiredQty = formatQty(item.requiredQty);
+            const availableQty = formatQty(item.availableQty);
+            const shortfallVal = toInt(item.shortfallQty, 0);
+            const shortfallQty = formatQty(shortfallVal);
+            const inCart = itemId && orderItemIds.has(itemId);
+            const orderQty = orderQtyByItem.get(itemId) || 0;
+            const willResolve = inCart && shortfallVal > 0 && orderQty >= shortfallVal;
+            return (
+              `<div class="job-blocking-card">`+
+                `<div class="job-blocking-info">`+
+                  `<div class="job-blocking-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
+                  `<div class="job-blocking-meta">Required: ${escapeHtml(requiredQty)} • Available: ${escapeHtml(availableQty)}</div>`+
+                  `<div class="job-blocking-shortfall">Shortfall: ${escapeHtml(shortfallQty)}</div>`+
+                  `${willResolve ? '<div class="job-blocking-note">Will be resolved when this order is received.</div>' : ''}`+
+                `</div>`+
+                `${inCart ? '<span class="job-blocking-badge">In current order</span>' : ''}`+
+              `</div>`
+            );
+          }).join('');
+          blockingSection.style.display = '';
+        }else{
+          blockingList.innerHTML = '';
+          blockingSection.style.display = 'none';
+        }
       }
       if(createdMeta){
         const created = job && job.created_at ? formatDateShort(job.created_at) : '';
@@ -30612,6 +31500,7 @@ function emptyStateHtml(){
         state._shortfallOrdersLoaded = false;
       }
       let jobReadiness = editor.jobReadiness || null;
+      let jobReadinessDetail = editor.jobReadinessDetail || null;
       if(editor.job && editor.job.id){
         try{
           const readinessMap = await sbFetchJobReadiness([editor.job.id]);
@@ -30624,6 +31513,11 @@ function emptyStateHtml(){
             state._jobReadinessByJobId.set(String(editor.job.id), readinessRow);
           }
         }catch(e){}
+        try{
+          jobReadinessDetail = await sbFetchJobReadinessDetails(editor.job.id);
+        }catch(e){
+          jobReadinessDetail = { ready_for_approval: false, blocking_items: [], error: e && e.message ? e.message : 'Readiness unavailable' };
+        }
       }
       editor.reservedMap = reservedMap;
       editor.inventoryMap = inventoryMap;
@@ -30631,7 +31525,12 @@ function emptyStateHtml(){
       editor.jobAllocations = jobAllocations;
       editor.jobShortfalls = jobShortfalls;
       editor.jobReadiness = jobReadiness;
+      editor.jobReadinessDetail = jobReadinessDetail;
       state._incomingByItemId = incomingMap;
+      if(editor.job){
+        editor.job.ready_for_approval = jobReadinessDetail ? !!jobReadinessDetail.ready_for_approval : null;
+        editor.job.blocking_items = jobReadinessDetail ? (jobReadinessDetail.blocking_items || []) : [];
+      }
       let wasFulfillable = true;
       const allLines = bomLines.concat(pendingLines);
       if(allLines.length){
@@ -30683,6 +31582,7 @@ function emptyStateHtml(){
         let jobAllocations = new Map();
         let jobShortfalls = new Map();
         let jobReadiness = null;
+        let jobReadinessDetail = null;
         if(jobId){
           job = state._jobsById.get(String(jobId)) || null;
           if(!job){
@@ -30728,6 +31628,11 @@ function emptyStateHtml(){
                 jobReadiness = state._jobReadinessByJobId.get(String(job.id)) || jobReadiness;
               }
             }
+            try{
+              jobReadinessDetail = await sbFetchJobReadinessDetails(job.id);
+            }catch(e){
+              jobReadinessDetail = { ready_for_approval: false, blocking_items: [], error: e && e.message ? e.message : 'Readiness unavailable' };
+            }
           }
         }else{
           job = { id:null, name:'', status:'draft', notes:'' };
@@ -30754,10 +31659,14 @@ function emptyStateHtml(){
             }
           }
         }
-        state._jobEditor = { job, bomLines, actuals, reservedMap, inventoryMap, incomingMap, jobAllocations, jobShortfalls, jobReadiness, wasFulfillable };
+        state._jobEditor = { job, bomLines, actuals, reservedMap, inventoryMap, incomingMap, jobAllocations, jobShortfalls, jobReadiness, jobReadinessDetail, wasFulfillable };
+        if(job){
+          job.ready_for_approval = jobReadinessDetail ? !!jobReadinessDetail.ready_for_approval : null;
+          job.blocking_items = jobReadinessDetail ? (jobReadinessDetail.blocking_items || []) : [];
+        }
         state._incomingByItemId = incomingMap;
       }catch(e){
-        state._jobEditor = { job: { id:null, name:'', status:'draft', notes:'' }, bomLines:[], actuals:[], reservedMap:new Map(), inventoryMap:new Map(), incomingMap:new Map(), jobAllocations:new Map(), jobShortfalls:new Map(), jobReadiness: null, wasFulfillable: true };
+        state._jobEditor = { job: { id:null, name:'', status:'draft', notes:'' }, bomLines:[], actuals:[], reservedMap:new Map(), inventoryMap:new Map(), incomingMap:new Map(), jobAllocations:new Map(), jobShortfalls:new Map(), jobReadiness: null, jobReadinessDetail: null, wasFulfillable: true };
         setJobEditorMessage(e && e.message ? e.message : 'Failed to load job');
       }finally{
         state._jobEditorBusy = false;
@@ -30836,6 +31745,75 @@ function emptyStateHtml(){
         if(btn){ btn.disabled = false; btn.textContent = prior || 'Save'; }
         renderJobEditor();
       }
+    }
+
+    // Job Autosave functionality
+    let _jobAutosaveTimer = null;
+    let _jobAutosaveClearTimer = null;
+    const JOB_AUTOSAVE_DELAY = 1500; // 1.5 seconds after user stops typing
+
+    function setJobAutosaveStatus(status, message){
+      const el = $('jobAutosaveStatus');
+      if(!el) return;
+      el.className = 'job-autosave-status';
+      if(status === 'saving'){
+        el.classList.add('visible', 'saving');
+        el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg> Saving...`;
+      }else if(status === 'saved'){
+        el.classList.add('visible', 'saved');
+        el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Saved`;
+        // Clear saved status after 3 seconds
+        clearTimeout(_jobAutosaveClearTimer);
+        _jobAutosaveClearTimer = setTimeout(()=>{
+          el.classList.remove('visible', 'saved');
+          el.innerHTML = '';
+        }, 3000);
+      }else if(status === 'error'){
+        el.classList.add('visible', 'error');
+        el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${message || 'Save failed'}`;
+      }else{
+        el.classList.remove('visible', 'saving', 'saved', 'error');
+        el.innerHTML = '';
+      }
+    }
+
+    async function autosaveJobDetails(){
+      const editor = state._jobEditor;
+      if(!editor || !editor.job) return;
+      const job = editor.job;
+      // Only autosave existing jobs (not new unsaved jobs)
+      if(!job.id) return;
+      const nameInput = $('jobNameInput');
+      const notesInput = $('jobNotesInput');
+      const name = nameInput ? String(nameInput.value || '').trim() : '';
+      const notes = notesInput ? String(notesInput.value || '').trim() : '';
+      // Don't autosave if name is empty
+      if(!name) return;
+      // Don't autosave if nothing changed
+      if(name === job.name && (notes || '') === (job.notes || '')) return;
+
+      setJobAutosaveStatus('saving');
+      try{
+        const { error } = await SB.client
+          .from('jobs')
+          .update({ name, notes: notes || null, updated_at: new Date().toISOString() })
+          .eq('id', job.id)
+          .eq('company_id', SB.companyId);
+        if(error) throw error;
+        job.name = name;
+        job.notes = notes;
+        // Silently refresh jobs list in background
+        refreshJobs().catch(()=>{});
+        setJobAutosaveStatus('saved');
+      }catch(e){
+        console.error('Job autosave failed:', e);
+        setJobAutosaveStatus('error', 'Save failed');
+      }
+    }
+
+    function triggerJobAutosave(){
+      clearTimeout(_jobAutosaveTimer);
+      _jobAutosaveTimer = setTimeout(autosaveJobDetails, JOB_AUTOSAVE_DELAY);
     }
 
     // Job Item Picker for adding items to BOM
@@ -31428,6 +32406,17 @@ function emptyStateHtml(){
         const available = Number(commitment.available || 0);
         const draftCountMap = state._orderDraftJobCountByItemId || new Map();
         const draftCount = Number(draftCountMap.get(l.id) || 0);
+        const draftAllocMap = state._orderDraftJobAllocationsByItemId;
+        const draftAllocEntry = (draftAllocMap && typeof draftAllocMap.get === 'function') ? draftAllocMap.get(l.id) : null;
+        let draftRequiredQty = 0;
+        let draftRequiredKnown = false;
+        if(draftAllocEntry && draftAllocEntry.loaded && Array.isArray(draftAllocEntry.rows)){
+          draftRequiredKnown = true;
+          draftRequiredQty = draftAllocEntry.rows.reduce((sum, row)=>{
+            const qty = toInt(row && row.qty_required != null ? row.qty_required : 0, 0);
+            return sum + qty;
+          }, 0);
+        }
         let availabilityClass = 'is-positive';
         if(available < 0) availabilityClass = 'is-negative';
         else if(available === 0) availabilityClass = 'is-zero';
@@ -31524,6 +32513,12 @@ function emptyStateHtml(){
         const card = document.createElement('div');
         card.className = `order-cart-item${expanded ? ' order-cart-item--expanded' : ''}${hasWarning ? ' order-cart-item--warning' : ''}`;
         card.dataset.orderLineId = l.id;
+        const draftMetaLabel = draftCount > 0
+          ? `${draftCount} ${draftCount === 1 ? 'job' : 'jobs'} waiting for this item`
+          : '';
+        const draftQtyMeta = (draftCount > 0 && draftRequiredKnown && draftRequiredQty > 0)
+          ? `${formatQty(draftRequiredQty)} units needed`
+          : '';
         const metaLine = showCommitment
           ? `<div class="order-cart-item-meta">`+
               `<span class="order-cart-item-availability ${availabilityClass}">Available: ${formatQty(available)}</span>`+
@@ -31531,7 +32526,10 @@ function emptyStateHtml(){
                 ? `<span class="order-cart-item-jobs-meta">• Used by ${jobCount} ${jobCount === 1 ? 'job' : 'jobs'}</span>`
                 : '')+
               (draftCount > 0
-                ? `<span class="order-cart-item-jobs-meta order-cart-item-jobs-meta--draft">• ${draftCount} ${draftCount === 1 ? 'draft waiting' : 'drafts waiting'}</span>`
+                ? `<span class="order-cart-item-jobs-meta order-cart-item-jobs-meta--draft">• ${draftMetaLabel}</span>`
+                : '')+
+              (draftQtyMeta
+                ? `<span class="order-cart-item-jobs-meta order-cart-item-jobs-meta--draft">• ${draftQtyMeta}</span>`
                 : '')+
             `</div>`
           : '';
@@ -31894,6 +32892,18 @@ function emptyStateHtml(){
         state._jobEditor.job.name = val;
       }
       updateJobProgressStepper(state._jobEditor);
+      // Trigger autosave for existing jobs
+      if(state._jobEditor && state._jobEditor.job && state._jobEditor.job.id){
+        triggerJobAutosave();
+      }
+    });
+    // Job notes autosave
+    const jobNotesInput = $('jobNotesInput');
+    if(jobNotesInput) jobNotesInput.addEventListener('input', ()=>{
+      // Trigger autosave for existing jobs
+      if(state._jobEditor && state._jobEditor.job && state._jobEditor.job.id){
+        triggerJobAutosave();
+      }
     });
     const btnJobApprove = $('btnJobApprove');
     if(btnJobApprove) btnJobApprove.addEventListener('click', async ()=>{
@@ -32587,6 +33597,27 @@ function emptyStateHtml(){
 	      renderOrderPreview();
 	      try{ updateOrderWizardShippingPreview(); }catch(e){}
 	    });
+      const orderShippingOptions = $('orderShippingOptions');
+      if(orderShippingOptions) orderShippingOptions.addEventListener('click', (e)=>{
+        const option = e.target.closest('[data-order-shipping-id]');
+        if(!option) return;
+        const id = String(option.getAttribute('data-order-shipping-id') || '').trim();
+        if(!id) return;
+        const select = $('orderShippingAddress');
+        if(select){
+          select.value = id;
+          select.dispatchEvent(new Event('change', { bubbles:true }));
+        }else{
+          const ord = orderState();
+          ord.shippingAddressId = id;
+          const row = (state._orderShippingById && typeof state._orderShippingById.get === 'function')
+            ? state._orderShippingById.get(id)
+            : null;
+          ord.shippingAddressSnapshot = row ? { label: row.label, address: row.address } : null;
+          renderOrderPreview();
+          renderOrderShippingOptionsList();
+        }
+      });
 	    const btnOrderShippingManage = $('btnOrderShippingManage');
 	    if(btnOrderShippingManage) btnOrderShippingManage.addEventListener('click', openCompanyLocationsModal);
     const orderNotes = $('orderNotes');

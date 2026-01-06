@@ -93,6 +93,120 @@ All UI components must follow the established glassmorphism design system:
 
 ---
 
+### 1.4 iOS-Style Drag and Drop
+
+**Status:** REQUIRED for all sortable lists
+
+All drag-and-drop reorderable lists MUST implement iOS-style animations with hysteresis to prevent glitching.
+
+#### The Problem
+
+Naive drag implementations cause "glitching" - rapid back-and-forth swapping when the cursor hovers near the swap threshold. This happens because:
+1. Item swaps positions
+2. Threshold reference point moves with the swap
+3. Cursor is now on the other side of threshold
+4. Item swaps back immediately
+5. Repeat indefinitely
+
+#### The Solution: Hysteresis
+
+**Hysteresis** means requiring more movement to reverse a direction than to continue in the same direction. This creates "stickiness" that prevents oscillation.
+
+```javascript
+// iOS-style drag with hysteresis
+const SWAP_THRESHOLD = 20;  // pixels to trigger initial swap
+const HYSTERESIS = 30;      // extra pixels needed to reverse direction
+let lastSwapDirection = null; // 'up', 'down', or null
+
+const onMove = (ev) => {
+  const placeholderMid = placeholder.getBoundingClientRect().top + placeholder.offsetHeight / 2;
+
+  // Calculate thresholds with hysteresis
+  // If last swap was UP, need to move further DOWN to reverse
+  const upThreshold = lastSwapDirection === 'down'
+    ? placeholderMid - SWAP_THRESHOLD - HYSTERESIS
+    : placeholderMid - SWAP_THRESHOLD;
+  const downThreshold = lastSwapDirection === 'up'
+    ? placeholderMid + SWAP_THRESHOLD + HYSTERESIS
+    : placeholderMid + SWAP_THRESHOLD;
+
+  if (ev.clientY < upThreshold) {
+    // Swap with item above
+    swapWithItemAbove();
+    lastSwapDirection = 'up';
+  } else if (ev.clientY > downThreshold) {
+    // Swap with item below
+    swapWithItemBelow();
+    lastSwapDirection = 'down';
+  }
+};
+```
+
+#### Required Animation Pattern: FLIP
+
+Use the FLIP (First, Last, Invert, Play) technique for smooth swap animations:
+
+```javascript
+// 1. FIRST: Capture position before DOM change
+const firstRect = item.getBoundingClientRect();
+
+// 2. DOM CHANGE: Move item in DOM
+placeholder.before(item); // or placeholder.after(item)
+
+// 3. LAST: Get new position
+const lastRect = item.getBoundingClientRect();
+
+// 4. INVERT: Calculate delta and apply inverse transform
+const deltaY = firstRect.top - lastRect.top;
+item.style.transform = `translateY(${deltaY}px)`;
+item.style.transition = 'transform 0s';
+
+// 5. PLAY: Remove transform to animate to final position
+requestAnimationFrame(() => {
+  item.style.transition = ''; // Uses CSS transition
+  item.style.transform = '';
+});
+```
+
+#### Required CSS
+
+```css
+.sortable-item {
+  /* Spring-like deceleration curve for natural feel */
+  transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1);
+  will-change: transform;
+}
+
+.sortable-item.dragging {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.sortable-placeholder {
+  /* Visual indicator of drop position */
+  opacity: 0.4;
+  border-style: dashed;
+}
+```
+
+#### Implementation Checklist
+
+- [ ] Hysteresis implemented (30px+ for direction reversal)
+- [ ] FLIP animation for smooth item movement
+- [ ] Spring-like easing: `cubic-bezier(0.2, 0, 0, 1)`
+- [ ] Dragged item follows cursor in real-time
+- [ ] Placeholder marks the drop position
+- [ ] Dragged item moved to `document.body` to avoid CSS transform issues
+- [ ] Touch-action: none on drag handles for mobile support
+
+#### Reference Implementation
+
+See `index.html` - search for `"iOS-style drag with hysteresis"` comment within the `initColumnBuilder` function for the complete column sorter implementation.
+
+---
+
 ## 2. Mobile-First Requirements
 
 ### 2.1 No Horizontal Scrolling
@@ -193,3 +307,4 @@ Do NOT use these patterns in new code:
 **Document History**
 - v1.0 (Jan 2026): Initial standards established with UDWE requirement
 - v1.1 (Jan 2026): Added reference to Job Approval Inventory Guardrail
+- v1.2 (Jan 2026): Added iOS-style drag and drop standard with hysteresis pattern
