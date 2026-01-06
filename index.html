@@ -3297,6 +3297,29 @@
       color:#94a3b8;
       line-height:1.5;
     }
+    .order-info-box--muted{
+      background:rgba(59,130,246,0.06);
+      border-color:rgba(59,130,246,0.18);
+    }
+    .order-info-box-dismiss{
+      margin-left:auto;
+      width:28px;
+      height:28px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition:all 0.15s;
+      flex-shrink:0;
+    }
+    .order-info-box-dismiss:hover{
+      background:rgba(255,255,255,0.08);
+      color:var(--fg);
+    }
 
     /* Review Summary Card */
     .order-review-summary{
@@ -5045,6 +5068,19 @@
       font-size:12px;
       color:var(--muted);
       line-height:1.4;
+    }
+    .job-readiness-card-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .job-readiness-card-btn{
+      padding:6px 10px;
+      border-radius:8px;
+      font-size:12px;
+      font-weight:600;
+      min-height:0;
     }
     .job-blocking-section{
       margin-top:12px;
@@ -6828,9 +6864,14 @@
     .inv-sort-direction svg{
       width:12px;
       height:12px;
+      transform-origin:center;
+      transition:transform 0.15s ease;
     }
     .inv-sort-option.is-active .inv-sort-direction{
       background:rgba(59,130,246,0.3);
+    }
+    .inv-sort-option.is-desc .inv-sort-direction svg{
+      transform:rotate(180deg);
     }
 
     /* Stats Row - flex layout, no wrap, equal width cards that shrink to fit */
@@ -10333,7 +10374,7 @@
 	              On Hand
 	              <span class="inv-sort-direction">
 	                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-	                  <polyline points="6 9 12 15 18 9"></polyline>
+	                  <polyline points="18 15 12 9 6 15"></polyline>
 	                </svg>
 	              </span>
 	            </button>
@@ -10341,7 +10382,7 @@
 	              Last Updated
 	              <span class="inv-sort-direction">
 	                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-	                  <polyline points="6 9 12 15 18 9"></polyline>
+	                  <polyline points="18 15 12 9 6 15"></polyline>
 	                </svg>
 	              </span>
 	            </button>
@@ -10889,6 +10930,24 @@
         <div class="order-wizard-panels" style="flex:1;min-height:0;overflow:hidden;">
           <!-- Panel 1: Cart -->
           <div class="order-wizard-panel active" id="orderWizPanel0">
+            <div id="orderBlockerBanner" class="order-info-box order-info-box--muted" style="display:none;">
+              <span class="order-info-box-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+              </span>
+              <span class="order-info-box-text">
+                This draft order was created from job blockers. Quantities account for on-hand and incoming inventory.
+              </span>
+              <button class="order-info-box-dismiss" id="orderBlockerBannerDismiss" type="button" aria-label="Dismiss">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
             <div class="order-cart-search">
               <div class="input-wrap" style="max-width:100%;">
                 <input id="orderSearch" type="text" placeholder="Search inventory to add items…" autocomplete="off" />
@@ -11442,6 +11501,11 @@
                 <div class="job-readiness-card-content">
                   <div id="jobReadinessCardTitle" class="job-readiness-card-title">Checking readiness…</div>
                   <div id="jobReadinessCardSub" class="job-readiness-card-sub">Calculating required inventory.</div>
+                  <div class="job-readiness-card-actions" id="jobReadinessActions" style="display:none;">
+                    <button class="btn-secondary job-readiness-card-btn" id="btnJobCreatePoFromBlockers" type="button">
+                      Create PO from blockers
+                    </button>
+                  </div>
                 </div>
               </div>
               <div id="jobBlockingItemsSection" class="job-blocking-section" style="display:none;">
@@ -21762,6 +21826,7 @@
             state._sort = null;
           }
           renderTable();
+          if(_invViewMode === 'cards') renderInventoryCards();
           save();
         });
       });
@@ -21847,12 +21912,20 @@
     function getInventoryColumnDefsFromConfig(config){
       return getInventoryLayoutFromConfig(config).columnDefs.slice();
     }
+    function appendInventorySortExtras(defs){
+      const list = Array.isArray(defs) ? defs : [];
+      const hasUpdated = list.some(def => (def && (def.dataCol || def.key)) === 'updatedAt');
+      if(!hasUpdated){
+        list.push({ id:'updatedAt', key:'updatedAt', dataCol:'updatedAt', label:'Last Updated', sortable:true });
+      }
+      return list;
+    }
     function getInventorySortDefsFromConfig(config){
       const defs = [];
       const anchor = INVENTORY_COLUMN_MAP.get(INVENTORY_ANCHOR_KEY);
       if(anchor) defs.push(anchor);
       const layout = getInventoryLayoutFromConfig(config);
-      return defs.concat(layout.columnDefs || []);
+      return appendInventorySortExtras(defs.concat(layout.columnDefs || []));
     }
     function getInventoryVisibleColumnDefs(){
       const layout = getInventoryLayout();
@@ -21863,7 +21936,7 @@
       const anchor = INVENTORY_COLUMN_MAP.get(INVENTORY_ANCHOR_KEY);
       const defs = [];
       if(anchor) defs.push(anchor);
-      return defs.concat(layout.columnDefs || []);
+      return appendInventorySortExtras(defs.concat(layout.columnDefs || []));
     }
     function formatInventoryDate(value){
       const t = Date.parse(String(value || ''));
@@ -21994,6 +22067,21 @@ function adjustTitleSize(){
 	  const has = Array.from(sel.options || []).some(o => o.value === key);
 	  if(has) sel.value = key;
 	}
+	function updateSortOptionsUI(srt){
+	  const cur = srt || getSort();
+	  const options = document.querySelectorAll('.inv-sort-option[data-sort]');
+	  options.forEach(opt=>{
+	    const sortValue = String(opt.getAttribute('data-sort') || '').trim();
+	    const parts = sortValue.split(':');
+	    const col = (parts[0] || '').trim();
+	    const dir = (parts[1] || '').trim() === 'desc' ? 'desc' : 'asc';
+	    const isActive = !!(cur && col && cur.col === col);
+	    opt.classList.toggle('is-active', isActive);
+	    const activeDir = isActive ? cur.dir : dir;
+	    opt.classList.toggle('is-desc', activeDir === 'desc');
+	    opt.classList.toggle('is-asc', activeDir !== 'desc');
+	  });
+	}
 	function rebuildMobileSortOptions(defs){
 	  const sel = $('mobileSort');
 	  if(!sel) return;
@@ -22031,6 +22119,7 @@ function adjustTitleSize(){
 	    }
 	  });
 	  syncMobileSortSelect();
+	  updateSortOptionsUI(srt);
 	}
 
 	function toTime(v){
@@ -22916,7 +23005,7 @@ function emptyStateHtml(){
     function renderInventoryCards(){
       const cardGrid = $('invCardGrid');
       if(!cardGrid) return;
-      const items = getFilteredInventoryItems();
+      let items = getFilteredInventoryItems();
       if(!items || items.length === 0){
         cardGrid.innerHTML = '';
         return;
@@ -22928,6 +23017,7 @@ function emptyStateHtml(){
         ? state._incomingByItemId
         : buildInventoryIncomingMap();
       state._incomingByItemId = incomingMap;
+      items = sortItems(items);
 
       // Define field types for card layout
       const TEXT_FIELDS = new Set(['description', 'sku', 'location']);
@@ -23135,6 +23225,7 @@ function emptyStateHtml(){
             state._sort = null;
           }
           renderTable();
+          if(_invViewMode === 'cards') renderInventoryCards();
           save();
 
           // Also sync the hidden select for consistency
@@ -25613,11 +25704,17 @@ function emptyStateHtml(){
           shippingAddressId:'',
           shippingAddressSnapshot:null,
           shortfall:null,
-          shortfallAttached:false
+          shortfallAttached:false,
+          source:'',
+          relatedJobId:'',
+          blockerBannerDismissed:false
         };
       }
       if(!Object.prototype.hasOwnProperty.call(state._order, 'shortfall')) state._order.shortfall = null;
       if(!Object.prototype.hasOwnProperty.call(state._order, 'shortfallAttached')) state._order.shortfallAttached = false;
+      if(!Object.prototype.hasOwnProperty.call(state._order, 'source')) state._order.source = '';
+      if(!Object.prototype.hasOwnProperty.call(state._order, 'relatedJobId')) state._order.relatedJobId = '';
+      if(!Object.prototype.hasOwnProperty.call(state._order, 'blockerBannerDismissed')) state._order.blockerBannerDismissed = false;
       ensureOrderIdentifiers(state._order);
       return state._order;
     }
@@ -26664,6 +26761,9 @@ function emptyStateHtml(){
       const ids = ord.lines.map(l => l.id);
       ord.lines = [];
       clearOrderShortfallLink();
+      ord.source = '';
+      ord.relatedJobId = '';
+      ord.blockerBannerDismissed = false;
       try{ orderLineSelection.clear(); }catch(e){}
       try{ state._orderLineExpanded = new Set(); }catch(e){}
       try{ state._orderJobAllocationsByItemId = new Map(); }catch(e){}
@@ -26782,6 +26882,57 @@ function emptyStateHtml(){
 	      }
       try{ syncOrderIndicatorForRow(String(itemId)); }catch(e){}
       afterOrderStateChanged();
+    }
+    function buildJobBlockerOrderLines(blockingItems){
+      const neededByItem = new Map();
+      (Array.isArray(blockingItems) ? blockingItems : []).forEach(item=>{
+        const itemId = String(item && item.itemId ? item.itemId : '').trim();
+        if(!itemId) return;
+        const required = Number(item && item.requiredQty != null ? item.requiredQty : 0);
+        const available = Number(item && item.availableQty != null ? item.availableQty : 0);
+        if(!Number.isFinite(required) || required <= 0) return;
+        const needed = Math.max(0, required - available);
+        if(needed <= 0) return;
+        neededByItem.set(itemId, (neededByItem.get(itemId) || 0) + needed);
+      });
+      return neededByItem;
+    }
+    function applyJobBlockerOrderLines(jobId, blockingItems){
+      const neededByItem = buildJobBlockerOrderLines(blockingItems);
+      if(!neededByItem.size){
+        toast('All blockers are already covered by on-hand and incoming inventory.');
+        return false;
+      }
+      const ord = orderState();
+      ord.source = 'job_blockers';
+      ord.relatedJobId = String(jobId || '').trim();
+      ord.blockerBannerDismissed = false;
+      neededByItem.forEach((neededQty, itemId)=>{
+        const item = getInventoryById(itemId);
+        if(!item) return;
+        const existing = ord.lines.find(l => l && l.id === itemId);
+        const nextQty = Math.max(existing ? toInt(existing.qty, 0) : 0, toInt(neededQty, 0));
+        if(existing){
+          existing.qty = nextQty;
+          existing._manualQty = true;
+          existing._autoQtyApplied = true;
+        }else{
+          upsertOrderLineFromItem(item, nextQty);
+          const line = ord.lines.find(l => l && l.id === itemId);
+          if(line){
+            line._manualQty = true;
+            line._autoQtyApplied = true;
+          }
+        }
+        try{ syncOrderIndicatorForRow(String(itemId)); }catch(e){}
+      });
+      afterOrderStateChanged();
+      return true;
+    }
+    function createOrderFromJobBlockers(jobId, blockingItems){
+      const ok = applyJobBlockerOrderLines(jobId, blockingItems);
+      if(!ok) return;
+      void openOrderModal({ addSelected:false });
     }
     function setOrderQty(id, qty, opts = {}){
       const ord = orderState();
@@ -31096,6 +31247,9 @@ function emptyStateHtml(){
       const nameOk = !!(job && String(job.name || '').trim());
       const readiness = editor ? editor.jobReadiness : null;
       const readinessDetail = editor ? editor.jobReadinessDetail : null;
+      const blockingItems = readinessDetail && Array.isArray(readinessDetail.blocking_items)
+        ? readinessDetail.blocking_items
+        : [];
 
       syncJobActualDraftFromDom();
       ensureJobEditorIcons();
@@ -31110,6 +31264,8 @@ function emptyStateHtml(){
       const readinessCardIcon = $('jobReadinessCardIcon');
       const readinessCardTitle = $('jobReadinessCardTitle');
       const readinessCardSub = $('jobReadinessCardSub');
+      const readinessActions = $('jobReadinessActions');
+      const createPoBtn = $('btnJobCreatePoFromBlockers');
       const blockingSection = $('jobBlockingItemsSection');
       const blockingList = $('jobBlockingItemsList');
       const nameInput = $('jobNameInput');
@@ -31191,10 +31347,13 @@ function emptyStateHtml(){
         if(readinessCardTitle) readinessCardTitle.textContent = titleText;
         if(readinessCardSub) readinessCardSub.textContent = subText;
       }
+      if(createPoBtn){
+        const canShow = !!(readinessDetail && !readinessDetail.error && !readinessDetail.ready_for_approval && blockingItems.length && canOrdersCreate());
+        if(readinessActions) readinessActions.style.display = canShow ? 'flex' : 'none';
+        createPoBtn.style.display = canShow ? 'inline-flex' : 'none';
+        createPoBtn.disabled = !canShow || !!state._jobEditorBusy;
+      }
       if(blockingSection && blockingList){
-        const blockingItems = readinessDetail && Array.isArray(readinessDetail.blocking_items)
-          ? readinessDetail.blocking_items
-          : [];
         if(readinessDetail && !readinessDetail.error && !readinessDetail.ready_for_approval && blockingItems.length){
           const orderLines = orderState().lines || [];
           const orderItemIds = new Set(orderLines.map(line => String(line && line.id ? line.id : '').trim()).filter(Boolean));
@@ -32869,6 +33028,13 @@ function emptyStateHtml(){
         list.appendChild(el);
       }
     }
+    function updateOrderBlockerBanner(){
+      const banner = $('orderBlockerBanner');
+      if(!banner) return;
+      const ord = orderState();
+      const show = ord && ord.source === 'job_blockers' && !ord.blockerBannerDismissed;
+      banner.style.display = show ? 'flex' : 'none';
+    }
     function renderOrderLines(){
       const ord = orderState();
       const list = $('orderLinesBody');
@@ -32906,6 +33072,7 @@ function emptyStateHtml(){
           <div style="font-size:12px;margin-top:4px;">Search above to add items</div>
         </div>`;
         updateOrderImpactCard([]);
+        updateOrderBlockerBanner();
         renderOrderPreview();
         // Update wizard cart summary and button states
         try{ updateOrderWizardCartSummary(); orderWizardUpdateUI(); }catch(e){}
@@ -33082,6 +33249,7 @@ function emptyStateHtml(){
 
       renderOrderPreview();
       updateOrderImpactCard(lines);
+      updateOrderBlockerBanner();
       // Update wizard cart summary and button states
       try{ updateOrderWizardCartSummary(); orderWizardUpdateUI(); }catch(e){}
     }
@@ -33269,6 +33437,16 @@ function emptyStateHtml(){
     // Job Item Picker event listeners
     const btnJobAddItem = $('btnJobAddItem');
     if(btnJobAddItem) btnJobAddItem.addEventListener('click', openJobItemPicker);
+    const btnJobCreatePo = $('btnJobCreatePoFromBlockers');
+    if(btnJobCreatePo) btnJobCreatePo.addEventListener('click', ()=>{
+      const editor = state._jobEditor;
+      const jobId = editor && editor.job ? editor.job.id : null;
+      const detail = editor ? editor.jobReadinessDetail : null;
+      const blockingItems = detail && Array.isArray(detail.blocking_items) ? detail.blocking_items : [];
+      if(!jobId || !blockingItems.length) return;
+      if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
+      createOrderFromJobBlockers(jobId, blockingItems);
+    });
     const jobItemPickerSearch = $('jobItemPickerSearch');
     if(jobItemPickerSearch){
       jobItemPickerSearch.addEventListener('input', (e)=> renderJobItemPickerResults(e.target.value));
@@ -33982,6 +34160,12 @@ function emptyStateHtml(){
       clearAllOrderLines();
       renderOrderLines();
       toast('Order list cleared');
+    });
+    const orderBlockerBannerDismiss = $('orderBlockerBannerDismiss');
+    if(orderBlockerBannerDismiss) orderBlockerBannerDismiss.addEventListener('click', ()=>{
+      const ord = orderState();
+      ord.blockerBannerDismissed = true;
+      updateOrderBlockerBanner();
     });
     const btnOrderCopy = $('btnOrderCopy');
     if(btnOrderCopy) btnOrderCopy.addEventListener('click', copyOrderToClipboard);
@@ -36108,6 +36292,7 @@ function emptyStateHtml(){
           if(!col){
             state._sort = null;
             renderTable();
+            if(_invViewMode === 'cards') renderInventoryCards();
             save();
             return;
           }
@@ -36119,6 +36304,7 @@ function emptyStateHtml(){
             state._sort = { col, dir };
           }
           renderTable();
+          if(_invViewMode === 'cards') renderInventoryCards();
           save();
         });
       }
