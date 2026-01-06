@@ -23223,7 +23223,7 @@ function emptyStateHtml(){
 	        initColumnBuilder._wired = true;
 	        document.addEventListener('click', (e)=>{
 	          if(!panel.classList.contains('open')) return;
-	          if(panel.contains(e.target) || btn.contains(e.target)) return;
+	          if(panel.contains(e.target) || (btn && btn.contains(e.target))) return;
 	          close();
 	        });
 	        document.addEventListener('keydown', (e)=>{
@@ -26997,6 +26997,7 @@ function emptyStateHtml(){
         const disableActions = !canManage;
         const cardClasses = [
           'location-card',
+          'locations-row',
           isDefault ? 'is-default' : '',
           active ? '' : 'is-archived'
         ].filter(Boolean).join(' ');
@@ -27022,7 +27023,7 @@ function emptyStateHtml(){
           ? `<button class="icon-btn restore" type="button" data-location-restore="${escapeHtmlAttr(id)}" data-tooltip="Restore"${disableActions ? ' disabled aria-disabled="true"' : ''} aria-label="Restore location">${restoreSvg}</button>`
           : '';
         return (
-          `<div class="${escapeHtmlAttr(cardClasses)}" data-location-id="${escapeHtmlAttr(id)}">`+
+          `<div class="${escapeHtmlAttr(cardClasses)}" data-location-id="${escapeHtmlAttr(id)}" data-location-row="${escapeHtmlAttr(id)}">`+
             `<div class="card-row">`+
               editBtn+
               `<div class="card-info">`+
