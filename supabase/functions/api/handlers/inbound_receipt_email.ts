@@ -15,6 +15,7 @@ const DEFAULT_ATTACHMENT_BUCKET = 'receipt-attachments';
 
 interface ParsedLineItem {
   description: string;
+  sku: string | null;
   qty: number | null;
   unit_price: number | null;
   line_total: number | null;
@@ -103,6 +104,19 @@ function extractSlugFromRecipients(recipients: string[], domain: string): string
   return null;
 }
 
+function decodeHtmlEntities(text: string): string {
+  return String(text || '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&apos;/gi, "'")
+    .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num, 10)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+}
+
 function stripHtmlToText(html: string): string {
   const raw = String(html || '').trim();
   if (!raw) return '';
@@ -110,9 +124,9 @@ function stripHtmlToText(html: string): string {
     const parser = new DOMParser();
     const doc = parser.parseFromString(raw, 'text/html');
     const text = doc?.body?.innerText || doc?.body?.textContent || '';
-    return String(text || '').replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    return decodeHtmlEntities(String(text || '').replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim());
   } catch {
-    return raw
+    return decodeHtmlEntities(raw
       .replace(/<style[\s\S]*?<\/style>/gi, '\n')
       .replace(/<script[\s\S]*?<\/script>/gi, '\n')
       .replace(/<br\s*\/?\s*>/gi, '\n')
@@ -120,7 +134,7 @@ function stripHtmlToText(html: string): string {
       .replace(/<\/div>/gi, '\n')
       .replace(/<[^>]+>/g, '')
       .replace(/\n{3,}/g, '\n\n')
-      .trim();
+      .trim());
   }
 }
 
@@ -134,77 +148,437 @@ function parseMoney(value: string): number | null {
 function parseDate(value: string): string | null {
   const raw = String(value || '').trim();
   if (!raw) return null;
-  const tryDate = new Date(raw);
-  if (!Number.isNaN(tryDate.getTime())) return tryDate.toISOString().slice(0, 10);
+  const normalized = raw.replace(/[\u2013\u2014]/g, '-').replace(/(\d)(st|nd|rd|th)\b/gi, '$1');
+  const monthIndex = (name: string): number => {
+    const key = name.trim().toLowerCase().slice(0, 3);
+    const map: Record<string, number> = {
+      jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
+      jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
+    };
+    return map[key] || 0;
+  };
+  const normalizeYear = (yearRaw: string): number => {
+    const num = Number.parseInt(yearRaw, 10);
+    if (!Number.isFinite(num)) return 0;
+    if (yearRaw.length === 2) return num >= 70 ? 1900 + num : 2000 + num;
+    return num;
+  };
+  const buildDate = (year: number, month: number, day: number): string | null => {
+    if (!year || month < 1 || month > 12 || day < 1 || day > 31) return null;
+    const probe = new Date(Date.UTC(year, month - 1, day));
+    if (probe.getUTCFullYear() !== year || probe.getUTCMonth() !== month - 1 || probe.getUTCDate() !== day) {
+      return null;
+    }
+    const mm = String(month).padStart(2, '0');
+    const dd = String(day).padStart(2, '0');
+    return `${year}-${mm}-${dd}`;
+  };
+  let match = normalized.match(/\b(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})\b/);
+  if (match) {
+    return buildDate(Number(match[1]), Number(match[2]), Number(match[3]));
+  }
+  match = normalized.match(/\b([A-Za-z]{3,9})\.?\s+(\d{1,2})\s*,?\s*(\d{2,4})\b/);
+  if (match) {
+    const month = monthIndex(match[1]);
+    const year = normalizeYear(match[3]);
+    return buildDate(year, month, Number(match[2]));
+  }
+  match = normalized.match(/\b(\d{1,2})\s+([A-Za-z]{3,9})\.?\s+(\d{2,4})\b/);
+  if (match) {
+    const month = monthIndex(match[2]);
+    const year = normalizeYear(match[3]);
+    return buildDate(year, month, Number(match[1]));
+  }
+  match = normalized.match(/\b(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})\b/);
+  if (match) {
+    const a = Number(match[1]);
+    const b = Number(match[2]);
+    const year = normalizeYear(match[3]);
+    if (a > 12 && b <= 12) return buildDate(year, b, a);
+    if (b > 12 && a <= 12) return buildDate(year, a, b);
+    return null;
+  }
+  return null;
+}
+
+function parseQuantity(value: string): number | null {
+  const cleaned = String(value || '').replace(/[^0-9.\-]/g, '');
+  if (!cleaned) return null;
+  const num = Number.parseFloat(cleaned);
+  return Number.isFinite(num) ? num : null;
+}
+
+function normalizeReceiptLines(text: string): string[] {
+  const raw = String(text || '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\u00a0/g, ' ');
+  return raw
+    .split('\n')
+    .map(line => line.replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+}
+
+function isLikelyVendorLine(line: string): boolean {
+  const trimmed = String(line || '').trim();
+  if (!trimmed || trimmed.length > 80 || trimmed.length < 2) return false;
+  const lower = trimmed.toLowerCase();
+  if (/@/.test(trimmed) || /https?:\/\//i.test(trimmed) || /www\./i.test(trimmed)) return false;
+  if (/\b(receipt|invoice|statement|order|purchase|subtotal|total|tax)\b/i.test(lower)) return false;
+  if (/\b(thank you|thanks|welcome|customer|member)\b/i.test(lower)) return false;
+  if (/\b(street|st\.|road|rd\.|avenue|ave\.|blvd|drive|dr\.|lane|ln\.|way|suite|ste\.|unit|apt|po box|box|zip)\b/i.test(lower)) return false;
+  if (/\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/.test(lower)) return false;
+  if (/^\d+$/.test(trimmed)) return false;
+  const digitCount = (trimmed.match(/\d/g) || []).length;
+  const letterCount = (trimmed.match(/[A-Za-z]/g) || []).length;
+  if (letterCount < 2 || digitCount > letterCount) return false;
+  return true;
+}
+
+function extractVendorFromLabels(lines: string[]): string | null {
+  const labelRegex = /^\s*(vendor|from|sold by|seller|merchant|store)\s*[:\-]\s*(.+)$/i;
+  for (const line of lines) {
+    const match = line.match(labelRegex);
+    if (!match) continue;
+    const candidate = String(match[2] || '').trim()
+      .replace(/<[^>]*>/g, '')  // Remove <email> or other angle-bracketed content
+      .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '')
+      .replace(/https?:\/\/\S+/gi, '')
+      .replace(/www\.\S+/gi, '')
+      .replace(/\s+/g, ' ')  // Normalize whitespace
+      .trim();
+    if (isLikelyVendorLine(candidate)) return candidate;
+  }
+  return null;
+}
+
+function extractDateFromLine(line: string): string | null {
+  const patterns = [
+    /\b(\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2})\b/,
+    /\b(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})\b/,
+    /\b([A-Za-z]{3,9}\s+\d{1,2},?\s+\d{2,4})\b/,
+    /\b(\d{1,2}\s+[A-Za-z]{3,9}\s+\d{2,4})\b/,
+  ];
+  for (const pattern of patterns) {
+    const match = line.match(pattern);
+    if (!match) continue;
+    const parsed = parseDate(match[1]);
+    if (parsed) return parsed;
+  }
+  return null;
+}
+
+function isTotalsIndicator(line: string): boolean {
+  const lower = line.toLowerCase();
+  if (/\b(total savings|savings total)\b/.test(lower)) return true;
+  return /\b(subtotal|sub total|tax|sales tax|vat|gst|hst|pst|total|amount due|balance due|total due|order total|grand total|payment|paid|change|tip|discount|shipping|delivery)\b/.test(lower);
+}
+
+function extractLabeledAmount(lines: string[], labels: string[], exclude: RegExp[] = []): number | null {
+  for (const label of labels) {
+    const labelPattern = label
+      .split(/\s+/)
+      .map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('\\s+');
+    // Look for $ followed by amount (handles "Subtotal $ 51.84" format)
+    const dollarRegex = new RegExp(`\\b${labelPattern}\\b[^\\$]*\\$\\s*([0-9][0-9,]*\\.?[0-9]{0,2})`, 'i');
+    // Fallback: number after label
+    const fallbackRegex = new RegExp(`\\b${labelPattern}\\b[^0-9\\-]{0,20}(-?\\$?\\s*[0-9][0-9,]*\\.?[0-9]{0,2})`, 'i');
+    // Label-only pattern (for multi-line format)
+    const labelOnlyRegex = new RegExp(`^\\s*${labelPattern}\\s*$`, 'i');
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const lower = line.toLowerCase();
+      if (exclude.some(re => re.test(lower))) continue;
+      if (!new RegExp(`\\b${labelPattern}\\b`, 'i').test(line)) continue;
+
+      // Try dollar sign pattern first (same line)
+      const dollarMatch = line.match(dollarRegex);
+      if (dollarMatch) {
+        const val = parseMoney(dollarMatch[1]);
+        if (val !== null) return val;
+      }
+
+      // Check if label is on its own line, value on next line (e.g., "Total Tax\n$ 3.63")
+      if (labelOnlyRegex.test(line) && i + 1 < lines.length) {
+        const nextLine = lines[i + 1];
+        const nextMatch = nextLine.match(/^\s*\$?\s*([0-9][0-9,]*\.?\d{0,2})\s*$/);
+        if (nextMatch) {
+          const val = parseMoney(nextMatch[1]);
+          if (val !== null) return val;
+        }
+      }
+
+      // Fallback to original pattern, but skip if line has "invoice/order + number" before label
+      if (/\b(invoice|order)\s+\d+\s+/i.test(line)) continue;
+      const match = line.match(fallbackRegex);
+      if (match) {
+        const val = parseMoney(match[1]);
+        if (val !== null) return val;
+      }
+    }
+  }
+  return null;
+}
+
+function isLineItemExcluded(line: string): boolean {
+  const lower = line.toLowerCase();
+  const trimmed = line.trim();
+
+  // Exclude table headers (single words like "Item", "Price", "Qty", "Description")
+  if (/^\s*(item|price|qty|quantity|description|amount|unit|total|sku)\s*$/i.test(trimmed)) return true;
+
+  // Exclude summary/payment lines
+  if (/\b(subtotal|sub total|tax|total|amount due|balance due|payment|paid|change|tip|shipping|delivery|order|invoice|receipt|cash|card|visa|mastercard|amex|debit|credit|auth|approval|customer|account|tracking|ship to|bill to|refid|terminal|mylowe|rewards|points|survey|feedback)\b/.test(lower)) {
+    return true;
+  }
+  if (/\b(total savings|savings total)\b/.test(lower)) return true;
+
+  // Exclude discount lines (e.g., "3.88 Discount Ea -0.39")
+  if (/\bdiscount\b/i.test(lower)) return true;
+
+  // Exclude item number/SKU lines (e.g., "Item #: 7384") - these are extracted separately
+  if (/^\s*item\s*#?\s*:?\s*\d+\s*$/i.test(line)) return true;
+  if (/^\s*sku\s*:?\s*\d+\s*$/i.test(line)) return true;
+
+  // Exclude quantity-only lines (e.g., "2 @ 21.98")
+  if (/^\s*\d+\s*@\s*[\d.,]+\s*$/i.test(line)) return true;
+
+  // Exclude store location/address lines
+  if (/\b(store\s*#?\s*:?\s*\d+|store number)\b/i.test(line)) return true;
+  if (/\b[A-Za-z]+\s*,\s*[A-Z]{2}\s*\d{5}(-\d{4})?\b/.test(line)) return true; // City, ST 12345
+  if (/\b[A-Za-z]+\s*,\s*[A-Z]{2}\s*$/i.test(line)) return true; // "Melbourne, FL" format
+
+  // Exclude date-only lines (e.g., "December 31 2025", "01/15/2024")
+  if (/^\s*[A-Za-z]+\s+\d{1,2}\s+\d{2,4}\s*$/i.test(line)) return true; // Month Day Year
+  if (/^\s*\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}\s*$/i.test(line)) return true; // MM/DD/YYYY
+  if (/^\s*\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2}\s*$/i.test(line)) return true; // YYYY-MM-DD
+
+  // Exclude auth/time lines (e.g., "AuthTime", "AuthCD", "000000")
+  if (/^\s*(authtime|authcd|refid)\s*$/i.test(trimmed)) return true;
+  if (/^\s*\d{6}\s*$/i.test(trimmed)) return true; // 6-digit auth codes
+
+  // Exclude balance/card lines
+  if (/\b(balance|card transaction|remaining|beginning)\b/i.test(lower)) return true;
+
+  return false;
+}
+
+function isLikelyItemDescription(desc: string): boolean {
+  const trimmed = String(desc || '').trim();
+  if (!trimmed || trimmed.length < 2 || trimmed.length > 160) return false;
+  const lower = trimmed.toLowerCase();
+  if (isLineItemExcluded(lower)) return false;
+  if (/@/.test(trimmed) || /https?:\/\//i.test(trimmed) || /www\./i.test(trimmed)) return false;
+  const digits = (trimmed.match(/\d/g) || []).length;
+  const letters = (trimmed.match(/[A-Za-z]/g) || []).length;
+  if (letters < 2) return false;
+  if (digits > letters * 1.2) return false;
+  return true;
+}
+
+function parseLineItem(line: string): ParsedLineItem | null {
+  const cleaned = String(line || '').replace(/^[\u2022\-\*\•]+/, '').replace(/\s+/g, ' ').trim();
+  if (!cleaned || cleaned.length < 3) return null;
+  if (isLineItemExcluded(cleaned)) return null;
+  const patterns: Array<RegExp> = [
+    /^(?<desc>.+?)\s+(?<qty>\d+(?:\.\d+)?)\s*(?:x|@)\s*\$?(?<unit>\d[\d,]*\.?\d{0,2})(?:\s+\$?(?<total>\d[\d,]*\.?\d{0,2}))?\s*$/i,
+    /^(?<desc>.+?)\s+(?<qty>\d+(?:\.\d+)?)\s+\$?(?<unit>\d[\d,]*\.?\d{0,2})\s+\$?(?<total>\d[\d,]*\.?\d{0,2})\s*$/i,
+    /^(?<qty>\d+(?:\.\d+)?)\s+(?<desc>.+?)\s+\$?(?<unit>\d[\d,]*\.?\d{0,2})(?:\s+\$?(?<total>\d[\d,]*\.?\d{0,2}))?\s*$/i,
+    /^(?<desc>.+?)\s+(?<qty>\d+(?:\.\d+)?)\s+\$?(?<total>\d[\d,]*\.?\d{0,2})\s*$/i,
+    /^(?<desc>.+?)\s+\$?(?<unit>\d[\d,]*\.?\d{0,2})\s*$/i,
+  ];
+  for (const pattern of patterns) {
+    const match = cleaned.match(pattern);
+    if (!match || !match.groups) continue;
+    const desc = String(match.groups.desc || '').trim();
+    if (!isLikelyItemDescription(desc)) continue;
+    const qty = parseQuantity(match.groups.qty || '');
+    const unit = parseMoney(match.groups.unit || '');
+    const total = parseMoney(match.groups.total || '');
+    let finalQty = qty;
+    let finalUnit = unit;
+    let finalTotal = total;
+    if (finalQty !== null && finalUnit !== null && finalTotal === null) {
+      finalTotal = finalQty * finalUnit;
+    }
+    if (finalQty !== null && finalTotal !== null && finalUnit === null && finalQty !== 0) {
+      finalUnit = finalTotal / finalQty;
+    }
+    if (finalQty === null && finalUnit !== null) {
+      finalQty = 1;
+      if (finalTotal === null) finalTotal = finalUnit;
+    }
+    return {
+      description: desc,
+      sku: null,
+      qty: finalQty,
+      unit_price: finalUnit,
+      line_total: finalTotal,
+    };
+  }
+  return null;
+}
+
+function extractSkuFromLine(line: string): string | null {
+  // Match patterns like "Item #: 7384", "Item# 254896", "SKU: ABC123"
+  const match = line.match(/^\s*(?:item\s*#?\s*:?\s*|sku\s*:?\s*)([A-Z0-9-]+)\s*$/i);
+  return match ? match[1] : null;
+}
+
+function findTotalsStartIndex(lines: string[]): number {
+  for (let i = 0; i < lines.length; i++) {
+    if (isTotalsIndicator(lines[i])) return i;
+  }
+  return lines.length;
+}
+
+function findItemsStartIndex(lines: string[], totalsStart: number): number | null {
+  for (let i = 0; i < totalsStart; i++) {
+    const lower = lines[i].toLowerCase();
+    const hasDesc = /\b(description|item|product)\b/.test(lower);
+    const hasQty = /\b(qty|quantity)\b/.test(lower);
+    const hasPrice = /\b(price|amount|total|unit)\b/.test(lower);
+    if (hasDesc && hasQty && hasPrice) return i + 1;
+    if (parseLineItem(lines[i])) return i;
+  }
   return null;
 }
 
 function extractReceiptFields(text: string): ParsedReceipt {
-  const lines = String(text || '')
-    .split(/\r?\n/)
-    .map(l => l.trim())
-    .filter(Boolean);
+  const lines = normalizeReceiptLines(text || '');
 
-  let vendor: string | null = null;
-  for (const line of lines.slice(0, 6)) {
-    if (/receipt|invoice|statement/i.test(line)) continue;
-    if (line.length >= 2 && line.length <= 60) { vendor = line; break; }
+  let vendor: string | null = extractVendorFromLabels(lines);
+  if (!vendor) {
+    for (const line of lines.slice(0, 6)) {
+      if (isLikelyVendorLine(line)) { vendor = line; break; }
+    }
   }
 
-  const datePatterns = [
-    /\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\b/,
-    /\b(\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2})\b/,
-    /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{2,4}\b/i
-  ];
   let receiptDate: string | null = null;
+  const dateLabelRegex = /\b(invoice date|purchase date|order date|date)\b/i;
   for (const line of lines) {
-    for (const pattern of datePatterns) {
-      const match = line.match(pattern);
-      if (match) {
-        receiptDate = parseDate(match[1]);
-        if (receiptDate) break;
-      }
-    }
+    if (!dateLabelRegex.test(line)) continue;
+    receiptDate = extractDateFromLine(line);
     if (receiptDate) break;
   }
-
-  const findLabelValue = (label: string): number | null => {
-    const regex = new RegExp(`${label}\\s*[:\-]?\\s*\$?([0-9,]+(?:\\.[0-9]{2})?)`, 'i');
-    for (const line of lines) {
-      const match = line.match(regex);
-      if (match) return parseMoney(match[1]);
+  if (!receiptDate) {
+    for (const line of lines.slice(0, 20)) {
+      receiptDate = extractDateFromLine(line);
+      if (receiptDate) break;
     }
-    return null;
-  };
+  }
 
-  const subtotal = findLabelValue('subtotal');
-  const tax = findLabelValue('tax');
-  let total = findLabelValue('total');
-  if (total === null) total = findLabelValue('amount due');
+  const subtotal = extractLabeledAmount(lines, ['subtotal', 'sub total']);
+  const tax = extractLabeledAmount(lines, ['total tax', 'sales tax', 'tax', 'vat', 'gst', 'hst', 'pst'], [/tax id/i]);
+  let total = extractLabeledAmount(
+    lines,
+    ['grand total', 'total due', 'amount due', 'balance due', 'order total', 'total'],
+    [/total savings|savings total|subtotal|total\s+tax|tax\s+total/i]
+  );
 
+  // Some receipts (like Lowe's) have totals BEFORE line items
+  // So we scan ALL lines for potential items, not just before totals
   const lineItems: ParsedLineItem[] = [];
-  const linePattern = /^(.*?)[\s\t]+(\d{1,4})\s*(?:x)?\s*\$?([0-9,]+(?:\.[0-9]{2})?)\s*$/i;
-  for (const line of lines) {
-    const match = line.match(linePattern);
-    if (!match) continue;
-    const desc = match[1]?.trim() || '';
-    const qty = Number.parseInt(match[2], 10);
-    const price = parseMoney(match[3]);
-    if (!desc || !Number.isFinite(qty)) continue;
-    lineItems.push({
-      description: desc,
-      qty: qty,
-      unit_price: price,
-      line_total: price !== null ? price * qty : null,
-    });
+  const usedLines = new Set<number>();
+  const scanEnd = lines.length;
+  const scanStart = 0;
+
+  for (let i = scanStart; i < scanEnd; i++) {
+    if (usedLines.has(i)) continue;
+    const line = lines[i];
+
+    // Try single-line parsing first
+    const item = parseLineItem(line);
+    if (item) {
+      lineItems.push(item);
+      usedLines.add(i);
+      if (lineItems.length >= 200) break;
+      continue;
+    }
+
+    // Try multi-line: description on current line, price on next line
+    // Format: "PRODUCT NAME" followed by "Item #: SKU" and/or "$ 43.96"
+    if (isLikelyItemDescription(line) && !isLineItemExcluded(line) && i + 1 < scanEnd) {
+      // Look ahead for price line (may be immediately after, or after Item # line)
+      let priceLineIdx = -1;
+      let price: number | null = null;
+      for (let j = i + 1; j < Math.min(i + 4, scanEnd); j++) {
+        const priceMatch = lines[j].match(/^\s*\$\s*([0-9][0-9,]*\.?\d{0,2})\s*$/);
+        if (priceMatch) {
+          price = parseMoney(priceMatch[1]);
+          if (price !== null) {
+            priceLineIdx = j;
+            break;
+          }
+        }
+        // Also check for inline price with qty (e.g., "2 @ 21.98 $ 43.96")
+        const inlineMatch = lines[j].match(/^\s*(\d+)\s*@\s*[\d.,]+\s*\$\s*([0-9][0-9,]*\.?\d{0,2})\s*$/);
+        if (inlineMatch) {
+          price = parseMoney(inlineMatch[2]);
+          if (price !== null) {
+            priceLineIdx = j;
+            break;
+          }
+        }
+      }
+
+      if (price !== null && priceLineIdx > 0) {
+        // Look for SKU (Item #) and quantity lines (may be after price line)
+        let qty = 1;
+        let unitPrice = price;
+        let sku: string | null = null;
+        for (let j = i + 1; j < Math.min(priceLineIdx + 4, scanEnd); j++) {
+          // Check for Item # / SKU line
+          const itemSku = extractSkuFromLine(lines[j]);
+          if (itemSku) {
+            sku = itemSku;
+            usedLines.add(j);
+            continue;
+          }
+          // Check for quantity line (e.g., "2 @ 21.98")
+          const qtyMatch = lines[j].match(/^\s*(\d+)\s*@\s*([\d.,]+)/);
+          if (qtyMatch) {
+            qty = parseInt(qtyMatch[1], 10) || 1;
+            unitPrice = parseMoney(qtyMatch[2]) || price / qty;
+            usedLines.add(j);
+          }
+        }
+        lineItems.push({
+          description: line.trim(),
+          sku,
+          qty,
+          unit_price: unitPrice,
+          line_total: price,
+        });
+        usedLines.add(i);
+        usedLines.add(priceLineIdx);
+        if (lineItems.length >= 200) break;
+      }
+    }
+  }
+
+  let finalSubtotal = subtotal;
+  let finalTax = tax;
+  let finalTotal = total;
+  if (finalTotal === null && finalSubtotal !== null && finalTax !== null) {
+    finalTotal = finalSubtotal + finalTax;
+  }
+  if (finalSubtotal === null && lineItems.length) {
+    const sum = lineItems.reduce((acc, item) => acc + (item.line_total || 0), 0);
+    finalSubtotal = sum > 0 ? sum : null;
+  }
+  if (finalTax === null && finalSubtotal !== null && finalTotal !== null) {
+    const computedTax = finalTotal - finalSubtotal;
+    if (computedTax >= 0) finalTax = computedTax;
   }
 
   return {
     vendor_name: vendor,
     receipt_date: receiptDate,
-    subtotal,
-    tax,
-    total,
+    subtotal: finalSubtotal,
+    tax: finalTax,
+    total: finalTotal,
     line_items: lineItems.slice(0, 200),
   };
 }
@@ -302,7 +676,7 @@ async function extractReceiptText(
     if (ocrText) return { rawText: ocrText, source: 'image_upload' };
   }
 
-  const plain = String(text || '').trim();
+  const plain = decodeHtmlEntities(String(text || '').trim());
   if (plain) return { rawText: plain, source: 'email_text' };
 
   return { rawText: '', source: 'email_text' };

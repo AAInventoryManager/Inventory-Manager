@@ -225,8 +225,8 @@ async function handleRequest(request: Request): Promise<Response> {
   const requestId = generateRequestId();
   const url = new URL(request.url);
   
-  // Remove the /functions/v1/api prefix that Supabase adds
-  const pathname = url.pathname.replace(/^\/functions\/v1\/api/, '') || '/';
+  // Remove the /api prefix (Supabase passes pathname starting with function name)
+  const pathname = url.pathname.replace(/^(\/functions\/v1)?\/api/, '') || '/';
   
   let auth: AuthContext | null = null;
   let response: Response;
