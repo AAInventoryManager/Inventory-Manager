@@ -37,6 +37,7 @@ import {
   handleAdjustInventory,
 } from './handlers/inventory.ts';
 import { handleLowStock } from './handlers/reports.ts';
+import { handleInboundReceiptEmail } from './handlers/inbound_receipt_email.ts';
 
 // Utils
 import { AppError, AuthenticationError } from './utils/errors.ts';
@@ -78,6 +79,15 @@ const routes: Route[] = [
     pattern: /^\/health$/,
     paramNames: [],
     handler: handleHealth,
+    requiresAuth: false,
+  },
+
+  // Inbound receipt email (SendGrid Inbound Parse) - no auth, signature required
+  {
+    method: 'POST',
+    pattern: /^\/inbound\/receipt-email$/,
+    paramNames: [],
+    handler: handleInboundReceiptEmail,
     requiresAuth: false,
   },
   

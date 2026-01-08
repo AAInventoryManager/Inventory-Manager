@@ -164,6 +164,20 @@
       min-height:36px;
       font-size:13px;
     }
+    .btn-count{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:18px;
+      height:18px;
+      padding:0 6px;
+      border-radius:999px;
+      background:rgba(59,130,246,0.2);
+      color:#bfdbfe;
+      font-size:11px;
+      font-weight:700;
+      margin-left:6px;
+    }
     .btn-primary[disabled],
     .btn-secondary[disabled],
     .btn-tertiary[disabled],
@@ -2657,6 +2671,28 @@
       border-color:rgba(251,191,36,0.35);
       background:rgba(251,191,36,0.12);
     }
+    .approve-ready-list{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .approve-ready-empty{
+      padding:12px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(0,0,0,0.2);
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+    }
+    .approve-ready-card .mini-card-meta{
+      align-items:flex-end;
+    }
+    .approve-ready-card .btn-secondary.btn-sm{
+      min-height:30px;
+      padding:6px 10px;
+      font-size:12px;
+    }
     .mini-card-status{
       display:flex;
       align-items:center;
@@ -3013,12 +3049,14 @@
       min-width:0;
     }
     #orderModal .order-shipping-name{
+      display:block;
       font-size:14px;
       font-weight:600;
       color:var(--fg);
       margin-bottom:2px;
     }
     #orderModal .order-shipping-address{
+      display:block;
       font-size:12px;
       color:var(--muted);
       line-height:1.4;
@@ -3269,7 +3307,7 @@
     }
     .order-review-preview-body{
       background:#fff;
-      overflow-y:auto;
+      overflow:visible;
     }
     .order-review-preview-body iframe{
       width:100%;
@@ -3551,43 +3589,10 @@
         flex:0 0 40px;
       }
     }
-    /* Expandable email preview */
     .order-review-preview-header{
       display:flex;
       align-items:center;
       justify-content:space-between;
-    }
-    .order-preview-toggle{
-      font-size:12px;
-      color:#60a5fa;
-      background:none;
-      border:none;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      gap:4px;
-      padding:0;
-    }
-    .order-preview-toggle:hover{
-      color:#93c5fd;
-    }
-    .order-preview-toggle svg{
-      transition:transform 0.2s ease;
-    }
-    .order-review-preview-body{
-      max-height:180px;
-      transition:max-height 0.3s ease;
-    }
-    .order-review-preview-body.expanded{
-      max-height:400px;
-    }
-    @media (max-width: 540px){
-      .order-review-preview-body{
-        max-height:150px;
-      }
-      .order-review-preview-body.expanded{
-        max-height:350px;
-      }
     }
 
     /* Compact stepper on mobile */
@@ -3784,6 +3789,96 @@
       border-radius:8px;
       padding:8px 10px;
       font-size:13px;
+    }
+    .receive-forward-hint{
+      margin-top:10px;
+      padding:8px 10px;
+      border:1px solid rgba(59,130,246,0.2);
+      border-radius:10px;
+      background:rgba(59,130,246,0.08);
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .receive-forward-hint strong{
+      color:#93c5fd;
+      font-weight:700;
+    }
+    .receive-forward-hint .forward-address{
+      font-family:"SF Mono", Monaco, monospace;
+      color:#e2e8f0;
+      font-weight:600;
+    }
+    .receive-draft-inbox{
+      margin-top:10px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#0d1420;
+      padding:10px;
+    }
+    .receive-draft-inbox-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .receive-draft-inbox-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:8px 10px;
+      border-radius:10px;
+      background:rgba(15,23,42,0.6);
+      border:1px solid var(--border);
+    }
+    .receive-draft-inbox-item + .receive-draft-inbox-item{
+      margin-top:8px;
+    }
+    .receive-draft-inbox-name{
+      font-weight:700;
+      font-size:13px;
+      color:#e2e8f0;
+    }
+    .receive-draft-inbox-meta{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+    }
+    .receive-draft-inbox-actions{
+      display:flex;
+      gap:8px;
+      flex-shrink:0;
+    }
+    .receive-raw{
+      margin-top:10px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#0b0f14;
+      padding:8px 10px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .receive-raw summary{
+      cursor:pointer;
+      font-weight:700;
+      color:#93c5fd;
+      list-style:none;
+    }
+    .receive-raw summary::-webkit-details-marker{display:none;}
+    .receive-raw pre{
+      margin-top:8px;
+      white-space:pre-wrap;
+      font-family:"SF Mono", Monaco, monospace;
+      color:#cbd5f5;
+      font-size:11px;
     }
     .receive-lines{
       margin-top:12px;
@@ -5280,6 +5375,11 @@
       border:2px solid #22c55e;
       color:#22c55e;
     }
+    .job-step-circle.blocked{
+      background:rgba(245,158,11,0.18);
+      border:2px solid #f59e0b;
+      color:#f59e0b;
+    }
     .job-step-circle.current{
       background:rgba(59,130,246,0.2);
       border:2px solid #3b82f6;
@@ -5303,6 +5403,7 @@
     }
     .job-step-label.current{ color:#3b82f6; }
     .job-step-label.complete{ color:#22c55e; }
+    .job-step-label.blocked{ color:#f59e0b; }
     .job-step-connector{
       width:40px;
       height:2px;
@@ -5582,6 +5683,36 @@
       border-radius:8px;
       margin-bottom:8px;
     }
+    .job-item-card.completed{
+      cursor:default;
+    }
+    .job-item-actuals{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px;
+      background:rgba(0,0,0,0.2);
+      border-radius:8px;
+      margin-bottom:8px;
+    }
+    .job-item-actuals-label{
+      font-size:10px;
+      color:#64748b;
+      text-transform:uppercase;
+      letter-spacing:0.3px;
+    }
+    .job-item-actuals-value{
+      font-size:16px;
+      font-weight:700;
+      color:#eaeff7;
+      font-variant-numeric:tabular-nums;
+    }
+    .job-item-actuals-note{
+      font-size:11px;
+      color:#64748b;
+      margin-top:6px;
+    }
     .job-stock-item{
       flex:1;
       text-align:center;
@@ -5669,6 +5800,18 @@
       transition:all 0.15s ease;
     }
     .job-add-to-po-btn svg{ width:16px; height:16px; }
+    .job-add-to-po-wrap{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:4px;
+      flex-shrink:0;
+    }
+    .job-add-to-po-note{
+      font-size:10px;
+      color:#94a3b8;
+      line-height:1;
+    }
     /* Cart feedback animation */
     .job-bom-order-btn.cart-added{
       background:rgba(34,197,94,0.25) !important;
@@ -6024,6 +6167,112 @@
     .job-voided-text{
       font-size:13px;
       color:#64748b;
+    }
+    .job-completion-audit{
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;
+      padding:16px;
+      margin-bottom:16px;
+    }
+    .job-audit-title{
+      font-size:13px;
+      font-weight:600;
+      color:#e2e8f0;
+      margin-bottom:10px;
+    }
+    .job-audit-section{
+      margin-bottom:12px;
+    }
+    .job-audit-section:last-child{
+      margin-bottom:0;
+    }
+    .job-audit-subtitle{
+      font-size:10px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      color:#94a3b8;
+      margin-bottom:6px;
+    }
+    .job-audit-list{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-bottom:8px;
+    }
+    .job-audit-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:6px 10px;
+      background:rgba(0,0,0,0.25);
+      border-radius:8px;
+      font-size:12px;
+      color:#e2e8f0;
+    }
+    .job-audit-item-name{
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .job-audit-item-qty{
+      font-variant-numeric:tabular-nums;
+    }
+    .job-audit-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      font-size:12px;
+      color:#94a3b8;
+      padding:4px 2px;
+    }
+    .job-audit-empty{
+      font-size:12px;
+      color:#64748b;
+      padding:8px 10px;
+      background:rgba(0,0,0,0.2);
+      border-radius:8px;
+    }
+    .job-audit-notes{
+      font-size:12px;
+      color:#cbd5f5;
+      background:rgba(0,0,0,0.25);
+      border-radius:8px;
+      padding:8px 10px;
+      line-height:1.4;
+      white-space:pre-wrap;
+    }
+    .job-audit-hint{
+      font-size:11px;
+      color:#64748b;
+      margin-top:8px;
+    }
+    .job-reopen-banner{
+      background:rgba(245,158,11,0.08);
+      border:1px solid rgba(245,158,11,0.2);
+      color:#fbbf24;
+      border-radius:10px;
+      padding:10px 12px;
+      font-size:12px;
+      margin-bottom:12px;
+    }
+    .job-reopen-section{
+      display:flex;
+      justify-content:flex-end;
+      margin-bottom:16px;
+    }
+    .job-reopen-btn{
+      border-color:rgba(239,68,68,0.35);
+      color:#f87171;
+      background:rgba(239,68,68,0.08);
+    }
+    .job-reopen-btn:hover{
+      background:rgba(239,68,68,0.16);
+      border-color:rgba(239,68,68,0.45);
     }
     .job-danger-zone{
       margin-top:16px;
@@ -7889,20 +8138,24 @@
       background:#9fb3c8;
       white-space:nowrap;
     }
-    .env-badge.env-production{background:#22c55e;color:#072215;border-color:#1a8b42}
-    .env-badge.env-test{background:#a78bfa;color:#1f1245;border-color:#8b5cf6}
+    .env-badge.env-production{background:rgba(148,163,184,0.2);color:#cbd5f5;border-color:rgba(148,163,184,0.4)}
+    .env-badge.env-internal_test{background:rgba(167,139,250,0.2);color:#e9d5ff;border-color:rgba(167,139,250,0.45)}
+    .env-badge.env-demo{background:rgba(59,130,246,0.2);color:#bfdbfe;border-color:rgba(59,130,246,0.45)}
+    .env-badge.env-sandbox{background:rgba(245,158,11,0.2);color:#fde68a;border-color:rgba(245,158,11,0.45)}
     .profile-env-badge{
       padding:3px 8px;
-      border-radius:4px;
+      border-radius:6px;
       font-size:10px;
       font-weight:600;
       letter-spacing:0.08em;
       text-transform:uppercase;
-      background:rgba(52,211,153,0.2);
-      border:1px solid rgba(52,211,153,0.3);
-      color:#34d399;
     }
     .profile-env-badge.hidden{display:none}
+    .profile-env-note{
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.4;
+    }
     .profile-role-badge{
       padding:4px 10px;
       border-radius:6px;
@@ -8281,27 +8534,40 @@
       border-radius:12px;
       max-height:340px;
       overflow-y:auto;
-      overflow-x:hidden;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
       background:#121820;
+      --inventory-sticky-offset:0px;
     }
     .manage-companies-table{
       width:100%;
       border-collapse:collapse;
       font-size:13px;
-      table-layout:fixed;
+      table-layout:auto;
+      min-width:980px;
     }
     .manage-companies-table th,.manage-companies-table td{
       text-align:left;
       padding:10px 12px;
       border-bottom:1px solid var(--border);
       vertical-align:middle;
-      word-break:break-word;
+      word-break:normal;
+      white-space:nowrap;
+    }
+    .manage-companies-table td:first-child{
+      white-space:normal;
     }
     .manage-companies-table th{
       font-size:11px;
       text-transform:uppercase;
       letter-spacing:0.06em;
       color:var(--muted);
+    }
+    .manage-companies-table thead th{
+      position:sticky;
+      top:0;
+      z-index:3;
+      background:#121820;
     }
     .manage-companies-table .col-members,
     .manage-companies-table .col-inventory{
@@ -8320,12 +8586,17 @@
       display:flex;
       gap:8px;
       align-items:center;
-      flex-wrap:wrap;
+      flex-wrap:nowrap;
       font-weight:600;
       min-width:0;
     }
     .manage-companies-name span{
       min-width:0;
+      display:inline-block;
+      max-width:240px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
     }
     .manage-companies-current{
       display:inline-flex;
@@ -8357,6 +8628,22 @@
     .manage-companies-table .col-active{
       width:70px;
       text-align:center;
+    }
+    .manage-companies-table .col-envtype{
+      width:110px;
+    }
+    .manage-companies-table .col-age,
+    .manage-companies-table .col-jobs,
+    .manage-companies-table .col-pos{
+      width:80px;
+      text-align:right;
+    }
+    .manage-companies-table .col-cleanup{
+      width:90px;
+      text-align:center;
+    }
+    .manage-companies-name .env-badge{
+      font-size:9px;
     }
     .manage-companies-table .col-row-menu{
       width:48px;
@@ -8406,6 +8693,15 @@
     .company-toggle input:checked + .company-toggle-track .company-toggle-thumb{
       transform:translateX(18px);
       background:#22c55e;
+    }
+    .company-toggle.cleanup-toggle .company-toggle-track{
+      background:rgba(245,158,11,0.15);
+    }
+    .company-toggle.cleanup-toggle input:checked + .company-toggle-track{
+      background:rgba(245,158,11,0.35);
+    }
+    .company-toggle.cleanup-toggle input:checked + .company-toggle-track .company-toggle-thumb{
+      background:#f59e0b;
     }
     .company-toggle input:disabled + .company-toggle-track{
       opacity:0.7;
@@ -8929,6 +9225,10 @@
     }
     .locations-company-label{ color:var(--muted); }
     .locations-company-name{ color:var(--fg); font-weight:600; }
+    .locations-env-badge{
+      font-size:9px;
+      padding:2px 6px;
+    }
     .locations-toolbar{
       display:flex;
       align-items:center;
@@ -9884,6 +10184,9 @@
               <div class="profile-badges">
                 <span class="env-badge profile-env-badge hidden" id="profileEnvBadge">Production</span>
                 <span class="profile-role-badge" id="profileRoleBadge">USER</span>
+              </div>
+              <div class="profile-env-note" id="profileEnvNote" style="display:none;">
+                This is a non-production environment. Data here may be reset or deleted.
               </div>
             </div>
             <!-- Role Switcher Section - only visible for super_users -->
@@ -11097,6 +11400,10 @@
                 <span class="order-review-summary-label summary-label">Ship To</span>
                 <span class="order-review-summary-value summary-value" id="orderReviewShipTo">—</span>
               </div>
+              <div class="order-review-summary-row summary-row" id="orderReviewJobsRow" style="display:none;">
+                <span class="order-review-summary-label summary-label" id="orderReviewJobsLabel">Related job</span>
+                <span class="order-review-summary-value summary-value" id="orderReviewJobsValue">—</span>
+              </div>
               <div class="order-review-summary-row summary-row" id="orderReviewShortfallRow" style="display:none;">
                 <span class="order-review-summary-label summary-label">Shortfall</span>
                 <span class="order-review-summary-value summary-value" id="orderReviewShortfallValue">—</span>
@@ -11135,12 +11442,6 @@
               <div class="order-review-preview">
                 <div class="order-review-preview-header">
                   <span>Email Preview</span>
-                  <button type="button" class="order-preview-toggle" id="btnOrderPreviewToggle" aria-expanded="false">
-                    <span id="orderPreviewToggleText">Expand</span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="orderPreviewToggleIcon">
-                      <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                  </button>
                 </div>
                 <div class="order-review-preview-body" id="orderPreviewHtml"></div>
               </div>
@@ -11269,6 +11570,7 @@
           <div class="locations-company-info">
             <span class="locations-company-label">Managing:</span>
             <span class="locations-company-name" id="locationsSelectedName"></span>
+            <span class="env-badge locations-env-badge hidden" id="locationsSelectedEnvBadge">TEST</span>
           </div>
           <button type="button" id="btnLocationsClearCompany" class="btn-change-company">Change</button>
         </div>
@@ -11459,6 +11761,14 @@
             </svg>
             <span>New Job</span>
           </button>
+          <button class="btn-secondary btn-with-icon" id="btnJobsApproveReady" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="16 9 11 14 8 11"></polyline>
+            </svg>
+            <span>Approve-ready jobs</span>
+            <span class="btn-count" id="btnJobsApproveReadyCount" style="display:none;">0</span>
+          </button>
           <button class="btn-secondary" id="btnJobsRefresh" type="button">Refresh</button>
         </div>
       </div>
@@ -11470,6 +11780,42 @@
         <div class="footer-right">
           <button class="btn-secondary" id="btnJobsClose" type="button" data-modal-close="jobsModal">Cancel</button>
           <button class="btn-primary" type="button" data-modal-close="jobsModal">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approve-ready jobs -->
+  <div id="approveReadyModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal modal--md" role="dialog" aria-modal="true" aria-labelledby="approveReadyTitle">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="16 9 11 14 8 11"></polyline>
+            </svg>
+          </span>
+          <div class="modal-title-text">
+            <h2 id="approveReadyTitle" class="modal-title">Jobs ready for approval</h2>
+            <div class="modal-subtitle">Review each job before approving.</div>
+          </div>
+        </div>
+        <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="approveReadyModal" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="approveReadyLoading" class="approve-ready-empty">Checking job readiness…</div>
+        <div id="approveReadyEmpty" class="approve-ready-empty" style="display:none;">No jobs are ready for approval right now.</div>
+        <div id="approveReadyList" class="approve-ready-list"></div>
+      </div>
+      <div class="modal-footer">
+        <div class="footer-right">
+          <button class="btn-secondary" id="btnApproveReadyClose" type="button" data-modal-close="approveReadyModal">Close</button>
         </div>
       </div>
     </div>
@@ -11553,14 +11899,7 @@
                 <div id="jobCreatedMeta" class="job-date-display">--</div>
               </div>
             </div>
-            <div class="job-field-group">
-              <label class="job-field-label">Readiness</label>
-              <div id="jobReadinessDetail" class="job-readiness-detail">
-                <span id="jobReadinessValue" class="job-readiness-value">Unknown</span>
-                <span id="jobReadinessReasons" class="job-readiness-reasons"></span>
-              </div>
-            </div>
-            <div class="job-readiness-section">
+            <div class="job-readiness-section" id="jobReadinessSection">
               <div class="job-readiness-section-title">Job readiness</div>
               <div id="jobReadinessCard" class="job-readiness-card job-readiness-card--unknown">
                 <span id="jobReadinessCardIcon" class="job-readiness-card-icon"></span>
@@ -11587,19 +11926,20 @@
               Save Job Details
             </button>
             <div class="job-quick-stats">
-              <div class="job-quick-stat-item">
+              <div class="job-quick-stat-item" id="jobDetailsStatItemsWrap">
                 <span id="jobDetailsStatItems" class="job-quick-stat-value">0</span>
-                <span class="job-quick-stat-label">BOM Items</span>
+                <span id="jobDetailsStatItemsLabel" class="job-quick-stat-label">BOM Items</span>
               </div>
-              <div class="job-quick-stat-item">
+              <div class="job-quick-stat-item" id="jobDetailsStatPlannedWrap">
                 <span id="jobDetailsStatPlanned" class="job-quick-stat-value">0</span>
-                <span class="job-quick-stat-label">Total Planned</span>
+                <span id="jobDetailsStatPlannedLabel" class="job-quick-stat-label">Total Planned</span>
               </div>
-              <div class="job-quick-stat-item">
+              <div class="job-quick-stat-item" id="jobDetailsStatShortfallWrap">
                 <span id="jobDetailsStatShortfall" class="job-quick-stat-value danger">0</span>
-                <span class="job-quick-stat-label">Shortfall</span>
+                <span id="jobDetailsStatShortfallLabel" class="job-quick-stat-label">Shortfall</span>
               </div>
             </div>
+            <div id="jobCompletionTotalsNote" class="muted" style="margin-top:8px; display:none;"></div>
             <button class="btn-primary job-next-step-btn" id="btnJobNextMaterials" type="button">
               Continue to Materials
               <span class="job-next-step-icon" aria-hidden="true"></span>
@@ -11624,6 +11964,9 @@
             <p class="job-step-hint-info" id="jobMaterialsHint"></p>
           </section>
           <section id="jobTabExecution" class="job-tab-panel" data-job-tab-panel="execution" role="tabpanel" aria-labelledby="jobTabBtnExecution" style="display:none;">
+            <div id="jobReopenBanner" class="job-reopen-banner" style="display:none;">
+              This job was previously completed and reopened.
+            </div>
             <div id="jobApprovalSection" class="job-action-card">
               <div class="job-action-card-header">
                 <span class="job-action-card-icon" aria-hidden="true"></span>
@@ -11648,7 +11991,7 @@
               <button class="btn-secondary job-approve-btn" id="btnJobApprove" type="button">Approve Job</button>
             </div>
             <div id="jobCompletionSection">
-              <div class="job-progress-card">
+              <div class="job-progress-card" id="jobCompletionProgressCard">
                 <div class="job-progress-header">
                   <span class="job-progress-title">Completion Progress</span>
                   <span id="jobCompletionPercent" class="job-progress-percent">0%</span>
@@ -11665,6 +12008,26 @@
             <div id="jobCompletedState" class="job-completed-card" style="display:none;">
               <div class="job-completed-title">Job Completed</div>
               <div class="job-completed-text">All items have been consumed.</div>
+            </div>
+            <div id="jobCompletionSummary" class="job-completion-audit" style="display:none;">
+              <div class="job-audit-title">Completion summary</div>
+              <div id="jobCompletionSummaryContent"></div>
+              <div class="job-field-group">
+                <label class="job-field-label" for="jobCompletionNotesInput">Final execution notes</label>
+                <textarea id="jobCompletionNotesInput" class="job-text-area" placeholder="Add final execution notes"></textarea>
+              </div>
+            </div>
+            <div id="jobCompletionAudit" class="job-completion-audit" style="display:none;">
+              <div class="job-audit-title">Completion audit</div>
+              <div id="jobCompletionAuditContent"></div>
+              <div id="jobCompletionAuditHint" class="job-audit-hint">This reflects what occurred at the time the job was completed.</div>
+            </div>
+            <div id="jobCompletionOrders" class="job-completion-audit" style="display:none;">
+              <div class="job-audit-title">Supporting purchase orders</div>
+              <div id="jobCompletionOrdersContent"></div>
+            </div>
+            <div id="jobReopenSection" class="job-reopen-section" style="display:none;">
+              <button class="btn-secondary job-reopen-btn" id="btnJobReopen" type="button">Reopen job</button>
             </div>
             <div id="jobVoidedState" class="job-voided-card" style="display:none;">
               <div class="job-voided-title">Job Voided</div>
@@ -11974,6 +12337,12 @@
                 <label for="receiveReceiptNotes">Receipt Notes</label>
                 <textarea id="receiveReceiptNotes" rows="2" placeholder="Optional notes for this receipt."></textarea>
               </div>
+              <div id="receiveForwardingHint" class="receive-forward-hint"></div>
+              <div id="receiveDraftInbox" class="receive-draft-inbox" style="display:none;"></div>
+              <details id="receiveReceiptRaw" class="receive-raw" style="display:none;">
+                <summary>Receipt text (email)</summary>
+                <pre id="receiveReceiptRawText"></pre>
+              </details>
             </div>
             <div class="form-section" id="receiveOrderSummarySection">
               <div class="section-label">Order Summary</div>
@@ -12960,7 +13329,9 @@
               <select id="advancedCompanyTypeFilter">
                 <option value="">All</option>
                 <option value="production">Production</option>
-                <option value="test">Test</option>
+                <option value="internal_test">Internal Test</option>
+                <option value="demo">Demo</option>
+                <option value="sandbox">Sandbox</option>
               </select>
             </div>
           </div>
@@ -13260,6 +13631,18 @@
               <div class="provisioning-note">Set automatically for new companies.</div>
             </div>
             <div>
+              <label for="provisioningEnvironmentType">Environment Type</label>
+              <select id="provisioningEnvironmentType">
+                <option value="production" selected>Production</option>
+                <option value="internal_test">Internal Test</option>
+                <option value="demo">Demo</option>
+                <option value="sandbox">Sandbox</option>
+              </select>
+              <div class="provisioning-note" id="provisioningEnvironmentNote" style="display:none;">
+                Non-production companies are not intended for real work.
+              </div>
+            </div>
+            <div>
               <div class="provisioning-field-toggle" style="margin-top:18px;">
                 <label class="toggle-switch">
                   <input id="provisioningIncludeActor" type="checkbox" checked />
@@ -13515,6 +13898,9 @@
       _vendorsById:new Map(),
       _orderHistoryLinesByPo:new Map(),
       _receiveOrder:null,
+      _draftEmailReceipts:[],
+      _draftEmailReceiptsLoaded:false,
+      _draftEmailReceiptsNotified:false,
       _shippingAddresses:[],
 	      _shippingAddressById:new Map(),
 	      _shippingAddressEditing:null,
@@ -13586,6 +13972,10 @@
       _jobEditorActualsDraft:new Map(),
       _jobEditorIncomingMap:new Map(),
       _jobApprovalShortages:[],
+      _jobReopenedById:new Set(),
+      _approveReadyJobs:[],
+      _approveReadyLoading:false,
+      _approveReadyError:'',
       _jobsLoading:false,
       _jobsExpanded:new Set(),
       _jobReservedMap:new Map(),
@@ -15666,13 +16056,20 @@
         const id = String(row.company_id || '').trim();
         const role = row.is_super_user ? 'super_user' : String(row.my_role || '').trim();
         const roleLabel = role ? formatRoleBadgeLabel(role) : 'USER';
+        const envType = normalizeEnvironmentType(row.environment_type);
+        const envBadge = isNonProductionEnvironment(envType)
+          ? `<span class="env-badge env-${escapeHtmlAttr(envType)}">${escapeHtml(formatEnvironmentBadgeText(envType))}</span>`
+          : '';
         const isCurrent = String(SB.companyId || '') === id;
         const actionLabel = isCurrent ? 'Current' : 'Switch';
         const disabled = isCurrent ? 'disabled aria-disabled="true"' : '';
         return (
           `<tr>` +
             `<td>` +
-              `<div>${escapeHtml(name)}</div>` +
+              `<div class="manage-companies-name">` +
+                `<span>${escapeHtml(name)}</span>` +
+                `${envBadge}` +
+              `</div>` +
               `<div class="advanced-switcher-id">${escapeHtml(id)}</div>` +
             `</td>` +
             `<td>${escapeHtml(roleLabel)}</td>` +
@@ -17876,16 +18273,21 @@
       }
       const counts = state._advancedInventoryCounts || {};
       const totals = state._advancedTotalOnHand || {};
-      const header = ['Company Name', 'Company ID', 'Environment', 'Members', 'Items', 'On Hand'];
+      const header = ['Company Name', 'Company ID', 'Environment Type', 'Members', 'Jobs', 'POs', 'Items', 'On Hand', 'Cleanup Eligible', 'Created At', 'Age (days)'];
       const csvRows = [header.join(',')];
       rows.forEach(row => {
         const name = String(row.company_name || '').replace(/"/g, '""');
         const id = String(row.company_id || '');
-        const env = formatCompanyTypeLabel(row.company_type);
+        const env = normalizeEnvironmentType(row.environment_type);
         const members = Number(row.member_count) || 0;
+        const jobs = Number(row.job_count) || 0;
+        const pos = Number(row.po_count) || 0;
         const items = counts[id] || 0;
         const onHand = totals[id] || 0;
-        csvRows.push(`"${name}","${id}","${env}",${members},${items},${onHand}`);
+        const cleanupEligible = row && row.cleanup_eligible ? 'true' : 'false';
+        const createdAt = row && row.created_at ? String(row.created_at) : '';
+        const ageDays = row && row.created_at ? Math.max(0, Math.floor((Date.now() - new Date(row.created_at).getTime()) / 86400000)) : '';
+        csvRows.push(`"${name}","${id}","${env}",${members},${jobs},${pos},${items},${onHand},${cleanupEligible},"${createdAt}",${ageDays}`);
       });
       const csv = csvRows.join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -18405,6 +18807,37 @@
         toast(e && e.message ? e.message : 'Delete failed');
       }
     }
+    async function updateCompanyCleanupEligibility(companyId, eligible){
+      if(!SB.ready || !SB.session || !SB.client){
+        toast('Supabase not configured');
+        return false;
+      }
+      if(!isEffectiveSuperUser()){
+        toast('Super user access required.');
+        return false;
+      }
+      const id = String(companyId || '').trim();
+      if(!id) return false;
+      try{
+        const { error } = await SB.client
+          .from('companies')
+          .update({ cleanup_eligible: !!eligible, updated_at: new Date().toISOString() })
+          .eq('id', id);
+        if(error) throw error;
+        if(Array.isArray(state._advancedCompanies)){
+          const row = state._advancedCompanies.find(r => String(r.company_id || '') === id);
+          if(row) row.cleanup_eligible = !!eligible;
+        }
+        if(SB.company && String(SB.company.company_id || SB.company.id || '') === id){
+          SB.company.cleanup_eligible = !!eligible;
+        }
+        toast(eligible ? 'Marked eligible for cleanup' : 'Cleanup eligibility cleared');
+        return true;
+      }catch(e){
+        toast(e && e.message ? e.message : 'Cleanup update failed');
+        return false;
+      }
+    }
     async function resetInventorySeedRun(company){
       if(!company) return;
       if(!SB.ready || !SB.session || !SB.client){
@@ -18462,10 +18895,14 @@
       const header = (
         '<thead><tr>' +
           '<th>Company</th>' +
-          '<th>Environment</th>' +
+          '<th class="col-envtype">Environment</th>' +
+          '<th class="col-age">Age</th>' +
+          '<th class="col-jobs">Jobs</th>' +
+          '<th class="col-pos">POs</th>' +
           '<th class="col-members">Members</th>' +
           '<th class="col-inventory">Items</th>' +
           '<th class="col-inventory">On Hand</th>' +
+          '<th class="col-cleanup">Cleanup</th>' +
           '<th class="col-active">Active</th>' +
           '<th class="col-row-menu"></th>' +
         '</tr></thead>'
@@ -18473,9 +18910,17 @@
       const body = rows.map(row => {
         const name = String(row.company_name || row.company_slug || row.company_id || '').trim() || 'Company';
         const id = String(row.company_id || '').trim();
-        const type = normalizeCompanyType(row.company_type);
-        const badge = `<span class="env-badge env-${escapeHtmlAttr(type)}">${escapeHtml(formatCompanyTypeLabel(type))}</span>`;
+        const envType = normalizeEnvironmentType(row.environment_type);
+        const envBadge = isNonProductionEnvironment(envType)
+          ? `<span class="env-badge env-${escapeHtmlAttr(envType)}">${escapeHtml(formatEnvironmentBadgeText(envType))}</span>`
+          : '';
+        const envCell = envType === 'production'
+          ? '<span class="muted">Production</span>'
+          : `<span class="env-badge env-${escapeHtmlAttr(envType)}">${escapeHtml(formatEnvironmentTypeLabel(envType))}</span>`;
         const members = Number.isFinite(Number(row.member_count)) ? String(row.member_count) : '0';
+        const ageLabel = formatCompanyAge(row && row.created_at ? row.created_at : null);
+        const jobCount = Number(row && row.job_count) || 0;
+        const poCount = Number(row && row.po_count) || 0;
         const shortId = formatCompanyIdShort(id);
         const isCurrent = String(SB.companyId || '') === id;
         const hasCount = Object.prototype.hasOwnProperty.call(counts, id);
@@ -18494,6 +18939,12 @@
         }
         const totalClass = totalOnHand === null ? 'col-inventory muted' : (totalOnHand > 0 ? 'col-inventory inv-positive' : 'col-inventory muted');
         const totalText = totalOnHand === null ? '—' : totalOnHand.toLocaleString();
+        const cleanupEligible = !!row.cleanup_eligible;
+        const cleanupDisabled = envType === 'production';
+        const cleanupToggle = `<label class="company-toggle cleanup-toggle">` +
+          `<input type="checkbox" ${cleanupEligible ? 'checked' : ''} ${cleanupDisabled ? 'disabled aria-disabled="true"' : ''} data-company-cleanup="${escapeHtmlAttr(id)}" aria-label="Mark ${escapeHtmlAttr(name)} eligible for cleanup">` +
+          `<span class="company-toggle-track"><span class="company-toggle-thumb"></span></span>` +
+        `</label>`;
         const toggleHtml = `<label class="company-toggle">` +
           `<input type="checkbox" ${isCurrent ? 'checked disabled' : ''} data-company-toggle="${escapeHtmlAttr(id)}" aria-label="Set ${escapeHtmlAttr(name)} as active company">` +
           `<span class="company-toggle-track"><span class="company-toggle-thumb"></span></span>` +
@@ -18503,16 +18954,21 @@
             `<td>` +
               `<div class="manage-companies-name">` +
                 `<span>${escapeHtml(name)}</span>` +
+                `${envBadge}` +
                 `${isCurrent ? '<span class="manage-companies-current">Current</span>' : ''}` +
               `</div>` +
               `<button class="company-id-copy" type="button" data-copy-company-id="${escapeHtmlAttr(id)}" title="Click to copy" aria-label="Copy company ID">` +
                 `${escapeHtml(shortId)}` +
               `</button>` +
             `</td>` +
-            `<td>${badge}</td>` +
+            `<td class="col-envtype">${envCell}</td>` +
+            `<td class="col-age">${escapeHtml(ageLabel)}</td>` +
+            `<td class="col-jobs">${escapeHtml(jobCount.toLocaleString())}</td>` +
+            `<td class="col-pos">${escapeHtml(poCount.toLocaleString())}</td>` +
             `<td class="col-members">${escapeHtml(members)}</td>` +
             `<td class="${invClass}">${escapeHtml(invText)}</td>` +
             `<td class="${totalClass}">${totalText}</td>` +
+            `<td class="col-cleanup">${cleanupToggle}</td>` +
             `<td class="col-active">${toggleHtml}</td>` +
             `<td class="col-row-menu">` +
               `<div class="company-overflow" data-company-menu="${escapeHtmlAttr(id)}">` +
@@ -18544,9 +19000,13 @@
       let totalMembers = 0;
       let totalItems = 0;
       let totalOnHandSum = 0;
+      let totalJobs = 0;
+      let totalPOs = 0;
       rows.forEach(row => {
         const id = String(row.company_id || '').trim();
         totalMembers += Number(row.member_count) || 0;
+        totalJobs += Number(row.job_count) || 0;
+        totalPOs += Number(row.po_count) || 0;
         const hasCount = Object.prototype.hasOwnProperty.call(counts, id);
         if(hasCount){
           totalItems += Number(counts[id]) || 0;
@@ -18558,9 +19018,13 @@
       });
       const summaryRow = `<tr class="summary-row">` +
         `<td colspan="2"><strong>Totals (${rows.length} ${rows.length === 1 ? 'company' : 'companies'})</strong></td>` +
+        `<td class="col-age">—</td>` +
+        `<td class="col-jobs"><strong>${totalJobs.toLocaleString()}</strong></td>` +
+        `<td class="col-pos"><strong>${totalPOs.toLocaleString()}</strong></td>` +
         `<td class="col-members"><strong>${totalMembers.toLocaleString()}</strong></td>` +
         `<td class="col-inventory"><strong>${totalItems.toLocaleString()}</strong></td>` +
         `<td class="col-inventory"><strong>${totalOnHandSum.toLocaleString()}</strong></td>` +
+        `<td class="col-cleanup"></td>` +
         `<td class="col-active"></td>` +
         `<td class="col-row-menu"></td>` +
       `</tr>`;
@@ -18585,6 +19049,25 @@
           if(overflowBtn){
             const menuId = String(overflowBtn.getAttribute('data-company-overflow') || '').trim();
             toggleCompanyOverflowMenu(menuId, overflowBtn);
+            return;
+          }
+          const cleanupToggle = e.target.closest('[data-company-cleanup]');
+          if(cleanupToggle && cleanupToggle.tagName === 'INPUT'){
+            closeCompanyOverflowMenus();
+            const targetId = String(cleanupToggle.getAttribute('data-company-cleanup') || '').trim();
+            const row = getAdvancedCompanyRow(targetId);
+            if(!row){
+              cleanupToggle.checked = !cleanupToggle.checked;
+              return;
+            }
+            const envType = normalizeEnvironmentType(row.environment_type);
+            if(envType === 'production'){
+              cleanupToggle.checked = false;
+              return;
+            }
+            const nextValue = cleanupToggle.checked;
+            const ok = await updateCompanyCleanupEligibility(targetId, nextValue);
+            if(!ok) cleanupToggle.checked = !nextValue;
             return;
           }
           const toggle = e.target.closest('[data-company-toggle]');
@@ -18702,6 +19185,34 @@
         container.addEventListener('scroll', closeCompanyOverflowMenus, { passive: true });
       }
     }
+    async function sbFetchCompanySwitcherCompanies({ search, companyType, limit, environmentType }){
+      if(!SB.ready || !SB.client) return [];
+      const payload = {
+        p_search: search || null,
+        p_company_type: companyType || null,
+        p_limit: Number.isFinite(Number(limit)) ? Number(limit) : 50,
+        p_environment_type: environmentType || null
+      };
+      try{
+        const { data, error } = await SB.client.rpc('get_company_switcher_companies', payload);
+        if(error) throw error;
+        return Array.isArray(data) ? data : [];
+      }catch(e){
+        const msg = String(e && e.message ? e.message : '');
+        const shouldFallback = msg.includes('schema cache')
+          || msg.includes('get_company_switcher_companies')
+          || msg.includes('does not exist');
+        if(!shouldFallback) throw e;
+        const fallbackPayload = {
+          p_search: search || null,
+          p_company_type: companyType || null,
+          p_limit: Number.isFinite(Number(limit)) ? Number(limit) : 50
+        };
+        const { data, error } = await SB.client.rpc('get_company_switcher_companies', fallbackPayload);
+        if(error) throw error;
+        return Array.isArray(data) ? data : [];
+      }
+    }
     async function loadAdvancedCompanies(){
       if(!SB.ready || !SB.session || !SB.client) return;
       if(state._companySwitcherMode !== 'advanced') return;
@@ -18717,13 +19228,13 @@
       state._advancedType = type;
       setAdvancedCompanyMessage('Loading...');
       try{
-        const { data, error } = await SB.client.rpc('get_company_switcher_companies', {
-          p_search: search || null,
-          p_company_type: type || null,
-          p_limit: 50
+        const rows = await sbFetchCompanySwitcherCompanies({
+          search,
+          companyType: null,
+          limit: 50,
+          environmentType: type || null
         });
-        if(error) throw error;
-        state._advancedCompanies = Array.isArray(data) ? data : [];
+        state._advancedCompanies = Array.isArray(rows) ? rows : [];
         const countsFromRpc = {};
         const totalsFromRpc = {};
         state._advancedCompanies.forEach(row => {
@@ -18763,7 +19274,7 @@
         }
       }catch(e){
         console.warn('Advanced company search failed:', e);
-        setAdvancedCompanyMessage('Failed to load companies.');
+        setAdvancedCompanyMessage(e && e.message ? e.message : 'Failed to load companies.');
         state._advancedCompanies = [];
         renderAdvancedCompanyResults();
       }
@@ -18811,11 +19322,11 @@
         toast('Super user access required.');
         return;
       }
-      const type = normalizeCompanyType(company.company_type);
-      if(type !== 'production'){
+      const envType = normalizeEnvironmentType(company.environment_type);
+      if(envType !== 'production'){
         const ok = await openConfirmModal(
           'Switch to non-production',
-          `You are about to switch into ${formatCompanyTypeLabel(type)}. Continue?`,
+          `You are about to switch into ${formatEnvironmentTypeLabel(envType)}. Continue?`,
           { okText: 'Switch', cancelText: 'Cancel' }
         );
         if(!ok) return;
@@ -19013,9 +19524,12 @@
         }
       }
       if(result.company && result.company.id){
+        const envAttr = result.company.environment_type
+          ? ` data-provisioning-open-env="${escapeHtmlAttr(result.company.environment_type)}"`
+          : '';
         items.push(
           `<div class="provisioning-users-actions">`+
-            `<button class="btn-secondary" data-provisioning-open-id="${escapeHtmlAttr(result.company.id)}" data-provisioning-open-name="${escapeHtmlAttr(result.company.name || '')}" data-provisioning-open-slug="${escapeHtmlAttr(result.company.slug || '')}">Open Company</button>`+
+            `<button class="btn-secondary" data-provisioning-open-id="${escapeHtmlAttr(result.company.id)}" data-provisioning-open-name="${escapeHtmlAttr(result.company.name || '')}" data-provisioning-open-slug="${escapeHtmlAttr(result.company.slug || '')}"${envAttr}>Open Company</button>`+
           `</div>`
         );
       }
@@ -19105,20 +19619,20 @@
       }
       setProvisioningMessage('Loading companies...');
       try{
-        const { data, error } = await SB.client.rpc('get_company_switcher_companies', {
-          p_search: null,
-          p_company_type: null,
-          p_limit: 200
+        const rows = await sbFetchCompanySwitcherCompanies({
+          search: null,
+          companyType: null,
+          limit: 200,
+          environmentType: null
         });
-        if(error) throw error;
-        state._provisioningCompanies = Array.isArray(data) ? data : [];
+        state._provisioningCompanies = Array.isArray(rows) ? rows : [];
         renderProvisioningCompanies();
         setProvisioningMessage('');
       }catch(e){
         console.warn('Provisioning companies load failed:', e);
         state._provisioningCompanies = [];
         renderProvisioningCompanies();
-        setProvisioningMessage('Failed to load companies.');
+        setProvisioningMessage(e && e.message ? e.message : 'Failed to load companies.');
       }
     }
     function resetProvisioningForm(){
@@ -19132,6 +19646,8 @@
       const includeActor = $('provisioningIncludeActor');
       const tierSelect = $('provisioningTierOverride');
       const tierEndsAt = $('provisioningTierEndsAt');
+      const envSelect = $('provisioningEnvironmentType');
+      const envNote = $('provisioningEnvironmentNote');
       const seedToggle = $('provisioningSeedToggle');
       if(nameInput) nameInput.value = '';
       if(slugInput){
@@ -19142,6 +19658,8 @@
       if(includeActor) includeActor.checked = true;
       if(tierSelect) tierSelect.value = '';
       if(tierEndsAt) tierEndsAt.value = '';
+      if(envSelect) envSelect.value = 'production';
+      if(envNote) envNote.style.display = 'none';
       if(seedToggle) seedToggle.checked = false;
       renderProvisioningSeedFields();
       renderProvisioningUsersList();
@@ -19189,6 +19707,7 @@
       const includeActor = $('provisioningIncludeActor');
       const tierSelect = $('provisioningTierOverride');
       const tierEndsAt = $('provisioningTierEndsAt');
+      const envSelect = $('provisioningEnvironmentType');
       const seedToggle = $('provisioningSeedToggle');
       const seedSource = $('provisioningSeedSource');
       const seedDedupe = $('provisioningSeedDedupe');
@@ -19209,6 +19728,14 @@
         return;
       }
       if(slugInput) slugInput.value = slug;
+
+      const envRaw = String(envSelect ? envSelect.value : '').trim();
+      const envType = normalizeEnvironmentType(envRaw || 'production');
+      if(envSelect) envSelect.value = envType;
+      if(envType !== 'production'){
+        const confirmed = window.confirm('Non-production companies are not intended for real work. Continue?');
+        if(!confirmed) return;
+      }
 
       const userRows = Array.isArray(state._provisioningUsers) ? state._provisioningUsers : [];
       const assignments = [];
@@ -19282,7 +19809,8 @@
           p_source_company_id: wantsSeed ? sourceCompanyId : null,
           p_seed_dedupe_key: String(seedDedupe ? seedDedupe.value : 'sku').trim() || 'sku',
           p_user_assignments: assignments,
-          p_include_actor_as_admin: includeActor ? !!includeActor.checked : true
+          p_include_actor_as_admin: includeActor ? !!includeActor.checked : true,
+          p_environment_type: envType
         };
         const { data, error } = await SB.client.rpc('provision_company', payload);
         if(error) throw error;
@@ -19291,7 +19819,12 @@
         }
         const companyId = String((data && data.company_id) || '').trim();
         if(!companyId) throw new Error('Company id missing');
-        result.company = { id: companyId, name: String(data.company_name || companyName), slug: String(data.company_slug || slug) };
+        result.company = {
+          id: companyId,
+          name: String(data.company_name || companyName),
+          slug: String(data.company_slug || slug),
+          environment_type: envType
+        };
         if(Array.isArray(SB.companies)){
           const existingIdx = SB.companies.findIndex(row => String(row.company_id) === companyId);
           const newRow = {
@@ -19301,6 +19834,8 @@
             my_role: 'super_user',
             is_super_user: true,
             company_type: 'production',
+            environment_type: envType,
+            cleanup_eligible: false,
           };
           if(existingIdx >= 0){
             SB.companies[existingIdx] = { ...SB.companies[existingIdx], ...newRow };
@@ -19755,6 +20290,14 @@
       if(delta <= 0) return `${when} · expired`;
       return `${when} · in ${formatDurationMinutes(delta)}`;
     }
+    function formatCompanyAge(value){
+      if(!value) return '—';
+      const created = new Date(value);
+      if(Number.isNaN(created.getTime())) return '—';
+      const days = Math.max(0, Math.floor((Date.now() - created.getTime()) / 86400000));
+      if(days < 1) return '<1d';
+      return `${days}d`;
+    }
     function normalizeCompanyType(value){
       const type = String(value || '').trim().toLowerCase();
       if(type === 'staging' || type === 'sandbox' || type === 'development') return 'test';
@@ -19766,17 +20309,84 @@
       if(type === 'test') return 'Test';
       return 'Production';
     }
+    function normalizeEnvironmentType(value){
+      const raw = String(value || '').trim().toLowerCase();
+      if(raw === 'internal_test' || raw === 'internal-test' || raw === 'test') return 'internal_test';
+      if(raw === 'demo') return 'demo';
+      if(raw === 'sandbox') return 'sandbox';
+      if(raw === 'production') return 'production';
+      return 'production';
+    }
+    function formatEnvironmentTypeLabel(value){
+      const type = normalizeEnvironmentType(value);
+      if(type === 'internal_test') return 'Internal Test';
+      if(type === 'demo') return 'Demo';
+      if(type === 'sandbox') return 'Sandbox';
+      return 'Production';
+    }
+    function formatEnvironmentBadgeText(value){
+      const type = normalizeEnvironmentType(value);
+      if(type === 'internal_test') return 'TEST';
+      if(type === 'demo') return 'DEMO';
+      if(type === 'sandbox') return 'SANDBOX';
+      return '';
+    }
+    function isNonProductionEnvironment(value){
+      return normalizeEnvironmentType(value) !== 'production';
+    }
     function renderCompanyEnvBadge(){
       const badge = $('profileEnvBadge');
+      const note = $('profileEnvNote');
       if(!badge) return;
       if(!SB.companyId){
         badge.textContent = '';
         badge.className = 'env-badge profile-env-badge hidden';
+        if(note) note.style.display = 'none';
         return;
       }
-      const type = normalizeCompanyType(SB.company && SB.company.company_type);
-      badge.textContent = formatCompanyTypeLabel(type);
-      badge.className = `env-badge profile-env-badge env-${type}`;
+      const envType = normalizeEnvironmentType(SB.company && SB.company.environment_type);
+      const badgeText = formatEnvironmentBadgeText(envType);
+      if(!badgeText){
+        badge.textContent = '';
+        badge.className = 'env-badge profile-env-badge hidden';
+        if(note) note.style.display = 'none';
+        return;
+      }
+      badge.textContent = badgeText;
+      badge.className = `env-badge profile-env-badge env-${envType}`;
+      if(note) note.style.display = '';
+    }
+    function getCompanyEnvironmentTypeById(companyId){
+      const id = String(companyId || '').trim();
+      if(!id) return 'production';
+      const sources = [
+        Array.isArray(state._advancedCompanies) ? state._advancedCompanies : [],
+        Array.isArray(state._locationsCompanies) ? state._locationsCompanies : [],
+        Array.isArray(SB.companies) ? SB.companies : []
+      ];
+      for(const list of sources){
+        const row = list.find(r => String((r && (r.company_id || r.id)) || '').trim() === id);
+        if(row && row.environment_type){
+          return String(row.environment_type || '').trim();
+        }
+      }
+      if(SB.company && String(SB.companyId || '') === id && SB.company.environment_type){
+        return String(SB.company.environment_type || '').trim();
+      }
+      return 'production';
+    }
+    function renderLocationsEnvBadge(companyId){
+      const badge = $('locationsSelectedEnvBadge');
+      if(!badge) return;
+      const envType = normalizeEnvironmentType(getCompanyEnvironmentTypeById(companyId));
+      const text = formatEnvironmentBadgeText(envType);
+      if(!text){
+        badge.textContent = '';
+        badge.className = 'env-badge locations-env-badge hidden';
+        return;
+      }
+      badge.textContent = text;
+      badge.className = `env-badge locations-env-badge env-${envType}`;
     }
     function setTierOverrideMessage(msg){
       const el = $('tierOverrideMsg'); if(!el) return;
@@ -20132,6 +20742,9 @@
       state._orderHistoryById = new Map();
       state._orderHistoryLinesByPo = new Map();
       state._orderHistoryFilter = '';
+      state._draftEmailReceipts = [];
+      state._draftEmailReceiptsLoaded = false;
+      state._draftEmailReceiptsNotified = false;
 	      const orderHistoryFilter = $('orderHistoryFilter');
 	      if(orderHistoryFilter) orderHistoryFilter.value = '';
 	      state._trashItems = [];
@@ -21106,6 +21719,16 @@
     if(provisioningSlug) provisioningSlug.addEventListener('input', ()=>{
       provisioningSlug.dataset.manual = 'true';
     });
+    const provisioningEnvSelect = $('provisioningEnvironmentType');
+    const provisioningEnvNote = $('provisioningEnvironmentNote');
+    if(provisioningEnvSelect){
+      const syncProvisioningEnvNote = () => {
+        const envType = normalizeEnvironmentType(provisioningEnvSelect.value);
+        if(provisioningEnvNote) provisioningEnvNote.style.display = envType !== 'production' ? '' : 'none';
+      };
+      provisioningEnvSelect.addEventListener('change', syncProvisioningEnvNote);
+      syncProvisioningEnvNote();
+    }
     const provisioningUsersList = $('provisioningUsersList');
     if(provisioningUsersList) provisioningUsersList.addEventListener('change', (e)=>{
       const target = e.target;
@@ -21136,11 +21759,13 @@
       if(!companyId) return;
       const companyName = String(btn.getAttribute('data-provisioning-open-name') || '').trim();
       const companySlug = String(btn.getAttribute('data-provisioning-open-slug') || '').trim();
+      const companyEnv = String(btn.getAttribute('data-provisioning-open-env') || '').trim();
       const companyRow = {
         company_id: companyId,
         company_name: companyName || null,
         company_slug: companySlug || null,
         company_type: 'production',
+        environment_type: companyEnv ? normalizeEnvironmentType(companyEnv) : 'production',
       };
       const ok = await sbSwitchCompany(companyId, {
         persist: false,
@@ -25850,19 +26475,36 @@ function emptyStateHtml(){
       if(!entry || !entry.id) return null;
       const jobId = String(entry.jobId || '').trim();
       const itemId = String(entry.itemId || '').trim();
-      const jobName = (jobId && state._jobsById && typeof state._jobsById.get === 'function')
-        ? String((state._jobsById.get(jobId) || {}).name || '').trim()
-        : '';
+      const jobRow = jobId ? getJobById(jobId) : null;
+      const jobName = jobRow ? String(jobRow.name || '').trim() : '';
+      const jobNumber = getJobNumberValue(jobRow);
       const itemName = itemId ? String((getInventoryById(itemId) || {}).name || '').trim() : '';
       const qtyMissing = Number(entry.qtyMissing || 0);
-      return { shortfallId: String(entry.id || '').trim(), jobId, itemId, jobName, itemName, qtyMissing };
+      return { shortfallId: String(entry.id || '').trim(), jobId, itemId, jobName, jobNumber, itemName, qtyMissing };
+    }
+    function getJobShortfallTotal(jobId){
+      const id = String(jobId || '').trim();
+      if(!id || !state._jobShortfallsByJobId || typeof state._jobShortfallsByJobId.get !== 'function') return null;
+      const jobMap = state._jobShortfallsByJobId.get(id);
+      if(!jobMap || typeof jobMap.forEach !== 'function') return null;
+      let total = 0;
+      jobMap.forEach(entry=>{
+        const qty = shortfallQtyFromEntry(entry);
+        if(Number.isFinite(qty)) total += Math.max(0, qty);
+      });
+      return total;
     }
     function formatOrderShortfallSummary(ctx){
       if(!ctx) return '';
-      const jobLabel = ctx.jobName || (ctx.jobId ? `Job ${shortId(ctx.jobId)}` : 'Job');
-      const itemLabel = ctx.itemName || (ctx.itemId ? `Item ${shortId(ctx.itemId)}` : 'Item');
-      const missingLabel = Number.isFinite(ctx.qtyMissing) ? `Missing ${formatQty(ctx.qtyMissing)}` : 'Missing —';
-      return `${jobLabel} • ${itemLabel} • ${missingLabel}`;
+      const jobLabel = ctx.jobName
+        ? ctx.jobName
+        : (ctx.jobNumber ? `Job ${ctx.jobNumber}` : (ctx.jobId ? `Job ${shortId(ctx.jobId)}` : 'Job'));
+      const totalMissing = ctx.jobId ? getJobShortfallTotal(ctx.jobId) : null;
+      const missingValue = Number.isFinite(totalMissing) && totalMissing > 0
+        ? totalMissing
+        : (Number.isFinite(ctx.qtyMissing) ? ctx.qtyMissing : null);
+      const missingLabel = Number.isFinite(missingValue) ? `Missing ${formatQty(missingValue)}` : 'Missing —';
+      return `${jobLabel} • ${missingLabel}`;
     }
     function getOrderCommitmentKey(itemIds){
       const ids = Array.isArray(itemIds) ? itemIds.map(id => String(id || '').trim()).filter(Boolean) : [];
@@ -26286,13 +26928,67 @@ function emptyStateHtml(){
       }
       return state._orderJobAllocationsByItemId.get(id);
     }
+    function getJobById(jobId){
+      const id = String(jobId || '').trim();
+      if(!id) return null;
+      return (state._jobsById && typeof state._jobsById.get === 'function')
+        ? (state._jobsById.get(id) || null)
+        : null;
+    }
+    function getJobNumberValue(job){
+      const raw = job ? (job.job_number || job.jobNumber) : '';
+      const val = String(raw || '').trim();
+      return val;
+    }
+    function formatJobNumberLabel(job){
+      const num = getJobNumberValue(job);
+      return num ? `Job ${num}` : 'Job';
+    }
+    function formatJobNameWithNumber(job){
+      const num = getJobNumberValue(job);
+      const name = job ? String(job.name || '').trim() : '';
+      if(num && name) return `Job ${num} - ${name}`;
+      if(num) return `Job ${num}`;
+      return name || 'Job';
+    }
+    function getJobCompletionDate(job){
+      if(!job) return '';
+      const raw = job.completed_at || job.completed_on || job.completed_date || (String(job.status || '') === 'completed' ? job.updated_at : '');
+      return raw ? formatDateShort(raw) : '';
+    }
+    function getOrderRelatedJobNumbers(ord){
+      const list = [];
+      const seen = new Set();
+      const addNumber = (num) => {
+        const val = String(num || '').trim();
+        if(!val || seen.has(val)) return;
+        seen.add(val);
+        list.push(val);
+      };
+      const addJobId = (id) => {
+        const row = getJobById(id);
+        if(row){
+          const num = getJobNumberValue(row);
+          if(num) addNumber(num);
+        }
+      };
+      if(ord){
+        if(Array.isArray(ord.relatedJobNumbers)){
+          ord.relatedJobNumbers.forEach(addNumber);
+        }
+        if(ord.relatedJobId) addJobId(ord.relatedJobId);
+        if(ord.shortfall && ord.shortfall.jobId) addJobId(ord.shortfall.jobId);
+      }
+      return list;
+    }
     function getOrderJobLabel(jobId){
       const id = String(jobId || '').trim();
       if(!id) return 'Job';
-      const row = state._jobsById && typeof state._jobsById.get === 'function'
-        ? state._jobsById.get(id)
-        : null;
+      const row = getJobById(id);
       const name = row ? String(row.name || '').trim() : '';
+      const num = getJobNumberValue(row);
+      if(num && name) return `Job ${num} - ${name}`;
+      if(num) return `Job ${num}`;
       return name || `Job ${shortId(id) || id}`;
     }
     async function loadOrderJobAllocationsForItem(itemId){
@@ -26745,6 +27441,9 @@ function emptyStateHtml(){
       const itemCountEl = $('orderReviewItemCount');
       const recipientEl = $('orderReviewRecipient');
       const shipToEl = $('orderReviewShipTo');
+      const jobsRow = $('orderReviewJobsRow');
+      const jobsLabel = $('orderReviewJobsLabel');
+      const jobsValue = $('orderReviewJobsValue');
       const shortfallRow = $('orderReviewShortfallRow');
       const shortfallValue = $('orderReviewShortfallValue');
       const shortfallToggle = $('orderReviewShortfallToggle');
@@ -26785,6 +27484,16 @@ function emptyStateHtml(){
             : '';
           shipToEl.innerHTML = `${labelHtml}${addressHtml}`;
         }
+      }
+
+      const relatedJobs = getOrderRelatedJobNumbers(ord);
+      if(relatedJobs.length){
+        if(jobsRow) jobsRow.style.display = '';
+        if(jobsLabel) jobsLabel.textContent = relatedJobs.length === 1 ? 'Related job' : 'Related jobs';
+        if(jobsValue) jobsValue.innerHTML = relatedJobs.map(n => escapeHtml(n)).join('<br>');
+      }else{
+        if(jobsRow) jobsRow.style.display = 'none';
+        if(jobsValue) jobsValue.textContent = '—';
       }
       const shortfallCtx = getOrderShortfallContext(ord);
       if(shortfallCtx){
@@ -26991,6 +27700,12 @@ function emptyStateHtml(){
       try{ updateOrderDraftSelector(); }catch(e){}
       try{ orderWizardUpdateUI(); }catch(e){}
       try{ refreshJobBomCardsForOrderState(); }catch(e){}
+      try{
+        const modal = $('jobEditorModal');
+        if(modal && modal.getAttribute('aria-hidden') === 'false'){
+          renderJobBomTable();
+        }
+      }catch(e){}
     }
     // Update job BOM card indicators when cart changes
     function refreshJobBomCardsForOrderState(){
@@ -27353,16 +28068,23 @@ function emptyStateHtml(){
       if(snap.address) lines.push(snap.address);
       return lines;
     }
-    function buildOrderBodyFromData({ subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber }){
+    function buildOrderBodyFromData({ subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber, jobNumbers }){
       const when = formatEasternDateTime(new Date());
       const subject = String(subjectLine||'').trim();
       const out = [];
+      const jobs = (Array.isArray(jobNumbers) ? jobNumbers : []).map(n => String(n || '').trim()).filter(Boolean);
 
       out.push(subject);
       out.push(`Date: ${when}`);
       if(companyName) out.push(`Company: ${companyName}`);
       if(companyPoNumber) out.push(`Company PO: ${companyPoNumber}`);
       if(internalPoNumber) out.push(`Internal PO: ${internalPoNumber}`);
+      if(jobs.length === 1){
+        out.push(`Related Job: ${jobs[0]}`);
+      }else if(jobs.length > 1){
+        out.push('Related Jobs:');
+        jobs.forEach(num => out.push(`- ${num}`));
+      }
       out.push('');
       out.push('Items:');
       out.push('');
@@ -27423,9 +28145,10 @@ function emptyStateHtml(){
       out.push('contact@modulus-software.com');
       return out.join('\n');
     }
-    function buildOrderHtmlFromData({ subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber }){
+    function buildOrderHtmlFromData({ subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber, jobNumbers }){
       const when = formatEasternDateTime(new Date());
       const subject = String(subjectLine||'').trim();
+      const jobs = (Array.isArray(jobNumbers) ? jobNumbers : []).map(n => String(n || '').trim()).filter(Boolean);
 
       const active = normalizeEmailLineItems(lineItems);
       const rows = active.map(l=>{
@@ -27480,6 +28203,10 @@ function emptyStateHtml(){
       if(companyName) metaLines.push(`<div><strong>Company:</strong> ${escapeHtml(companyName)}</div>`);
       if(companyPoNumber) metaLines.push(`<div><strong>Company PO:</strong> ${escapeHtml(companyPoNumber)}</div>`);
       if(internalPoNumber) metaLines.push(`<div><strong>Internal PO:</strong> ${escapeHtml(internalPoNumber)}</div>`);
+      if(jobs.length){
+        const jobHtml = jobs.map(num => escapeHtml(num)).join('<br>');
+        metaLines.push(`<div><strong>Related Job${jobs.length > 1 ? 's' : ''}:</strong><br>${jobHtml}</div>`);
+      }
       const metaBlock = metaLines.length
         ? `<div style="margin:12px 0 0;font-size:14px;line-height:1.5;">${metaLines.join('')}</div>`
         : '';
@@ -27566,7 +28293,8 @@ function emptyStateHtml(){
       const companyName = getOrderCompanyName();
       const companyPoNumber = String(ord.companyPoNumber||'').trim();
       const internalPoNumber = String(ord.internalPoNumber||'').trim();
-      return buildOrderBodyFromData({ subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber });
+      const jobNumbers = getOrderRelatedJobNumbers(ord);
+      return buildOrderBodyFromData({ subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber, jobNumbers });
     }
     function buildOrderHtml(){
       const ord = orderState();
@@ -27577,7 +28305,8 @@ function emptyStateHtml(){
       const companyName = getOrderCompanyName();
       const companyPoNumber = String(ord.companyPoNumber||'').trim();
       const internalPoNumber = String(ord.internalPoNumber||'').trim();
-      return buildOrderHtmlFromData({ subjectLine, notes: notesRaw, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber });
+      const jobNumbers = getOrderRelatedJobNumbers(ord);
+      return buildOrderHtmlFromData({ subjectLine, notes: notesRaw, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber, jobNumbers });
     }
     function buildMailtoUrl(){
       const ord = orderState();
@@ -27597,12 +28326,12 @@ function emptyStateHtml(){
       // Fallback to local dev server
       return '/api/send-order';
     }
-    async function sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber }){
+    async function sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber, jobNumbers }){
       const toEmail = String(to||'').trim();
       const replyTo = getSignedInEmail();
       const subject = String(subjectLine||'').trim();
-      const text = buildOrderBodyFromData({ subjectLine: subject, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber });
-      const html = buildOrderHtmlFromData({ subjectLine: subject, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber });
+      const text = buildOrderBodyFromData({ subjectLine: subject, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber, jobNumbers });
+      const html = buildOrderHtmlFromData({ subjectLine: subject, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber, jobNumbers });
       const apiUrl = getOrderApiUrl();
 
       // Build headers - include Supabase auth if using Edge Function
@@ -27624,6 +28353,9 @@ function emptyStateHtml(){
         html,
         replyTo,
       };
+      if(Array.isArray(jobNumbers) && jobNumbers.length){
+        payload.related_job_numbers = jobNumbers;
+      }
       if(SB.companyId){
         payload.company_id = SB.companyId;
       }
@@ -27652,7 +28384,8 @@ function emptyStateHtml(){
       const shippingAddress = getOrderShippingSnapshot(ord);
       const companyPoNumber = String(ord.companyPoNumber||'').trim();
       const internalPoNumber = String(ord.internalPoNumber||'').trim();
-      return sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber });
+      const jobNumbers = getOrderRelatedJobNumbers(ord);
+      return sendOrderPayloadViaApi({ to, subjectLine, notes, lineItems, shippingAddress, companyName, companyPoNumber, internalPoNumber, jobNumbers });
     }
     async function copyText(text){
       if(navigator.clipboard && navigator.clipboard.writeText){
@@ -28109,13 +28842,18 @@ function emptyStateHtml(){
     async function loadLocationsCompanies(){
       if(!isEffectiveSuperUser()) return;
       const search = state._locationsCompanySearch || '';
-      const { data, error } = await SB.client.rpc('get_company_switcher_companies', {
-        p_search: search || null,
-        p_company_type: null,
-        p_limit: 100
-      });
-      if(error) throw error;
-      state._locationsCompanies = data || [];
+      try{
+        const rows = await sbFetchCompanySwitcherCompanies({
+          search,
+          companyType: null,
+          limit: 100,
+          environmentType: null
+        });
+        state._locationsCompanies = Array.isArray(rows) ? rows : [];
+      }catch(e){
+        console.warn('Locations companies load failed:', e);
+        state._locationsCompanies = [];
+      }
       await loadLocationsCompanyCounts();
       renderLocationsCompanyList();
     }
@@ -28173,6 +28911,7 @@ function emptyStateHtml(){
       setCompanyLocationsContext({ companyId, companyName, source: 'super_user_selector' });
       const nameEl = $('locationsSelectedName');
       if(nameEl) nameEl.textContent = companyName || 'Unnamed Company';
+      renderLocationsEnvBadge(companyId);
       // Show the selected company header
       const selectedDiv = $('locationsSelectedCompany');
       if(selectedDiv) selectedDiv.hidden = false;
@@ -28321,6 +29060,7 @@ function emptyStateHtml(){
       if(isEffectiveSuperUser()){
         const nameEl = $('locationsSelectedName');
         if(nameEl) nameEl.textContent = effectiveCtx.companyName || 'Unnamed Company';
+        renderLocationsEnvBadge(effectiveCtx.companyId);
         if(selectedDiv) selectedDiv.hidden = false;
       }else{
         // Non-super users don't see the company header at all
@@ -28609,29 +29349,49 @@ function emptyStateHtml(){
         })
         .filter((x) => x.part);
     }
-    async function sbInsertOrderHistoryFromData({ toEmail, subjectLine, contactName, notes, lineItems, providerResult, companyPoNumber, internalPoNumber, shippingAddressId, shippingAddressSnapshot, shortfallId }){
+    async function sbInsertOrderHistoryFromData({ toEmail, subjectLine, contactName, notes, lineItems, providerResult, companyPoNumber, internalPoNumber, shippingAddressId, shippingAddressSnapshot, shortfallId, jobNumbers }){
       if(!SB.ready || !SB.session || !SB.authorized || !SB.user || !SB.companyId) return;
       if(!canOrdersCreate()) throw new Error('Permission denied');
       const cleaned = normalizeEmailLineItems(lineItems).map(x => ({ item_id: x.item_id ? String(x.item_id).trim() : null, part: x.part, desc: x.desc, qty: x.qty }));
-      const shortfall = String(shortfallId || '').trim();
-      const row = {
+      const jobs = (Array.isArray(jobNumbers) ? jobNumbers : []).map(n => String(n || '').trim()).filter(Boolean);
+      // Use company PO number or internal PO number as the po_number
+      const poNumber = String(companyPoNumber || internalPoNumber || '').trim();
+      if(!poNumber) throw new Error('PO number is required');
+      // Insert into purchase_orders table
+      const poRow = {
         company_id: SB.companyId,
         created_by: SB.user.id,
-        to_email: String(toEmail||'').trim(),
-        reply_to_email: String(getSignedInEmail()||'').trim(),
-        subject: String(subjectLine||'').trim(),
-        contact_name: String(contactName||'').trim(),
-        notes: String(notes||'').trim(),
-        line_items: cleaned,
-        provider_result: providerResult || null,
-        company_po_number: String(companyPoNumber||'').trim() || null,
-        internal_po_number: String(internalPoNumber||'').trim() || null,
-        shipping_address_id: shippingAddressId ? String(shippingAddressId).trim() : null,
-        shipping_address_snapshot: shippingAddressSnapshot || null,
-        shortfall_id: shortfall || null,
+        po_number: poNumber,
+        status: 'submitted',
+        recipient_email: String(toEmail||'').trim() || null,
+        recipient_name: String(contactName||'').trim() || null,
+        notes: String(notes||'').trim() || null,
+        email_subject: String(subjectLine||'').trim() || null,
+        ship_to_location_id: shippingAddressId ? String(shippingAddressId).trim() : null,
+        related_job_numbers: jobs.length ? jobs : null,
       };
-      const { error } = await SB.client.from('orders').insert([row]);
-      if(error) throw error;
+      const { data: poData, error: poError } = await SB.client
+        .from('purchase_orders')
+        .insert([poRow])
+        .select('id')
+        .single();
+      if(poError) throw poError;
+      const poId = poData && poData.id;
+      if(!poId) throw new Error('Failed to create purchase order');
+      // Insert line items into purchase_order_items
+      if(cleaned.length > 0){
+        const lineRows = cleaned.map(ln => ({
+          purchase_order_id: poId,
+          item_id: ln.item_id || null,
+          item_name: String(ln.part || '').trim(),
+          item_sku: String(ln.desc || '').trim() || null,
+          quantity_ordered: toInt(ln.qty, 0),
+        }));
+        const { error: linesError } = await SB.client
+          .from('purchase_order_items')
+          .insert(lineRows);
+        if(linesError) throw linesError;
+      }
     }
     async function sbInsertOrderHistory(providerResult){
       const ord = orderState();
@@ -28639,6 +29399,7 @@ function emptyStateHtml(){
       const shortfallId = (ord.shortfallAttached && ord.shortfall && ord.shortfall.id)
         ? String(ord.shortfall.id)
         : null;
+      const jobNumbers = getOrderRelatedJobNumbers(ord);
       return sbInsertOrderHistoryFromData({
         toEmail: String(ord.email||'').trim(),
         subjectLine: composeOrderSubject(ord),
@@ -28651,13 +29412,14 @@ function emptyStateHtml(){
         shippingAddressId: ord.shippingAddressId,
         shippingAddressSnapshot: getOrderShippingSnapshot(ord),
         shortfallId,
+        jobNumbers,
       });
     }
 	    async function sbFetchOrders(limit = 50){
 	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
 	      if(!canOrdersView()) return [];
 	      const lim = Math.max(1, Math.min(200, toInt(limit, 50)));
-	      const baseSelect = 'id,po_number,status,order_date,expected_date,received_date,notes,vendor_id,created_at';
+	      const baseSelect = 'id,po_number,status,order_date,expected_date,received_date,notes,vendor_id,created_at,related_job_numbers';
 	      let rows = [];
 	      const { data, error } = await SB.client
 	        .from('purchase_orders')
@@ -28691,7 +29453,7 @@ function emptyStateHtml(){
 	      let offset = 0;
 	      const out = [];
 	      for(let page=0; page<200; page++){
-	        const baseSelect = 'id,po_number,status,order_date,expected_date,received_date,notes,vendor_id,created_at';
+	        const baseSelect = 'id,po_number,status,order_date,expected_date,received_date,notes,vendor_id,created_at,related_job_numbers';
 	        const { data, error } = await SB.client
 	          .from('purchase_orders')
 	          .select(baseSelect)
@@ -29341,16 +30103,18 @@ function emptyStateHtml(){
 	        setReceiveOrderWarning('');
 	        return;
 	      }
-	      if(String(ro.mode || '') !== 'order' || String(ro.receiptStatus || '').trim().toLowerCase() !== 'draft'){
-	        setReceiveOrderWarning('');
-	        return;
+        const warnings = [];
+        const receiptStatus = String(ro.receiptStatus || '').trim().toLowerCase();
+        if(ro.possibleDuplicate && receiptStatus === 'draft'){
+          warnings.push('This receipt looks similar to another one. Please review carefully.');
+        }
+	      if(String(ro.mode || '') === 'order' && receiptStatus === 'draft'){
+	        const overCount = ro.lines.filter(l => !l.disabled && receiveLineHasOverage(l)).length;
+          if(overCount){
+            warnings.push(`${overCount} line${overCount === 1 ? '' : 's'} exceed remaining quantities. Over-receipt is allowed but will be flagged.`);
+          }
 	      }
-	      const overCount = ro.lines.filter(l => !l.disabled && receiveLineHasOverage(l)).length;
-	      setReceiveOrderWarning(
-	        overCount
-	          ? `${overCount} line${overCount === 1 ? '' : 's'} exceed remaining quantities. Over-receipt is allowed but will be flagged.`
-	          : ''
-	      );
+	      setReceiveOrderWarning(warnings.join(' '));
 	    }
 	    function computeReceiveTotals(lines){
 	      const totals = { ordered:0, received:0, remaining:0 };
@@ -29364,7 +30128,7 @@ function emptyStateHtml(){
 	    async function sbFetchPurchaseOrderById(poId){
 	      const id = String(poId || '').trim();
 	      if(!id) throw new Error('Invalid purchase order');
-	      const baseSelect = 'id,po_number,status,order_date,expected_date,received_date,notes,vendor_id,created_at';
+	      const baseSelect = 'id,po_number,status,order_date,expected_date,received_date,notes,vendor_id,created_at,related_job_numbers';
 	      const { data, error } = await SB.client
 	        .from('purchase_orders')
 	        .select(`${baseSelect},vendor:vendors(name)`)
@@ -29389,7 +30153,7 @@ function emptyStateHtml(){
 	      if(!id) return { receipts: [], receiptLines: [] };
 	      const { data: receipts, error } = await SB.client
 	        .from('receipts')
-	        .select('id,status,created_at,updated_at,submitted_at,received_at,voided_at,notes,received_by,submitted_by,voided_by')
+	        .select('id,status,created_at,updated_at,submitted_at,received_at,voided_at,notes,received_by,submitted_by,voided_by,possible_duplicate')
 	        .eq('purchase_order_id', id)
 	        .order('created_at', { ascending:false });
 	      if(error) throw error;
@@ -29443,6 +30207,9 @@ function emptyStateHtml(){
 	      const receiptNotes = activeReceipt && typeof activeReceipt.notes !== 'undefined'
 	        ? String(activeReceipt.notes || '')
 	        : String(opts.receiptNotes || '');
+        const possibleDuplicate = activeReceipt && typeof activeReceipt.possible_duplicate !== 'undefined'
+          ? !!activeReceipt.possible_duplicate
+          : !!(opts && opts.possibleDuplicate);
 
 	      const activeLineMap = new Map();
 	      if(activeReceiptId){
@@ -29517,37 +30284,209 @@ function emptyStateHtml(){
 	        receiptId: activeReceiptId,
 	        receiptStatus,
 	        receiptNotes,
+          possibleDuplicate,
 	        mode: opts && opts.mode ? opts.mode : 'order',
 	      };
 	    }
+      function getReceiptForwardingDomain(){
+        return String(window.RECEIPT_FORWARD_DOMAIN || '').trim() || 'inventorymanager.app';
+      }
+      function formatReceiptMoney(value){
+        const num = Number(value);
+        if(!Number.isFinite(num)) return '—';
+        return `$${num.toFixed(2)}`;
+      }
+      async function sbFetchDraftEmailReceipts(){
+        if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
+        const sources = ['email_html','email_pdf','email_text','image_upload'];
+        const { data, error } = await SB.client
+          .from('receipts')
+          .select('id,receipt_number,receipt_source,status,vendor_name,receipt_date,total,created_at,email_metadata,possible_duplicate')
+          .eq('company_id', SB.companyId)
+          .eq('status', 'draft')
+          .in('receipt_source', sources)
+          .order('created_at', { ascending: false })
+          .limit(20);
+        if(error) throw error;
+        return Array.isArray(data) ? data : [];
+      }
+      function renderReceiveDraftInbox(){
+        const wrap = $('receiveDraftInbox');
+        if(!wrap) return;
+        const drafts = Array.isArray(state._draftEmailReceipts) ? state._draftEmailReceipts : [];
+        if(!drafts.length){
+          wrap.style.display = 'none';
+          wrap.innerHTML = '';
+          return;
+        }
+        wrap.style.display = '';
+        wrap.innerHTML = `<div class="receive-draft-inbox-title">Email receipts waiting for review</div>`+
+          drafts.map(row => {
+            const vendor = String(row.vendor_name || '').trim();
+            const meta = row.email_metadata && typeof row.email_metadata === 'object' ? row.email_metadata : {};
+            const subject = String(meta.subject || '').trim();
+            const title = vendor || subject || `Receipt ${shortId(row.id || '') || ''}`.trim() || 'Receipt';
+            const dateText = row.receipt_date ? formatEasternDateTime(row.receipt_date) : (row.created_at ? formatEasternDateTime(row.created_at) : '');
+            const totalText = formatReceiptMoney(row.total);
+            const dupNote = row.possible_duplicate ? ' • Possible duplicate' : '';
+            return (
+              `<div class="receive-draft-inbox-item">`+
+                `<div>`+
+                  `<div class="receive-draft-inbox-name">${escapeHtml(title)}</div>`+
+                  `<div class="receive-draft-inbox-meta">${escapeHtml(dateText || 'Received')} • Total ${escapeHtml(totalText)}${escapeHtml(dupNote)}</div>`+
+                `</div>`+
+                `<div class="receive-draft-inbox-actions">`+
+                  `<button class="btn-tertiary btn-sm" type="button" data-receipt-review-id="${escapeHtmlAttr(row.id)}">Review</button>`+
+                `</div>`+
+              `</div>`
+            );
+          }).join('');
+      }
+      async function loadDraftEmailReceipts(){
+        try{
+          const rows = await sbFetchDraftEmailReceipts();
+          state._draftEmailReceipts = rows;
+          state._draftEmailReceiptsLoaded = true;
+          renderReceiveDraftInbox();
+          if(!state._draftEmailReceiptsNotified && rows.length){
+            toast('New receipt received — ready for review.');
+            state._draftEmailReceiptsNotified = true;
+          }
+        }catch(e){
+          state._draftEmailReceipts = [];
+          state._draftEmailReceiptsLoaded = true;
+          renderReceiveDraftInbox();
+        }
+      }
+      async function openReceiveDraftReceipt(receiptId){
+        const id = String(receiptId || '').trim();
+        if(!id) return;
+        if(!SB.ready){ toast('Supabase not configured'); return; }
+        if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+        if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
+        if(!canReceiveOrders()){ toast('Receiving access required'); return; }
+
+        setReceiveOrderMessage('');
+        setReceiveOrderWarning('');
+        state._receiveOrder = {
+          mode: 'manual',
+          poId: '',
+          po: null,
+          lines: [],
+          receipts: [],
+          receiptLines: [],
+          receiptLinesByReceipt: new Map(),
+          receiptId: id,
+          receiptStatus: 'draft',
+          receiptNotes: '',
+          possibleDuplicate: false,
+          manualSearch: '',
+          loading:true,
+          rawReceiptText: '',
+          receiptSource: ''
+        };
+        show('receiveOrderModal', true);
+        renderReceiveOrderModal();
+        try{
+          await ensureInventoryLoaded();
+          await ensureIncomingOrdersLoaded();
+          const { data: receiptRow, error: receiptErr } = await SB.client
+            .from('receipts')
+            .select('id,receipt_number,status,notes,raw_receipt_text,receipt_source,possible_duplicate')
+            .eq('company_id', SB.companyId)
+            .eq('id', id)
+            .maybeSingle();
+          if(receiptErr) throw receiptErr;
+          if(!receiptRow){
+            throw new Error('Receipt not found');
+          }
+          const { data: receiptLines, error: linesErr } = await SB.client
+            .from('receipt_lines')
+            .select('id,receipt_id,item_id,expected_qty,received_qty,rejected_qty,rejection_reason,unit_cost')
+            .eq('receipt_id', id);
+          if(linesErr) throw linesErr;
+          const lines = (Array.isArray(receiptLines) ? receiptLines : []).map(line => {
+            const itemId = String(line.item_id || '').trim();
+            const item = itemId ? getInventoryById(itemId) : null;
+            return {
+              key: `manual-${itemId || line.id}`,
+              item_id: itemId,
+              item_name: String(item && item.name ? item.name : line.item_id || '').trim() || '(Unnamed item)',
+              item_sku: String(item && item.sku ? item.sku : '').trim(),
+              ordered_qty: 0,
+              expected_qty: (line.expected_qty === null || typeof line.expected_qty === 'undefined') ? null : toInt(line.expected_qty, 0),
+              prev_received: 0,
+              remaining_qty: null,
+              qty_received: toInt(line.received_qty, 0),
+              qty_rejected: toInt(line.rejected_qty, 0),
+              rejection_reason: String(line.rejection_reason || '').trim(),
+              receipt_line_id: String(line.id || '').trim(),
+              po_line_id: '',
+              unit_cost: line.unit_cost === null || typeof line.unit_cost === 'undefined' ? null : line.unit_cost,
+              disabled: !itemId
+            };
+          });
+          state._receiveOrder.lines = lines;
+          state._receiveOrder.receiptStatus = String(receiptRow.status || 'draft').trim();
+          state._receiveOrder.receiptNotes = String(receiptRow.notes || '').trim();
+          state._receiveOrder.possibleDuplicate = !!receiptRow.possible_duplicate;
+          state._receiveOrder.rawReceiptText = String(receiptRow.raw_receipt_text || '').trim();
+          state._receiveOrder.receiptSource = String(receiptRow.receipt_source || '').trim();
+          state._receiveOrder.loading = false;
+          renderReceiveOrderModal();
+        }catch(e){
+          state._receiveOrder.loading = false;
+          renderReceiveOrderModal();
+          setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt');
+        }
+      }
+      function renderReceiveForwardingHint(){
+        const hint = $('receiveForwardingHint');
+        if(!hint) return;
+        const slug = String((SB.company && (SB.company.company_slug || SB.company.slug)) || '').trim();
+        const domain = getReceiptForwardingDomain();
+        const address = slug ? `receipts+${slug}@${domain}` : `receipts+<company_slug>@${domain}`;
+        hint.innerHTML =
+          `<div><strong>Forward receipts to</strong> `+
+            `<span class="forward-address">${escapeHtml(address)}</span>`+
+          `</div>`+
+          `<div class="muted">Receipts are always reviewed before inventory is updated.</div>`;
+      }
 	    function renderReceiveOrderModal(){
 	      const ro = state._receiveOrder;
 	      const meta = $('receiveOrderMeta');
-	      const summary = $('receiveOrderSummary');
-	      const linesWrap = $('receiveOrderLines');
-	      const receiptsWrap = $('receiveOrderReceipts');
-	      const statusEl = $('receiveReceiptStatus');
-	      const modeEl = $('receiveReceiptMode');
-	      const receiptIdEl = $('receiveReceiptId');
-	      const notesEl = $('receiveReceiptNotes');
+      const summary = $('receiveOrderSummary');
+      const linesWrap = $('receiveOrderLines');
+      const receiptsWrap = $('receiveOrderReceipts');
+      const statusEl = $('receiveReceiptStatus');
+      const modeEl = $('receiveReceiptMode');
+      const receiptIdEl = $('receiveReceiptId');
+      const notesEl = $('receiveReceiptNotes');
+      const rawWrap = $('receiveReceiptRaw');
+      const rawTextEl = $('receiveReceiptRawText');
 	      const manualSection = $('receiveManualSection');
 	      const summarySection = $('receiveOrderSummarySection');
 	      const receiptsSection = $('receiveOrderReceiptsSection');
 	      if(!meta || !summary || !linesWrap || !receiptsWrap) return;
+        renderReceiveForwardingHint();
 
-	      if(!ro || ro.loading){
-	        if(statusEl){
-	          statusEl.textContent = 'Draft';
-	          statusEl.dataset.status = 'draft';
-	        }
-	        if(modeEl) modeEl.textContent = 'Order Receipt';
-	        if(receiptIdEl) receiptIdEl.textContent = '';
-	        if(notesEl){ notesEl.value = ''; notesEl.disabled = true; }
-	        if(meta) meta.innerHTML = '';
-	        if(summary) summary.innerHTML = '';
-	        if(linesWrap) linesWrap.innerHTML = `<div class="muted">Loading receipt details…</div>`;
-	        if(receiptsWrap) receiptsWrap.innerHTML = '';
-	        return;
+      if(!ro || ro.loading){
+        if(statusEl){
+          statusEl.textContent = 'Draft';
+          statusEl.dataset.status = 'draft';
+        }
+        if(modeEl) modeEl.textContent = 'Order Receipt';
+        if(receiptIdEl) receiptIdEl.textContent = '';
+        if(notesEl){ notesEl.value = ''; notesEl.disabled = true; }
+        if(rawWrap && rawTextEl){
+          rawWrap.style.display = 'none';
+          rawTextEl.textContent = '';
+        }
+        if(meta) meta.innerHTML = '';
+        if(summary) summary.innerHTML = '';
+        if(linesWrap) linesWrap.innerHTML = `<div class="muted">Loading receipt details…</div>`;
+        if(receiptsWrap) receiptsWrap.innerHTML = '';
+        return;
 	      }
 
 	      const mode = String(ro.mode || 'order');
@@ -29566,10 +30505,20 @@ function emptyStateHtml(){
 	          ? `Receipt ID: <span>${escapeHtml(shortId(ro.receiptId) || ro.receiptId)}</span>`
 	          : '';
 	      }
-	      if(notesEl){
-	        notesEl.value = String(ro.receiptNotes || '');
-	        notesEl.disabled = !isEditable;
-	      }
+      if(notesEl){
+        notesEl.value = String(ro.receiptNotes || '');
+        notesEl.disabled = !isEditable;
+      }
+      if(rawWrap && rawTextEl){
+        const rawText = String(ro.rawReceiptText || '').trim();
+        if(rawText){
+          rawTextEl.textContent = rawText;
+          rawWrap.style.display = '';
+        }else{
+          rawWrap.style.display = 'none';
+          rawTextEl.textContent = '';
+        }
+      }
 
 	      if(summarySection) summarySection.style.display = isOrderMode ? '' : 'none';
 	      if(receiptsSection) receiptsSection.style.display = isOrderMode ? '' : 'none';
@@ -30094,19 +31043,21 @@ function emptyStateHtml(){
 	        receiptId: '',
 	        receiptStatus: 'draft',
 	        receiptNotes: '',
+          possibleDuplicate: false,
 	        manualSearch: '',
 	        loading:true
 	      };
-	      show('receiveOrderModal', true);
-	      renderReceiveOrderModal();
-	      try{
-	        await ensureInventoryLoaded();
-	        await ensureIncomingOrdersLoaded();
-	        await ensureDraftReceiptId(state._receiveOrder);
-	        await refreshReceiveOrderModal(id);
-	      }catch(e){
-	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt data');
-	        renderReceiveOrderModal();
+      show('receiveOrderModal', true);
+      renderReceiveOrderModal();
+      try{
+        await ensureInventoryLoaded();
+        await ensureIncomingOrdersLoaded();
+        await loadDraftEmailReceipts();
+        await ensureDraftReceiptId(state._receiveOrder);
+        await refreshReceiveOrderModal(id);
+      }catch(e){
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt data');
+        renderReceiveOrderModal();
 	      }
 	    }
 
@@ -30129,19 +31080,21 @@ function emptyStateHtml(){
 	        receiptId: '',
 	        receiptStatus: 'draft',
 	        receiptNotes: '',
+          possibleDuplicate: false,
 	        manualSearch: '',
 	        loading:true
 	      };
-	      show('receiveOrderModal', true);
-	      renderReceiveOrderModal();
-	      try{
-	        await ensureInventoryLoaded();
-	        await ensureIncomingOrdersLoaded();
-	        await ensureDraftReceiptId(state._receiveOrder);
-	        state._receiveOrder.loading = false;
-	        renderReceiveOrderModal();
-	      }catch(e){
-	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to create receipt');
+      show('receiveOrderModal', true);
+      renderReceiveOrderModal();
+      try{
+        await ensureInventoryLoaded();
+        await ensureIncomingOrdersLoaded();
+        await loadDraftEmailReceipts();
+        await ensureDraftReceiptId(state._receiveOrder);
+        state._receiveOrder.loading = false;
+        renderReceiveOrderModal();
+      }catch(e){
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to create receipt');
 	        state._receiveOrder.loading = false;
 	        renderReceiveOrderModal();
 	      }
@@ -30303,6 +31256,10 @@ function emptyStateHtml(){
         const statusLabel = formatStateToken(o.status || '');
         const supplier = String(o.vendor_name || (o.vendor && o.vendor.name) || o.vendor_id || '').trim();
         const notes = String(o.notes||'').trim();
+        const relatedJobs = Array.isArray(o.related_job_numbers)
+          ? o.related_job_numbers.map(n => String(n || '').trim()).filter(Boolean)
+          : [];
+        const relatedJobsHtml = relatedJobs.map(n => escapeHtml(n)).join('<br>');
 
         const orderId = String(o.id || '');
         const receiptMeta = orderNonEmpty(orderReceiptMetaText(o));
@@ -30370,6 +31327,7 @@ function emptyStateHtml(){
             `<div class="history-kv">`+
               (supplier ? `<div><span class="muted">Supplier:</span> ${escapeHtml(supplier)}</div>` : '')+
               (statusLabel ? `<div><span class="muted">Status:</span> ${escapeHtml(statusLabel)}</div>` : '')+
+              (relatedJobs.length ? `<div><span class="muted">Related job${relatedJobs.length > 1 ? 's' : ''}:</span> ${relatedJobsHtml}</div>` : '')+
               (expectedDate ? `<div><span class="muted">Expected:</span> ${escapeHtml(expectedDate)}</div>` : '')+
               (receivedDate ? `<div><span class="muted">Received:</span> ${escapeHtml(receivedDate)}</div>` : '')+
               (notes ? `<div><span class="muted">Notes:</span> ${escapeHtml(notes)}</div>` : '')+
@@ -30392,10 +31350,11 @@ function emptyStateHtml(){
 	      const poNumber = String(o.po_number || '').trim();
 	      const status = String(o.status || '').trim();
 	      const vendor = String(o.vendor_name || (o.vendor && o.vendor.name) || o.vendor_id || '').trim();
+        const jobs = Array.isArray(o.related_job_numbers) ? o.related_job_numbers.join(' ') : '';
         const lineMap = state._orderHistoryLinesByPo || new Map();
         const items = normalizePurchaseOrderLines(lineMap.get(id) || []);
         const itemText = items.map(it => `${it.item_name} ${it.item_sku} ${formatQty(it.quantity_ordered)}`).join(' ');
-	      return `${id} ${poNumber} ${status} ${orderDate} ${expectedDate} ${receivedDate} ${createdAt} ${subject} ${vendor} ${notes} ${itemText}`.toLowerCase();
+	      return `${id} ${poNumber} ${status} ${orderDate} ${expectedDate} ${receivedDate} ${createdAt} ${subject} ${vendor} ${notes} ${jobs} ${itemText}`.toLowerCase();
 	    }
 	    function renderOrderHistoryFiltered(){
 	      const rows = Array.isArray(state._orderHistoryRows) ? state._orderHistoryRows : [];
@@ -30751,7 +31710,8 @@ function emptyStateHtml(){
       const inventoryMap = editor ? editor.inventoryMap : new Map();
       const jobShortfalls = editor && editor.jobShortfalls ? editor.jobShortfalls : new Map();
       const status = editor && editor.job ? String(editor.job.status || '') : '';
-      const usesPlannedShortfall = ['draft', 'quoted'].includes(status);
+      const isCompleted = status === 'completed';
+      const usesPlannedShortfall = !isCompleted && ['draft', 'quoted'].includes(status);
       const actualMap = getJobActualMap(editor);
       let totalPlanned = 0;
       let totalOnHand = 0;
@@ -30761,49 +31721,299 @@ function emptyStateHtml(){
         const itemId = String(line && line.item_id ? line.item_id : '').trim();
         const planned = Number(line && line.qty_planned ? line.qty_planned : 0);
         if(!itemId) return;
-        const stats = computeJobLineStats(itemId, planned, reservedMap, inventoryMap);
-        const hasRecorded = jobShortfalls && typeof jobShortfalls.has === 'function' && jobShortfalls.has(itemId);
-        const recordedShortfall = hasRecorded ? shortfallQtyFromEntry(jobShortfalls.get(itemId)) : null;
-        const shortfallQty = Number.isFinite(recordedShortfall)
-          ? recordedShortfall
-          : (usesPlannedShortfall ? stats.shortfall : 0);
         totalPlanned += planned;
-        totalOnHand += stats.onHand;
-        totalShortfall += Math.max(0, shortfallQty);
+        if(!isCompleted){
+          const stats = computeJobLineStats(itemId, planned, reservedMap, inventoryMap);
+          const hasRecorded = jobShortfalls && typeof jobShortfalls.has === 'function' && jobShortfalls.has(itemId);
+          const recordedShortfall = hasRecorded ? shortfallQtyFromEntry(jobShortfalls.get(itemId)) : null;
+          const shortfallQty = Number.isFinite(recordedShortfall)
+            ? recordedShortfall
+            : (usesPlannedShortfall ? stats.shortfall : 0);
+          totalOnHand += stats.onHand;
+          totalShortfall += Math.max(0, shortfallQty);
+        }
         const actual = actualMap.has(itemId) ? Number(actualMap.get(itemId)) : 0;
         totalActual += actual;
       });
       const completionPercent = totalPlanned > 0 ? Math.round((totalActual / totalPlanned) * 100) : 0;
       return { totalPlanned, totalOnHand, totalShortfall, totalActual, completionPercent };
     }
+    function buildJobCompletionAudit(editor){
+      if(!editor || !editor.job) return '';
+      const job = editor.job;
+      const actuals = Array.isArray(editor.actuals) ? editor.actuals : [];
+      const actualMap = new Map();
+      actuals.forEach(row=>{
+        const itemId = String(row && row.item_id ? row.item_id : '').trim();
+        if(!itemId) return;
+        const qty = Number(row.qty_used || 0);
+        if(!Number.isFinite(qty) || qty === 0) return;
+        actualMap.set(itemId, (actualMap.get(itemId) || 0) + qty);
+      });
+      const consumed = [];
+      const returned = [];
+      let net = 0;
+      actualMap.forEach((qty, itemId)=>{
+        const item = getInventoryById(itemId);
+        const name = item && item.name ? String(item.name || '').trim() : `Item ${shortId(itemId)}`;
+        if(qty > 0){
+          consumed.push({ name, qty });
+        }else if(qty < 0){
+          returned.push({ name, qty: Math.abs(qty) });
+        }
+        net += qty;
+      });
+      const sections = [];
+      if(consumed.length || returned.length){
+        const impactParts = [];
+        if(consumed.length){
+          impactParts.push('<div class="job-audit-subtitle">Items consumed</div>');
+          impactParts.push(
+            '<div class="job-audit-list">' +
+            consumed.map(item=>(
+              `<div class="job-audit-item">`+
+                `<span class="job-audit-item-name" title="${escapeHtmlAttr(item.name)}">${escapeHtml(item.name)}</span>`+
+                `<span class="job-audit-item-qty">${escapeHtml(formatQty(item.qty))}</span>`+
+              `</div>`
+            )).join('') +
+            '</div>'
+          );
+        }
+        if(returned.length){
+          impactParts.push('<div class="job-audit-subtitle">Items returned</div>');
+          impactParts.push(
+            '<div class="job-audit-list">' +
+            returned.map(item=>(
+              `<div class="job-audit-item">`+
+                `<span class="job-audit-item-name" title="${escapeHtmlAttr(item.name)}">${escapeHtml(item.name)}</span>`+
+                `<span class="job-audit-item-qty">${escapeHtml(formatQty(item.qty))}</span>`+
+              `</div>`
+            )).join('') +
+            '</div>'
+          );
+        }
+        const netAbs = Math.abs(net);
+        const netText = net === 0 ? '0' : (net > 0 ? `+${formatQty(netAbs)}` : `-${formatQty(netAbs)}`);
+        impactParts.push(
+          `<div class="job-audit-row">`+
+            `<span>Net inventory delta</span>`+
+            `<span>${escapeHtml(netText)}</span>`+
+          `</div>`
+        );
+        sections.push(`<div class="job-audit-section">${impactParts.join('')}</div>`);
+      }else{
+        sections.push('<div class="job-audit-empty">No inventory changes were recorded for this job.</div>');
+      }
+
+      const summaryRows = [];
+      const jobNumberLabel = formatJobNumberLabel(job);
+      if(jobNumberLabel && jobNumberLabel !== 'Job'){
+        summaryRows.push(
+          `<div class="job-audit-row">`+
+            `<span>Job</span>`+
+            `<span>${escapeHtml(jobNumberLabel)}</span>`+
+          `</div>`
+        );
+      }
+      const startRaw = job.execution_started_at || job.started_at || job.start_date || job.execution_start || '';
+      if(startRaw){
+        summaryRows.push(
+          `<div class="job-audit-row">`+
+            `<span>Execution start</span>`+
+            `<span>${escapeHtml(formatDateShort(startRaw))}</span>`+
+          `</div>`
+        );
+      }
+      const completedRaw = job.completed_at || job.completed_on || job.completed_date || (job.status === 'completed' ? job.updated_at : '');
+      if(completedRaw){
+        summaryRows.push(
+          `<div class="job-audit-row">`+
+            `<span>Completion date</span>`+
+            `<span>${escapeHtml(formatDateShort(completedRaw))}</span>`+
+          `</div>`
+        );
+      }
+      const completedBy = job.completed_by_name || job.completed_by_email || job.completed_by || job.updated_by_email || job.updated_by || '';
+      if(completedBy){
+        summaryRows.push(
+          `<div class="job-audit-row">`+
+            `<span>Completed by</span>`+
+            `<span>${escapeHtml(String(completedBy))}</span>`+
+          `</div>`
+        );
+      }
+      if(summaryRows.length){
+        sections.push(
+          `<div class="job-audit-section">`+
+            `<div class="job-audit-subtitle">Execution summary</div>`+
+            summaryRows.join('')+
+          `</div>`
+        );
+      }
+
+      const notes = job.execution_notes || job.completion_notes || '';
+      if(notes && String(notes).trim()){
+        sections.push(
+          `<div class="job-audit-section">`+
+            `<div class="job-audit-subtitle">Final notes</div>`+
+            `<div class="job-audit-notes">${escapeHtml(String(notes).trim())}</div>`+
+          `</div>`
+        );
+      }
+
+      return sections.join('');
+    }
+    function buildJobCompletionSummary(editor){
+      if(!editor || !editor.job) return '';
+      const job = editor.job;
+      const completedDate = getJobCompletionDate(job);
+      const completedBy = job.completed_by_name || job.completed_by_email || job.completed_by || job.updated_by_email || job.updated_by || '';
+      const actuals = Array.isArray(editor.actuals) ? editor.actuals : [];
+      let consumed = 0;
+      let returned = 0;
+      actuals.forEach(row=>{
+        const qty = Number(row && row.qty_used != null ? row.qty_used : 0);
+        if(!Number.isFinite(qty) || qty === 0) return;
+        if(qty > 0) consumed += qty;
+        if(qty < 0) returned += Math.abs(qty);
+      });
+      const sections = [];
+      const summaryRows = [];
+      if(completedDate){
+        summaryRows.push(
+          `<div class="job-audit-row">`+
+            `<span>Completion date</span>`+
+            `<span>${escapeHtml(completedDate)}</span>`+
+          `</div>`
+        );
+      }
+      if(completedBy){
+        summaryRows.push(
+          `<div class="job-audit-row">`+
+            `<span>Completed by</span>`+
+            `<span>${escapeHtml(String(completedBy))}</span>`+
+          `</div>`
+        );
+      }
+      if(summaryRows.length){
+        sections.push(
+          `<div class="job-audit-section">`+
+            `<div class="job-audit-subtitle">Completion</div>`+
+            summaryRows.join('')+
+          `</div>`
+        );
+      }
+      if(consumed || returned){
+        const net = consumed - returned;
+        const impactRows = [];
+        if(consumed){
+          impactRows.push(
+            `<div class="job-audit-row">`+
+              `<span>Items consumed</span>`+
+              `<span>${escapeHtml(formatQty(consumed))}</span>`+
+            `</div>`
+          );
+        }
+        if(returned){
+          impactRows.push(
+            `<div class="job-audit-row">`+
+              `<span>Items returned</span>`+
+              `<span>${escapeHtml(formatQty(returned))}</span>`+
+            `</div>`
+          );
+        }
+        const netAbs = Math.abs(net);
+        const netText = net === 0 ? '0' : (net > 0 ? `+${formatQty(netAbs)}` : `-${formatQty(netAbs)}`);
+        impactRows.push(
+          `<div class="job-audit-row">`+
+            `<span>Net inventory delta</span>`+
+            `<span>${escapeHtml(netText)}</span>`+
+          `</div>`
+        );
+        sections.push(
+          `<div class="job-audit-section">`+
+            `<div class="job-audit-subtitle">Inventory impact</div>`+
+            impactRows.join('')+
+          `</div>`
+        );
+      }else{
+        sections.push('<div class="job-audit-empty">No inventory changes were recorded for this job.</div>');
+      }
+      return sections.join('');
+    }
+    function buildJobCompletionOrders(editor){
+      if(!editor || !editor.job) return '';
+      const job = editor.job;
+      const jobNumber = getJobNumberValue(job);
+      const rows = Array.isArray(state._orderHistoryRows) ? state._orderHistoryRows : [];
+      if(!jobNumber || !rows.length){
+        return '<div class="job-audit-empty">No purchase orders were linked to this job.</div>';
+      }
+      const matches = rows.filter(o=>{
+        const related = Array.isArray(o && o.related_job_numbers) ? o.related_job_numbers : [];
+        const normalized = related.map(n => String(n || '').trim()).filter(Boolean);
+        return normalized.includes(jobNumber);
+      });
+      if(!matches.length){
+        return '<div class="job-audit-empty">No purchase orders were linked to this job.</div>';
+      }
+      return (
+        `<div class="job-audit-list">`+
+          matches.map(o=>{
+            const poNumber = String(o && (o.po_number || o.poNumber) || '').trim() || shortId(String(o && o.id ? o.id : ''));
+            const statusLabel = formatStateToken(o && o.status ? o.status : '');
+            const submitted = formatDateShort(o && (o.order_date || o.created_at || '') || '');
+            const meta = [statusLabel, submitted].filter(Boolean).join(' • ');
+            return (
+              `<div class="job-audit-item">`+
+                `<span class="job-audit-item-name" title="${escapeHtmlAttr(poNumber)}">PO ${escapeHtml(poNumber)}</span>`+
+                `<span class="job-audit-item-qty">${escapeHtml(meta || '')}</span>`+
+              `</div>`
+            );
+          }).join('')+
+        `</div>`
+      );
+    }
     function updateJobProgressStepper(editor){
       const job = editor ? editor.job : null;
       const nameOk = !!(job && String(job.name || '').trim());
       const hasItems = getJobEditorLines(editor).length > 0;
       const isComplete = job && String(job.status || '') === 'completed';
+      const readinessDetail = editor ? editor.jobReadinessDetail : null;
+      const hasBlocking = !!(readinessDetail && Array.isArray(readinessDetail.blocking_items) && readinessDetail.blocking_items.length);
+      const materialsBlocked = !isComplete && !!(readinessDetail && !readinessDetail.error && !readinessDetail.ready_for_approval && hasBlocking);
       const active = getJobEditorTab();
       const steps = [
         { key:'details', complete: nameOk, label:'Details', index:1 },
-        { key:'materials', complete: hasItems, label:'Materials', index:2 },
+        { key:'materials', complete: hasItems, blocked: materialsBlocked, label:'Materials', index:2 },
         { key:'execution', complete: isComplete, label:'Execution', index:3 }
       ];
       steps.forEach(step=>{
         const circle = document.querySelector(`[data-job-step-circle="${CSS.escape(step.key)}"]`);
         const label = document.querySelector(`[data-job-step-label="${CSS.escape(step.key)}"]`);
         if(circle){
-          circle.classList.remove('complete','current','future');
+          circle.classList.remove('complete','current','future','blocked');
           if(step.complete){
-            circle.classList.add('complete');
-            circle.innerHTML = ICONS.check;
+            if(step.blocked){
+              circle.classList.add('blocked');
+              circle.innerHTML = ICONS.alertTriangle;
+            }else{
+              circle.classList.add('complete');
+              circle.innerHTML = ICONS.check;
+            }
           }else{
             circle.classList.add(active === step.key ? 'current' : 'future');
             circle.textContent = String(step.index);
           }
         }
         if(label){
-          label.classList.remove('complete','current');
-          if(step.complete) label.classList.add('complete');
-          if(active === step.key) label.classList.add('current');
+          label.classList.remove('complete','current','blocked');
+          if(step.blocked){
+            label.classList.add('blocked');
+          }else if(step.complete){
+            label.classList.add('complete');
+          }
+          if(active === step.key && !step.blocked) label.classList.add('current');
         }
       });
       const connector1 = document.querySelector('[data-job-step-connector="details"]');
@@ -30836,7 +32046,7 @@ function emptyStateHtml(){
       if(!SB.companyId) throw new Error('No company selected');
       const { data, error } = await SB.client
         .from('jobs')
-        .select('id,company_id,name,status,notes,created_at,updated_at,created_by')
+        .select('id,company_id,job_number,name,status,notes,created_at,updated_at,created_by')
         .eq('company_id', SB.companyId)
         .order('created_at', { ascending:false });
       if(error) throw error;
@@ -31357,6 +32567,7 @@ function emptyStateHtml(){
       updateMenuJobsBadge(rows);
       if(!rows.length){
         list.innerHTML = `<div class="order-empty">No jobs yet.</div>`;
+        updateApproveReadyCountBadge(0);
         return;
       }
       const canAdmin = canItemsDelete();
@@ -31371,29 +32582,36 @@ function emptyStateHtml(){
         const id = String(row.id || '').trim();
         if(!id) continue;
         const name = String(row.name || '').trim() || '(Untitled job)';
+        const jobNumber = getJobNumberValue(row);
+        const displayName = jobNumber ? `Job ${jobNumber} - ${name}` : name;
         const status = String(row.status || 'draft').trim();
+        const isCompleted = status === 'completed';
         const created = row.created_at ? formatDateShort(row.created_at) : '—';
+        const completedDate = isCompleted ? getJobCompletionDate(row) : '';
+        const metaDate = isCompleted ? (completedDate || '—') : created;
         const bomLines = state._jobBomByJobId && state._jobBomByJobId.get ? (state._jobBomByJobId.get(id) || []) : [];
         const jobAllocations = jobAllocationsByJobId && jobAllocationsByJobId.get ? jobAllocationsByJobId.get(id) : null;
         const jobShortfalls = jobShortfallsByJobId && jobShortfallsByJobId.get ? jobShortfallsByJobId.get(id) : null;
-        const usesPlannedShortfall = ['draft', 'quoted'].includes(status);
+        const usesPlannedShortfall = !isCompleted && ['draft', 'quoted'].includes(status);
         let totalNeeded = 0;
         let totalOnHand = 0;
         let totalShortage = 0;
-        bomLines.forEach(line=>{
-          const itemId = String(line.item_id || '').trim();
-          const qtyPlanned = Number(line.qty_planned || 0);
-          const stats = computeJobLineStats(itemId, qtyPlanned, reservedMap, inventoryMap);
-          const hasRecorded = jobShortfalls && typeof jobShortfalls.has === 'function' && jobShortfalls.has(itemId);
-          const recordedShortfall = hasRecorded ? shortfallQtyFromEntry(jobShortfalls.get(itemId)) : null;
-          const shortfallQty = Number.isFinite(recordedShortfall)
-            ? recordedShortfall
-            : (usesPlannedShortfall ? stats.shortfall : 0);
-          totalNeeded += qtyPlanned;
-          totalOnHand += stats.onHand;
-          totalShortage += Math.max(0, shortfallQty);
-        });
-        const readiness = jobReadinessByJobId && typeof jobReadinessByJobId.get === 'function'
+        if(!isCompleted){
+          bomLines.forEach(line=>{
+            const itemId = String(line.item_id || '').trim();
+            const qtyPlanned = Number(line.qty_planned || 0);
+            const stats = computeJobLineStats(itemId, qtyPlanned, reservedMap, inventoryMap);
+            const hasRecorded = jobShortfalls && typeof jobShortfalls.has === 'function' && jobShortfalls.has(itemId);
+            const recordedShortfall = hasRecorded ? shortfallQtyFromEntry(jobShortfalls.get(itemId)) : null;
+            const shortfallQty = Number.isFinite(recordedShortfall)
+              ? recordedShortfall
+              : (usesPlannedShortfall ? stats.shortfall : 0);
+            totalNeeded += qtyPlanned;
+            totalOnHand += stats.onHand;
+            totalShortage += Math.max(0, shortfallQty);
+          });
+        }
+        const readiness = (!isCompleted && jobReadinessByJobId && typeof jobReadinessByJobId.get === 'function')
           ? jobReadinessByJobId.get(id)
           : null;
         const readinessState = readiness ? (readiness.ready ? 'ready' : 'not-ready') : 'unknown';
@@ -31421,24 +32639,38 @@ function emptyStateHtml(){
                 ? 'Voided'
                 : 'Pending';
         const shortageLabel = totalShortage > 0 ? `${formatQty(totalShortage)} short` : '';
+        const approveAllowed = canAdmin && canApproveJob(status);
+        const approveReady = !!(readiness && readiness.ready);
+        const approveDisabled = approveAllowed && !approveReady;
+        const approveTitle = approveReady
+          ? 'Approve job'
+          : (readiness ? 'Approval blocked by missing inventory' : 'Approval readiness unavailable');
+        const readinessHtml = !isCompleted
+          ? `<span class="job-readiness-pill job-readiness-pill--${escapeHtmlAttr(readinessState)}" title="${escapeHtmlAttr(readinessTitle)}">${escapeHtml(readinessLabel)}</span>`
+          : '';
+        const summaryHtml = !isCompleted
+          ? `<span class="job-summary">${escapeHtml(summary)}</span>`
+          : '';
+        const shortageHtml = (!isCompleted && totalShortage > 0)
+          ? `<span class="job-shortage" title="${escapeHtmlAttr(shortageLabel)}">${ICONS.alertTriangle}<span>${escapeHtml(shortageLabel)}</span></span>`
+          : '';
         html += (
           `<div class="job-row" data-job-row="${escapeHtmlAttr(id)}" aria-expanded="${isExpanded ? 'true' : 'false'}">`+
             `<div class="job-card-header" data-job-toggle-id="${escapeHtmlAttr(id)}">`+
               `<button class="job-chevron" data-job-toggle-id="${escapeHtmlAttr(id)}" aria-label="${escapeHtmlAttr(toggleLabel)}" title="${escapeHtmlAttr(toggleLabel)}">${ICONS.chevronRight}</button>`+
               `<div class="job-header-main">`+
-                `<div class="job-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
+                `<div class="job-name" title="${escapeHtmlAttr(displayName)}">${escapeHtml(displayName)}</div>`+
                 `<div class="job-header-meta">`+
                   `<span class="job-status-pill job-status-pill--${escapeHtmlAttr(badgeTone)}">${escapeHtml(badgeLabel)}</span>`+
-                  `<span class="job-readiness-pill job-readiness-pill--${escapeHtmlAttr(readinessState)}" title="${escapeHtmlAttr(readinessTitle)}">${escapeHtml(readinessLabel)}</span>`+
-                  `<span class="job-meta">${escapeHtml(created)}</span>`+
-                  `<span class="job-summary">${escapeHtml(summary)}</span>`+
-                  (totalShortage > 0 ? `<span class="job-shortage" title="${escapeHtmlAttr(shortageLabel)}">${ICONS.alertTriangle}<span>${escapeHtml(shortageLabel)}</span></span>` : '')+
+                  `${readinessHtml}`+
+                  `<span class="job-meta">${escapeHtml(metaDate)}</span>`+
+                  `${summaryHtml}`+
+                  `${shortageHtml}`+
                 `</div>`+
               `</div>`+
               `<div class="job-actions">`+
-                `<button class="icon-btn icon-btn--default job-action--view" data-job-view-id="${escapeHtmlAttr(id)}" aria-label="View job" title="View job">${ICONS.eye}</button>`+
                 `<button class="icon-btn icon-btn--default job-action--edit" data-job-edit-id="${escapeHtmlAttr(id)}" aria-label="Edit job" title="Edit job">${ICONS.pencil}</button>`+
-                (canAdmin && canApproveJob(status) ? `<button class="icon-btn icon-btn--success job-action--approve" data-job-approve-id="${escapeHtmlAttr(id)}" aria-label="Approve job" title="Approve job">${ICONS.checkCircle}</button>` : '')+
+                (approveAllowed ? `<button class="icon-btn icon-btn--success job-action--approve" data-job-approve-id="${escapeHtmlAttr(id)}" aria-label="Approve job" title="${escapeHtmlAttr(approveTitle)}"${approveDisabled ? ' disabled aria-disabled="true"' : ''}>${ICONS.checkCircle}</button>` : '')+
                 (canAdmin && canCompleteJob(status) ? `<button class="icon-btn icon-btn--success job-action--complete" data-job-complete-id="${escapeHtmlAttr(id)}" aria-label="Complete job" title="Complete job">${ICONS.check}</button>` : '')+
                 (canAdmin && canVoidJob(status) ? `<button class="icon-btn icon-btn--danger job-action--void" data-job-void-id="${escapeHtmlAttr(id)}" aria-label="Void job" title="Void job">${ICONS.xCircle}</button>` : '')+
               `</div>`+
@@ -31448,6 +32680,8 @@ function emptyStateHtml(){
         if(isExpanded){
           if(!bomLines.length){
             html += `<div class="job-detail"><div class="muted">No BOM items yet.</div></div>`;
+          }else if(isCompleted){
+            html += `<div class="job-detail"><div class="muted">Job completed. View this job to see actuals and completion details.</div></div>`;
           }else{
             // Transform bomLines to UDWE data format
             const incomingMap = buildInventoryIncomingMap();
@@ -31536,6 +32770,129 @@ function emptyStateHtml(){
       html += `</div>`;
       list.innerHTML = html;
       try{ initButtonSystem.refresh(); }catch(e){}
+      updateApproveReadyCountBadge();
+    }
+    function isApproveReadyStatus(status){
+      const raw = String(status || '').trim().toLowerCase();
+      return raw === 'draft' || raw === 'planned';
+    }
+    function computeApproveReadyCount(){
+      const rows = Array.isArray(state._jobs) ? state._jobs : [];
+      const readinessMap = state._jobReadinessByJobId || new Map();
+      let count = 0;
+      rows.forEach(job=>{
+        const id = String(job && job.id ? job.id : '').trim();
+        if(!id) return;
+        if(!isApproveReadyStatus(job && job.status)) return;
+        const readiness = readinessMap && typeof readinessMap.get === 'function' ? readinessMap.get(id) : null;
+        if(readiness && readiness.ready) count += 1;
+      });
+      return count;
+    }
+    function updateApproveReadyCountBadge(count){
+      const badge = $('btnJobsApproveReadyCount');
+      if(!badge) return;
+      const value = Number.isFinite(count) ? count : computeApproveReadyCount();
+      if(value > 0){
+        badge.textContent = String(value);
+        badge.style.display = 'inline-flex';
+      }else{
+        badge.textContent = '0';
+        badge.style.display = 'none';
+      }
+    }
+    function renderApproveReadyModal(){
+      const list = $('approveReadyList');
+      const empty = $('approveReadyEmpty');
+      const loading = $('approveReadyLoading');
+      if(!list || !empty || !loading) return;
+      const jobs = Array.isArray(state._approveReadyJobs) ? state._approveReadyJobs : [];
+      const isLoading = !!state._approveReadyLoading;
+      const error = String(state._approveReadyError || '').trim();
+      list.innerHTML = '';
+      if(isLoading){
+        loading.style.display = 'block';
+        empty.style.display = 'none';
+        return;
+      }
+      loading.style.display = 'none';
+      if(error){
+        empty.textContent = error;
+        empty.style.display = 'block';
+        return;
+      }
+      if(!jobs.length){
+        empty.textContent = 'No jobs are ready for approval right now.';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      list.innerHTML = jobs.map(entry=>{
+        const job = entry && entry.job ? entry.job : {};
+        const id = String(job.id || '').trim();
+        const nameWithNumber = formatJobNameWithNumber(job);
+        const name = (nameWithNumber && nameWithNumber !== 'Job')
+          ? nameWithNumber
+          : (id ? `Job ${shortId(id)}` : 'Job');
+        const created = job.created_at ? `Created ${formatDateShort(job.created_at)}` : '';
+        const subtext = created || 'All required inventory is available.';
+        return (
+          `<div class="mini-card mini-card--committed approve-ready-card">`+
+            `<div class="mini-card-main">`+
+              `<div class="mini-card-title" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
+              `<div class="mini-card-subtext">${escapeHtml(subtext)}</div>`+
+              `${created ? '<div class="mini-card-subtext">All required inventory is available.</div>' : ''}`+
+            `</div>`+
+            `<div class="mini-card-meta">`+
+              `<span class="mini-card-badge mini-card-badge--committed">Approval ready</span>`+
+              `<button class="btn-secondary btn-sm approve-ready-action" type="button" data-approve-ready-id="${escapeHtmlAttr(id)}">Review &amp; approve</button>`+
+            `</div>`+
+          `</div>`
+        );
+      }).join('');
+    }
+    async function loadApproveReadyJobs(){
+      state._approveReadyLoading = true;
+      state._approveReadyError = '';
+      state._approveReadyJobs = [];
+      renderApproveReadyModal();
+      if(!SB.ready || !SB.session || !SB.companyId){
+        state._approveReadyLoading = false;
+        state._approveReadyError = 'Sign in required to view readiness.';
+        renderApproveReadyModal();
+        return;
+      }
+      try{
+        const rows = await sbFetchJobs();
+        state._jobs = rows;
+        state._jobsById = new Map(rows.map(r => [String(r.id || ''), r]).filter(x => x[0]));
+        const candidates = (rows || []).filter(job => isApproveReadyStatus(job && job.status));
+        const results = await Promise.all(candidates.map(async job=>{
+          try{
+            const detail = await sbFetchJobReadinessDetails(job.id);
+            if(detail && detail.ready_for_approval){
+              return { job, detail };
+            }
+          }catch(e){}
+          return null;
+        }));
+        const readyJobs = results.filter(Boolean);
+        state._approveReadyJobs = readyJobs;
+        updateApproveReadyCountBadge(readyJobs.length);
+      }catch(e){
+        state._approveReadyError = e && e.message ? e.message : 'Unable to load approve-ready jobs.';
+      }finally{
+        state._approveReadyLoading = false;
+        renderApproveReadyModal();
+      }
+    }
+    function openApproveReadyModal(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.authorized){ toast('Not authorized'); return; }
+      if(!requirePermission(PERMISSIONS.ITEMS_VIEW, 'Inventory access required')) return;
+      show('approveReadyModal', true);
+      void loadApproveReadyJobs();
     }
     function toggleJobExpanded(jobId){
       const id = String(jobId || '').trim();
@@ -31557,6 +32914,10 @@ function emptyStateHtml(){
         state._jobs = rows;
         state._jobsById = new Map(rows.map(r => [String(r.id || ''), r]).filter(x => x[0]));
         const jobIds = rows.map(r => r && r.id).filter(Boolean);
+        const readinessJobIds = rows
+          .filter(r => String(r && r.status ? r.status : '').trim() !== 'completed')
+          .map(r => r && r.id)
+          .filter(Boolean);
         state._jobBomByJobId = await sbFetchJobBomForJobs(jobIds);
         state._jobReservedMap = await sbFetchReservedMap();
         state._jobAllocationsByJobId = await sbFetchAllocationsForJobs(jobIds);
@@ -31577,7 +32938,9 @@ function emptyStateHtml(){
           state._shortfallOrdersLoaded = false;
         }
         try{
-          state._jobReadinessByJobId = await sbFetchJobReadiness(jobIds);
+          state._jobReadinessByJobId = readinessJobIds.length
+            ? await sbFetchJobReadiness(readinessJobIds)
+            : new Map();
         }catch(e){
           state._jobReadinessByJobId = new Map();
         }
@@ -31605,6 +32968,7 @@ function emptyStateHtml(){
         state._jobInventoryByItemId = new Map();
         const msg = e && e.message ? e.message : 'Failed to load jobs';
         if(list) list.innerHTML = `<div class="order-empty">${escapeHtml(msg)}</div>`;
+        updateApproveReadyCountBadge(0);
       }
     }
     async function openJobsModal(){
@@ -31622,11 +32986,13 @@ function emptyStateHtml(){
       const editor = state._jobEditor;
       const job = editor ? editor.job : null;
       const status = job ? String(job.status || 'draft') : 'draft';
+      const isCompleted = status === 'completed';
       const editable = job ? isJobEditable(status) : true;
       const canAdmin = canItemsDelete();
       const statusLabel = jobStatusLabel(status);
       const lines = getJobEditorLines(editor);
       const totals = computeJobTotals(editor);
+      const actualMap = getJobActualMap(editor);
       const nameOk = !!(job && String(job.name || '').trim());
       const readiness = editor ? editor.jobReadiness : null;
       const readinessDetail = editor ? editor.jobReadinessDetail : null;
@@ -31641,18 +33007,18 @@ function emptyStateHtml(){
       const statusBadge = $('jobStatusBadge');
       const statusPill = $('jobStatusPill');
       const readinessBadge = $('jobReadinessBadge');
-      const readinessValue = $('jobReadinessValue');
-      const readinessReasons = $('jobReadinessReasons');
       const readinessCard = $('jobReadinessCard');
       const readinessCardIcon = $('jobReadinessCardIcon');
       const readinessCardTitle = $('jobReadinessCardTitle');
       const readinessCardSub = $('jobReadinessCardSub');
       const readinessActions = $('jobReadinessActions');
+      const readinessSection = $('jobReadinessSection');
       const createPoBtn = $('btnJobCreatePoFromBlockers');
       const blockingSection = $('jobBlockingItemsSection');
       const blockingList = $('jobBlockingItemsList');
       const nameInput = $('jobNameInput');
       const notesInput = $('jobNotesInput');
+      const completionNotesInput = $('jobCompletionNotesInput');
       const createdMeta = $('jobCreatedMeta');
       const approveSection = $('jobApprovalSection');
       const completeSection = $('jobCompletionSection');
@@ -31662,8 +33028,13 @@ function emptyStateHtml(){
       const materialsBadge = $('jobTabMaterialsBadge');
       const executionBadge = $('jobTabExecutionBadge');
       const detailItems = $('jobDetailsStatItems');
+      const detailItemsLabel = $('jobDetailsStatItemsLabel');
       const detailPlanned = $('jobDetailsStatPlanned');
+      const detailPlannedLabel = $('jobDetailsStatPlannedLabel');
       const detailShortfall = $('jobDetailsStatShortfall');
+      const detailShortfallLabel = $('jobDetailsStatShortfallLabel');
+      const detailShortfallWrap = $('jobDetailsStatShortfallWrap');
+      const completionTotalsNote = $('jobCompletionTotalsNote');
       const nextMaterials = $('btnJobNextMaterials');
       const nextExecution = $('btnJobNextExecution');
       const detailsHint = $('jobDetailsHint');
@@ -31671,39 +33042,81 @@ function emptyStateHtml(){
       const shortfallBox = $('jobShortfallInfoBox');
       const shortfallTitle = $('jobShortfallInfoTitle');
       const jobCompletedState = $('jobCompletedState');
+      const jobCompletionSummary = $('jobCompletionSummary');
+      const jobCompletionSummaryContent = $('jobCompletionSummaryContent');
+      const jobCompletionOrders = $('jobCompletionOrders');
+      const jobCompletionOrdersContent = $('jobCompletionOrdersContent');
+      const jobCompletionAudit = $('jobCompletionAudit');
+      const jobCompletionAuditContent = $('jobCompletionAuditContent');
+      const jobCompletionAuditHint = $('jobCompletionAuditHint');
+      const jobReopenSection = $('jobReopenSection');
+      const jobReopenBanner = $('jobReopenBanner');
+      const btnJobReopen = $('btnJobReopen');
       const jobVoidedState = $('jobVoidedState');
       const completionPercent = $('jobCompletionPercent');
       const completionFill = $('jobCompletionProgressFill');
       const completionStats = $('jobCompletionStats');
+      const completionProgressCard = $('jobCompletionProgressCard');
       const addItemBtn = $('btnJobAddItem');
+      const jobEditorTitle = $('jobEditorTitle');
 
-      if(statusName) statusName.textContent = job && job.name ? String(job.name || '').trim() : 'Untitled Job';
+      const jobNameText = job && job.name ? String(job.name || '').trim() : 'Untitled Job';
+      const jobNumber = job ? getJobNumberValue(job) : '';
+      const jobTitle = jobNumber ? `Job ${jobNumber}` : 'Job';
+      const jobDisplayName = jobNumber ? `Job ${jobNumber} - ${jobNameText}` : jobNameText;
+      const completionDateText = isCompleted ? getJobCompletionDate(job) : '';
+      const statusDisplayText = isCompleted
+        ? (completionDateText ? `COMPLETED • ${completionDateText}` : 'COMPLETED')
+        : statusLabel.toUpperCase();
+      let itemsUsed = 0;
+      let totalConsumed = 0;
+      if(actualMap && actualMap.size){
+        actualMap.forEach(qty=>{
+          const val = Number(qty || 0);
+          if(val > 0){
+            itemsUsed += 1;
+            totalConsumed += val;
+          }
+        });
+      }
+
+      if(jobEditorTitle) jobEditorTitle.textContent = jobTitle;
+      if(statusName) statusName.textContent = jobDisplayName;
       if(statusBadge){
-        statusBadge.textContent = statusLabel.toUpperCase();
+        statusBadge.textContent = statusDisplayText;
         statusBadge.className = `job-status-badge job-status-badge--${status}`;
       }
       if(statusPill){
-        statusPill.textContent = statusLabel.toUpperCase();
+        statusPill.textContent = statusDisplayText;
         statusPill.className = `job-status-display job-status-badge--${status}`;
       }
-      const readinessState = readiness ? (readiness.ready ? 'ready' : 'not-ready') : 'unknown';
-      const readinessText = readiness ? jobReadinessLabel(readiness.ready) : 'Unknown';
-      const readinessReasonText = readiness ? formatJobReadinessReasons(readiness.reasons).join(' • ') : '';
+      const readinessState = (!isCompleted && readiness) ? (readiness.ready ? 'ready' : 'not-ready') : 'unknown';
+      const readinessText = (!isCompleted && readiness) ? jobReadinessLabel(readiness.ready) : 'Unknown';
+      const readinessReasonCodes = (!isCompleted && readiness && Array.isArray(readiness.reasons)) ? readiness.reasons : [];
+      const readinessReasonText = (!isCompleted && readiness)
+        ? formatJobReadinessReasons(readinessReasonCodes).join(' • ')
+        : '';
+      const readinessInventoryNote = (!isCompleted && readiness)
+        ? formatJobReadinessReasons(readinessReasonCodes.filter(code => code !== 'job_not_approved')).join(' • ')
+        : '';
+      const readinessNoteText = readinessInventoryNote || readinessReasonText;
       if(readinessBadge){
-        readinessBadge.textContent = readinessState === 'unknown' ? 'UNKNOWN' : readinessText.toUpperCase();
-        readinessBadge.className = `job-readiness-badge job-readiness-badge--${readinessState}`;
-        if(readinessReasonText){
-          readinessBadge.title = readinessReasonText;
+        if(isCompleted){
+          readinessBadge.style.display = 'none';
         }else{
-          readinessBadge.removeAttribute('title');
+          readinessBadge.style.display = '';
+          readinessBadge.textContent = readinessState === 'unknown' ? 'UNKNOWN' : readinessText.toUpperCase();
+          readinessBadge.className = `job-readiness-badge job-readiness-badge--${readinessState}`;
+          if(readinessReasonText){
+            readinessBadge.title = readinessReasonText;
+          }else{
+            readinessBadge.removeAttribute('title');
+          }
         }
       }
-      if(readinessValue) readinessValue.textContent = readinessText;
-      if(readinessReasons){
-        readinessReasons.textContent = readinessReasonText;
-        readinessReasons.style.display = readinessReasonText ? 'block' : 'none';
-      }
-      if(readinessCard){
+      if(readinessSection) readinessSection.style.display = isCompleted ? 'none' : '';
+      if(readinessCard && !isCompleted){
+        const readinessJobPrefix = jobNumber ? `Job ${jobNumber}` : 'This job';
         let cardState = 'unknown';
         let titleText = 'Checking readiness…';
         let subText = 'Calculating required inventory.';
@@ -31711,13 +33124,13 @@ function emptyStateHtml(){
         if(readinessDetail && !readinessDetail.error){
           if(readinessDetail.ready_for_approval){
             cardState = 'ready';
-            titleText = 'This job is ready for approval.';
+            titleText = `${readinessJobPrefix} is ready for approval.`;
             subText = 'All required inventory is available.';
             iconHtml = ICONS.checkCircle;
           }else{
             cardState = 'not-ready';
-            titleText = 'This job is waiting on inventory.';
-            subText = 'Approval is blocked by missing items.';
+            titleText = `${readinessJobPrefix} is waiting on inventory.`;
+            subText = readinessNoteText || 'Approval is blocked by missing items.';
             iconHtml = ICONS.alertTriangle;
           }
         }else if(readinessDetail && readinessDetail.error){
@@ -31731,13 +33144,13 @@ function emptyStateHtml(){
         if(readinessCardSub) readinessCardSub.textContent = subText;
       }
       if(createPoBtn){
-        const canShow = !!(readinessDetail && !readinessDetail.error && !readinessDetail.ready_for_approval && blockingItems.length && canOrdersCreate());
+        const canShow = !!(!isCompleted && readinessDetail && !readinessDetail.error && !readinessDetail.ready_for_approval && blockingItems.length && canOrdersCreate());
         if(readinessActions) readinessActions.style.display = canShow ? 'flex' : 'none';
         createPoBtn.style.display = canShow ? 'inline-flex' : 'none';
         createPoBtn.disabled = !canShow || !!state._jobEditorBusy;
       }
       if(blockingSection && blockingList){
-        if(readinessDetail && !readinessDetail.error && !readinessDetail.ready_for_approval && blockingItems.length){
+        if(!isCompleted && readinessDetail && !readinessDetail.error && !readinessDetail.ready_for_approval && blockingItems.length){
           const orderLines = orderState().lines || [];
           const orderItemIds = new Set(orderLines.map(line => String(line && line.id ? line.id : '').trim()).filter(Boolean));
           const orderQtyByItem = new Map();
@@ -31786,9 +33199,11 @@ function emptyStateHtml(){
       }
       if(nameInput) nameInput.value = job ? String(job.name || '') : '';
       if(notesInput) notesInput.value = job ? String(job.notes || '') : '';
+      if(completionNotesInput) completionNotesInput.value = job ? String(job.notes || '') : '';
 
       if(nameInput) nameInput.disabled = !editable;
-      if(notesInput) notesInput.disabled = !editable;
+      if(notesInput) notesInput.disabled = !(editable || isCompleted);
+      if(completionNotesInput) completionNotesInput.disabled = !(editable || isCompleted);
       if(addItemBtn) addItemBtn.disabled = state._jobEditorBusy || !editable;
       if(saveBtn){
         // Job creation via Details tab is deprecated - use wizard only
@@ -31805,7 +33220,7 @@ function emptyStateHtml(){
       }
 
       if(approveSection){
-        approveSection.style.display = (job && job.id && canApproveJob(status)) ? 'block' : 'none';
+        approveSection.style.display = (!isCompleted && job && job.id && canApproveJob(status)) ? 'block' : 'none';
         const btn = $('btnJobApprove');
         if(btn){
           const hasShortfall = totals.totalShortfall > 0;
@@ -31815,10 +33230,13 @@ function emptyStateHtml(){
         }
       }
       if(completeSection){
-        completeSection.style.display = (job && job.id && canCompleteJob(status)) ? 'block' : 'none';
+        const showSection = job && job.id && (canCompleteJob(status) || isCompleted);
+        completeSection.style.display = showSection ? 'block' : 'none';
+        if(completionProgressCard) completionProgressCard.style.display = isCompleted ? 'none' : '';
         const btn = $('btnJobComplete');
         if(btn){
           btn.disabled = !(job && job.id && canCompleteJob(status) && canAdmin && totals.completionPercent >= 100);
+          btn.style.display = isCompleted ? 'none' : '';
         }
       }
       if(voidSection){
@@ -31833,7 +33251,7 @@ function emptyStateHtml(){
       }
       if(materialsBadge){
         materialsBadge.textContent = String(lines.length);
-        materialsBadge.classList.toggle('warning', totals.totalShortfall > 0);
+        materialsBadge.classList.toggle('warning', !isCompleted && totals.totalShortfall > 0);
       }
       if(executionBadge){
         if(job && String(job.status || '') !== 'draft'){
@@ -31843,12 +33261,38 @@ function emptyStateHtml(){
           executionBadge.style.display = 'none';
         }
       }
-      if(detailItems) detailItems.textContent = String(lines.length);
-      if(detailPlanned) detailPlanned.textContent = formatQty(totals.totalPlanned);
-      if(detailShortfall){
-        detailShortfall.textContent = formatQty(totals.totalShortfall);
-        detailShortfall.classList.toggle('danger', totals.totalShortfall > 0);
-        detailShortfall.classList.toggle('success', totals.totalShortfall === 0);
+      if(isCompleted){
+        if(detailItems) detailItems.textContent = formatQty(itemsUsed);
+        if(detailItemsLabel) detailItemsLabel.textContent = 'Items used';
+        if(detailPlanned) detailPlanned.textContent = formatQty(totalConsumed);
+        if(detailPlannedLabel) detailPlannedLabel.textContent = 'Total consumed';
+        if(detailShortfallWrap) detailShortfallWrap.style.display = 'none';
+        if(detailShortfallLabel) detailShortfallLabel.textContent = '';
+        if(completionTotalsNote){
+          if(totalConsumed > 0){
+            completionTotalsNote.textContent = '';
+            completionTotalsNote.style.display = 'none';
+          }else{
+            completionTotalsNote.textContent = 'No inventory changes were recorded for this job.';
+            completionTotalsNote.style.display = 'block';
+          }
+        }
+      }else{
+        if(detailItems) detailItems.textContent = String(lines.length);
+        if(detailItemsLabel) detailItemsLabel.textContent = 'BOM Items';
+        if(detailPlanned) detailPlanned.textContent = formatQty(totals.totalPlanned);
+        if(detailPlannedLabel) detailPlannedLabel.textContent = 'Total Planned';
+        if(detailShortfallWrap) detailShortfallWrap.style.display = '';
+        if(detailShortfallLabel) detailShortfallLabel.textContent = 'Shortfall';
+        if(detailShortfall){
+          detailShortfall.textContent = formatQty(totals.totalShortfall);
+          detailShortfall.classList.toggle('danger', totals.totalShortfall > 0);
+          detailShortfall.classList.toggle('success', totals.totalShortfall === 0);
+        }
+        if(completionTotalsNote){
+          completionTotalsNote.textContent = '';
+          completionTotalsNote.style.display = 'none';
+        }
       }
       if(nextMaterials){
         nextMaterials.disabled = !nameOk;
@@ -31862,21 +33306,56 @@ function emptyStateHtml(){
         nextExecution.style.opacity = showNext ? '1' : '0.5';
       }
       if(materialsHint){
-        materialsHint.textContent = totals.totalShortfall > 0
+        materialsHint.textContent = (!isCompleted && totals.totalShortfall > 0)
           ? `${formatQty(totals.totalShortfall)} items in shortfall. Approval is blocked until shortfalls are resolved.`
           : '';
       }
       if(shortfallBox){
         const hasApprovalShortages = Array.isArray(state._jobApprovalShortages) && state._jobApprovalShortages.length > 0;
-        shortfallBox.style.display = (totals.totalShortfall > 0 || hasApprovalShortages) ? 'block' : 'none';
+        shortfallBox.style.display = (!isCompleted && (totals.totalShortfall > 0 || hasApprovalShortages)) ? 'block' : 'none';
       }
       if(shortfallTitle){
-        shortfallTitle.textContent = totals.totalShortfall > 0
+        shortfallTitle.textContent = (!isCompleted && totals.totalShortfall > 0)
           ? `${formatQty(totals.totalShortfall)} items in shortfall`
           : 'Items in shortfall';
       }
       if(jobCompletedState){
         jobCompletedState.style.display = (status === 'completed') ? 'block' : 'none';
+      }
+      if(jobCompletionSummary){
+        const showSummary = (status === 'completed');
+        jobCompletionSummary.style.display = showSummary ? 'block' : 'none';
+        if(jobCompletionSummaryContent){
+          jobCompletionSummaryContent.innerHTML = showSummary ? buildJobCompletionSummary(editor) : '';
+        }
+        if(completionNotesInput){
+          completionNotesInput.style.display = showSummary ? 'block' : 'none';
+        }
+      }
+      if(jobCompletionAudit){
+        const showAudit = (status === 'completed');
+        jobCompletionAudit.style.display = showAudit ? 'block' : 'none';
+        if(jobCompletionAuditContent){
+          jobCompletionAuditContent.innerHTML = showAudit ? buildJobCompletionAudit(editor) : '';
+        }
+        if(jobCompletionAuditHint) jobCompletionAuditHint.style.display = showAudit ? 'block' : 'none';
+      }
+      if(jobCompletionOrders){
+        const showOrders = (status === 'completed');
+        jobCompletionOrders.style.display = showOrders ? 'block' : 'none';
+        if(jobCompletionOrdersContent){
+          jobCompletionOrdersContent.innerHTML = showOrders ? buildJobCompletionOrders(editor) : '';
+        }
+      }
+      if(jobReopenSection){
+        jobReopenSection.style.display = (status === 'completed') ? 'flex' : 'none';
+      }
+      if(btnJobReopen){
+        btnJobReopen.disabled = !(job && job.id && status === 'completed' && canAdmin) || !!state._jobEditorBusy;
+      }
+      if(jobReopenBanner){
+        const showBanner = !!(job && job.id && status !== 'completed' && status !== 'voided' && state._jobReopenedById && state._jobReopenedById.has(String(job.id)));
+        jobReopenBanner.style.display = showBanner ? 'block' : 'none';
       }
       if(jobVoidedState){
         jobVoidedState.style.display = (status === 'voided') ? 'block' : 'none';
@@ -31928,6 +33407,7 @@ function emptyStateHtml(){
       const editor = state._jobEditor;
       const job = editor ? editor.job : null;
       const status = job ? String(job.status || 'draft') : 'draft';
+      const isCompleted = status === 'completed';
       const editable = job ? isJobEditable(status) : false;
       const lines = getJobEditorLines(editor);
       const reservedMap = editor ? editor.reservedMap : new Map();
@@ -31942,6 +33422,38 @@ function emptyStateHtml(){
       if(empty) empty.style.display = lines.length ? 'none' : 'block';
       if(!lines.length){
         wrap.innerHTML = '';
+        return;
+      }
+
+      if(isCompleted){
+        const actualMap = getJobActualMap(editor);
+        let html = '';
+        for(const line of lines){
+          const itemId = String(line.item_id || '').trim();
+          const item = getInventoryById(itemId);
+          const name = item ? String(item.name || '') : 'Unknown item';
+          const sku = item && item.sku ? String(item.sku || '') : '';
+          const actualRaw = actualMap.has(itemId) ? Number(actualMap.get(itemId)) : 0;
+          const actualVal = Number.isFinite(actualRaw) ? actualRaw : 0;
+          const hasActual = actualVal > 0;
+          const actualDisplay = hasActual ? formatQty(actualVal) : '—';
+          html += (
+            `<div class="job-item-card completed" data-bom-item-id="${escapeHtmlAttr(itemId)}">`+
+              `<div class="job-item-header">`+
+                `<div class="job-item-info">`+
+                  `<span class="job-item-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</span>`+
+                  `<span class="job-item-sku">${escapeHtml(sku)}</span>`+
+                `</div>`+
+              `</div>`+
+              `<div class="job-item-actuals">`+
+                `<div class="job-item-actuals-label">Actual used</div>`+
+                `<div class="job-item-actuals-value">${escapeHtml(actualDisplay)}</div>`+
+              `</div>`+
+              `${hasActual ? '' : '<div class="job-item-actuals-note">No actual usage recorded</div>'}`+
+            `</div>`
+          );
+        }
+        wrap.innerHTML = html;
         return;
       }
 
@@ -31978,6 +33490,15 @@ function emptyStateHtml(){
         const disableControls = !editable || !!state._jobEditorBusy;
         const plannedDisplay = formatQty(qtyPlanned);
         const stillNeeded = Math.max(0, shortfall - onOrder);
+        const inCartQty = getOrderQtyForItem(itemId);
+        const orderBtnHtml =
+          `<button class="job-add-to-po-btn" type="button" data-bom-order-id="${escapeHtmlAttr(itemId)}" data-bom-order-job-id="${escapeHtmlAttr(String(job && job.id ? job.id : ''))}" data-bom-order-shortfall-id="${escapeHtmlAttr(String(shortfallId || ''))}" data-bom-order-shortfall-qty="${escapeHtmlAttr(String(shortfall))}" data-bom-order-qty="${escapeHtmlAttr(String(stillNeeded > 0 ? stillNeeded : shortfall))}">`+
+            `${ICONS.shoppingCart}`+
+            `<span>${onOrder >= shortfall ? 'Add More' : '+' + escapeHtml(String(stillNeeded || shortfall))}</span>`+
+          `</button>`;
+        const orderActionHtml = inCartQty > 0
+          ? `<div class="job-add-to-po-wrap">${orderBtnHtml}<span class="job-add-to-po-note">Qty ${escapeHtml(formatQty(inCartQty))} in cart</span></div>`
+          : orderBtnHtml;
 
         html += (
           `<div class="job-item-card ${statusClass}${expanded ? ' expanded' : ''}" data-bom-card data-bom-item-id="${escapeHtmlAttr(itemId)}">`+
@@ -32034,10 +33555,7 @@ function emptyStateHtml(){
                         `</div>`
                       : '')+
                   `</div>`+
-                  `<button class="job-add-to-po-btn" type="button" data-bom-order-id="${escapeHtmlAttr(itemId)}" data-bom-order-job-id="${escapeHtmlAttr(String(job && job.id ? job.id : ''))}" data-bom-order-shortfall-id="${escapeHtmlAttr(String(shortfallId || ''))}" data-bom-order-shortfall-qty="${escapeHtmlAttr(String(shortfall))}" data-bom-order-qty="${escapeHtmlAttr(String(stillNeeded > 0 ? stillNeeded : shortfall))}">`+
-                    `${ICONS.shoppingCart}`+
-                    `<span>${onOrder >= shortfall ? 'Add More' : '+' + escapeHtml(String(stillNeeded || shortfall))}</span>`+
-                  `</button>`+
+                  `${orderActionHtml}`+
                 `</div>`
               : '')+
             `<div class="job-expand-hint">${ICONS.chevronDown}</div>`+
@@ -32063,7 +33581,7 @@ function emptyStateHtml(){
       const editor = state._jobEditor;
       const job = editor ? editor.job : null;
       const status = job ? String(job.status || 'draft') : 'draft';
-      if(!job || !canCompleteJob(status)){
+      if(!job || !(canCompleteJob(status) || status === 'completed')){
         wrap.innerHTML = '';
         return;
       }
@@ -32526,6 +34044,7 @@ function emptyStateHtml(){
     async function refreshJobEditorInventory(){
       const editor = state._jobEditor;
       if(!editor) return { inventoryMap: new Map(), reservedMap: new Map(), incomingMap: new Map(), jobAllocations: new Map(), jobShortfalls: new Map() };
+      const isCompleted = editor.job && String(editor.job.status || '') === 'completed';
       const bomLines = Array.isArray(editor.bomLines) ? editor.bomLines : [];
       const pendingLines = Array.isArray(editor.pendingBomLines) ? editor.pendingBomLines : [];
       const itemIds = getJobBomItemIds(bomLines.concat(pendingLines));
@@ -32558,7 +34077,7 @@ function emptyStateHtml(){
       }
       let jobReadiness = editor.jobReadiness || null;
       let jobReadinessDetail = editor.jobReadinessDetail || null;
-      if(editor.job && editor.job.id){
+      if(editor.job && editor.job.id && !isCompleted){
         try{
           const readinessMap = await sbFetchJobReadiness([editor.job.id]);
           const readinessRow = readinessMap.get(String(editor.job.id)) || null;
@@ -32575,6 +34094,9 @@ function emptyStateHtml(){
         }catch(e){
           jobReadinessDetail = { ready_for_approval: false, blocking_items: [], error: e && e.message ? e.message : 'Readiness unavailable' };
         }
+      }else{
+        jobReadiness = null;
+        jobReadinessDetail = null;
       }
       editor.reservedMap = reservedMap;
       editor.inventoryMap = inventoryMap;
@@ -32587,10 +34109,14 @@ function emptyStateHtml(){
       if(editor.job){
         editor.job.ready_for_approval = jobReadinessDetail ? !!jobReadinessDetail.ready_for_approval : null;
         editor.job.blocking_items = jobReadinessDetail ? (jobReadinessDetail.blocking_items || []) : [];
+        if(isCompleted){
+          editor.job.ready_for_approval = null;
+          editor.job.blocking_items = [];
+        }
       }
       let wasFulfillable = true;
       const allLines = bomLines.concat(pendingLines);
-      if(allLines.length){
+      if(allLines.length && !isCompleted){
         for(const line of allLines){
           const itemId = String(line.item_id || '').trim();
           if(!itemId) continue;
@@ -32615,7 +34141,8 @@ function emptyStateHtml(){
       setJobBomMessage('');
       setJobCompleteMessage('');
       renderApprovalShortages([]);
-      state._jobEditorTab = (opts && opts.focus === 'complete') ? 'execution' : 'details';
+      const focusMode = opts && opts.focus ? String(opts.focus) : '';
+      state._jobEditorTab = focusMode === 'complete' ? 'execution' : 'details';
       state._jobEditorExpandedItemId = '';
       state._jobEditorActualsDraft = new Map();
       state._jobApprovalShortages = [];
@@ -32649,6 +34176,7 @@ function emptyStateHtml(){
             job = state._jobsById.get(String(jobId)) || null;
           }
           if(job){
+            const jobIsCompleted = String(job.status || '') === 'completed';
             bomLines = await sbFetchJobBom(job.id);
             actuals = await sbFetchJobActuals(job.id);
             const allocationsByJob = await sbFetchAllocationsForJobs([job.id]);
@@ -32670,25 +34198,27 @@ function emptyStateHtml(){
               state._shortfallOrdersById = new Map();
               state._shortfallOrdersLoaded = false;
             }
-            try{
-              const readinessMap = await sbFetchJobReadiness([job.id]);
-              const readinessRow = readinessMap.get(String(job.id)) || null;
-              if(readinessRow){
-                jobReadiness = readinessRow;
-                if(!state._jobReadinessByJobId || typeof state._jobReadinessByJobId.set !== 'function'){
-                  state._jobReadinessByJobId = new Map();
+            if(!jobIsCompleted){
+              try{
+                const readinessMap = await sbFetchJobReadiness([job.id]);
+                const readinessRow = readinessMap.get(String(job.id)) || null;
+                if(readinessRow){
+                  jobReadiness = readinessRow;
+                  if(!state._jobReadinessByJobId || typeof state._jobReadinessByJobId.set !== 'function'){
+                    state._jobReadinessByJobId = new Map();
+                  }
+                  state._jobReadinessByJobId.set(String(job.id), readinessRow);
                 }
-                state._jobReadinessByJobId.set(String(job.id), readinessRow);
+              }catch(e){
+                if(state._jobReadinessByJobId && typeof state._jobReadinessByJobId.get === 'function'){
+                  jobReadiness = state._jobReadinessByJobId.get(String(job.id)) || jobReadiness;
+                }
               }
-            }catch(e){
-              if(state._jobReadinessByJobId && typeof state._jobReadinessByJobId.get === 'function'){
-                jobReadiness = state._jobReadinessByJobId.get(String(job.id)) || jobReadiness;
+              try{
+                jobReadinessDetail = await sbFetchJobReadinessDetails(job.id);
+              }catch(e){
+                jobReadinessDetail = { ready_for_approval: false, blocking_items: [], error: e && e.message ? e.message : 'Readiness unavailable' };
               }
-            }
-            try{
-              jobReadinessDetail = await sbFetchJobReadinessDetails(job.id);
-            }catch(e){
-              jobReadinessDetail = { ready_for_approval: false, blocking_items: [], error: e && e.message ? e.message : 'Readiness unavailable' };
             }
           }
         }else{
@@ -32703,8 +34233,9 @@ function emptyStateHtml(){
           }
         }
         // Calculate initial fulfillability at editor open time
+        const isCompleted = job && String(job.status || '') === 'completed';
         let wasFulfillable = true;
-        if(bomLines && bomLines.length){
+        if(bomLines && bomLines.length && !isCompleted){
           for(const line of bomLines){
             const itemId = String(line.item_id || '').trim();
             if(!itemId) continue;
@@ -32716,20 +34247,58 @@ function emptyStateHtml(){
             }
           }
         }
-        state._jobEditor = { job, bomLines, actuals, reservedMap, inventoryMap, incomingMap, jobAllocations, jobShortfalls, jobReadiness, jobReadinessDetail, wasFulfillable };
+        state._jobEditor = {
+          job,
+          bomLines,
+          actuals,
+          reservedMap,
+          inventoryMap,
+          incomingMap,
+          jobAllocations,
+          jobShortfalls,
+          jobReadiness,
+          jobReadinessDetail,
+          wasFulfillable,
+          lastSavedName: job ? String(job.name || '') : '',
+          lastSavedNotes: job ? String(job.notes || '') : ''
+        };
         if(job){
           job.ready_for_approval = jobReadinessDetail ? !!jobReadinessDetail.ready_for_approval : null;
           job.blocking_items = jobReadinessDetail ? (jobReadinessDetail.blocking_items || []) : [];
+          if(isCompleted){
+            job.ready_for_approval = null;
+            job.blocking_items = [];
+          }
         }
         state._incomingByItemId = incomingMap;
       }catch(e){
-        state._jobEditor = { job: { id:null, name:'', status:'draft', notes:'' }, bomLines:[], actuals:[], reservedMap:new Map(), inventoryMap:new Map(), incomingMap:new Map(), jobAllocations:new Map(), jobShortfalls:new Map(), jobReadiness: null, jobReadinessDetail: null, wasFulfillable: true };
+        state._jobEditor = {
+          job: { id:null, name:'', status:'draft', notes:'' },
+          bomLines:[],
+          actuals:[],
+          reservedMap:new Map(),
+          inventoryMap:new Map(),
+          incomingMap:new Map(),
+          jobAllocations:new Map(),
+          jobShortfalls:new Map(),
+          jobReadiness: null,
+          jobReadinessDetail: null,
+          wasFulfillable: true,
+          lastSavedName: '',
+          lastSavedNotes: ''
+        };
         setJobEditorMessage(e && e.message ? e.message : 'Failed to load job');
       }finally{
         state._jobEditorBusy = false;
         renderJobEditor();
-        if(opts && opts.focus === 'complete'){
+        if(focusMode === 'complete'){
           setJobEditorTab('execution');
+        }else if(focusMode === 'readiness'){
+          setJobEditorTab('details');
+          setTimeout(()=>{
+            const section = document.querySelector('.job-readiness-section');
+            if(section) section.scrollIntoView({ behavior:'smooth', block:'start' });
+          }, 0);
         }
       }
     }
@@ -32762,6 +34331,8 @@ function emptyStateHtml(){
           job.id = data;
           job.name = name;
           job.notes = notes;
+          editor.lastSavedName = name;
+          editor.lastSavedNotes = notes;
           job.status = 'draft';
           await refreshJobs();
           const refreshed = state._jobsById.get(String(job.id));
@@ -32793,6 +34364,8 @@ function emptyStateHtml(){
           if(error) throw error;
           job.name = name;
           job.notes = notes;
+          editor.lastSavedName = name;
+          editor.lastSavedNotes = notes;
           await refreshJobs();
           toast('Job saved');
         }
@@ -32844,10 +34417,12 @@ function emptyStateHtml(){
       const notesInput = $('jobNotesInput');
       const name = nameInput ? String(nameInput.value || '').trim() : '';
       const notes = notesInput ? String(notesInput.value || '').trim() : '';
+      const lastName = editor.lastSavedName != null ? String(editor.lastSavedName) : String(job.name || '');
+      const lastNotes = editor.lastSavedNotes != null ? String(editor.lastSavedNotes) : String(job.notes || '');
       // Don't autosave if name is empty
       if(!name) return;
       // Don't autosave if nothing changed
-      if(name === job.name && (notes || '') === (job.notes || '')) return;
+      if(name === lastName && (notes || '') === (lastNotes || '')) return;
 
       setJobAutosaveStatus('saving');
       try{
@@ -32859,6 +34434,8 @@ function emptyStateHtml(){
         if(error) throw error;
         job.name = name;
         job.notes = notes;
+        editor.lastSavedName = name;
+        editor.lastSavedNotes = notes;
         // Silently refresh jobs list in background
         refreshJobs().catch(()=>{});
         setJobAutosaveStatus('saved');
@@ -33223,6 +34800,47 @@ function emptyStateHtml(){
         setJobCompleteMessage(e && e.message ? e.message : 'Completion failed');
       }finally{
         if(btn){ btn.disabled = false; btn.textContent = prior || 'Complete Job'; }
+      }
+    }
+    async function reopenJob(jobId){
+      const editor = state._jobEditor;
+      const job = editor && editor.job ? editor.job : null;
+      if(!job || String(job.status || '') !== 'completed') return;
+      if(!canItemsDelete()) return;
+      const jobNumberLabel = formatJobNumberLabel(job);
+      const reopenTitle = (jobNumberLabel && jobNumberLabel !== 'Job')
+        ? `Reopen completed ${jobNumberLabel}?`
+        : 'Reopen completed job?';
+      const reopenIntro = (jobNumberLabel && jobNumberLabel !== 'Job')
+        ? `${jobNumberLabel} has already been marked as completed.`
+        : 'This job has already been marked as completed.';
+      const ok = await openConfirmModal(
+        reopenTitle,
+        `${reopenIntro}\nReopening it will return the job to the Execution phase.\nPreviously recorded execution data will be preserved.\n\nInventory changes are not automatically reversed.`,
+        { okText:'Reopen job', cancelText:'Cancel', okClass:'btn-danger' }
+      );
+      if(!ok) return;
+      const btn = $('btnJobReopen');
+      const prior = btn ? btn.textContent : '';
+      if(btn){ btn.disabled = true; btn.textContent = 'Reopening…'; }
+      try{
+        const { error } = await SB.client
+          .from('jobs')
+          .update({ status:'in_progress', updated_at: new Date().toISOString() })
+          .eq('id', jobId)
+          .eq('company_id', SB.companyId);
+        if(error) throw error;
+        if(!state._jobReopenedById || typeof state._jobReopenedById.add !== 'function'){
+          state._jobReopenedById = new Set();
+        }
+        state._jobReopenedById.add(String(jobId));
+        await refreshJobs();
+        await openJobEditor(jobId, { focus:'complete' });
+        toast('Job reopened');
+      }catch(e){
+        toast(e && e.message ? e.message : 'Reopen failed');
+      }finally{
+        if(btn){ btn.disabled = false; btn.textContent = prior || 'Reopen job'; }
       }
     }
     async function voidJob(jobId){
@@ -33667,6 +35285,19 @@ function emptyStateHtml(){
       if(wrap){
         const html = buildOrderHtml();
         wrap.innerHTML = `<iframe srcdoc="${html.replace(/"/g, '&quot;')}" sandbox="allow-same-origin"></iframe>`;
+        const frame = wrap.querySelector('iframe');
+        if(frame){
+          const resize = ()=>{
+            try{
+              const doc = frame.contentDocument;
+              if(doc && doc.body){
+                frame.style.height = `${doc.body.scrollHeight}px`;
+              }
+            }catch(e){}
+          };
+          frame.addEventListener('load', resize);
+          setTimeout(resize, 0);
+        }
       }
       const shippingPreview = $('orderShippingPreview');
       if(shippingPreview){
@@ -33768,6 +35399,8 @@ function emptyStateHtml(){
     if(btnJobsRefresh) btnJobsRefresh.addEventListener('click', refreshJobs);
     const btnJobsCreate = $('btnJobsCreate');
     if(btnJobsCreate) btnJobsCreate.addEventListener('click', ()=> openJobEditor(null));
+    const btnJobsApproveReady = $('btnJobsApproveReady');
+    if(btnJobsApproveReady) btnJobsApproveReady.addEventListener('click', openApproveReadyModal);
     const jobsList = $('jobsList');
     if(jobsList) jobsList.addEventListener('click', async (e)=>{
       const viewBtn = e.target.closest('[data-job-view-id]');
@@ -33835,6 +35468,15 @@ function emptyStateHtml(){
         if(id) await voidJob(id);
         return;
       }
+    });
+    const approveReadyList = $('approveReadyList');
+    if(approveReadyList) approveReadyList.addEventListener('click', (e)=>{
+      const btn = e.target.closest('[data-approve-ready-id]');
+      if(!btn) return;
+      const id = String(btn.getAttribute('data-approve-ready-id') || '').trim();
+      if(!id) return;
+      show('approveReadyModal', false);
+      openJobEditor(id, { focus:'readiness' });
     });
     const btnJobEditorClose = $('btnJobEditorClose');
     if(btnJobEditorClose) btnJobEditorClose.addEventListener('click', ()=> show('jobEditorModal', false));
@@ -34007,11 +35649,46 @@ function emptyStateHtml(){
     // Job notes autosave
     const jobNotesInput = $('jobNotesInput');
     if(jobNotesInput) jobNotesInput.addEventListener('input', ()=>{
+      const val = String(jobNotesInput.value || '').trim();
+      if(state._jobEditor && state._jobEditor.job){
+        state._jobEditor.job.notes = val;
+      }
+      const completionNotes = $('jobCompletionNotesInput');
+      if(completionNotes && completionNotes !== document.activeElement){
+        completionNotes.value = val;
+      }
       // Trigger autosave for existing jobs
       if(state._jobEditor && state._jobEditor.job && state._jobEditor.job.id){
         triggerJobAutosave();
       }
     });
+    const jobCompletionNotesInput = $('jobCompletionNotesInput');
+    if(jobCompletionNotesInput) jobCompletionNotesInput.addEventListener('input', ()=>{
+      const val = String(jobCompletionNotesInput.value || '').trim();
+      if(state._jobEditor && state._jobEditor.job){
+        state._jobEditor.job.notes = val;
+      }
+      const notesInput = $('jobNotesInput');
+      if(notesInput && notesInput !== document.activeElement){
+        notesInput.value = val;
+      }
+      if(state._jobEditor && state._jobEditor.job && state._jobEditor.job.id){
+        triggerJobAutosave();
+      }
+    });
+    const jobEditorModal = $('jobEditorModal');
+    if(jobEditorModal){
+      const autosaveHandler = (e)=>{
+        const editor = state._jobEditor;
+        if(!editor || !editor.job || !editor.job.id) return;
+        const target = e && e.target;
+        if(target && target.matches && target.matches('input, textarea, select')){
+          triggerJobAutosave();
+        }
+      };
+      jobEditorModal.addEventListener('input', autosaveHandler);
+      jobEditorModal.addEventListener('change', autosaveHandler);
+    }
     const btnJobApprove = $('btnJobApprove');
     if(btnJobApprove) btnJobApprove.addEventListener('click', async ()=>{
       const editor = state._jobEditor;
@@ -34031,6 +35708,12 @@ function emptyStateHtml(){
       const editor = state._jobEditor;
       const jobId = editor && editor.job ? editor.job.id : null;
       if(jobId) voidJob(jobId);
+    });
+    const btnJobReopen = $('btnJobReopen');
+    if(btnJobReopen) btnJobReopen.addEventListener('click', ()=>{
+      const editor = state._jobEditor;
+      const jobId = editor && editor.job ? editor.job.id : null;
+      if(jobId) reopenJob(jobId);
     });
     // Add to Job modal event listeners (use delegation for reliability)
     const addToJobModal = $('addToJobModal');
@@ -34326,6 +36009,14 @@ function emptyStateHtml(){
 	      if(!id) return;
 	      void addManualReceiveLine(id);
 	    });
+	    const receiveDraftInbox = $('receiveDraftInbox');
+	    if(receiveDraftInbox) receiveDraftInbox.addEventListener('click', (e)=>{
+	      const btn = e.target.closest('button[data-receipt-review-id]');
+	      if(!btn) return;
+	      const id = String(btn.getAttribute('data-receipt-review-id') || '').trim();
+	      if(!id) return;
+	      void openReceiveDraftReceipt(id);
+	    });
 	    const receiveOrderReceipts = $('receiveOrderReceipts');
 	    if(receiveOrderReceipts) receiveOrderReceipts.addEventListener('click', (e)=>{
 	      const btn = e.target.closest('button[data-void-receipt-id]');
@@ -34579,17 +36270,6 @@ function emptyStateHtml(){
     });
     const btnOrderCopy = $('btnOrderCopy');
     if(btnOrderCopy) btnOrderCopy.addEventListener('click', copyOrderToClipboard);
-    const btnOrderPreviewToggle = $('btnOrderPreviewToggle');
-    if(btnOrderPreviewToggle) btnOrderPreviewToggle.addEventListener('click', ()=>{
-      const previewBody = $('orderPreviewHtml');
-      const toggleText = $('orderPreviewToggleText');
-      const toggleIcon = $('orderPreviewToggleIcon');
-      if(!previewBody) return;
-      const isExpanded = previewBody.classList.toggle('expanded');
-      if(toggleText) toggleText.textContent = isExpanded ? 'Collapse' : 'Expand';
-      if(toggleIcon) toggleIcon.style.transform = isExpanded ? 'rotate(180deg)' : '';
-      btnOrderPreviewToggle.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
-    });
     const btnOrderSubmit = $('btnOrderSubmit');
     if(btnOrderSubmit) btnOrderSubmit.addEventListener('click', async ()=>{
       const url = buildMailtoUrl();
@@ -34610,8 +36290,10 @@ function emptyStateHtml(){
 	        try{
 	          await sbInsertOrderHistory(sendRes && Object.prototype.hasOwnProperty.call(sendRes, 'result') ? sendRes.result : sendRes);
 	          historySaved = true;
-	        }catch{}
-	        toast(historySaved ? 'Order sent' : 'Order sent (history not saved)');
+	        }catch(historyErr){
+	          console.error('Order history save failed:', historyErr);
+	        }
+	        toast(historySaved ? 'Order sent' : 'Order sent (history not saved - check console)');
 	        try{
 	          clearAllOrderLines();
 	          renderOrderResults();
@@ -35591,7 +37273,14 @@ function emptyStateHtml(){
 	      const b = $('confirmBody'); if(b) b.textContent = String(body || '');
 	      const okText = opts && opts.okText ? String(opts.okText) : 'OK';
 	      const cancelText = opts && opts.cancelText ? String(opts.cancelText) : 'Cancel';
-	      const okBtn = $('btnConfirmOk'); if(okBtn) okBtn.textContent = okText;
+	      const okBtn = $('btnConfirmOk');
+	      if(okBtn){
+	        if(!okBtn.dataset.baseClass) okBtn.dataset.baseClass = okBtn.className || 'btn-primary';
+	        const baseClass = okBtn.dataset.baseClass || 'btn-primary';
+	        const extraClass = opts && opts.okClass ? String(opts.okClass).trim() : '';
+	        okBtn.className = extraClass ? `${baseClass} ${extraClass}` : baseClass;
+	        okBtn.textContent = okText;
+	      }
 	      const cancelBtn = $('btnConfirmCancel'); if(cancelBtn) cancelBtn.textContent = cancelText;
 	      show('confirmModal', true);
 	      return new Promise(resolve => { _confirmResolve = resolve; });
