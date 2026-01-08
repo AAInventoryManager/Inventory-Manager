@@ -531,16 +531,29 @@ export async function handleInboundReceiptEmail(
       return jsonResponse({ ok: false, error: 'Payload too large', request_id: requestId }, 413);
     }
 
+    // Authentication: token-based (for Inbound Parse) or signature-based (for Event Webhooks)
+    const inboundToken = Deno.env.get('SENDGRID_INBOUND_TOKEN') || '';
     const publicKeyConfigured = Boolean(
       Deno.env.get('SENDGRID_INBOUND_PUBLIC_KEY') || Deno.env.get('SENDGRID_WEBHOOK_PUBLIC_KEY')
     );
-    if (!publicKeyConfigured) {
-      return jsonResponse({ ok: false, error: 'SendGrid signature key not configured', request_id: requestId }, 500);
-    }
 
-    const signatureOk = await verifySendgridSignature(request, rawBytes);
-    if (!signatureOk) {
-      return jsonResponse({ ok: false, error: 'Unauthorized', request_id: requestId }, 401);
+    if (inboundToken) {
+      // Token-based auth: check URL query parameter
+      const url = new URL(request.url);
+      const providedToken = url.searchParams.get('token') || '';
+      if (!providedToken || providedToken !== inboundToken) {
+        logger.warn('Inbound receipt token mismatch', { request_id: requestId });
+        return jsonResponse({ ok: false, error: 'Unauthorized', request_id: requestId }, 401);
+      }
+    } else if (publicKeyConfigured) {
+      // Signature-based auth: verify SendGrid signature
+      const signatureOk = await verifySendgridSignature(request, rawBytes);
+      if (!signatureOk) {
+        return jsonResponse({ ok: false, error: 'Unauthorized', request_id: requestId }, 401);
+      }
+    } else {
+      // No auth configured
+      return jsonResponse({ ok: false, error: 'Inbound auth not configured', request_id: requestId }, 500);
     }
 
     const form = await request.formData();

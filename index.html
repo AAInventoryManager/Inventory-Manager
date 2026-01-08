@@ -3674,6 +3674,235 @@
       gap:8px;
       flex-wrap:wrap;
     }
+    .receive-modal-body{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .receive-meta-bar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(15,23,42,0.55);
+    }
+    .receive-meta-left{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+      flex:1;
+    }
+    .receive-meta-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .receive-tabs{
+      display:flex;
+      gap:6px;
+      padding:6px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(15,23,42,0.6);
+    }
+    .receive-tab{
+      flex:1;
+      border-radius:10px;
+      border:1px solid transparent;
+      background:transparent;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:700;
+      padding:10px 12px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      transition:all 0.15s ease;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+    .receive-tab:hover{
+      color:var(--fg);
+    }
+    .receive-tab.active{
+      background:rgba(52,211,153,0.16);
+      border-color:rgba(52,211,153,0.45);
+      color:#86efac;
+    }
+    .receive-tab-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:18px;
+      height:18px;
+      padding:0 6px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      background:rgba(251,146,60,0.16);
+      border:1px solid rgba(251,146,60,0.35);
+      color:#fed7aa;
+    }
+    .receive-tab-panels{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .receive-tab-panel{
+      display:none;
+    }
+    .receive-tab-panel.is-active{
+      display:block;
+    }
+    .receive-tab-body{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .receive-detail-panel{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(15,23,42,0.45);
+    }
+    .receive-scanned-list{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .receive-scanned-header{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px;
+      border-radius:10px;
+      border:1px solid var(--border-subtle);
+      background:rgba(15,23,42,0.7);
+    }
+    .receive-scanned-title{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .receive-scanned-title-main{
+      font-size:13px;
+      font-weight:800;
+      color:var(--fg);
+    }
+    .receive-scanned-title-sub{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .receive-po-empty{
+      border:1px dashed var(--border-subtle);
+      border-radius:12px;
+      padding:16px;
+      background:rgba(15,23,42,0.4);
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .receive-po-empty-title{
+      font-weight:700;
+      color:var(--fg);
+      margin-bottom:6px;
+    }
+    .receive-po-empty-text{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .receive-po-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .receive-po-card{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid var(--border-subtle);
+      background:rgba(15,23,42,0.6);
+      cursor:pointer;
+      transition:all 0.15s ease;
+    }
+    .receive-po-card:hover{
+      border-color:rgba(52,211,153,0.35);
+      background:rgba(17,24,39,0.75);
+      transform:translateY(-1px);
+    }
+    .receive-po-icon{
+      width:36px;
+      height:36px;
+      border-radius:10px;
+      border:1px solid rgba(52,211,153,0.3);
+      background:rgba(52,211,153,0.12);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#86efac;
+      flex-shrink:0;
+    }
+    .receive-po-info{
+      min-width:0;
+      flex:1;
+    }
+    .receive-po-title{
+      font-size:14px;
+      font-weight:700;
+      color:var(--fg);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .receive-po-meta{
+      margin-top:4px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .receive-po-status{
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      background:rgba(251,191,36,0.18);
+      border:1px solid rgba(251,191,36,0.35);
+      color:#fde68a;
+      white-space:nowrap;
+    }
+    .receive-po-arrow{
+      color:var(--muted);
+    }
+    #receiveOrderModal .receive-footer{
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    #receiveOrderModal .receive-footer .footer-left{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    #receiveOrderModal .receive-footer .footer-right{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
     .receive-mode-bar{
       display:flex;
       align-items:center;
@@ -3770,12 +3999,12 @@
       margin-top:10px;
     }
     .receive-order-note{
-      margin-top:10px;
-      padding:8px 10px;
-      border:1px dashed var(--border);
+      padding:10px 12px;
+      border:1px solid var(--border-subtle);
       border-radius:10px;
       color:var(--muted);
       font-size:12px;
+      background:rgba(15,23,42,0.7);
     }
     .receive-order-note label{
       display:block;
@@ -3843,7 +4072,6 @@
       color:var(--fg);
     }
     .receive-draft-inbox{
-      margin-top:12px;
       border:1px solid var(--border);
       border-radius:12px;
       background:#0b0f14;
@@ -4052,6 +4280,16 @@
       margin-top:6px;
     }
     @media (max-width: 720px){
+      .receive-tabs{
+        flex-direction:column;
+      }
+      .receive-tab{
+        width:100%;
+      }
+      .receive-meta-bar{
+        flex-direction:column;
+        align-items:flex-start;
+      }
       .receipt-parsed-grid{
         grid-template-columns:repeat(2, minmax(0,1fr));
       }
@@ -4065,6 +4303,9 @@
       font-size:12px;
       color:var(--muted);
     }
+    .receive-detail-panel .receive-raw{
+      margin-top:0;
+    }
     .receive-attachments{
       margin-top:10px;
       border:1px solid var(--border);
@@ -4074,6 +4315,9 @@
       display:flex;
       flex-direction:column;
       gap:10px;
+    }
+    .receive-detail-panel .receive-attachments{
+      margin-top:0;
     }
     .receive-attachments-header{
       display:flex;
@@ -4253,7 +4497,7 @@
       font-weight:700;
     }
     .receive-receipts{
-      margin-top:16px;
+      margin-top:12px;
     }
     .receive-receipt{
       border:1px solid var(--border);
@@ -12688,22 +12932,108 @@
               </svg>
             </button>
           </div>
-          <div class="modal-body">
-            <div class="form-section">
-              <div class="section-label">Receipt</div>
-              <div class="receive-mode-bar">
-                <div class="receive-mode-badges">
+          <div class="modal-body receive-modal-body">
+            <div class="receive-meta-bar">
+              <div class="receive-meta-left">
+                <div class="receive-meta-row">
                   <span id="receiveReceiptStatus" class="receive-status-pill" data-status="draft">Draft</span>
-                  <span id="receiveReceiptMode" class="receive-mode-pill">Order Receipt</span>
+                  <span id="receiveReceiptMode" class="receive-mode-pill">Quick Add</span>
                 </div>
                 <div id="receiveReceiptId" class="receive-receipt-id"></div>
+              </div>
+            </div>
+            <div class="receive-tabs" id="receiveTabs" role="tablist" aria-label="Receive tabs">
+              <button class="receive-tab active" type="button" data-receive-tab="quick" role="tab" aria-selected="true">Quick Add</button>
+              <button class="receive-tab" type="button" data-receive-tab="scanned" role="tab" aria-selected="false">
+                Scanned
+                <span id="receiveTabScannedCount" class="receive-tab-badge" style="display:none;">0</span>
+              </button>
+              <button class="receive-tab" type="button" data-receive-tab="po" role="tab" aria-selected="false">PO Receipt</button>
+            </div>
+            <div class="receive-tab-panels">
+              <div class="receive-tab-panel is-active" data-receive-panel="quick" role="tabpanel">
+                <div class="receive-tab-body">
+                  <div class="form-section" id="receiveManualSection">
+                    <div class="section-label">Manual Receive</div>
+                    <label for="receiveManualSearch">Search inventory</label>
+                    <div class="input-wrap" style="max-width:100%;">
+                      <input id="receiveManualSearch" type="search" placeholder="Search items by name or SKU…" autocomplete="off" />
+                      <button class="icon-btn icon-btn--default clear-input-btn" id="btnReceiveManualClear" type="button" aria-label="Clear manual search" title="Clear search" style="display:none">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M18 6L6 18"></path>
+                          <path d="M6 6l12 12"></path>
+                        </svg>
+                      </button>
+                    </div>
+                    <div id="receiveManualResults" class="receive-search-results"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="receive-tab-panel" data-receive-panel="scanned" role="tabpanel">
+                <div class="receive-tab-body">
+                  <div id="receiveScannedList" class="receive-scanned-list">
+                    <div id="receiveForwardingHint" class="receive-forward-hint"></div>
+                    <div id="receiveDraftInbox" class="receive-draft-inbox" style="display:none;"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="receive-tab-panel" data-receive-panel="po" role="tabpanel">
+                <div class="receive-tab-body">
+                  <div id="receivePoEmpty" class="receive-po-empty" style="display:none;">
+                    <div class="receive-po-empty-title">Select a purchase order</div>
+                    <div class="receive-po-empty-text">Choose an open purchase order to receive against.</div>
+                  </div>
+                  <div id="receivePoList" class="receive-po-list"></div>
+                  <div class="form-section" id="receiveOrderSummarySection">
+                    <div class="section-label">Order Summary</div>
+                    <div id="receiveOrderMeta" class="receive-order-meta"></div>
+                    <div id="receiveOrderSummary" class="receive-summary"></div>
+                  </div>
+                  <div class="form-section" id="receiveOrderReceiptsSection">
+                    <div class="section-label">Receipts</div>
+                    <div id="receiveOrderReceipts" class="receive-receipts"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="receive-detail-panel" id="receiveDetailPanel">
+              <div class="receive-scanned-header" id="receiveScannedHeader" style="display:none;">
+                <button class="icon-btn icon-btn--default receive-scanned-back" type="button" id="btnReceiveScannedBack" aria-label="Back to receipts">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+                <div class="receive-scanned-title">
+                  <div class="receive-scanned-title-main" id="receiveScannedTitleMain">Receipt review</div>
+                  <div class="receive-scanned-title-sub" id="receiveScannedTitleSub">Review before inventory is updated.</div>
+                </div>
               </div>
               <div class="receive-order-note">
                 <label for="receiveReceiptNotes">Receipt Notes</label>
                 <textarea id="receiveReceiptNotes" rows="2" placeholder="Optional notes for this receipt."></textarea>
               </div>
-              <div id="receiveForwardingHint" class="receive-forward-hint"></div>
-              <div id="receiveDraftInbox" class="receive-draft-inbox" style="display:none;"></div>
+              <div class="form-section" id="receiptReviewSection" style="display:none;">
+                <div class="section-label">Receipt Review</div>
+                <div class="receipt-details-grid edit-grid-3">
+                  <div class="edit-field">
+                    <label for="receiveReceiptVendor">Vendor</label>
+                    <input id="receiveReceiptVendor" type="text" placeholder="Vendor name" />
+                  </div>
+                  <div class="edit-field">
+                    <label for="receiveReceiptDate">Receipt date</label>
+                    <input id="receiveReceiptDate" type="date" />
+                  </div>
+                  <div class="edit-field">
+                    <label for="receiveReceiptTotal">Total</label>
+                    <input id="receiveReceiptTotal" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00" />
+                  </div>
+                </div>
+                <div class="receipt-details-meta">
+                  <span id="receiveReceiptSourceBadge" class="receipt-source-pill" style="display:none;">Email</span>
+                  <div class="receipt-details-note">Review before inventory is updated. Receipts are never received automatically.</div>
+                </div>
+                <div class="receipt-parsed-lines" id="receiptParsedLines"></div>
+              </div>
               <details id="receiveReceiptRaw" class="receive-raw" style="display:none;">
                 <summary>Receipt text (email)</summary>
                 <pre id="receiveReceiptRawText"></pre>
@@ -12715,59 +13045,14 @@
                 </div>
                 <div id="receiveReceiptAttachmentsList" class="receive-attachments-list"></div>
               </div>
-            </div>
-            <div class="form-section" id="receiptReviewSection" style="display:none;">
-              <div class="section-label">Receipt Review</div>
-              <div class="receipt-details-grid edit-grid-3">
-                <div class="edit-field">
-                  <label for="receiveReceiptVendor">Vendor</label>
-                  <input id="receiveReceiptVendor" type="text" placeholder="Vendor name" />
-                </div>
-                <div class="edit-field">
-                  <label for="receiveReceiptDate">Receipt date</label>
-                  <input id="receiveReceiptDate" type="date" />
-                </div>
-                <div class="edit-field">
-                  <label for="receiveReceiptTotal">Total</label>
-                  <input id="receiveReceiptTotal" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00" />
-                </div>
+              <div class="form-section" id="receiveLinesSection">
+                <div class="section-label">Lines</div>
+                <div id="receiveOrderLines" class="receive-lines" aria-live="polite"></div>
+                <div id="receiveOrderWarning" class="receive-order-warning" role="status"></div>
               </div>
-              <div class="receipt-details-meta">
-                <span id="receiveReceiptSourceBadge" class="receipt-source-pill" style="display:none;">Email</span>
-                <div class="receipt-details-note">Review before inventory is updated. Receipts are never received automatically.</div>
-              </div>
-              <div class="receipt-parsed-lines" id="receiptParsedLines"></div>
-            </div>
-            <div class="form-section" id="receiveOrderSummarySection">
-              <div class="section-label">Order Summary</div>
-              <div id="receiveOrderMeta" class="receive-order-meta"></div>
-              <div id="receiveOrderSummary" class="receive-summary"></div>
-            </div>
-            <div class="form-section" id="receiveManualSection">
-              <div class="section-label">Manual Receive</div>
-              <label for="receiveManualSearch">Search inventory</label>
-              <div class="input-wrap" style="max-width:100%;">
-                <input id="receiveManualSearch" type="search" placeholder="Search items by name or SKU…" autocomplete="off" />
-                <button class="icon-btn icon-btn--default clear-input-btn" id="btnReceiveManualClear" type="button" aria-label="Clear manual search" title="Clear search" style="display:none">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M18 6L6 18"></path>
-                    <path d="M6 6l12 12"></path>
-                  </svg>
-                </button>
-              </div>
-              <div id="receiveManualResults" class="receive-search-results"></div>
-            </div>
-            <div class="form-section">
-              <div class="section-label">Lines</div>
-              <div id="receiveOrderLines" class="receive-lines" aria-live="polite"></div>
-              <div id="receiveOrderWarning" class="receive-order-warning" role="status"></div>
-            </div>
-            <div class="form-section" id="receiveOrderReceiptsSection">
-              <div class="section-label">Receipts</div>
-              <div id="receiveOrderReceipts" class="receive-receipts"></div>
             </div>
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer receive-footer">
             <div class="footer-left">
               <div id="receiveOrderMsg" class="muted"></div>
               <div class="receive-plan-upgrade" id="receivePlanUpgrade" style="display:none;">
@@ -31049,6 +31334,54 @@ function emptyStateHtml(){
       function isReceiptPlanBlocked(status){
         return String(status || '').trim().toLowerCase() === 'blocked_by_plan' && !hasTier('professional');
       }
+      const RECEIVE_TABS = ['quick', 'scanned', 'po'];
+      function getReceiveActiveTab(receiveState){
+        const ro = receiveState || state._receiveOrder;
+        const tab = ro && typeof ro.tab === 'string' ? ro.tab : '';
+        if(tab && RECEIVE_TABS.includes(tab)) return tab;
+        const mode = ro ? String(ro.mode || '') : '';
+        if(mode === 'order') return 'po';
+        if(mode === 'inbox') return 'scanned';
+        return 'quick';
+      }
+      function updateReceiveTabBadge(){
+        const badge = $('receiveTabScannedCount');
+        if(!badge) return;
+        const count = toInt(state._draftEmailReceiptsCount, 0);
+        badge.textContent = String(count);
+        badge.style.display = count > 0 ? 'inline-flex' : 'none';
+      }
+      function applyReceiveTabState(tab){
+        const root = $('receiveOrderModal');
+        if(!root) return;
+        root.querySelectorAll('[data-receive-tab]').forEach(btn=>{
+          const active = String(btn.dataset.receiveTab || '') === tab;
+          btn.classList.toggle('active', active);
+          btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        root.querySelectorAll('[data-receive-panel]').forEach(panel=>{
+          const active = String(panel.dataset.receivePanel || '') === tab;
+          panel.classList.toggle('is-active', active);
+        });
+      }
+      async function handleReceiveTabClick(tab){
+        const next = String(tab || '').trim();
+        if(!next) return;
+        const current = getReceiveActiveTab(state._receiveOrder);
+        if(next === current) return;
+        if(next === 'quick'){
+          await openReceiveManualModal();
+          return;
+        }
+        if(next === 'scanned'){
+          await openReceiveInboxModal();
+          return;
+        }
+        if(next === 'po'){
+          if(state._receiveOrder) state._receiveOrder.tab = 'po';
+          renderReceiveOrderModal();
+        }
+      }
       function getReceiveForwardingHintKey(){
         const companyId = SB.companyId ? String(SB.companyId) : 'unknown';
         return `inv.receive.forwarding_hint.${companyId}`;
@@ -31303,6 +31636,7 @@ function emptyStateHtml(){
           state._draftEmailReceiptsCount = Number.isFinite(result && result.count) ? result.count : rows.length;
           state._draftEmailReceiptsLoaded = true;
           renderReceiveDraftInbox();
+          updateReceiveTabBadge();
           renderReceiptsInboxIndicator();
           if(!state._draftEmailReceiptsNotified && rows.length){
             toast('New receipt received — ready for review.');
@@ -31313,6 +31647,7 @@ function emptyStateHtml(){
           state._draftEmailReceiptsCount = 0;
           state._draftEmailReceiptsLoaded = true;
           renderReceiveDraftInbox();
+          updateReceiveTabBadge();
           renderReceiptsInboxIndicator();
         }
       }
@@ -31421,6 +31756,7 @@ function emptyStateHtml(){
         setReceiveOrderWarning('');
         state._receiveOrder = {
           mode: 'manual',
+          tab: 'scanned',
           companyId: receiptCompanyId,
           poId: '',
           po: null,
@@ -31523,6 +31859,14 @@ function emptyStateHtml(){
       function renderReceiveForwardingHint(){
         const hint = $('receiveForwardingHint');
         if(!hint) return;
+        const ro = state._receiveOrder;
+        const activeTab = getReceiveActiveTab(ro);
+        const isInboxMode = ro && String(ro.mode || '') === 'inbox';
+        if(activeTab !== 'scanned' || !isInboxMode){
+          hint.style.display = 'none';
+          hint.innerHTML = '';
+          return;
+        }
         if(isReceiveForwardingHintDismissed()){
           hint.style.display = 'none';
           hint.innerHTML = '';
@@ -31568,16 +31912,32 @@ function emptyStateHtml(){
       const manualSection = $('receiveManualSection');
       const summarySection = $('receiveOrderSummarySection');
       const receiptsSection = $('receiveOrderReceiptsSection');
+      const detailPanel = $('receiveDetailPanel');
+      const scannedList = $('receiveScannedList');
+      const scannedHeader = $('receiveScannedHeader');
+      const scannedTitleMain = $('receiveScannedTitleMain');
+      const scannedTitleSub = $('receiveScannedTitleSub');
+      const poEmpty = $('receivePoEmpty');
+      const poList = $('receivePoList');
       const linesSection = linesWrap ? linesWrap.closest('.form-section') : null;
+      const activeTab = getReceiveActiveTab(ro);
+      applyReceiveTabState(activeTab);
+      updateReceiveTabBadge();
+      if(ro && !ro.tab) ro.tab = activeTab;
 	      if(!meta || !summary || !linesWrap || !receiptsWrap) return;
         renderReceiveForwardingHint();
 
       if(!ro || ro.loading){
+        const mode = ro ? String(ro.mode || '') : '';
+        const isInboxLoading = mode === 'inbox';
         if(statusEl){
           statusEl.textContent = 'Draft';
           statusEl.dataset.status = 'draft';
         }
-        if(modeEl) modeEl.textContent = 'Order Receipt';
+        if(modeEl){
+          modeEl.textContent = activeTab === 'po' ? 'PO Receipt'
+            : (activeTab === 'scanned' ? 'Scanned Receipts' : 'Quick Add');
+        }
         if(receiptIdEl) receiptIdEl.textContent = '';
         if(notesEl){ notesEl.value = ''; notesEl.disabled = true; }
         if(reviewSection) reviewSection.style.display = 'none';
@@ -31600,6 +31960,18 @@ function emptyStateHtml(){
         if(summary) summary.innerHTML = '';
         if(linesWrap) linesWrap.innerHTML = `<div class="muted">Loading receipt details…</div>`;
         if(receiptsWrap) receiptsWrap.innerHTML = '';
+        if(manualSection) manualSection.style.display = activeTab === 'quick' ? '' : 'none';
+        if(summarySection) summarySection.style.display = 'none';
+        if(receiptsSection) receiptsSection.style.display = 'none';
+        if(linesSection) linesSection.style.display = isInboxLoading ? 'none' : '';
+        if(detailPanel) detailPanel.style.display = isInboxLoading ? 'none' : '';
+        if(scannedList) scannedList.style.display = activeTab === 'scanned' ? '' : 'none';
+        if(scannedHeader) scannedHeader.style.display = 'none';
+        if(poList){
+          poList.style.display = 'none';
+          poList.innerHTML = '';
+        }
+        if(poEmpty) poEmpty.style.display = activeTab === 'po' ? '' : 'none';
         return;
 	      }
 
@@ -31617,7 +31989,10 @@ function emptyStateHtml(){
 	        statusEl.textContent = isInboxMode ? 'Inbox' : (statusText || 'Draft');
 	        statusEl.dataset.status = isInboxMode ? 'draft' : (receiptStatus || 'draft');
 	      }
-	      if(modeEl) modeEl.textContent = isInboxMode ? 'Receipt Inbox' : (isOrderMode ? 'Order Receipt' : 'Manual Receipt');
+      if(modeEl){
+        modeEl.textContent = activeTab === 'po' ? 'PO Receipt'
+          : (activeTab === 'scanned' ? 'Scanned Receipts' : 'Quick Add');
+      }
 	      if(receiptIdEl){
 	        receiptIdEl.innerHTML = ro.receiptId
 	          ? `Receipt ID: <span>${escapeHtml(shortId(ro.receiptId) || ro.receiptId)}</span>`
@@ -31774,19 +32149,95 @@ function emptyStateHtml(){
         }
       }
 
-      if(summarySection) summarySection.style.display = isOrderMode ? '' : 'none';
-      if(receiptsSection) receiptsSection.style.display = isOrderMode ? '' : 'none';
-      if(manualSection) manualSection.style.display = (!isOrderMode && !isInboxMode) ? '' : 'none';
-      if(linesSection) linesSection.style.display = isInboxMode ? 'none' : '';
-      if(!isOrderMode && !isInboxMode){
-	        const manualInput = $('receiveManualSearch');
-	        if(manualInput){
-	          manualInput.value = String(ro.manualSearch || '');
-	          manualInput.disabled = !isEditable;
-	        }
-	        updateReceiveManualClearBtn();
-	        renderReceiveManualResults();
-	      }
+      const isQuickTab = activeTab === 'quick';
+      const isScannedTab = activeTab === 'scanned';
+      const isPoTab = activeTab === 'po';
+      const showDetailPanel = !isInboxMode && (isQuickTab || (isScannedTab && !isInboxMode) || (isPoTab && isOrderMode));
+      if(detailPanel) detailPanel.style.display = showDetailPanel ? '' : 'none';
+      if(scannedList) scannedList.style.display = (isScannedTab && isInboxMode) ? '' : 'none';
+      if(scannedHeader) scannedHeader.style.display = (isScannedTab && !isInboxMode) ? '' : 'none';
+      if(scannedTitleMain && scannedTitleSub){
+        if(isScannedTab && !isInboxMode){
+          const vendor = String(ro.receiptVendor || '').trim() || 'Receipt review';
+          const dateText = ro.receiptDate ? formatDateShort(ro.receiptDate) : '';
+          const totalNum = parseReceiptNumber(ro.receiptTotal);
+          const totalText = totalNum !== null ? formatReceiptMoney(totalNum) : '';
+          const sourceLabel = formatReceiptSourceLabel(ro.receiptSource);
+          const meta = [dateText, totalText, sourceLabel].filter(Boolean).join(' • ');
+          scannedTitleMain.textContent = vendor;
+          scannedTitleSub.textContent = meta || 'Review before inventory is updated.';
+        }else{
+          scannedTitleMain.textContent = 'Receipt review';
+          scannedTitleSub.textContent = 'Review before inventory is updated.';
+        }
+      }
+
+      if(summarySection) summarySection.style.display = (isPoTab && isOrderMode) ? '' : 'none';
+      if(receiptsSection) receiptsSection.style.display = (isPoTab && isOrderMode) ? '' : 'none';
+      if(manualSection) manualSection.style.display = isQuickTab ? '' : 'none';
+      if(linesSection) linesSection.style.display = showDetailPanel ? '' : 'none';
+
+      let poListCount = 0;
+      if(poList){
+        if(isPoTab && !isOrderMode){
+          const rows = Array.isArray(state._orderHistoryRows) ? state._orderHistoryRows : [];
+          const lineMap = state._orderHistoryLinesByPo || new Map();
+          const openRows = rows.filter(row => {
+            const id = row && row.id ? String(row.id) : '';
+            if(!id) return false;
+            const totals = getPurchaseOrderLineTotalsById(id, lineMap);
+            const receiveState = getPurchaseOrderReceiveState(row, totals);
+            return receiveState && !['draft','cancelled','closed','voided','fully_received'].includes(receiveState);
+          });
+          const sorted = openRows.slice().sort((a, b) => {
+            const aDate = new Date(a && (a.order_date || a.created_at || 0));
+            const bDate = new Date(b && (b.order_date || b.created_at || 0));
+            return bDate - aDate;
+          });
+          const list = sorted.slice(0, 8);
+          poListCount = list.length;
+          poList.style.display = poListCount ? '' : 'none';
+          poList.innerHTML = poListCount ? list.map(row => {
+            const id = String(row && row.id ? row.id : '').trim();
+            const poNumber = String(row && row.po_number ? row.po_number : '').trim();
+            const vendor = String(row && (row.vendor_name || row.vendor_id || '') || '').trim() || 'Unknown vendor';
+            const totals = getPurchaseOrderLineTotalsById(id, lineMap);
+            const statusLabel = formatPurchaseOrderStatusLabel(row, totals);
+            const lines = lineMap && typeof lineMap.get === 'function' ? (lineMap.get(id) || []) : [];
+            const count = Array.isArray(lines) ? lines.length : 0;
+            const expected = row && (row.expected_date || row.order_date || row.created_at) ? formatDateShort(row.expected_date || row.order_date || row.created_at) : '';
+            const meta = [
+              count ? `${count} item${count === 1 ? '' : 's'}` : 'No lines',
+              expected ? `Expected ${expected}` : ''
+            ].filter(Boolean).join(' • ');
+            return (
+              `<div class="receive-po-card" data-receive-po-id="${escapeHtmlAttr(id)}">`+
+                `<div class="receive-po-icon">${ICONS.package}</div>`+
+                `<div class="receive-po-info">`+
+                  `<div class="receive-po-title">${escapeHtml(poNumber || shortId(id))} • ${escapeHtml(vendor)}</div>`+
+                  `<div class="receive-po-meta">${escapeHtml(meta)}</div>`+
+                `</div>`+
+                `<span class="receive-po-status">${escapeHtml(statusLabel || 'Open')}</span>`+
+                `<span class="receive-po-arrow">${ICONS.chevronRight}</span>`+
+              `</div>`
+            );
+          }).join('') : '';
+        }else{
+          poList.style.display = 'none';
+          poList.innerHTML = '';
+        }
+      }
+      if(poEmpty) poEmpty.style.display = (isPoTab && !isOrderMode && !poListCount) ? '' : 'none';
+
+      if(isQuickTab && !isInboxMode && ro.mode === 'manual'){
+        const manualInput = $('receiveManualSearch');
+        if(manualInput){
+          manualInput.value = String(ro.manualSearch || '');
+          manualInput.disabled = !isEditable;
+        }
+        updateReceiveManualClearBtn();
+        renderReceiveManualResults();
+      }
 
 	      if(isOrderMode){
 	        const po = ro.po || {};
@@ -31971,6 +32422,9 @@ function emptyStateHtml(){
       }else{
         setReceiveOrderMessage('');
       }
+      if(isPoTab && !isOrderMode){
+        setReceiveOrderMessage('Select a purchase order to receive.');
+      }
       if(planUpgrade){
         planUpgrade.style.display = receiptStatus === 'blocked_by_plan' ? '' : 'none';
       }
@@ -31979,8 +32433,8 @@ function emptyStateHtml(){
 	      const saveBtn = $('btnReceiveOrderSave');
 	      const completeBtn = $('btnReceiveOrderComplete');
 	      const cancelBtn = $('btnReceiveOrderCancel');
-	      const canSave = !isInboxMode && isEditable;
-	      const canComplete = !isInboxMode && ((isDraftLike && canCompleteReceipt()) ||
+	      const canSave = showDetailPanel && !isInboxMode && isEditable;
+	      const canComplete = showDetailPanel && !isInboxMode && ((isDraftLike && canCompleteReceipt()) ||
 	        (receiptStatus === 'pending' && canReceivingApprove()));
 	      if(saveBtn) saveBtn.disabled = !canSave;
 	      if(completeBtn) completeBtn.disabled = !canComplete;
@@ -32350,6 +32804,7 @@ function emptyStateHtml(){
 	      setReceiveOrderWarning('');
       state._receiveOrder = {
         mode: 'order',
+        tab: 'po',
         companyId: SB.companyId ? String(SB.companyId) : '',
         poId: id,
         po: getOrderHistoryRowById(id),
@@ -32399,6 +32854,7 @@ function emptyStateHtml(){
 	      setReceiveOrderWarning('');
       state._receiveOrder = {
         mode: 'inbox',
+        tab: 'scanned',
         companyId: SB.companyId ? String(SB.companyId) : '',
         poId: '',
         po: null,
@@ -32452,6 +32908,7 @@ function emptyStateHtml(){
 	      setReceiveOrderWarning('');
       state._receiveOrder = {
         mode: 'manual',
+        tab: 'quick',
         companyId: SB.companyId ? String(SB.companyId) : '',
         poId: '',
         po: null,
@@ -37497,6 +37954,34 @@ function emptyStateHtml(){
 	        renderReceiveForwardingHint();
 	      });
 	    }
+      const receiveTabs = $('receiveTabs');
+      if(receiveTabs && !receiveTabs._wired){
+        receiveTabs._wired = true;
+        receiveTabs.addEventListener('click', (e)=>{
+          const btn = e.target.closest('[data-receive-tab]');
+          if(!btn) return;
+          const tab = String(btn.dataset.receiveTab || '').trim();
+          if(tab) void handleReceiveTabClick(tab);
+        });
+      }
+      const btnReceiveScannedBack = $('btnReceiveScannedBack');
+      if(btnReceiveScannedBack && !btnReceiveScannedBack._wired){
+        btnReceiveScannedBack._wired = true;
+        btnReceiveScannedBack.addEventListener('click', ()=>{
+          openReceiveInboxModal();
+        });
+      }
+      const receivePoList = $('receivePoList');
+      if(receivePoList && !receivePoList._wired){
+        receivePoList._wired = true;
+        receivePoList.addEventListener('click', (e)=>{
+          const card = e.target.closest('[data-receive-po-id]');
+          if(!card) return;
+          const id = String(card.getAttribute('data-receive-po-id') || '').trim();
+          if(!id) return;
+          void openReceiveOrderModal(id);
+        });
+      }
 	    const receiveOrderLines = $('receiveOrderLines');
 	    if(receiveOrderLines){
 	      receiveOrderLines.addEventListener('input', (e)=>{
