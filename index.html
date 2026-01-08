@@ -3720,6 +3720,11 @@
       color:#f87171;
       border-color:rgba(248,113,113,0.2);
     }
+    .receive-status-pill[data-status="blocked_by_plan"]{
+      background:rgba(249,115,22,0.15);
+      color:#fb923c;
+      border-color:rgba(249,115,22,0.2);
+    }
     .receive-mode-pill{
       background:rgba(59,130,246,0.12);
       color:#93c5fd;
@@ -3803,6 +3808,12 @@
       flex-direction:column;
       gap:4px;
     }
+    .receive-forward-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:8px;
+    }
     .receive-forward-hint strong{
       color:#93c5fd;
       font-weight:700;
@@ -3811,6 +3822,24 @@
       font-family:"SF Mono", Monaco, monospace;
       color:#e2e8f0;
       font-weight:600;
+    }
+    .receive-forward-dismiss{
+      width:26px;
+      height:26px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      color:var(--muted);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition:all 0.15s;
+      flex-shrink:0;
+    }
+    .receive-forward-dismiss:hover{
+      background:rgba(255,255,255,0.08);
+      color:var(--fg);
     }
     .receive-draft-inbox{
       margin-top:10px;
@@ -3829,6 +3858,20 @@
       text-transform:uppercase;
       color:var(--muted);
       margin-bottom:8px;
+    }
+    .receive-draft-inbox-badge{
+      display:inline-flex;
+      align-items:center;
+      padding:2px 6px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color:#fb923c;
+      background:rgba(249,115,22,0.12);
+      border:1px solid rgba(249,115,22,0.2);
+      margin-left:6px;
     }
     .receive-draft-inbox-item{
       display:flex;
@@ -8140,9 +8183,7 @@
       white-space:nowrap;
     }
     .env-badge.env-production{background:rgba(148,163,184,0.2);color:#cbd5f5;border-color:rgba(148,163,184,0.4)}
-    .env-badge.env-internal_test{background:rgba(167,139,250,0.2);color:#e9d5ff;border-color:rgba(167,139,250,0.45)}
-    .env-badge.env-demo{background:rgba(59,130,246,0.2);color:#bfdbfe;border-color:rgba(59,130,246,0.45)}
-    .env-badge.env-sandbox{background:rgba(245,158,11,0.2);color:#fde68a;border-color:rgba(245,158,11,0.45)}
+    .env-badge.env-test{background:rgba(167,139,250,0.2);color:#e9d5ff;border-color:rgba(167,139,250,0.45)}
     .profile-env-badge{
       padding:3px 8px;
       border-radius:6px;
@@ -8639,10 +8680,6 @@
       width:80px;
       text-align:right;
     }
-    .manage-companies-table .col-cleanup{
-      width:90px;
-      text-align:center;
-    }
     .manage-companies-name .env-badge{
       font-size:9px;
     }
@@ -8694,15 +8731,6 @@
     .company-toggle input:checked + .company-toggle-track .company-toggle-thumb{
       transform:translateX(18px);
       background:#22c55e;
-    }
-    .company-toggle.cleanup-toggle .company-toggle-track{
-      background:rgba(245,158,11,0.15);
-    }
-    .company-toggle.cleanup-toggle input:checked + .company-toggle-track{
-      background:rgba(245,158,11,0.35);
-    }
-    .company-toggle.cleanup-toggle input:checked + .company-toggle-track .company-toggle-thumb{
-      background:#f59e0b;
     }
     .company-toggle input:disabled + .company-toggle-track{
       opacity:0.7;
@@ -9107,6 +9135,20 @@
     .tier-admin-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
     .tier-admin-value{font-size:13px;font-weight:600;color:var(--fg)}
     .tier-admin-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+    .manage-company-section{display:flex;flex-direction:column;gap:8px}
+    .manage-company-row{display:flex;flex-direction:column;gap:6px}
+    .manage-company-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .manage-company-value{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .manage-company-address{
+      font-family:"SF Mono", Monaco, monospace;
+      font-size:13px;
+      color:var(--fg);
+      background:rgba(15,23,42,0.4);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:6px 10px;
+      word-break:break-all;
+    }
     .audit-filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .audit-filters select,.audit-filters input{min-width:160px}
     .audit-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
@@ -10109,6 +10151,38 @@
       color:var(--wiz-muted);
       margin-top:8px;
     }
+    .onboarding-callout{
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:14px;
+      border:1px solid var(--wiz-border);
+      background:rgba(0,0,0,0.25);
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .onboarding-callout-title{
+      font-weight:700;
+      color:var(--wiz-text);
+    }
+    .onboarding-callout-text{
+      font-size:13px;
+      color:var(--wiz-muted);
+    }
+    .onboarding-callout-address{
+      font-family:"SF Mono", Monaco, monospace;
+      font-size:13px;
+      color:var(--wiz-text);
+      background:var(--wiz-bg);
+      border:1px solid var(--wiz-border);
+      border-radius:10px;
+      padding:8px 10px;
+      word-break:break-all;
+    }
+    .onboarding-callout-gate{
+      font-size:12px;
+      color:var(--wiz-muted);
+    }
 
     .onboarding-gate{
       border:1px dashed var(--wiz-border);
@@ -10230,6 +10304,10 @@
                 <button class="profile-item" id="openCompanyLocations" type="button">
                   <svg class="profile-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 5-9 11-9 11S3 15 3 10a9 9 0 1 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                   <span>Locations</span>
+                </button>
+                <button class="profile-item" id="openManageCompany" type="button">
+                  <svg class="profile-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                  <span>Manage Company</span>
                 </button>
                 <button class="profile-item" id="openSubscriptionManager" type="button">
                   <svg class="profile-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
@@ -10530,6 +10608,12 @@
                   <option value="">Select timezone...</option>
                 </select>
               </div>
+            </div>
+            <div class="onboarding-callout" id="onboardingReceiptCallout">
+              <div class="onboarding-callout-title">Receipt forwarding</div>
+              <div class="onboarding-callout-text">Each company has a unique address for forwarding receipts.</div>
+              <div class="onboarding-callout-address" id="onboardingReceiptAddress">receipts+<company_slug>@inbound.inventorymanager.app</div>
+              <div class="onboarding-callout-gate" id="onboardingReceiptGate" style="display:none;">Receipt ingestion is available on Pro plans. You can enable it later.</div>
             </div>
             <div class="onboarding-actions">
               <div id="onboardingProfileMsg" class="onboarding-message" style="margin-right:auto;"></div>
@@ -13254,6 +13338,50 @@
     </div>
   </div>
 
+  <!-- Manage Company modal (admin-only) -->
+  <div id="manageCompanyModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="manageCompanyTitle">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </span>
+          <div class="modal-title-text">
+            <h2 id="manageCompanyTitle" class="modal-title">Manage Company</h2>
+            <div class="modal-subtitle">Company-level settings and tools.</div>
+          </div>
+        </div>
+        <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="manageCompanyModal" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-section manage-company-section">
+          <div class="section-label">Receipt Ingestion</div>
+          <div class="manage-company-row">
+            <div class="manage-company-label">Forward receipts to</div>
+            <div class="manage-company-value">
+              <span id="manageCompanyReceiptAddress" class="manage-company-address">receipts+<company_slug>@inbound.inventorymanager.app</span>
+              <button class="btn-tertiary btn-sm" type="button" data-copy-receipt-address>Copy</button>
+            </div>
+            <div class="muted">Forward store receipts here to prepare them for inventory receiving.</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="footer-right">
+          <button class="btn-secondary" type="button" data-modal-close="manageCompanyModal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Manage companies (super user only) -->
   <div id="advancedCompanyModal" class="modal-backdrop" aria-hidden="true">
     <div class="modal modal--md manage-companies-modal" role="dialog" aria-modal="true" aria-labelledby="advancedCompanyTitle">
@@ -13330,9 +13458,7 @@
               <select id="advancedCompanyTypeFilter">
                 <option value="">All</option>
                 <option value="production">Production</option>
-                <option value="internal_test">Internal Test</option>
-                <option value="demo">Demo</option>
-                <option value="sandbox">Sandbox</option>
+                <option value="test">Test</option>
               </select>
             </div>
           </div>
@@ -13635,9 +13761,7 @@
               <label for="provisioningEnvironmentType">Environment Type</label>
               <select id="provisioningEnvironmentType">
                 <option value="production" selected>Production</option>
-                <option value="internal_test">Internal Test</option>
-                <option value="demo">Demo</option>
-                <option value="sandbox">Sandbox</option>
+                <option value="test">Test</option>
               </select>
               <div class="provisioning-note" id="provisioningEnvironmentNote" style="display:none;">
                 Non-production companies are not intended for real work.
@@ -15481,11 +15605,11 @@
 
       // These properties may not be available in newer API versions - wrap in try/catch
       try{
-        if(!placeElement.types) placeElement.types = ['address'];
-      }catch(e){ console.warn('[initAddressAutocomplete] Could not set types:', e.message); }
+        if('types' in placeElement && !placeElement.types) placeElement.types = ['address'];
+      }catch(e){}
       try{
-        if(!placeElement.fields) placeElement.fields = ['addressComponents','formattedAddress','id'];
-      }catch(e){ console.warn('[initAddressAutocomplete] Could not set fields:', e.message); }
+        if('fields' in placeElement && !placeElement.fields) placeElement.fields = ['addressComponents','formattedAddress','id'];
+      }catch(e){}
 
       if(currentValue) setAutocompleteStoredValue(inputId, currentValue);
 
@@ -16418,6 +16542,9 @@
     function canReceiveOrders(){
       return canReceivingCreate() || canReceivingEdit() || canReceivingApprove();
     }
+    function canAccessReceivingInbox(){
+      return canReceiveOrders() || isEffectiveSuperUser() || hasPermission(PERMISSIONS.RECEIVING_VIEW);
+    }
     function canMembersView(){ return hasPermission(PERMISSIONS.MEMBERS_VIEW); }
     function canMembersInvite(){ return hasPermission(PERMISSIONS.MEMBERS_INVITE); }
     function canMembersRemove(){ return hasPermission(PERMISSIONS.MEMBERS_REMOVE); }
@@ -16465,7 +16592,7 @@
       setDisabled('menuOrder', !canOrdersCreate());
       setDisabled('menuQuickOrder', !canOrdersCreate());
       setDisabled('menuHistory', !canOrdersView());
-      setDisabled('menuReceive', !canReceiveOrders());
+      setDisabled('menuReceive', !canAccessReceivingInbox());
       setDisabled('menuTrash', !canAccessTrash());
       setDisabled('menuAudit', !canAccessAuditLog());
       setDisabled('menuSnapshots', !canAccessSnapshots());
@@ -17045,6 +17172,10 @@
       const allow = !!(SB.session && isEffectiveSuperUser());
       setProfileMenuItemVisibility('openSubscriptionManager', allow);
     }
+    function renderManageCompanyButton(){
+      const allow = !!(SB.session && SB.companyId && canAccessCompanyLocations());
+      setProfileMenuItemVisibility('openManageCompany', allow);
+    }
     function renderCompanyLocationsButton(){
       const allow = !!(SB.session && SB.companyId && canAccessCompanyLocations());
       setProfileMenuItemVisibility('openCompanyLocations', allow);
@@ -17392,6 +17523,18 @@
     function closeSubscriptionManagerModal(){
       show('subscriptionManagerModal', false);
     }
+    function renderManageCompanyModal(){
+      const addressEl = $('manageCompanyReceiptAddress');
+      if(addressEl) addressEl.textContent = getReceiptForwardingAddress();
+    }
+    function openManageCompanyModal(){
+      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!canAccessCompanyLocations()){ toast('Company admin access required'); return; }
+      if(!SB.companyId){ toast('Select a company first.'); return; }
+      renderManageCompanyModal();
+      show('manageCompanyModal', true);
+    }
     async function openTierOverrideFromUserMgmt(){
       if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
       if(!isEffectiveSuperUser()){ toast('Super user access required'); return; }
@@ -17646,6 +17789,7 @@
       setProfileMenuItemVisibility('openProfileSettings', signedIn);
       setProfileMenuItemVisibility('openCompanySwitcher', signedIn);
       renderCompanyLocationsButton();
+      renderManageCompanyButton();
       renderSubscriptionManagerButton();
       renderInviteMenuItem();
       renderUserMgmtButton();
@@ -18279,7 +18423,7 @@
       }
       const counts = state._advancedInventoryCounts || {};
       const totals = state._advancedTotalOnHand || {};
-      const header = ['Company Name', 'Company ID', 'Environment Type', 'Members', 'Jobs', 'POs', 'Items', 'On Hand', 'Cleanup Eligible', 'Created At', 'Age (days)'];
+      const header = ['Company Name', 'Company ID', 'Environment Type', 'Members', 'Jobs', 'POs', 'Items', 'On Hand', 'Created At', 'Age (days)'];
       const csvRows = [header.join(',')];
       rows.forEach(row => {
         const name = String(row.company_name || '').replace(/"/g, '""');
@@ -18290,10 +18434,9 @@
         const pos = Number(row.po_count) || 0;
         const items = counts[id] || 0;
         const onHand = totals[id] || 0;
-        const cleanupEligible = row && row.cleanup_eligible ? 'true' : 'false';
         const createdAt = row && row.created_at ? String(row.created_at) : '';
         const ageDays = row && row.created_at ? Math.max(0, Math.floor((Date.now() - new Date(row.created_at).getTime()) / 86400000)) : '';
-        csvRows.push(`"${name}","${id}","${env}",${members},${jobs},${pos},${items},${onHand},${cleanupEligible},"${createdAt}",${ageDays}`);
+        csvRows.push(`"${name}","${id}","${env}",${members},${jobs},${pos},${items},${onHand},"${createdAt}",${ageDays}`);
       });
       const csv = csvRows.join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -18813,37 +18956,6 @@
         toast(e && e.message ? e.message : 'Delete failed');
       }
     }
-    async function updateCompanyCleanupEligibility(companyId, eligible){
-      if(!SB.ready || !SB.session || !SB.client){
-        toast('Supabase not configured');
-        return false;
-      }
-      if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
-        return false;
-      }
-      const id = String(companyId || '').trim();
-      if(!id) return false;
-      try{
-        const { error } = await SB.client
-          .from('companies')
-          .update({ cleanup_eligible: !!eligible, updated_at: new Date().toISOString() })
-          .eq('id', id);
-        if(error) throw error;
-        if(Array.isArray(state._advancedCompanies)){
-          const row = state._advancedCompanies.find(r => String(r.company_id || '') === id);
-          if(row) row.cleanup_eligible = !!eligible;
-        }
-        if(SB.company && String(SB.company.company_id || SB.company.id || '') === id){
-          SB.company.cleanup_eligible = !!eligible;
-        }
-        toast(eligible ? 'Marked eligible for cleanup' : 'Cleanup eligibility cleared');
-        return true;
-      }catch(e){
-        toast(e && e.message ? e.message : 'Cleanup update failed');
-        return false;
-      }
-    }
     async function resetInventorySeedRun(company){
       if(!company) return;
       if(!SB.ready || !SB.session || !SB.client){
@@ -18908,7 +19020,6 @@
           '<th class="col-members">Members</th>' +
           '<th class="col-inventory">Items</th>' +
           '<th class="col-inventory">On Hand</th>' +
-          '<th class="col-cleanup">Cleanup</th>' +
           '<th class="col-active">Active</th>' +
           '<th class="col-row-menu"></th>' +
         '</tr></thead>'
@@ -18945,12 +19056,6 @@
         }
         const totalClass = totalOnHand === null ? 'col-inventory muted' : (totalOnHand > 0 ? 'col-inventory inv-positive' : 'col-inventory muted');
         const totalText = totalOnHand === null ? '—' : totalOnHand.toLocaleString();
-        const cleanupEligible = !!row.cleanup_eligible;
-        const cleanupDisabled = envType === 'production';
-        const cleanupToggle = `<label class="company-toggle cleanup-toggle">` +
-          `<input type="checkbox" ${cleanupEligible ? 'checked' : ''} ${cleanupDisabled ? 'disabled aria-disabled="true"' : ''} data-company-cleanup="${escapeHtmlAttr(id)}" aria-label="Mark ${escapeHtmlAttr(name)} eligible for cleanup">` +
-          `<span class="company-toggle-track"><span class="company-toggle-thumb"></span></span>` +
-        `</label>`;
         const toggleHtml = `<label class="company-toggle">` +
           `<input type="checkbox" ${isCurrent ? 'checked disabled' : ''} data-company-toggle="${escapeHtmlAttr(id)}" aria-label="Set ${escapeHtmlAttr(name)} as active company">` +
           `<span class="company-toggle-track"><span class="company-toggle-thumb"></span></span>` +
@@ -18974,7 +19079,6 @@
             `<td class="col-members">${escapeHtml(members)}</td>` +
             `<td class="${invClass}">${escapeHtml(invText)}</td>` +
             `<td class="${totalClass}">${totalText}</td>` +
-            `<td class="col-cleanup">${cleanupToggle}</td>` +
             `<td class="col-active">${toggleHtml}</td>` +
             `<td class="col-row-menu">` +
               `<div class="company-overflow" data-company-menu="${escapeHtmlAttr(id)}">` +
@@ -19030,7 +19134,6 @@
         `<td class="col-members"><strong>${totalMembers.toLocaleString()}</strong></td>` +
         `<td class="col-inventory"><strong>${totalItems.toLocaleString()}</strong></td>` +
         `<td class="col-inventory"><strong>${totalOnHandSum.toLocaleString()}</strong></td>` +
-        `<td class="col-cleanup"></td>` +
         `<td class="col-active"></td>` +
         `<td class="col-row-menu"></td>` +
       `</tr>`;
@@ -19055,25 +19158,6 @@
           if(overflowBtn){
             const menuId = String(overflowBtn.getAttribute('data-company-overflow') || '').trim();
             toggleCompanyOverflowMenu(menuId, overflowBtn);
-            return;
-          }
-          const cleanupToggle = e.target.closest('[data-company-cleanup]');
-          if(cleanupToggle && cleanupToggle.tagName === 'INPUT'){
-            closeCompanyOverflowMenus();
-            const targetId = String(cleanupToggle.getAttribute('data-company-cleanup') || '').trim();
-            const row = getAdvancedCompanyRow(targetId);
-            if(!row){
-              cleanupToggle.checked = !cleanupToggle.checked;
-              return;
-            }
-            const envType = normalizeEnvironmentType(row.environment_type);
-            if(envType === 'production'){
-              cleanupToggle.checked = false;
-              return;
-            }
-            const nextValue = cleanupToggle.checked;
-            const ok = await updateCompanyCleanupEligibility(targetId, nextValue);
-            if(!ok) cleanupToggle.checked = !nextValue;
             return;
           }
           const toggle = e.target.closest('[data-company-toggle]');
@@ -19841,7 +19925,6 @@
             is_super_user: true,
             company_type: 'production',
             environment_type: envType,
-            cleanup_eligible: false,
           };
           if(existingIdx >= 0){
             SB.companies[existingIdx] = { ...SB.companies[existingIdx], ...newRow };
@@ -20317,24 +20400,18 @@
     }
     function normalizeEnvironmentType(value){
       const raw = String(value || '').trim().toLowerCase();
-      if(raw === 'internal_test' || raw === 'internal-test' || raw === 'test') return 'internal_test';
-      if(raw === 'demo') return 'demo';
-      if(raw === 'sandbox') return 'sandbox';
+      if(raw === 'test' || raw === 'internal_test' || raw === 'internal-test' || raw === 'demo' || raw === 'sandbox') return 'test';
       if(raw === 'production') return 'production';
       return 'production';
     }
     function formatEnvironmentTypeLabel(value){
       const type = normalizeEnvironmentType(value);
-      if(type === 'internal_test') return 'Internal Test';
-      if(type === 'demo') return 'Demo';
-      if(type === 'sandbox') return 'Sandbox';
+      if(type === 'test') return 'Test';
       return 'Production';
     }
     function formatEnvironmentBadgeText(value){
       const type = normalizeEnvironmentType(value);
-      if(type === 'internal_test') return 'TEST';
-      if(type === 'demo') return 'DEMO';
-      if(type === 'sandbox') return 'SANDBOX';
+      if(type === 'test') return 'TEST';
       return '';
     }
     function isNonProductionEnvironment(value){
@@ -21904,12 +21981,33 @@
       closeProfileMenu();
       void openCompanyLocationsModal();
     });
+    const openManageCompany = $('openManageCompany');
+    if(openManageCompany) openManageCompany.addEventListener('click', ()=>{
+      closeProfileMenu();
+      openManageCompanyModal();
+    });
 
     const openSubscriptionManager = $('openSubscriptionManager');
     if(openSubscriptionManager) openSubscriptionManager.addEventListener('click', ()=>{
       closeProfileMenu();
       openSubscriptionManagerModal();
     });
+    const manageCompanyModal = $('manageCompanyModal');
+    if(manageCompanyModal && !manageCompanyModal._wired){
+      manageCompanyModal._wired = true;
+      manageCompanyModal.addEventListener('click', async (e)=>{
+        const btn = e.target.closest('[data-copy-receipt-address]');
+        if(!btn) return;
+        const address = getReceiptForwardingAddress();
+        if(!address) return;
+        try{
+          await copyText(String(address));
+          toast('Receipt address copied to clipboard');
+        }catch(err){
+          toast('Copy failed');
+        }
+      });
+    }
 
     const openInviteModal = $('openInviteModal');
     if(openInviteModal) openInviteModal.addEventListener('click', ()=>{
@@ -22425,7 +22523,7 @@
 	      if(!msg) return false;
 	      const lower = msg.toLowerCase();
 	      if(!lower.includes('schema cache')) return false;
-	      if(column && !lower.includes(String(column).toLowerCase())) return false;
+	      if(column && !errorMentionsColumn(lower, column)) return false;
 	      return true;
 	    }
 
@@ -22433,8 +22531,18 @@
 	      const msg = errToText(err);
 	      if(!msg) return false;
 	      const lower = msg.toLowerCase();
-	      if(column && !lower.includes(String(column).toLowerCase())) return false;
+	      if(column && !errorMentionsColumn(lower, column)) return false;
 	      return lower.includes('schema cache') || (lower.includes('column') && lower.includes('does not exist'));
+	    }
+
+	    function errorMentionsColumn(lowerMsg, column){
+	      if(!column) return true;
+	      const col = String(column || '').trim().toLowerCase();
+	      if(!col) return false;
+	      if(!lowerMsg) return false;
+	      const escaped = col.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	      const re = new RegExp(`\\b${escaped}\\b`);
+	      return re.test(lowerMsg);
 	    }
 	
 	    function isMissingColumnError(err, column){
@@ -28338,6 +28446,33 @@ function emptyStateHtml(){
       if(!row) return null;
       return normalizeShippingSnapshot({ label: row.label, address: row.address });
     }
+    function getOrderShippingSnapshotFromRow(row){
+      if(!row) return null;
+      const direct = normalizeShippingSnapshot(row.shipping_address_snapshot);
+      if(direct) return direct;
+      const id = String(row.ship_to_location_id || row.shipping_address_id || '').trim();
+      if(!id) return null;
+      const match = (state._orderShippingById && typeof state._orderShippingById.get === 'function'
+        ? state._orderShippingById.get(id)
+        : null)
+        || (state._shippingAddressById && typeof state._shippingAddressById.get === 'function'
+          ? state._shippingAddressById.get(id)
+          : null);
+      if(!match) return null;
+      return normalizeShippingSnapshot({ label: match.label, address: match.address });
+    }
+    function formatOrderShipToHtml(row){
+      const lines = formatShippingSnapshotLines(getOrderShippingSnapshotFromRow(row));
+      return lines.length ? lines.map(line => escapeHtml(line).replace(/\n/g, '<br>')).join('<br>') : '';
+    }
+    function formatOrderSentToLabel(row, supplierOverride){
+      const email = String(row && (row.recipient_email || row.recipientEmail || row.to_email || row.toEmail) || '').trim();
+      const vendor = String(supplierOverride || (row && (row.vendor_name || (row.vendor && row.vendor.name) || row.vendor_id) || '')).trim();
+      const parts = [];
+      if(email) parts.push(email);
+      if(vendor && vendor !== email) parts.push(vendor);
+      return parts.join(' • ');
+    }
     function buildOrderBody(){
       const ord = orderState();
       const subjectLine = composeOrderSubject(ord);
@@ -29514,6 +29649,10 @@ function emptyStateHtml(){
       'received_date',
       'notes',
       'vendor_id',
+      'vendor_name',
+      'recipient_email',
+      'recipient_name',
+      'ship_to_location_id',
       'created_at',
       'related_job_numbers',
     ];
@@ -30361,10 +30500,11 @@ function emptyStateHtml(){
 	      }
         const warnings = [];
         const receiptStatus = String(ro.receiptStatus || '').trim().toLowerCase();
-        if(ro.possibleDuplicate && receiptStatus === 'draft'){
+        const draftLike = isReceiptDraftLike(receiptStatus);
+        if(ro.possibleDuplicate && draftLike){
           warnings.push('This receipt looks similar to another one. Please review carefully.');
         }
-	      if(String(ro.mode || '') === 'order' && receiptStatus === 'draft'){
+	      if(String(ro.mode || '') === 'order' && draftLike){
 	        const overCount = ro.lines.filter(l => !l.disabled && receiveLineHasOverage(l)).length;
           if(overCount){
             warnings.push(`${overCount} line${overCount === 1 ? '' : 's'} exceed remaining quantities. Over-receipt is allowed but will be flagged.`);
@@ -30553,7 +30693,37 @@ function emptyStateHtml(){
 	      };
 	    }
       function getReceiptForwardingDomain(){
-        return String(window.RECEIPT_FORWARD_DOMAIN || '').trim() || 'inventorymanager.app';
+        const primary = (typeof window.INBOUND_RECEIPT_DOMAIN === 'string') ? window.INBOUND_RECEIPT_DOMAIN.trim() : '';
+        const legacy = (typeof window.RECEIPT_FORWARD_DOMAIN === 'string') ? window.RECEIPT_FORWARD_DOMAIN.trim() : '';
+        return primary || legacy || 'inbound.inventorymanager.app';
+      }
+      function getReceiptForwardingAddress(){
+        const slug = String((SB.company && (SB.company.slug || SB.company.company_slug)) || '').trim();
+        const domain = getReceiptForwardingDomain();
+        return slug ? `receipts+${slug}@${domain}` : `receipts+<company_slug>@${domain}`;
+      }
+      function isReceiptDraftLike(status){
+        const s = String(status || '').trim().toLowerCase();
+        return s === 'draft' || s === 'blocked_by_plan';
+      }
+      function isReceiptPlanBlocked(status){
+        return String(status || '').trim().toLowerCase() === 'blocked_by_plan' && !hasTier('professional');
+      }
+      function getReceiveForwardingHintKey(){
+        const companyId = SB.companyId ? String(SB.companyId) : 'unknown';
+        return `inv.receive.forwarding_hint.${companyId}`;
+      }
+      function isReceiveForwardingHintDismissed(){
+        try{
+          return localStorage.getItem(getReceiveForwardingHintKey()) === '1';
+        }catch(e){
+          return false;
+        }
+      }
+      function dismissReceiveForwardingHint(){
+        try{
+          localStorage.setItem(getReceiveForwardingHintKey(), '1');
+        }catch(e){}
       }
       function formatReceiptMoney(value){
         const num = Number(value);
@@ -30567,7 +30737,7 @@ function emptyStateHtml(){
           .from('receipts')
           .select('id,receipt_number,receipt_source,status,vendor_name,receipt_date,total,created_at,email_metadata,possible_duplicate')
           .eq('company_id', SB.companyId)
-          .eq('status', 'draft')
+          .in('status', ['draft','blocked_by_plan'])
           .in('receipt_source', sources)
           .order('created_at', { ascending: false })
           .limit(20);
@@ -30593,11 +30763,15 @@ function emptyStateHtml(){
             const dateText = row.receipt_date ? formatEasternDateTime(row.receipt_date) : (row.created_at ? formatEasternDateTime(row.created_at) : '');
             const totalText = formatReceiptMoney(row.total);
             const dupNote = row.possible_duplicate ? ' • Possible duplicate' : '';
+            const status = String(row.status || '').trim().toLowerCase();
+            const statusBadge = status === 'blocked_by_plan' && isReceiptPlanBlocked(status)
+              ? ` <span class="receive-draft-inbox-badge">Plan locked</span>`
+              : '';
             return (
               `<div class="receive-draft-inbox-item">`+
                 `<div>`+
                   `<div class="receive-draft-inbox-name">${escapeHtml(title)}</div>`+
-                  `<div class="receive-draft-inbox-meta">${escapeHtml(dateText || 'Received')} • Total ${escapeHtml(totalText)}${escapeHtml(dupNote)}</div>`+
+                  `<div class="receive-draft-inbox-meta">${escapeHtml(dateText || 'Received')} • Total ${escapeHtml(totalText)}${escapeHtml(dupNote)}${statusBadge}</div>`+
                 `</div>`+
                 `<div class="receive-draft-inbox-actions">`+
                   `<button class="btn-tertiary btn-sm" type="button" data-receipt-review-id="${escapeHtmlAttr(row.id)}">Review</button>`+
@@ -30628,7 +30802,7 @@ function emptyStateHtml(){
         if(!SB.ready){ toast('Supabase not configured'); return; }
         if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
         if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
-        if(!canReceiveOrders()){ toast('Receiving access required'); return; }
+        if(!canAccessReceivingInbox()){ toast('Receiving access required'); return; }
 
         setReceiveOrderMessage('');
         setReceiveOrderWarning('');
@@ -30707,14 +30881,25 @@ function emptyStateHtml(){
       function renderReceiveForwardingHint(){
         const hint = $('receiveForwardingHint');
         if(!hint) return;
-        const slug = String((SB.company && (SB.company.company_slug || SB.company.slug)) || '').trim();
-        const domain = getReceiptForwardingDomain();
-        const address = slug ? `receipts+${slug}@${domain}` : `receipts+<company_slug>@${domain}`;
+        if(isReceiveForwardingHintDismissed()){
+          hint.style.display = 'none';
+          hint.innerHTML = '';
+          return;
+        }
+        const address = getReceiptForwardingAddress();
+        hint.style.display = '';
         hint.innerHTML =
-          `<div><strong>Forward receipts to</strong> `+
-            `<span class="forward-address">${escapeHtml(address)}</span>`+
-          `</div>`+
-          `<div class="muted">Receipts are always reviewed before inventory is updated.</div>`;
+          `<div class="receive-forward-head">`+
+            `<div><strong>Forward receipts to</strong> `+
+              `<span class="forward-address">${escapeHtml(address)}</span>`+
+            `</div>`+
+            `<button class="receive-forward-dismiss" type="button" data-dismiss-receive-forward-hint aria-label="Dismiss">`+
+              `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+                `<line x1="18" y1="6" x2="6" y2="18"></line>`+
+                `<line x1="6" y1="6" x2="18" y2="18"></line>`+
+              `</svg>`+
+            `</button>`+
+          `</div>`;
       }
 	    function renderReceiveOrderModal(){
 	      const ro = state._receiveOrder;
@@ -30755,15 +30940,18 @@ function emptyStateHtml(){
 
 	      const mode = String(ro.mode || 'order');
 	      const isOrderMode = mode === 'order';
+	      const isInboxMode = mode === 'inbox';
 	      const receiptStatus = String(ro.receiptStatus || 'draft').trim().toLowerCase();
 	      const statusText = formatStateToken(receiptStatus || 'draft');
-	      const isEditable = receiptStatus === 'draft';
+	      const isDraftLike = isReceiptDraftLike(receiptStatus);
+	      const isEditable = isDraftLike && canReceivingEdit();
+	      const planBlocked = isReceiptPlanBlocked(receiptStatus);
 
 	      if(statusEl){
-	        statusEl.textContent = statusText || 'Draft';
-	        statusEl.dataset.status = receiptStatus || 'draft';
+	        statusEl.textContent = isInboxMode ? 'Inbox' : (statusText || 'Draft');
+	        statusEl.dataset.status = isInboxMode ? 'draft' : (receiptStatus || 'draft');
 	      }
-	      if(modeEl) modeEl.textContent = isOrderMode ? 'Order Receipt' : 'Manual Receipt';
+	      if(modeEl) modeEl.textContent = isInboxMode ? 'Receipt Inbox' : (isOrderMode ? 'Order Receipt' : 'Manual Receipt');
 	      if(receiptIdEl){
 	        receiptIdEl.innerHTML = ro.receiptId
 	          ? `Receipt ID: <span>${escapeHtml(shortId(ro.receiptId) || ro.receiptId)}</span>`
@@ -30771,23 +30959,30 @@ function emptyStateHtml(){
 	      }
       if(notesEl){
         notesEl.value = String(ro.receiptNotes || '');
-        notesEl.disabled = !isEditable;
+        notesEl.disabled = !isEditable || isInboxMode;
+        const notesWrap = notesEl.closest('.receive-order-note');
+        if(notesWrap) notesWrap.style.display = isInboxMode ? 'none' : '';
       }
       if(rawWrap && rawTextEl){
-        const rawText = String(ro.rawReceiptText || '').trim();
-        if(rawText){
-          rawTextEl.textContent = rawText;
-          rawWrap.style.display = '';
-        }else{
+        if(isInboxMode){
           rawWrap.style.display = 'none';
           rawTextEl.textContent = '';
+        }else{
+          const rawText = String(ro.rawReceiptText || '').trim();
+          if(rawText){
+            rawTextEl.textContent = rawText;
+            rawWrap.style.display = '';
+          }else{
+            rawWrap.style.display = 'none';
+            rawTextEl.textContent = '';
+          }
         }
       }
 
 	      if(summarySection) summarySection.style.display = isOrderMode ? '' : 'none';
 	      if(receiptsSection) receiptsSection.style.display = isOrderMode ? '' : 'none';
-	      if(manualSection) manualSection.style.display = isOrderMode ? 'none' : '';
-	      if(!isOrderMode){
+	      if(manualSection) manualSection.style.display = (!isOrderMode && !isInboxMode) ? '' : 'none';
+	      if(!isOrderMode && !isInboxMode){
 	        const manualInput = $('receiveManualSearch');
 	        if(manualInput){
 	          manualInput.value = String(ro.manualSearch || '');
@@ -30909,7 +31104,7 @@ function emptyStateHtml(){
 	      }
 
 	      if(isOrderMode){
-	        const visibleReceipts = (ro.receipts || []).filter(r => String(r && r.status ? r.status : '').trim() !== 'draft');
+	        const visibleReceipts = (ro.receipts || []).filter(r => !isReceiptDraftLike(String(r && r.status ? r.status : '').trim()));
 	        if(!visibleReceipts.length){
 	          receiptsWrap.innerHTML = `<div class="muted">No receipts yet.</div>`;
 	        }else{
@@ -30963,12 +31158,18 @@ function emptyStateHtml(){
 	        receiptsWrap.innerHTML = '';
 	      }
 
-	      if(receiptStatus === 'pending'){
+	      if(isInboxMode){
+	        setReceiveOrderMessage('Review incoming receipts below.');
+	      }else if(receiptStatus === 'pending'){
 	        setReceiveOrderMessage('Receipt is pending approval.');
 	      }else if(receiptStatus === 'completed'){
 	        setReceiveOrderMessage('Receipt completed. Inventory updated on completion.');
 	      }else if(receiptStatus === 'voided'){
 	        setReceiveOrderMessage('Receipt voided. Inventory unchanged.');
+	      }else if(receiptStatus === 'blocked_by_plan'){
+	        setReceiveOrderMessage(planBlocked
+	          ? 'Upgrade to enable receipt-based receiving.'
+	          : 'Draft receipt ready. Save or complete to update inventory.');
 	      }else if(receiptStatus === 'draft'){
 	        setReceiveOrderMessage('Draft receipt ready. Save or complete to update inventory.');
 	      }else{
@@ -30979,9 +31180,9 @@ function emptyStateHtml(){
 	      const saveBtn = $('btnReceiveOrderSave');
 	      const completeBtn = $('btnReceiveOrderComplete');
 	      const cancelBtn = $('btnReceiveOrderCancel');
-	      const canSave = isEditable && canReceivingEdit();
-	      const canComplete = (receiptStatus === 'draft' && canCompleteReceipt()) ||
-	        (receiptStatus === 'pending' && canReceivingApprove());
+	      const canSave = !isInboxMode && isEditable;
+	      const canComplete = !isInboxMode && ((isDraftLike && canCompleteReceipt()) ||
+	        (receiptStatus === 'pending' && canReceivingApprove()));
 	      if(saveBtn) saveBtn.disabled = !canSave;
 	      if(completeBtn) completeBtn.disabled = !canComplete;
 	      if(cancelBtn) cancelBtn.disabled = false;
@@ -31029,7 +31230,7 @@ function emptyStateHtml(){
 	    async function saveReceiptNotes(receiveState, receiptId){
 	      if(!receiveState || !receiptId) return;
 	      const status = String(receiveState.receiptStatus || '').trim().toLowerCase();
-	      if(status && status !== 'draft') return;
+	      if(status && !isReceiptDraftLike(status)) return;
 	      const notes = String(receiveState.receiptNotes || '').trim();
 	      const last = String(receiveState._lastSavedNotes || '');
 	      if(notes === last) return;
@@ -31130,7 +31331,7 @@ function emptyStateHtml(){
 	    async function handleSaveReceiptDraft(){
 	      const ro = state._receiveOrder;
 	      if(!ro) return;
-	      if(String(ro.receiptStatus || '').trim().toLowerCase() !== 'draft'){
+	      if(!isReceiptDraftLike(String(ro.receiptStatus || '').trim().toLowerCase())){
 	        toast('Receipt is locked');
 	        return;
 	      }
@@ -31155,11 +31356,12 @@ function emptyStateHtml(){
 	      const ro = state._receiveOrder;
 	      if(!ro) return;
 	      const status = String(ro.receiptStatus || '').trim().toLowerCase();
-	      if(status !== 'draft' && status !== 'pending'){
+	      const draftLike = isReceiptDraftLike(status);
+	      if(!draftLike && status !== 'pending'){
 	        toast('Receipt is locked');
 	        return;
 	      }
-	      if(!(status === 'draft' ? canCompleteReceipt() : canReceivingApprove())){
+	      if(!(draftLike ? canCompleteReceipt() : canReceivingApprove())){
 	        toast('Complete receipt permission required');
 	        return;
 	      }
@@ -31174,7 +31376,7 @@ function emptyStateHtml(){
 	      const prior = btn ? btn.textContent : '';
 	      if(btn){ btn.disabled = true; btn.textContent = 'Completing…'; }
 	      try{
-	        const receiptId = (status === 'draft')
+	        const receiptId = draftLike
 	          ? await saveReceiptLines(ro, { requireLine:true })
 	          : String(ro.receiptId || '').trim();
 	        if(!receiptId) throw new Error('Receipt not found.');
@@ -31193,7 +31395,7 @@ function emptyStateHtml(){
 	          await transitionToCompleted();
 	        }catch(err){
 	          const msg = err && err.message ? String(err.message) : '';
-	          if(status === 'draft' && canReceivingApprove()){
+	          if(draftLike && canReceivingApprove()){
 	            const { data: pendData, error: pendErr } = await SB.client.rpc('transition_receipt_status', {
 	              p_receipt_id: receiptId,
 	              p_status: 'pending'
@@ -31330,11 +31532,54 @@ function emptyStateHtml(){
 	      }
 	    }
 
+	    async function openReceiveInboxModal(){
+	      if(!SB.ready){ toast('Supabase not configured'); return; }
+	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
+	      if(!canAccessReceivingInbox()){ toast('Receiving access required'); return; }
+
+	      setReceiveOrderMessage('');
+	      setReceiveOrderWarning('');
+	      state._receiveOrder = {
+	        mode: 'inbox',
+	        poId: '',
+	        po: null,
+	        lines: [],
+	        receipts: [],
+	        receiptLines: [],
+	        receiptLinesByReceipt: new Map(),
+	        receiptId: '',
+	        receiptStatus: 'draft',
+	        receiptNotes: '',
+          possibleDuplicate: false,
+	        manualSearch: '',
+	        loading:true,
+	        rawReceiptText: '',
+	        receiptSource: ''
+	      };
+      show('receiveOrderModal', true);
+      renderReceiveOrderModal();
+      try{
+        await ensureInventoryLoaded();
+        await ensureIncomingOrdersLoaded();
+        await loadDraftEmailReceipts();
+      }catch(e){
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipts');
+      }finally{
+        if(state._receiveOrder) state._receiveOrder.loading = false;
+        renderReceiveOrderModal();
+      }
+	    }
+
 	    async function openReceiveManualModal(){
 	      if(!SB.ready){ toast('Supabase not configured'); return; }
 	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
 	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
-	      if(!canReceiveOrders()){ toast('Receiving access required'); return; }
+	      if(!canAccessReceivingInbox()){ toast('Receiving access required'); return; }
+	      if(!canReceiveOrders()){
+	        await openReceiveInboxModal();
+	        return;
+	      }
 
 	      setReceiveOrderMessage('');
 	      setReceiveOrderWarning('');
@@ -31400,7 +31645,8 @@ function emptyStateHtml(){
 	        wrap.innerHTML = `<div class="receive-search-empty">No matching items.</div>`;
 	        return;
 	      }
-	      const canEdit = String(ro.receiptStatus || '').trim().toLowerCase() === 'draft';
+	      const status = String(ro.receiptStatus || '').trim().toLowerCase();
+	      const canEdit = isReceiptDraftLike(status) && canReceivingEdit();
 	      const max = 20;
 	      wrap.innerHTML = matches.slice(0, max).map(it => {
 	        const id = String(it && it.id ? it.id : '').trim();
@@ -31431,7 +31677,7 @@ function emptyStateHtml(){
 	      const ro = state._receiveOrder;
 	      if(!ro || ro.mode !== 'manual') return;
 	      const status = String(ro.receiptStatus || '').trim().toLowerCase();
-	      if(status !== 'draft'){
+	      if(!isReceiptDraftLike(status)){
 	        toast('Receipt is locked');
 	        return;
 	      }
@@ -31545,6 +31791,8 @@ function emptyStateHtml(){
         const receiveState = getPurchaseOrderReceiveState(o, totals);
         const statusLabel = formatPurchaseOrderStatusLabel(o, totals);
         const supplier = String(o.vendor_name || (o.vendor && o.vendor.name) || o.vendor_id || '').trim();
+        const sentToText = formatOrderSentToLabel(o, supplier);
+        const shipToHtml = formatOrderShipToHtml(o);
         const notes = String(o.notes||'').trim();
         const relatedJobs = Array.isArray(o.related_job_numbers)
           ? o.related_job_numbers.map(n => String(n || '').trim()).filter(Boolean)
@@ -31624,7 +31872,8 @@ function emptyStateHtml(){
           `</summary>`+
           `<div class="history-body">`+
             `<div class="history-kv">`+
-              (supplier ? `<div><span class="muted">Supplier:</span> ${escapeHtml(supplier)}</div>` : '')+
+              (sentToText ? `<div><span class="muted">Sent to:</span> ${escapeHtml(sentToText)}</div>` : '')+
+              (shipToHtml ? `<div><span class="muted">Ship To:</span> ${shipToHtml}</div>` : '')+
               (statusLabel ? `<div><span class="muted">Status:</span> ${escapeHtml(statusLabel)}</div>` : '')+
               (relatedJobs.length ? `<div><span class="muted">Related job${relatedJobs.length > 1 ? 's' : ''}:</span> ${relatedJobsHtml}</div>` : '')+
               (expectedDate ? `<div><span class="muted">Expected:</span> ${escapeHtml(expectedDate)}</div>` : '')+
@@ -31649,11 +31898,13 @@ function emptyStateHtml(){
 	      const poNumber = String(o.po_number || '').trim();
 	      const status = String(o.status || '').trim();
 	      const vendor = String(o.vendor_name || (o.vendor && o.vendor.name) || o.vendor_id || '').trim();
-        const jobs = Array.isArray(o.related_job_numbers) ? o.related_job_numbers.join(' ') : '';
-        const lineMap = state._orderHistoryLinesByPo || new Map();
-        const items = normalizePurchaseOrderLines(lineMap.get(id) || []);
-        const itemText = items.map(it => `${it.item_name} ${it.item_sku} ${formatQty(it.quantity_ordered)}`).join(' ');
-	      return `${id} ${poNumber} ${status} ${orderDate} ${expectedDate} ${receivedDate} ${createdAt} ${subject} ${vendor} ${notes} ${jobs} ${itemText}`.toLowerCase();
+	      const recipientEmail = String(o.recipient_email || o.recipientEmail || '').trim();
+	      const shipToText = formatShippingSnapshotLines(getOrderShippingSnapshotFromRow(o)).join(' ');
+	      const jobs = Array.isArray(o.related_job_numbers) ? o.related_job_numbers.join(' ') : '';
+	      const lineMap = state._orderHistoryLinesByPo || new Map();
+	      const items = normalizePurchaseOrderLines(lineMap.get(id) || []);
+	      const itemText = items.map(it => `${it.item_name} ${it.item_sku} ${formatQty(it.quantity_ordered)}`).join(' ');
+	      return `${id} ${poNumber} ${status} ${orderDate} ${expectedDate} ${receivedDate} ${createdAt} ${subject} ${vendor} ${recipientEmail} ${shipToText} ${notes} ${jobs} ${itemText}`.toLowerCase();
 	    }
 	    function renderOrderHistoryFiltered(){
 	      const rows = Array.isArray(state._orderHistoryRows) ? state._orderHistoryRows : [];
@@ -31777,7 +32028,7 @@ function emptyStateHtml(){
         const lineItems = Array.isArray(row.line_items) ? row.line_items : [];
         const companyName = getOrderCompanyName();
         if(!companyName) throw new Error('Company name is required to send orders');
-        const shippingAddress = normalizeShippingSnapshot(row.shipping_address_snapshot);
+        const shippingAddress = getOrderShippingSnapshotFromRow(row);
         const companyPoNumber = String(row.company_po_number || '').trim();
         const internalPoNumber = String(row.internal_po_number || '').trim();
 
@@ -31802,7 +32053,7 @@ function emptyStateHtml(){
             providerResult: sendRes && Object.prototype.hasOwnProperty.call(sendRes, 'result') ? sendRes.result : sendRes,
             companyPoNumber,
             internalPoNumber,
-            shippingAddressId: row.shipping_address_id,
+            shippingAddressId: row.ship_to_location_id || row.shipping_address_id,
             shippingAddressSnapshot: shippingAddress,
           });
         }catch{}
@@ -31830,6 +32081,7 @@ function emptyStateHtml(){
 	        state._orderHistoryLinesByPo = await sbFetchPurchaseOrderLinesByPoIds(
 	          (rows || []).map(r => r && r.id)
 	        );
+	        await loadOrderShippingOptions();
 	        const lineMap = state._orderHistoryLinesByPo || new Map();
 	        (state._orderHistoryRows || []).forEach(row=>{
 	          const totals = getPurchaseOrderLineTotalsById(row && row.id, lineMap);
@@ -36294,6 +36546,16 @@ function emptyStateHtml(){
 	    if(receiveReceiptNotes) receiveReceiptNotes.addEventListener('input', ()=>{
 	      if(state._receiveOrder) state._receiveOrder.receiptNotes = String(receiveReceiptNotes.value || '');
 	    });
+	    const receiveForwardingHint = $('receiveForwardingHint');
+	    if(receiveForwardingHint && !receiveForwardingHint._wired){
+	      receiveForwardingHint._wired = true;
+	      receiveForwardingHint.addEventListener('click', (e)=>{
+	        const btn = e.target.closest('[data-dismiss-receive-forward-hint]');
+	        if(!btn) return;
+	        dismissReceiveForwardingHint();
+	        renderReceiveForwardingHint();
+	      });
+	    }
 	    const receiveOrderLines = $('receiveOrderLines');
 	    if(receiveOrderLines){
 	      receiveOrderLines.addEventListener('input', (e)=>{
@@ -38098,6 +38360,18 @@ function emptyStateHtml(){
         timezone.value = savedTz || getSystemTimezone();
       }
     }
+    function renderOnboardingReceiptForwarding(){
+      const addressEl = $('onboardingReceiptAddress');
+      if(addressEl) addressEl.textContent = getReceiptForwardingAddress();
+      const gateEl = $('onboardingReceiptGate');
+      if(gateEl){
+        const allowed = hasTier('professional');
+        gateEl.style.display = allowed ? 'none' : '';
+        gateEl.textContent = allowed
+          ? ''
+          : 'Receipt ingestion is available on Pro plans. You can enable it later.';
+      }
+    }
     async function updateCompanySettings(patch, nameOverride){
       if(!SB.ready || !SB.session || !SB.client || !SB.companyId) throw new Error('Not authorized');
       const payload = {
@@ -38538,6 +38812,7 @@ function emptyStateHtml(){
         }catch(e){
           setOnboardingMessage('onboardingProfileMsg', e && e.message ? e.message : 'Unable to load profile.');
         }
+        renderOnboardingReceiptForwarding();
       }
 
       if(stepId === 'locations'){

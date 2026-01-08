@@ -8,7 +8,8 @@ import { logger } from '../utils/logger.ts';
 import type { AuthContext } from '../middleware/auth.ts';
 
 const MAX_BODY_BYTES = 15 * 1024 * 1024; // 15MB
-const DEFAULT_DOMAIN = 'inventorymanager.app';
+const DEFAULT_DOMAIN = 'inbound.inventorymanager.app';
+const LEGACY_DOMAIN = 'inventorymanager.app';
 const DEFAULT_DEDUPE_WINDOW_DAYS = 14;
 
 interface ParsedLineItem {
@@ -378,7 +379,10 @@ export async function handleInboundReceiptEmail(
     ];
 
     const domain = Deno.env.get('INBOUND_RECEIPT_DOMAIN') || DEFAULT_DOMAIN;
-    const slug = extractSlugFromRecipients(recipients, domain);
+    const legacyDomain = Deno.env.get('RECEIPT_FORWARD_DOMAIN') || '';
+    const slug = extractSlugFromRecipients(recipients, domain)
+      || (legacyDomain ? extractSlugFromRecipients(recipients, legacyDomain) : null)
+      || (domain !== LEGACY_DOMAIN ? extractSlugFromRecipients(recipients, LEGACY_DOMAIN) : null);
     if (!slug) {
       return jsonResponse({ ok: false, error: 'No valid receipt address found', request_id: requestId }, 400);
     }
@@ -407,7 +411,7 @@ export async function handleInboundReceiptEmail(
     const supabase = getServiceClient();
     const { data: company, error: companyError } = await supabase
       .from('companies')
-      .select('id,slug,is_active')
+      .select('id,slug,is_active,base_subscription_tier')
       .eq('slug', slug)
       .maybeSingle();
 
@@ -419,6 +423,32 @@ export async function handleInboundReceiptEmail(
     if (!company || !company.is_active) {
       return jsonResponse({ ok: false, error: 'Company not found or inactive', request_id: requestId }, 404);
     }
+
+    let effectiveTier = '';
+    try {
+      const { data: tierData, error: tierError } = await supabase.rpc('get_company_tier', {
+        p_company_id: company.id,
+      });
+      if (tierError) {
+        logger.warn('Company tier lookup failed', { request_id: requestId, error: tierError.message });
+      } else {
+        const row = Array.isArray(tierData) ? tierData[0] : tierData;
+        if (row && typeof row.effective_tier === 'string') {
+          effectiveTier = row.effective_tier;
+        }
+      }
+    } catch (err) {
+      logger.warn('Company tier lookup failed', { request_id: requestId, error: err instanceof Error ? err.message : String(err) });
+    }
+    if (!effectiveTier) {
+      const baseTier = company && typeof company === 'object' && 'base_subscription_tier' in company
+        ? String((company as { base_subscription_tier?: string }).base_subscription_tier || '').trim()
+        : '';
+      effectiveTier = baseTier;
+    }
+    const normalizedTier = String(effectiveTier || '').trim().toLowerCase();
+    const tierAllowsReceiptIngestion = ['professional', 'business', 'enterprise'].includes(normalizedTier);
+    const receiptStatus = tierAllowsReceiptIngestion ? 'draft' : 'blocked_by_plan';
 
     const { data: receiptNumber, error: receiptNumErr } = await supabase
       .rpc('generate_receipt_number', { p_company_id: company.id });
@@ -474,7 +504,7 @@ export async function handleInboundReceiptEmail(
     const insertPayload = {
       company_id: company.id,
       receipt_number: receiptNumber,
-      status: 'draft',
+      status: receiptStatus,
       vendor_name: parsed.vendor_name,
       receipt_date: parsed.receipt_date,
       subtotal: parsed.subtotal,
@@ -525,7 +555,7 @@ export async function handleInboundReceiptEmail(
       ok: true,
       receipt_id: receiptRow.id,
       receipt_number: receiptRow.receipt_number,
-      status: 'draft',
+      status: receiptStatus,
     }, 201);
   } catch (err) {
     logger.error('Inbound receipt handler failed', {
