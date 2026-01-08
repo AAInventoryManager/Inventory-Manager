@@ -2272,17 +2272,18 @@
       position:absolute;
       inset:0;
       overflow-y:auto;
+      height:100%;
       padding:16px 20px;
       opacity:0;
       visibility:hidden;
       transform:translateX(20px);
       transition:opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+      -webkit-overflow-scrolling:touch;
     }
     .order-wizard-panel.active{
       opacity:1;
       visibility:visible;
       transform:translateX(0);
-      position:relative;
     }
     .order-wizard-panel.exit-left{
       transform:translateX(-20px);
@@ -15696,6 +15697,11 @@
       [PERMISSIONS.AUDIT_LOG_VIEW]: { any:['can_invite'] },
       [PERMISSIONS.METRICS_VIEW]: { any:['can_invite'] },
       [PERMISSIONS.SNAPSHOTS_VIEW]: { any:['can_delete'] },
+      [PERMISSIONS.RECEIVING_VIEW]: { any:['can_read'] },
+      [PERMISSIONS.RECEIVING_CREATE]: { any:['can_create'] },
+      [PERMISSIONS.RECEIVING_EDIT]: { any:['can_update'] },
+      [PERMISSIONS.RECEIVING_APPROVE]: { any:['can_update'] },
+      [PERMISSIONS.RECEIVING_VOID]: { any:['can_delete'] },
       [PERMISSIONS.PLATFORM_VIEW_ALL]: { any:['is_super_user'] },
       [PERMISSIONS.PLATFORM_MANAGE_ROLES]: { any:['is_super_user'] },
       [PERMISSIONS.PLATFORM_VIEW_METRICS]: { any:['is_super_user'] },
@@ -22401,6 +22407,8 @@
 	    function isMissingRelationError(err){
 	      const msg = errToText(err);
 	      if(!msg) return false;
+	      const status = Number(err && (err.status || err.statusCode));
+	      if(status === 404) return true;
 	      const lower = msg.toLowerCase();
 	      if(lower.includes('schema cache') && lower.includes('relationship')) return true;
 	      return (
@@ -22427,6 +22435,29 @@
 	      const lower = msg.toLowerCase();
 	      if(column && !lower.includes(String(column).toLowerCase())) return false;
 	      return lower.includes('schema cache') || (lower.includes('column') && lower.includes('does not exist'));
+	    }
+	
+	    function isMissingColumnError(err, column){
+	      return isPostgrestMissingColumnError(err, column) || isSchemaCacheMissingColumnError(err, column);
+	    }
+
+	    function isAnyMissingColumnError(err){
+	      return isPostgrestMissingColumnError(err) || isSchemaCacheMissingColumnError(err);
+	    }
+
+	    function isAuthOrPermissionError(err){
+	      const status = Number(err && (err.status || err.statusCode));
+	      if(status === 401 || status === 403) return true;
+	      const msg = errToText(err).toLowerCase();
+	      return msg.includes('permission') || msg.includes('not authorized') || msg.includes('insufficient');
+	    }
+
+	    function shouldRetryOrderSelect(err){
+	      if(!err) return false;
+	      if(isAuthOrPermissionError(err)) return false;
+	      const status = Number(err && (err.status || err.statusCode));
+	      if(status === 400) return true;
+	      return isMissingRelationError(err) || isAnyMissingColumnError(err);
 	    }
 
 	    function isOrdersReceiptColumnsMissingError(err){
@@ -23127,9 +23158,13 @@ function adjustTitleSize(){
 		  if(!rows.length) return map;
 		  const lineMap = state._orderHistoryLinesByPo || new Map();
 		  for(const row of rows){
-		    if(isOrderCurrentlyReceived(row)) continue;
 		    const orderId = String(row && row.id ? row.id : '').trim();
 		    if(!orderId) continue;
+		    const totals = getPurchaseOrderLineTotalsById(orderId, lineMap);
+		    applyPurchaseOrderLineTotals(row, totals);
+		    const receiveState = getPurchaseOrderReceiveState(row, totals);
+		    if(receiveState === 'draft' || receiveState === 'cancelled' || receiveState === 'closed' || receiveState === 'voided') continue;
+		    if(totals.hasLines && totals.remaining <= 0) continue;
 		    const lines = normalizePurchaseOrderLines(lineMap.get(orderId) || []);
 		    for(const line of lines){
 		      const itemId = String(line.item_id || '').trim();
@@ -26398,12 +26433,31 @@ function emptyStateHtml(){
 	      ensureOrderIdentifiers(ord);
 	      return String(ord.internalPoNumber || '').trim();
 	    }
-	    function composeOrderSubject(ord){
-	      const companyName = getOrderCompanyName();
-	      if(!companyName) return '';
-	      const po = getOrderIdentifier(ord);
-	      return po ? `Purchase Order ${po} \u2013 ${companyName}` : `Purchase Order \u2013 ${companyName}`;
-	    }
+    function composeOrderSubject(ord){
+      const companyName = getOrderCompanyName();
+      if(!companyName) return '';
+      const po = getOrderIdentifier(ord);
+      return po ? `Purchase Order ${po} \u2013 ${companyName}` : `Purchase Order \u2013 ${companyName}`;
+    }
+    function orderSubjectFromRow(row){
+      const r = row || {};
+      const explicit = String(r.subject_line || r.subject || '').trim();
+      if(explicit) return explicit;
+      const companyName = getOrderCompanyName();
+      const po = String(
+        r.company_po_number ||
+        r.po_number ||
+        r.internal_po_number ||
+        r.internalPoNumber ||
+        r.poNumber ||
+        r.id ||
+        ''
+      ).trim();
+      if(po && companyName) return `Purchase Order ${po} \u2013 ${companyName}`;
+      if(po) return `Purchase Order ${po}`;
+      if(companyName) return `Purchase Order \u2013 ${companyName}`;
+      return 'Purchase Order';
+    }
     function orderActiveLines(){
       const ord = orderState();
       return ord.lines
@@ -27543,8 +27597,8 @@ function emptyStateHtml(){
       if(!rows.length) return map;
       const lineMap = state._orderHistoryLinesByPo || new Map();
       rows.forEach(row=>{
-        const status = String(row && row.status ? row.status : '').trim().toLowerCase();
-        if(status !== 'approved' && status !== 'submitted') return;
+        const status = normalizePurchaseOrderStatus(row && row.status ? row.status : '');
+        if(status !== 'submitted' && status !== 'partially_received') return;
         const orderId = String(row && row.id ? row.id : '').trim();
         if(!orderId) return;
         const lines = normalizePurchaseOrderLines(lineMap.get(orderId) || []);
@@ -29303,16 +29357,32 @@ function emptyStateHtml(){
       if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
       if(!canOrdersView()) return [];
       const q = String(prefix||'').trim();
-      let req = SB.client
-        .from('order_recipients')
-        .select('email,name,last_used_at')
-        .eq('company_id', SB.companyId)
-        .order('last_used_at', { ascending:false })
-        .limit(20);
-      if(q) req = req.ilike('email', q + '%');
-      const { data, error } = await req;
-      if(error) throw error;
-      return Array.isArray(data) ? data : [];
+      const variants = [
+        { withCompany: true, select: 'email,name,last_used_at' },
+        { withCompany: true, select: 'email,last_used_at' },
+        { withCompany: false, select: 'email,name,last_used_at' },
+        { withCompany: false, select: 'email,last_used_at' },
+      ];
+      let lastError = null;
+      for(const variant of variants){
+        let req = SB.client
+          .from('order_recipients')
+          .select(variant.select);
+        if(variant.withCompany) req = req.eq('company_id', SB.companyId);
+        req = req.order('last_used_at', { ascending:false }).limit(20);
+        if(q) req = req.ilike('email', q + '%');
+        const { data, error } = await req;
+        if(!error) return Array.isArray(data) ? data : [];
+        if(
+          !isMissingColumnError(error, 'company_id') &&
+          !isMissingColumnError(error, 'name')
+        ){
+          throw error;
+        }
+        lastError = error;
+      }
+      if(lastError) throw lastError;
+      return [];
     }
     async function sbRecordOrderRecipient(email, name){
       if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return;
@@ -29327,10 +29397,30 @@ function emptyStateHtml(){
       };
       const nm = String(name||'').trim();
       if(nm) row.name = nm;
-      const { error } = await SB.client
-        .from('order_recipients')
-        .upsert([row], { onConflict: 'email' });
-      if(error) throw error;
+      let onConflict = 'company_id,email';
+      let attemptRow = { ...row };
+      for(let attempt = 0; attempt < 3; attempt++){
+        const { error } = await SB.client
+          .from('order_recipients')
+          .upsert([attemptRow], { onConflict });
+        if(!error) return;
+        const msg = errToText(error).toLowerCase();
+        let adjusted = false;
+        if(onConflict === 'company_id,email' && (isMissingColumnError(error, 'company_id') || msg.includes('on_conflict'))){
+          onConflict = 'email';
+          delete attemptRow.company_id;
+          adjusted = true;
+        }
+        if(isMissingColumnError(error, 'created_by')){
+          delete attemptRow.created_by;
+          adjusted = true;
+        }
+        if(isMissingColumnError(error, 'name')){
+          delete attemptRow.name;
+          adjusted = true;
+        }
+        if(!adjusted) throw error;
+      }
     }
     function normalizeOrderLineItems(value){
       const arr = Array.isArray(value) ? value : [];
@@ -29415,36 +29505,96 @@ function emptyStateHtml(){
         jobNumbers,
       });
     }
+    const PURCHASE_ORDER_BASE_COLUMNS = [
+      'id',
+      'po_number',
+      'status',
+      'order_date',
+      'expected_date',
+      'received_date',
+      'notes',
+      'vendor_id',
+      'created_at',
+      'related_job_numbers',
+    ];
+    const PURCHASE_ORDER_MIN_COLUMNS = [
+      'id',
+      'po_number',
+      'status',
+      'created_at',
+    ];
+    function normalizePurchaseOrderColumns(columns){
+      const list = Array.isArray(columns) ? columns : [];
+      const out = [];
+      for(const col of list){
+        const key = String(col || '').trim();
+        if(!key) continue;
+        if(!out.includes(key)) out.push(key);
+      }
+      return out.length ? out : PURCHASE_ORDER_MIN_COLUMNS.slice();
+    }
+    function buildPurchaseOrderSelect(columns){
+      const list = normalizePurchaseOrderColumns(columns);
+      return list.join(',');
+    }
+    function dropMissingPurchaseOrderColumns(columns, error){
+      const list = normalizePurchaseOrderColumns(columns);
+      const missing = list.filter(col => isMissingColumnError(error, col));
+      if(!missing.length) return { columns: list, changed: false, missing };
+      const next = list.filter(col => !missing.includes(col));
+      return { columns: next.length ? next : PURCHASE_ORDER_MIN_COLUMNS.slice(), changed: true, missing };
+    }
 	    async function sbFetchOrders(limit = 50){
 	      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
 	      if(!canOrdersView()) return [];
 	      const lim = Math.max(1, Math.min(200, toInt(limit, 50)));
-	      const baseSelect = 'id,po_number,status,order_date,expected_date,received_date,notes,vendor_id,created_at,related_job_numbers';
 	      let rows = [];
-	      const { data, error } = await SB.client
-	        .from('purchase_orders')
-	        .select(`${baseSelect},vendor:vendors(name)`)
-	        .eq('company_id', SB.companyId)
-	        .order('order_date', { ascending:false })
-	        .order('created_at', { ascending:false })
-	        .limit(lim);
-	      if(error){
-	        if(isMissingRelationError(error)){
-	          const { data: data2, error: err2 } = await SB.client
-	            .from('purchase_orders')
-	            .select(baseSelect)
-	            .eq('company_id', SB.companyId)
-	            .order('order_date', { ascending:false })
-	            .order('created_at', { ascending:false })
-	            .limit(lim);
-	          if(err2) throw err2;
-	          rows = Array.isArray(data2) ? data2 : [];
+	      let lastError = null;
+	      let allowOrderDate = true;
+	      let columns = PURCHASE_ORDER_BASE_COLUMNS.slice();
+	      let attemptedMinimal = false;
+	      for(let attempt = 0; attempt < 6; attempt++){
+	        columns = normalizePurchaseOrderColumns(columns);
+	        const canOrderByDate = allowOrderDate && columns.includes('order_date');
+	        const req = SB.client
+	          .from('purchase_orders')
+	          .select(buildPurchaseOrderSelect(columns))
+	          .eq('company_id', SB.companyId);
+	        if(canOrderByDate){
+	          req.order('order_date', { ascending:false }).order('created_at', { ascending:false });
 	        }else{
+	          req.order('created_at', { ascending:false });
+	        }
+	        req.limit(lim);
+	        const { data, error } = await req;
+	        if(!error){
+	          rows = Array.isArray(data) ? data : [];
+	          return rows.map(normalizePurchaseOrderRow);
+	        }
+	        const dropResult = dropMissingPurchaseOrderColumns(columns, error);
+	        if(dropResult.changed){
+	          columns = dropResult.columns;
+	          if(dropResult.missing.includes('order_date')) allowOrderDate = false;
+	          continue;
+	        }
+	        if(canOrderByDate && isMissingColumnError(error, 'order_date')){
+	          allowOrderDate = false;
+	          columns = columns.filter(c => c !== 'order_date');
+	          continue;
+	        }
+	        if(!attemptedMinimal){
+	          attemptedMinimal = true;
+	          columns = PURCHASE_ORDER_MIN_COLUMNS.slice();
+	          allowOrderDate = false;
+	          continue;
+	        }
+	        if(!shouldRetryOrderSelect(error)){
 	          throw error;
 	        }
-	      }else{
-	        rows = Array.isArray(data) ? data : [];
+	        lastError = error;
+	        break;
 	      }
+	      if(lastError) throw lastError;
 	      return rows.map(normalizePurchaseOrderRow);
 	    }
 	    async function sbFetchAllOrders(pageSize = 200){
@@ -29452,17 +29602,52 @@ function emptyStateHtml(){
 	      const size = Math.max(1, Math.min(200, toInt(pageSize, 200)));
 	      let offset = 0;
 	      const out = [];
+	      let allowOrderDate = true;
 	      for(let page=0; page<200; page++){
-	        const baseSelect = 'id,po_number,status,order_date,expected_date,received_date,notes,vendor_id,created_at,related_job_numbers';
-	        const { data, error } = await SB.client
-	          .from('purchase_orders')
-	          .select(baseSelect)
-	          .eq('company_id', SB.companyId)
-	          .order('order_date', { ascending:false })
-	          .order('created_at', { ascending:false })
-	          .range(offset, offset + size - 1);
-	        if(error) throw error;
-	        const rows = Array.isArray(data) ? data : [];
+	        let rows = [];
+	        let lastError = null;
+	        let columns = PURCHASE_ORDER_BASE_COLUMNS.slice();
+	        let attemptedMinimal = false;
+	        for(let attempt = 0; attempt < 6; attempt++){
+	          columns = normalizePurchaseOrderColumns(columns);
+	          const canOrderByDate = allowOrderDate && columns.includes('order_date');
+	          const req = SB.client
+	            .from('purchase_orders')
+	            .select(buildPurchaseOrderSelect(columns))
+	            .eq('company_id', SB.companyId);
+	          if(canOrderByDate){
+	            req.order('order_date', { ascending:false }).order('created_at', { ascending:false });
+	          }else{
+	            req.order('created_at', { ascending:false });
+	          }
+	          req.range(offset, offset + size - 1);
+	          const { data, error } = await req;
+	          if(!error){
+	            rows = Array.isArray(data) ? data : [];
+	            break;
+	          }
+	          const dropResult = dropMissingPurchaseOrderColumns(columns, error);
+	          if(dropResult.changed){
+	            columns = dropResult.columns;
+	            if(dropResult.missing.includes('order_date')) allowOrderDate = false;
+	            continue;
+	          }
+	          if(canOrderByDate && isMissingColumnError(error, 'order_date')){
+	            allowOrderDate = false;
+	            columns = columns.filter(c => c !== 'order_date');
+	            continue;
+	          }
+	          if(!attemptedMinimal){
+	            attemptedMinimal = true;
+	            columns = PURCHASE_ORDER_MIN_COLUMNS.slice();
+	            allowOrderDate = false;
+	            continue;
+	          }
+	          if(!shouldRetryOrderSelect(error)) throw error;
+	          lastError = error;
+	          break;
+	        }
+	        if(!rows.length && lastError) throw lastError;
 	        out.push(...rows.map(normalizePurchaseOrderRow));
 	        if(rows.length < size) break;
 	        offset += size;
@@ -29523,13 +29708,17 @@ function emptyStateHtml(){
           'id,purchase_order_id,item_id,item_name,item_sku,quantity_ordered,quantity_received,unit_cost,notes,created_at';
         let data = null;
         let error = null;
+        const primaryTable = state._poLinesTable || 'purchase_order_items';
         ({ data, error } = await SB.client
-          .from('purchase_order_lines')
+          .from(primaryTable)
           .select(select)
           .in('purchase_order_id', ids));
         if(error && isMissingRelationError(error)){
+          if(primaryTable === 'purchase_order_items'){
+            state._poLinesTable = 'purchase_order_lines';
+          }
           ({ data, error } = await SB.client
-            .from('purchase_order_items')
+            .from(state._poLinesTable)
             .select(select)
             .in('purchase_order_id', ids));
         }
@@ -29687,14 +29876,81 @@ function emptyStateHtml(){
 	      if(error) throw error;
 	    }
 
+	    function normalizePurchaseOrderStatus(status){
+	      const s = String(status || '').trim().toLowerCase();
+	      if(!s) return '';
+	      if(s === 'received' || s === 'completed' || s === 'fully_received') return 'fully_received';
+	      if(s === 'partial' || s === 'partially_received') return 'partially_received';
+	      if(s === 'sent' || s === 'approved' || s === 'confirmed') return 'submitted';
+	      if(s === 'canceled') return 'cancelled';
+	      return s;
+	    }
+
+	    function getPurchaseOrderLineTotalsById(orderId, lineMap){
+	      const id = String(orderId || '').trim();
+	      if(!id) return { ordered:0, received:0, remaining:0, hasLines:false };
+	      const map = lineMap || state._orderHistoryLinesByPo || new Map();
+	      const lines = normalizePurchaseOrderLines(map.get(id) || []);
+	      if(!lines.length) return { ordered:0, received:0, remaining:0, hasLines:false };
+	      let ordered = 0;
+	      let received = 0;
+	      let remaining = 0;
+	      for(const line of lines){
+	        const qtyOrdered = toQty(line.quantity_ordered, 0);
+	        const qtyReceived = toQty(line.quantity_received, 0);
+	        ordered += qtyOrdered;
+	        received += qtyReceived;
+	        remaining += Math.max(0, qtyOrdered - qtyReceived);
+	      }
+	      return { ordered, received, remaining, hasLines:true };
+	    }
+
+	    function applyPurchaseOrderLineTotals(orderRow, totals){
+	      if(!orderRow || !totals) return;
+	      orderRow.ordered_total_qty = totals.ordered;
+	      orderRow.received_total_qty = totals.received;
+	      orderRow.remaining_total_qty = totals.remaining;
+	      orderRow.has_line_items = totals.hasLines;
+	    }
+
+	    function getPurchaseOrderReceiveState(orderRow, totals){
+	      const statusKey = normalizePurchaseOrderStatus(orderRow && orderRow.status);
+	      if(statusKey === 'draft') return 'draft';
+	      if(statusKey === 'cancelled' || statusKey === 'closed' || statusKey === 'voided') return statusKey;
+	      if(totals && totals.hasLines){
+	        if(totals.remaining <= 0 && totals.ordered > 0) return 'fully_received';
+	        if(totals.received > 0 && totals.remaining > 0) return 'partially_received';
+	        if(totals.received === 0 && totals.remaining > 0) return 'submitted';
+	      }
+	      if(statusKey === 'partially_received' || statusKey === 'fully_received') return statusKey;
+	      if(statusKey === 'submitted') return 'submitted';
+	      return statusKey;
+	    }
+
+	    function formatPurchaseOrderStatusLabel(orderRow, totals){
+	      const state = getPurchaseOrderReceiveState(orderRow, totals);
+	      if(state === 'draft') return 'Draft';
+	      if(state === 'submitted') return 'Submitted';
+	      if(state === 'partially_received') return 'Partially Received';
+	      if(state === 'fully_received') return 'Fully Received';
+	      if(state === 'cancelled') return 'Cancelled';
+	      if(state === 'closed') return 'Closed';
+	      if(state === 'voided') return 'Voided';
+	      return formatStateToken(state || (orderRow && orderRow.status) || '');
+	    }
+
 	    function isOrderCurrentlyReceived(orderRow){
-	      const status = String(orderRow && orderRow.status ? orderRow.status : '').trim().toLowerCase();
-	      return status === 'received';
+	      const totals = getPurchaseOrderLineTotalsById(orderRow && orderRow.id);
+	      if(totals.hasLines){
+	        return totals.remaining <= 0 && totals.ordered > 0;
+	      }
+	      const statusKey = normalizePurchaseOrderStatus(orderRow && orderRow.status);
+	      return statusKey === 'fully_received';
 	    }
 
 	    function orderReceiptMetaText(orderRow){
-	      const status = String(orderRow && orderRow.status ? orderRow.status : '').trim();
-	      return status ? formatStateToken(status) : '';
+	      const totals = getPurchaseOrderLineTotalsById(orderRow && orderRow.id);
+	      return formatPurchaseOrderStatusLabel(orderRow, totals);
 	    }
 
 	    function getOrderHistoryRowById(orderId){
@@ -30128,25 +30384,33 @@ function emptyStateHtml(){
 	    async function sbFetchPurchaseOrderById(poId){
 	      const id = String(poId || '').trim();
 	      if(!id) throw new Error('Invalid purchase order');
-	      const baseSelect = 'id,po_number,status,order_date,expected_date,received_date,notes,vendor_id,created_at,related_job_numbers';
-	      const { data, error } = await SB.client
-	        .from('purchase_orders')
-	        .select(`${baseSelect},vendor:vendors(name)`)
-	        .eq('id', id)
-	        .single();
-	      if(error){
-	        if(isMissingRelationError(error)){
-	          const fallback = await SB.client
-	            .from('purchase_orders')
-	            .select(baseSelect)
-	            .eq('id', id)
-	            .single();
-	          if(fallback.error) throw fallback.error;
-	          return normalizePurchaseOrderRow(fallback.data);
+	      let columns = PURCHASE_ORDER_BASE_COLUMNS.slice();
+	      let attemptedMinimal = false;
+	      let lastError = null;
+	      for(let attempt = 0; attempt < 6; attempt++){
+	        columns = normalizePurchaseOrderColumns(columns);
+	        const { data, error } = await SB.client
+	          .from('purchase_orders')
+	          .select(buildPurchaseOrderSelect(columns))
+	          .eq('id', id)
+	          .single();
+	        if(!error) return normalizePurchaseOrderRow(data);
+	        const dropResult = dropMissingPurchaseOrderColumns(columns, error);
+	        if(dropResult.changed){
+	          columns = dropResult.columns;
+	          continue;
 	        }
-	        throw error;
+	        if(!attemptedMinimal){
+	          attemptedMinimal = true;
+	          columns = PURCHASE_ORDER_MIN_COLUMNS.slice();
+	          continue;
+	        }
+	        if(!shouldRetryOrderSelect(error)) throw error;
+	        lastError = error;
+	        break;
 	      }
-	      return normalizePurchaseOrderRow(data);
+	      if(lastError) throw lastError;
+	      throw new Error('Failed to fetch purchase order');
 	    }
 	    async function sbFetchReceiptDataForPo(poId){
 	      const id = String(poId || '').trim();
@@ -30537,7 +30801,14 @@ function emptyStateHtml(){
 	        const po = ro.po || {};
 	        const poNumber = String(po.po_number || '').trim();
 	        const supplier = String(po.vendor_name || (po.vendor && po.vendor.name) || po.vendor_id || '').trim() || 'Unknown';
-	        const status = formatStateToken(po.status || '');
+	        const totals = computeReceiveTotals(ro.lines || []);
+	        const poTotals = {
+	          ordered: totals.ordered,
+	          received: totals.received,
+	          remaining: totals.remaining,
+	          hasLines: Array.isArray(ro.lines) && ro.lines.length > 0
+	        };
+	        const statusLabel = formatPurchaseOrderStatusLabel(po, poTotals);
 
 	        meta.innerHTML =
 	          `<div class="receive-order-card">`+
@@ -30550,10 +30821,8 @@ function emptyStateHtml(){
 	          `</div>`+
 	          `<div class="receive-order-card">`+
 	            `<div class="label">Status</div>`+
-	            `<div class="value">${escapeHtml(status || '—')}</div>`+
+	            `<div class="value">${escapeHtml(statusLabel || '—')}</div>`+
 	          `</div>`;
-
-	        const totals = computeReceiveTotals(ro.lines || []);
 	        summary.innerHTML =
 	          `<div class="receive-order-card">`+
 	            `<div class="label">Expected Qty</div>`+
@@ -31218,6 +31487,22 @@ function emptyStateHtml(){
 	    async function handleOrderReceiptButtonClick(orderId, btnEl){
 	      const id = String(orderId || '').trim();
 	      if(!id) return;
+	      const row = getOrderHistoryRowById(id);
+	      const totals = getPurchaseOrderLineTotalsById(id);
+	      if(row) applyPurchaseOrderLineTotals(row, totals);
+	      const receiveState = getPurchaseOrderReceiveState(row || {}, totals);
+	      if(receiveState === 'draft'){
+	        toast('Draft orders cannot be received');
+	        return;
+	      }
+	      if(receiveState === 'cancelled' || receiveState === 'closed' || receiveState === 'voided'){
+	        toast('This order is closed and cannot be received');
+	        return;
+	      }
+	      if(totals.hasLines && totals.remaining <= 0){
+	        toast('All quantities have been received');
+	        return;
+	      }
 	      if(btnEl){
 	        btnEl.disabled = true;
 	      }
@@ -31253,7 +31538,12 @@ function emptyStateHtml(){
         const orderDate = formatDateShort(o.order_date || o.created_at || '');
         const expectedDate = formatDateShort(o.expected_date || '');
         const receivedDate = formatDateShort(o.received_date || '');
-        const statusLabel = formatStateToken(o.status || '');
+        const orderId = String(o.id || '');
+        const lineMap = state._orderHistoryLinesByPo || new Map();
+        const totals = getPurchaseOrderLineTotalsById(orderId, lineMap);
+        applyPurchaseOrderLineTotals(o, totals);
+        const receiveState = getPurchaseOrderReceiveState(o, totals);
+        const statusLabel = formatPurchaseOrderStatusLabel(o, totals);
         const supplier = String(o.vendor_name || (o.vendor && o.vendor.name) || o.vendor_id || '').trim();
         const notes = String(o.notes||'').trim();
         const relatedJobs = Array.isArray(o.related_job_numbers)
@@ -31261,12 +31551,22 @@ function emptyStateHtml(){
           : [];
         const relatedJobsHtml = relatedJobs.map(n => escapeHtml(n)).join('<br>');
 
-        const orderId = String(o.id || '');
-        const receiptMeta = orderNonEmpty(orderReceiptMetaText(o));
-        const canReceipt = canReceiveOrders();
-        const isReceived = isOrderCurrentlyReceived(o);
+        const receiptMeta = orderNonEmpty(statusLabel);
+        const canPermission = canReceiveOrders();
+        const remainingTotal = totals.remaining;
+        const isReceived = receiveState === 'fully_received';
+        const canReceipt = canPermission &&
+          receiveState !== 'draft' &&
+          receiveState !== 'cancelled' &&
+          receiveState !== 'closed' &&
+          receiveState !== 'voided' &&
+          remainingTotal > 0;
         det.classList.toggle('order-received', isReceived);
-        const receiveBtnTitle = canReceipt ? 'Receive Order' : 'Receiving not allowed';
+        const receiveBtnTitle = !canPermission
+          ? 'Receiving not allowed'
+          : (receiveState === 'draft'
+            ? 'Draft orders cannot be received'
+            : (remainingTotal <= 0 ? 'All items received' : 'Receive Order'));
         const receiveBtnClass = 'btn-tertiary btn-with-icon btn-sm';
         const receiveBtnIcon =
           `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
@@ -31281,7 +31581,6 @@ function emptyStateHtml(){
             `<span>Receive Order</span>`+
           `</button>`;
         
-        const lineMap = state._orderHistoryLinesByPo || new Map();
         const items = normalizePurchaseOrderLines(lineMap.get(orderId) || []);
         const itemsTable = items.length ? (
           `<table class="history-table">`+
@@ -31528,9 +31827,14 @@ function emptyStateHtml(){
 	        const rows = await sbFetchOrders(60);
 	        state._orderHistoryRows = Array.isArray(rows) ? rows : [];
 	        state._orderHistoryById = new Map((rows||[]).map(r => [String(r && r.id ? r.id : ''), r]).filter(x=>x[0]));
-          state._orderHistoryLinesByPo = await sbFetchPurchaseOrderLinesByPoIds(
-            (rows || []).map(r => r && r.id)
-          );
+	        state._orderHistoryLinesByPo = await sbFetchPurchaseOrderLinesByPoIds(
+	          (rows || []).map(r => r && r.id)
+	        );
+	        const lineMap = state._orderHistoryLinesByPo || new Map();
+	        (state._orderHistoryRows || []).forEach(row=>{
+	          const totals = getPurchaseOrderLineTotalsById(row && row.id, lineMap);
+	          applyPurchaseOrderLineTotals(row, totals);
+	        });
 	        renderOrderHistoryFiltered();
 	      }catch(e){
 	        state._orderHistoryById = new Map();
@@ -31957,11 +32261,13 @@ function emptyStateHtml(){
       if(!matches.length){
         return '<div class="job-audit-empty">No purchase orders were linked to this job.</div>';
       }
+      const lineMap = state._orderHistoryLinesByPo || new Map();
       return (
         `<div class="job-audit-list">`+
           matches.map(o=>{
             const poNumber = String(o && (o.po_number || o.poNumber) || '').trim() || shortId(String(o && o.id ? o.id : ''));
-            const statusLabel = formatStateToken(o && o.status ? o.status : '');
+            const totals = getPurchaseOrderLineTotalsById(o && o.id, lineMap);
+            const statusLabel = formatPurchaseOrderStatusLabel(o, totals);
             const submitted = formatDateShort(o && (o.order_date || o.created_at || '') || '');
             const meta = [statusLabel, submitted].filter(Boolean).join(' • ');
             return (
@@ -31981,7 +32287,9 @@ function emptyStateHtml(){
       const isComplete = job && String(job.status || '') === 'completed';
       const readinessDetail = editor ? editor.jobReadinessDetail : null;
       const hasBlocking = !!(readinessDetail && Array.isArray(readinessDetail.blocking_items) && readinessDetail.blocking_items.length);
-      const materialsBlocked = !isComplete && !!(readinessDetail && !readinessDetail.error && !readinessDetail.ready_for_approval && hasBlocking);
+      const jobShortfalls = editor && editor.jobShortfalls ? editor.jobShortfalls : null;
+      const hasShortfalls = !!(jobShortfalls && typeof jobShortfalls.size === 'number' && jobShortfalls.size > 0);
+      const materialsBlocked = !isComplete && (hasShortfalls || (!!(readinessDetail && !readinessDetail.error && !readinessDetail.ready_for_approval && hasBlocking)));
       const active = getJobEditorTab();
       const steps = [
         { key:'details', complete: nameOk, label:'Details', index:1 },
@@ -32033,6 +32341,11 @@ function emptyStateHtml(){
         state._orderHistoryLinesByPo = await sbFetchPurchaseOrderLinesByPoIds(
           (state._orderHistoryRows || []).map(r => r && r.id ? r.id : null)
         );
+        const lineMap = state._orderHistoryLinesByPo || new Map();
+        (state._orderHistoryRows || []).forEach(row=>{
+          const totals = getPurchaseOrderLineTotalsById(row && row.id, lineMap);
+          applyPurchaseOrderLineTotals(row, totals);
+        });
       }catch(e){
         state._orderHistoryRows = Array.isArray(state._orderHistoryRows) ? state._orderHistoryRows : [];
         state._orderHistoryById = state._orderHistoryById || new Map();
@@ -32999,6 +33312,7 @@ function emptyStateHtml(){
       const blockingItems = readinessDetail && Array.isArray(readinessDetail.blocking_items)
         ? readinessDetail.blocking_items
         : [];
+      const hasShortfall = !isCompleted && totals.totalShortfall > 0;
 
       syncJobActualDraftFromDom();
       ensureJobEditorIcons();
@@ -33090,16 +33404,35 @@ function emptyStateHtml(){
         statusPill.textContent = statusDisplayText;
         statusPill.className = `job-status-display job-status-badge--${status}`;
       }
-      const readinessState = (!isCompleted && readiness) ? (readiness.ready ? 'ready' : 'not-ready') : 'unknown';
-      const readinessText = (!isCompleted && readiness) ? jobReadinessLabel(readiness.ready) : 'Unknown';
       const readinessReasonCodes = (!isCompleted && readiness && Array.isArray(readiness.reasons)) ? readiness.reasons : [];
       const readinessReasonText = (!isCompleted && readiness)
         ? formatJobReadinessReasons(readinessReasonCodes).join(' • ')
         : '';
-      const readinessInventoryNote = (!isCompleted && readiness)
-        ? formatJobReadinessReasons(readinessReasonCodes.filter(code => code !== 'job_not_approved')).join(' • ')
-        : '';
-      const readinessNoteText = readinessInventoryNote || readinessReasonText;
+      const readinessNoteParts = [];
+      if(hasShortfall){
+        readinessNoteParts.push(`Shortfall: ${formatQty(totals.totalShortfall)}`);
+      }
+      if(readinessReasonCodes.includes('allocation_incomplete')){
+        readinessNoteParts.push('Allocation incomplete');
+      }
+      const extraNotes = formatJobReadinessReasons(
+        readinessReasonCodes.filter(code => !['job_not_approved', 'shortfall_exists', 'allocation_incomplete'].includes(code))
+      ).join(' • ');
+      if(extraNotes) readinessNoteParts.push(extraNotes);
+      const readinessNoteText = readinessNoteParts.join(' • ') || readinessReasonText;
+      const readinessDetailReady = !!(readinessDetail && !readinessDetail.error && readinessDetail.ready_for_approval);
+      const readinessSummaryReady = !!(readiness && readiness.ready);
+      let readinessState = 'unknown';
+      if(!isCompleted){
+        if(hasShortfall){
+          readinessState = 'not-ready';
+        }else if(readinessDetail && !readinessDetail.error){
+          readinessState = readinessDetailReady ? 'ready' : 'not-ready';
+        }else if(readiness){
+          readinessState = readinessSummaryReady ? 'ready' : 'not-ready';
+        }
+      }
+      const readinessText = readinessState === 'unknown' ? 'Unknown' : (readinessState === 'ready' ? 'Ready' : 'Not Ready');
       if(readinessBadge){
         if(isCompleted){
           readinessBadge.style.display = 'none';
@@ -33107,8 +33440,8 @@ function emptyStateHtml(){
           readinessBadge.style.display = '';
           readinessBadge.textContent = readinessState === 'unknown' ? 'UNKNOWN' : readinessText.toUpperCase();
           readinessBadge.className = `job-readiness-badge job-readiness-badge--${readinessState}`;
-          if(readinessReasonText){
-            readinessBadge.title = readinessReasonText;
+          if(readinessNoteText){
+            readinessBadge.title = readinessNoteText;
           }else{
             readinessBadge.removeAttribute('title');
           }
@@ -33121,21 +33454,23 @@ function emptyStateHtml(){
         let titleText = 'Checking readiness…';
         let subText = 'Calculating required inventory.';
         let iconHtml = ICONS.info;
-        if(readinessDetail && !readinessDetail.error){
-          if(readinessDetail.ready_for_approval){
-            cardState = 'ready';
-            titleText = `${readinessJobPrefix} is ready for approval.`;
-            subText = 'All required inventory is available.';
-            iconHtml = ICONS.checkCircle;
-          }else{
-            cardState = 'not-ready';
-            titleText = `${readinessJobPrefix} is waiting on inventory.`;
-            subText = readinessNoteText || 'Approval is blocked by missing items.';
-            iconHtml = ICONS.alertTriangle;
-          }
+        if(readinessState === 'ready'){
+          cardState = 'ready';
+          titleText = `${readinessJobPrefix} is ready for approval.`;
+          subText = 'All required inventory is available.';
+          iconHtml = ICONS.checkCircle;
+        }else if(readinessState === 'not-ready'){
+          cardState = 'not-ready';
+          titleText = `${readinessJobPrefix} is waiting on inventory.`;
+          subText = readinessNoteText || 'Approval is blocked by missing items.';
+          iconHtml = ICONS.alertTriangle;
         }else if(readinessDetail && readinessDetail.error){
           titleText = 'Readiness unavailable.';
           subText = 'Unable to compute blocking items.';
+          iconHtml = ICONS.info;
+        }else{
+          titleText = 'Readiness pending.';
+          subText = 'Material availability not fully calculated yet.';
           iconHtml = ICONS.info;
         }
         readinessCard.className = `job-readiness-card job-readiness-card--${cardState}`;
