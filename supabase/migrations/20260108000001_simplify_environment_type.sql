@@ -3,13 +3,14 @@
 
 BEGIN;
 
+-- Drop old constraint and create simplified one
+ALTER TABLE public.companies DROP CONSTRAINT IF EXISTS companies_environment_type_check;
+
 -- Convert all non-production environment_type values to 'test'
 UPDATE public.companies
 SET environment_type = 'test'
 WHERE environment_type IN ('internal_test', 'demo', 'sandbox');
 
--- Drop old constraint and create simplified one
-ALTER TABLE public.companies DROP CONSTRAINT IF EXISTS companies_environment_type_check;
 ALTER TABLE public.companies
   ADD CONSTRAINT companies_environment_type_check
   CHECK (environment_type IN ('production', 'test'));
