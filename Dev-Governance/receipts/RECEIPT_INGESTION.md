@@ -18,7 +18,7 @@ Receipt ingestion is a **read-only** operation with respect to inventory.
 ### Canonical Format
 
 ```
-receipts+<company_slug>@inbound.inventorymanager.app
+receipts+<company_slug>@inbound.inventorymanager.modulus-software.com
 ```
 
 ### Address Rules
@@ -35,8 +35,8 @@ receipts+<company_slug>@inbound.inventorymanager.app
 
 | Company Slug | Receipt Address |
 |--------------|-----------------|
-| `acme-corp` | `receipts+acme-corp@inbound.inventorymanager.app` |
-| `smiths-welding` | `receipts+smiths-welding@inbound.inventorymanager.app` |
+| `acme-corp` | `receipts+acme-corp@inbound.inventorymanager.modulus-software.com` |
+| `smiths-welding` | `receipts+smiths-welding@inbound.inventorymanager.modulus-software.com` |
 
 ---
 
@@ -119,6 +119,20 @@ Attachment OCR/parsing runs only when attachment storage is enabled for the tier
 ### Mandatory Confirmation
 
 No parsed data may affect inventory or system state until explicitly confirmed by an authorized user.
+
+### Vendor-Specific Parsing
+
+The parser includes vendor-specific rules to handle different receipt formats. See:
+
+| Vendor | Documentation |
+|--------|---------------|
+| Lowe's | [parsers/LOWES_PARSER.md](parsers/LOWES_PARSER.md) |
+
+When adding support for new vendors:
+1. Document format quirks in a dedicated parser file
+2. Add exclusion patterns for vendor-specific noise
+3. Test with real receipt data
+4. Update the table above
 
 ---
 
