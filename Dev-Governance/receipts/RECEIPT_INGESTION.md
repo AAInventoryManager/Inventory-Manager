@@ -83,7 +83,7 @@ Explicit Receive Inventory (user action)
 | No inbox access | Inbound-only; we receive, never fetch |
 | No API key auth for inbound | Webhook-based, not credential-based |
 | Webhook signature verification | SendGrid signature required |
-| Raw receipt preserved | Original email/attachment always stored |
+| Receipt content preserved | Email body stored; attachments stored per retention policy |
 
 ### What We Never Do
 
@@ -110,13 +110,40 @@ All parsed data from receipts must be treated as:
 | Scenario | Behavior |
 |----------|----------|
 | OCR succeeds | Populate draft fields for review |
-| OCR fails | Create draft with raw attachment only |
+| OCR fails | Create draft with email text; attachments stored if retention allows |
 | Fields missing | Acceptable—user completes manually |
 | Fields ambiguous | Present options, never guess |
+
+Attachment OCR/parsing runs only when attachment storage is enabled for the tier.
 
 ### Mandatory Confirmation
 
 No parsed data may affect inventory or system state until explicitly confirmed by an authorized user.
+
+---
+
+## Attachment Storage & Retention
+
+Receipt attachments are stored only for tiers with receipt storage enabled. Ingestion never fails if attachments are not stored.
+
+### Retention Policy
+
+| Tier | Attachment Retention |
+|------|----------------------|
+| starter | 0 days (no attachment storage) |
+| professional | 365 days |
+| business | 365 days |
+| enterprise | 7 years |
+
+### Storage Providers
+
+Attachment storage may use:
+- Supabase Storage (default)
+- External storage provider (configured via environment)
+
+### Manual Cleanup
+
+Admins can delete stored attachments at any time. Deleting storage never deletes the receipt record.
 
 ---
 

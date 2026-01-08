@@ -11,7 +11,7 @@ This document defines the lifecycle states of receipts and the strict boundaries
 | State | Description |
 |-------|-------------|
 | `draft` | Receipt created from ingestion; awaiting user review |
-| `blocked_by_plan` | User attempted action gated by subscription tier |
+| `blocked_by_plan` | Receipt created but gated by subscription tier (ingest or action) |
 | `received` | User confirmed receipt; inventory updated |
 | `voided` | Receipt cancelled after confirmation (if applicable) |
 
@@ -45,7 +45,7 @@ This document defines the lifecycle states of receipts and the strict boundaries
 | From | To | Trigger | Requirements |
 |------|----|---------|--------------|
 | `draft` | `received` | User confirms receipt | Explicit user action |
-| `draft` | `blocked_by_plan` | Tier enforcement | Automatic on gated action attempt |
+| `draft` | `blocked_by_plan` | Tier enforcement | Automatic on ingest or gated action |
 | `blocked_by_plan` | `received` | Upgrade + confirmation | Plan upgrade AND explicit user action |
 | `received` | `voided` | User voids receipt | Explicit user action (if supported) |
 
@@ -96,7 +96,7 @@ The inventory mutation boundary must be enforced at:
 | Guarantee | Rationale |
 |-----------|-----------|
 | Draft receipts are never auto-deleted | User may need historical reference |
-| Raw attachments are always stored | Original source must be recoverable |
+| Attachments stored per retention | Email text retained; files stored only when plan includes storage |
 | Metadata is preserved even if parsing fails | Audit trail requirement |
 
 ### Never Assumed

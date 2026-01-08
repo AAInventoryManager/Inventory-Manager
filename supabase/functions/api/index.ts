@@ -38,6 +38,11 @@ import {
 } from './handlers/inventory.ts';
 import { handleLowStock } from './handlers/reports.ts';
 import { handleInboundReceiptEmail } from './handlers/inbound_receipt_email.ts';
+import {
+  handleListReceiptAttachments,
+  handleReceiptAttachmentDownload,
+  handleDeleteReceiptAttachment,
+} from './handlers/receipt_attachments.ts';
 
 // Utils
 import { AppError, AuthenticationError } from './utils/errors.ts';
@@ -89,6 +94,29 @@ const routes: Route[] = [
     paramNames: [],
     handler: handleInboundReceiptEmail,
     requiresAuth: false,
+  },
+
+  // Receipt attachments
+  {
+    method: 'GET',
+    pattern: /^\/v1\/receipts\/([0-9a-f-]{36})\/attachments$/,
+    paramNames: ['receipt_id'],
+    handler: handleListReceiptAttachments,
+    requiresAuth: true,
+  },
+  {
+    method: 'GET',
+    pattern: /^\/v1\/receipts\/([0-9a-f-]{36})\/attachments\/([0-9a-f-]{36})\/download$/,
+    paramNames: ['receipt_id', 'attachment_id'],
+    handler: handleReceiptAttachmentDownload,
+    requiresAuth: true,
+  },
+  {
+    method: 'DELETE',
+    pattern: /^\/v1\/receipts\/([0-9a-f-]{36})\/attachments\/([0-9a-f-]{36})$/,
+    paramNames: ['receipt_id', 'attachment_id'],
+    handler: handleDeleteReceiptAttachment,
+    requiresAuth: true,
   },
   
   // Inventory CRUD

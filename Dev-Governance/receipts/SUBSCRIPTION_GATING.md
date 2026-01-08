@@ -21,7 +21,7 @@ This document defines how subscription tiers interact with receipt ingestion, en
 Receipt address visible?     ──► YES, always (all tiers)
 Draft receipts created?      ──► YES, always (all tiers)
 Receipts viewable?           ──► YES, always (all tiers)
-Attachments downloadable?    ──► YES, always (all tiers)
+Attachments downloadable?    ──► Only on tiers with receipt storage, within retention window
 Receiving inventory?         ──► MAY be gated by tier
 Bulk operations?             ──► MAY be gated by tier
 ```
@@ -35,7 +35,7 @@ Bulk operations?             ──► MAY be gated by tier
 | Receipt email address | Customers configure external systems |
 | Receipt ingestion | Data capture must never be interrupted |
 | Draft receipt viewing | Customer paid for this data |
-| Raw attachment access | Original documents are customer property |
+| Receipt metadata + raw email text | Original text source for review |
 | Receipt history | Audit trail is non-negotiable |
 
 ---
@@ -50,6 +50,7 @@ Actions that may require specific subscription tiers:
 | Bulk receiving | Power user feature |
 | Advanced parsing options | Premium feature |
 | API access to receipts | Integration tier |
+| Receipt attachment storage | Premium retention feature |
 
 ### Gating Behavior
 
@@ -85,8 +86,8 @@ When a user attempts a gated action:
 | Prohibited | Required |
 |------------|----------|
 | Discarding receipts due to plan | Always preserve |
-| Deleting data on downgrade | Data survives tier changes |
-| Expiring receipts by tier | No time-based deletion |
+| Deleting receipt records on downgrade | Receipt data survives tier changes |
+| Expiring receipt records by tier | Receipt records are never deleted |
 
 ---
 
@@ -121,6 +122,7 @@ When a user attempts a gated action:
 | Receipt address | Unchanged, still works |
 | Ingestion pipeline | Still functional |
 | Gated actions | Blocked until re-upgrade |
+| Attachment storage | New attachments stop storing; existing files remain until retention expiry |
 
 ### Graceful Degradation
 
@@ -139,7 +141,7 @@ When a user downgrades:
 
 - No `tier` column in receipt storage (tier is runtime check)
 - No cascade deletes based on subscription status
-- No expiry timestamps based on tier
+- Attachment retention timestamps allowed; receipt records do not expire
 
 ### API
 
@@ -152,6 +154,7 @@ When a user downgrades:
 - Receipt list shows all receipts regardless of tier
 - Gated buttons show upgrade prompts, not hidden
 - No "premium blur" on customer data
+- Attachment areas show plan gating without hiding receipt metadata
 
 ---
 

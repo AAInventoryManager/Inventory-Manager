@@ -11,6 +11,7 @@ const MAX_BODY_BYTES = 15 * 1024 * 1024; // 15MB
 const DEFAULT_DOMAIN = 'inbound.inventorymanager.app';
 const LEGACY_DOMAIN = 'inventorymanager.app';
 const DEFAULT_DEDUPE_WINDOW_DAYS = 14;
+const DEFAULT_ATTACHMENT_BUCKET = 'receipt-attachments';
 
 interface ParsedLineItem {
   description: string;
@@ -27,6 +28,8 @@ interface ParsedReceipt {
   total: number | null;
   line_items: ParsedLineItem[];
 }
+
+type AttachmentStorageProvider = 'supabase' | 'external';
 
 function getServiceClient() {
   const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
@@ -334,6 +337,187 @@ async function sha256Hex(input: string): Promise<string> {
     .join('');
 }
 
+function getReceiptRetentionDays(tier: string): number {
+  const normalized = String(tier || '').trim().toLowerCase();
+  if (normalized === 'enterprise') return 365 * 7;
+  if (normalized === 'professional' || normalized === 'business') return 365;
+  return 0;
+}
+
+function getRetentionExpiresAt(days: number): string | null {
+  if (!Number.isFinite(days) || days <= 0) return null;
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+}
+
+function sanitizeFileName(name: string): string {
+  const raw = String(name || '').trim() || 'attachment';
+  const cleaned = raw
+    .replace(/[/\\]+/g, '_')
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .slice(0, 180);
+  return cleaned || 'attachment';
+}
+
+function resolveAttachmentStorageProvider(): AttachmentStorageProvider {
+  const provider = String(Deno.env.get('RECEIPT_ATTACHMENT_STORAGE') || '').trim().toLowerCase();
+  if (provider === 'external') {
+    const externalUrl = String(Deno.env.get('RECEIPT_ATTACHMENT_EXTERNAL_URL') || '').trim();
+    if (!externalUrl) {
+      logger.warn('Receipt attachment storage set to external without URL; defaulting to supabase.');
+      return 'supabase';
+    }
+    return 'external';
+  }
+  return 'supabase';
+}
+
+async function storeReceiptAttachments(params: {
+  supabase: ReturnType<typeof getServiceClient>;
+  receiptId: string;
+  companyId: string;
+  attachments: File[];
+  storageProvider: AttachmentStorageProvider;
+  retentionExpiresAt: string | null;
+  serviceUserId: string;
+  requestId: string;
+}): Promise<void> {
+  const {
+    supabase,
+    receiptId,
+    companyId,
+    attachments,
+    storageProvider,
+    retentionExpiresAt,
+    serviceUserId,
+    requestId,
+  } = params;
+
+  if (!attachments.length) return;
+
+  if (storageProvider === 'external') {
+    const externalUrl = String(Deno.env.get('RECEIPT_ATTACHMENT_EXTERNAL_URL') || '').trim();
+    if (!externalUrl) return;
+    const token = String(Deno.env.get('RECEIPT_ATTACHMENT_EXTERNAL_TOKEN') || '').trim();
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    for (const file of attachments) {
+      const safeName = sanitizeFileName(file.name || '');
+      const form = new FormData();
+      form.append('file', file, safeName);
+      form.append('receipt_id', receiptId);
+      form.append('company_id', companyId);
+      form.append('file_name', file.name || safeName);
+      form.append('content_type', file.type || 'application/octet-stream');
+      form.append('byte_size', String(file.size || 0));
+      if (retentionExpiresAt) form.append('retention_expires_at', retentionExpiresAt);
+
+      try {
+        const res = await fetch(externalUrl, { method: 'POST', headers, body: form });
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok || payload?.ok === false) {
+          logger.warn('External receipt attachment upload failed', {
+            request_id: requestId,
+            status: res.status,
+            error: payload?.error || payload?.message || 'Upload failed',
+            file: file.name || safeName,
+          });
+          continue;
+        }
+        const storageUrl = String(payload?.storage_url || payload?.url || '').trim();
+        const storageKey = String(payload?.storage_key || payload?.key || payload?.path || '').trim();
+        if (!storageUrl && !storageKey) {
+          logger.warn('External receipt attachment upload missing storage reference', {
+            request_id: requestId,
+            file: file.name || safeName,
+          });
+          continue;
+        }
+        const { error: insertError } = await supabase
+          .from('receipt_attachments')
+          .insert({
+            receipt_id: receiptId,
+            company_id: companyId,
+            file_name: file.name || safeName,
+            content_type: file.type || null,
+            byte_size: file.size || 0,
+            storage_provider: 'external',
+            storage_path: storageKey || null,
+            storage_url: storageUrl || null,
+            retention_expires_at: retentionExpiresAt,
+            created_by: serviceUserId,
+            updated_by: serviceUserId,
+          });
+        if (insertError) {
+          logger.warn('Receipt attachment metadata insert failed', {
+            request_id: requestId,
+            error: insertError.message,
+            file: file.name || safeName,
+          });
+        }
+      } catch (err) {
+        logger.warn('External receipt attachment upload failed', {
+          request_id: requestId,
+          error: err instanceof Error ? err.message : String(err),
+          file: file.name || safeName,
+        });
+      }
+    }
+    return;
+  }
+
+  const bucket = String(Deno.env.get('RECEIPT_ATTACHMENT_BUCKET') || DEFAULT_ATTACHMENT_BUCKET).trim();
+  for (const file of attachments) {
+    const safeName = sanitizeFileName(file.name || '');
+    const objectPath = `${companyId}/${receiptId}/${crypto.randomUUID()}-${safeName}`;
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(objectPath, bytes, {
+          contentType: file.type || 'application/octet-stream',
+          upsert: false,
+        });
+      if (uploadError) {
+        logger.warn('Receipt attachment upload failed', {
+          request_id: requestId,
+          error: uploadError.message,
+          file: file.name || safeName,
+        });
+        continue;
+      }
+      const { error: insertError } = await supabase
+        .from('receipt_attachments')
+        .insert({
+          receipt_id: receiptId,
+          company_id: companyId,
+          file_name: file.name || safeName,
+          content_type: file.type || null,
+          byte_size: file.size || 0,
+          storage_provider: 'supabase',
+          storage_bucket: bucket,
+          storage_path: objectPath,
+          retention_expires_at: retentionExpiresAt,
+          created_by: serviceUserId,
+          updated_by: serviceUserId,
+        });
+      if (insertError) {
+        logger.warn('Receipt attachment metadata insert failed', {
+          request_id: requestId,
+          error: insertError.message,
+          file: file.name || safeName,
+        });
+      }
+    } catch (err) {
+      logger.warn('Receipt attachment upload failed', {
+        request_id: requestId,
+        error: err instanceof Error ? err.message : String(err),
+        file: file.name || safeName,
+      });
+    }
+  }
+}
+
 // POST /inbound/receipt-email
 export async function handleInboundReceiptEmail(
   request: Request,
@@ -400,9 +584,6 @@ export async function handleInboundReceiptEmail(
       }
     }
 
-    const { rawText, source } = await extractReceiptText(html, text, attachments);
-    const parsed = extractReceiptFields(rawText);
-
     const serviceUserId = Deno.env.get('RECEIPT_INGESTION_USER_ID') || '';
     if (!serviceUserId) {
       return jsonResponse({ ok: false, error: 'Receipt ingestion user not configured', request_id: requestId }, 500);
@@ -449,6 +630,16 @@ export async function handleInboundReceiptEmail(
     const normalizedTier = String(effectiveTier || '').trim().toLowerCase();
     const tierAllowsReceiptIngestion = ['professional', 'business', 'enterprise'].includes(normalizedTier);
     const receiptStatus = tierAllowsReceiptIngestion ? 'draft' : 'blocked_by_plan';
+    const retentionDays = getReceiptRetentionDays(normalizedTier);
+    const retentionExpiresAt = getRetentionExpiresAt(retentionDays);
+    const allowAttachmentProcessing = retentionDays > 0;
+
+    const { rawText, source } = await extractReceiptText(
+      html,
+      text,
+      allowAttachmentProcessing ? attachments : []
+    );
+    const parsed = extractReceiptFields(rawText);
 
     const { data: receiptNumber, error: receiptNumErr } = await supabase
       .rpc('generate_receipt_number', { p_company_id: company.id });
@@ -531,6 +722,20 @@ export async function handleInboundReceiptEmail(
     if (insertError || !receiptRow) {
       logger.error('Receipt insert failed', { request_id: requestId, error: insertError?.message });
       return jsonResponse({ ok: false, error: 'Failed to create receipt', request_id: requestId }, 500);
+    }
+
+    if (allowAttachmentProcessing && attachments.length) {
+      const storageProvider = resolveAttachmentStorageProvider();
+      await storeReceiptAttachments({
+        supabase,
+        receiptId: receiptRow.id,
+        companyId: company.id,
+        attachments,
+        storageProvider,
+        retentionExpiresAt,
+        serviceUserId,
+        requestId,
+      });
     }
 
     try {

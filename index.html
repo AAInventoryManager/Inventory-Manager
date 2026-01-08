@@ -3710,6 +3710,7 @@
       color:#fbbf24;
       border-color:rgba(251,191,36,0.2);
     }
+    .receive-status-pill[data-status="received"],
     .receive-status-pill[data-status="completed"]{
       background:rgba(52,211,153,0.15);
       color:#34d399;
@@ -4061,6 +4062,77 @@
       border-radius:12px;
       background:#0b0f14;
       padding:8px 10px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .receive-attachments{
+      margin-top:10px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#0b0f14;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .receive-attachments-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .receive-attachments-title{
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .receive-attachments-gate{
+      font-size:11px;
+      font-weight:700;
+      color:#fbbf24;
+    }
+    .receive-attachments-list{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .receive-attachment-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border:1px solid var(--border-subtle);
+      border-radius:10px;
+      padding:8px 10px;
+      background:rgba(15,23,42,0.55);
+    }
+    .receive-attachment-info{
+      min-width:0;
+      flex:1;
+    }
+    .receive-attachment-name{
+      font-size:13px;
+      font-weight:700;
+      color:var(--fg);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .receive-attachment-meta{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:2px;
+    }
+    .receive-attachment-actions{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-shrink:0;
+    }
+    .receive-attachments-empty{
       font-size:12px;
       color:var(--muted);
     }
@@ -12606,7 +12678,7 @@
               </span>
               <div class="modal-title-text">
                 <h2 id="receiveOrderTitle" class="modal-title">Receive Inventory</h2>
-                <div class="modal-subtitle">Inventory is updated only when the receipt is completed.</div>
+                <div class="modal-subtitle">Inventory is updated only when the receipt is received.</div>
               </div>
             </div>
             <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="receiveOrderModal" aria-label="Close">
@@ -12636,6 +12708,13 @@
                 <summary>Receipt text (email)</summary>
                 <pre id="receiveReceiptRawText"></pre>
               </details>
+              <div id="receiveReceiptAttachments" class="receive-attachments" style="display:none;">
+                <div class="receive-attachments-header">
+                  <div class="receive-attachments-title">Receipt attachments</div>
+                  <div id="receiveReceiptAttachmentsGate" class="receive-attachments-gate" style="display:none;">Receipt scans/storage on Pro plans.</div>
+                </div>
+                <div id="receiveReceiptAttachmentsList" class="receive-attachments-list"></div>
+              </div>
             </div>
             <div class="form-section" id="receiptReviewSection" style="display:none;">
               <div class="section-label">Receipt Review</div>
@@ -16778,7 +16857,11 @@
       return canReceivingCreate() || canReceivingEdit() || canReceivingApprove();
     }
     function canAccessReceivingInbox(){
-      return canReceiveOrders() || isEffectiveSuperUser() || hasPermission(PERMISSIONS.RECEIVING_VIEW);
+      return !!(SB.session && SB.authorized);
+    }
+    function canManageReceiptAttachments(){
+      if(isEffectiveSuperUser()) return true;
+      return hasPermission(PERMISSIONS.COMPANY_EDIT_SETTINGS);
     }
     function canMembersView(){ return hasPermission(PERMISSIONS.MEMBERS_VIEW); }
     function canMembersInvite(){ return hasPermission(PERMISSIONS.MEMBERS_INVITE); }
@@ -17817,7 +17900,7 @@
         { key: PERMISSIONS.RECEIVING_VIEW, label: 'View Receipts' },
         { key: PERMISSIONS.RECEIVING_CREATE, label: 'Create Receipts' },
         { key: PERMISSIONS.RECEIVING_EDIT, label: 'Edit Draft Receipts' },
-        { key: PERMISSIONS.RECEIVING_APPROVE, label: 'Complete Receipts' },
+        { key: PERMISSIONS.RECEIVING_APPROVE, label: 'Receive Receipts' },
         { key: PERMISSIONS.RECEIVING_VOID, label: 'Void Receipts' },
       ],
       'Members': [
@@ -30851,7 +30934,9 @@ function emptyStateHtml(){
 	          .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))[0] || null;
 	      }
 	      const activeReceiptId = activeReceipt && activeReceipt.id ? String(activeReceipt.id) : preferredId;
-	      const receiptStatus = activeReceipt && activeReceipt.status ? String(activeReceipt.status).trim() : (opts.receiptStatus || 'draft');
+	      const receiptStatus = normalizeReceiptStatus(
+	        activeReceipt && activeReceipt.status ? String(activeReceipt.status).trim() : (opts.receiptStatus || 'draft')
+	      );
 	      const receiptNotes = activeReceipt && typeof activeReceipt.notes !== 'undefined'
 	        ? String(activeReceipt.notes || '')
 	        : String(opts.receiptNotes || '');
@@ -30871,7 +30956,7 @@ function emptyStateHtml(){
 
 	      const completedReceiptIds = new Set(
 	        (receipts || [])
-	          .filter(r => String(r && r.status ? r.status : '').trim() === 'completed')
+	          .filter(r => normalizeReceiptStatus(String(r && r.status ? r.status : '')) === 'received')
 	          .map(r => String(r && r.id ? r.id : '').trim())
 	          .filter(Boolean)
 	      );
@@ -30946,6 +31031,17 @@ function emptyStateHtml(){
         const domain = getReceiptForwardingDomain();
         return slug ? `receipts+${slug}@${domain}` : `receipts+<company_slug>@${domain}`;
       }
+      function normalizeReceiptStatus(status){
+        const s = String(status || '').trim().toLowerCase();
+        if(s === 'completed') return 'received';
+        return s;
+      }
+      function formatReceiptStatusLabel(status){
+        const normalized = normalizeReceiptStatus(status);
+        if(!normalized) return '';
+        if(normalized === 'received') return 'Received';
+        return formatStateToken(normalized);
+      }
       function isReceiptDraftLike(status){
         const s = String(status || '').trim().toLowerCase();
         return s === 'draft' || s === 'blocked_by_plan';
@@ -30993,6 +31089,93 @@ function emptyStateHtml(){
         const num = Number(raw);
         if(!Number.isFinite(num)) return null;
         return num;
+      }
+      function formatReceiptAttachmentSize(bytes){
+        const size = Number(bytes);
+        if(!Number.isFinite(size) || size <= 0) return '—';
+        if(size < 1024) return `${size} B`;
+        if(size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+        return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+      }
+      function formatReceiptAttachmentType(contentType){
+        const raw = String(contentType || '').toLowerCase();
+        if(!raw) return 'File';
+        if(raw.includes('pdf')) return 'PDF';
+        if(raw.startsWith('image/')) return 'Image';
+        if(raw.startsWith('text/')) return 'Text';
+        const part = raw.split('/').pop() || '';
+        return part ? part.toUpperCase() : 'File';
+      }
+      function canReceiptAttachmentStorage(){
+        return hasTier('professional');
+      }
+      function getReceiptsApiUrl(){
+        const override = (typeof window.RECEIPTS_API_URL === 'string') ? window.RECEIPTS_API_URL.trim() : '';
+        if(override) return override;
+        const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
+        if(sbUrl) return `${sbUrl}/functions/v1/api`;
+        return '/functions/v1/api';
+      }
+      function buildReceiptsApiHeaders(apiUrl){
+        const headers = {};
+        const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
+        const sbKey = (typeof window.SB_ANON === 'string') ? window.SB_ANON.trim() : '';
+        if(sbUrl && apiUrl.startsWith(sbUrl) && sbKey){
+          headers.apikey = sbKey;
+          if(SB.session && SB.session.access_token){
+            headers.Authorization = `Bearer ${SB.session.access_token}`;
+          }
+        }
+        return headers;
+      }
+      async function sbFetchReceiptAttachments(receiptId){
+        if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
+        const id = String(receiptId || '').trim();
+        if(!id) return [];
+        const apiUrl = getReceiptsApiUrl();
+        const headers = buildReceiptsApiHeaders(apiUrl);
+        const res = await fetch(`${apiUrl}/v1/receipts/${id}/attachments`, { headers });
+        const payload = await res.json().catch(() => ({}));
+        if(!res.ok){
+          const msg = payload?.error?.message || payload?.error || 'Failed to load attachments';
+          throw new Error(msg);
+        }
+        return Array.isArray(payload?.data) ? payload.data : [];
+      }
+      async function sbFetchReceiptAttachmentDownloadUrl(receiptId, attachmentId){
+        if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
+        const rid = String(receiptId || '').trim();
+        const aid = String(attachmentId || '').trim();
+        if(!rid || !aid) throw new Error('Attachment required');
+        const apiUrl = getReceiptsApiUrl();
+        const headers = buildReceiptsApiHeaders(apiUrl);
+        const res = await fetch(`${apiUrl}/v1/receipts/${rid}/attachments/${aid}/download`, { headers });
+        const payload = await res.json().catch(() => ({}));
+        if(!res.ok){
+          const msg = payload?.error?.message || payload?.error || 'Download failed';
+          throw new Error(msg);
+        }
+        const url = payload?.data?.url ? String(payload.data.url) : '';
+        if(!url) throw new Error('Download unavailable');
+        return url;
+      }
+      async function sbDeleteReceiptAttachment(receiptId, attachmentId){
+        if(!SB.ready || !SB.session || !SB.authorized) throw new Error('Not authorized');
+        const rid = String(receiptId || '').trim();
+        const aid = String(attachmentId || '').trim();
+        if(!rid || !aid) throw new Error('Attachment required');
+        const apiUrl = getReceiptsApiUrl();
+        const headers = buildReceiptsApiHeaders(apiUrl);
+        const res = await fetch(`${apiUrl}/v1/receipts/${rid}/attachments/${aid}`, {
+          method: 'DELETE',
+          headers,
+        });
+        if(!res.ok){
+          const payload = await res.json().catch(() => ({}));
+          const msg = payload?.error?.message || payload?.error || 'Delete failed';
+          throw new Error(msg);
+        }
+        return true;
       }
       function normalizeParsedLineItems(raw){
         if(!Array.isArray(raw)) return [];
@@ -31133,6 +31316,38 @@ function emptyStateHtml(){
           renderReceiptsInboxIndicator();
         }
       }
+      async function loadReceiptAttachments(receiptId){
+        const ro = state._receiveOrder;
+        const id = String(receiptId || '').trim();
+        if(!ro || !id) return;
+        if(ro.attachmentsLoading) return;
+        if(ro._attachmentsLoadedFor === id && ro._attachmentsLoaded) return;
+        ro._attachmentsLoadedFor = id;
+        ro._attachmentsLoaded = false;
+        ro.attachmentsLoading = true;
+        ro.attachmentsError = '';
+        renderReceiveOrderModal();
+        if(!canReceiptAttachmentStorage()){
+          ro.attachments = [];
+          ro.attachmentsLoading = false;
+          ro._attachmentsLoaded = true;
+          renderReceiveOrderModal();
+          return;
+        }
+        try{
+          const rows = await sbFetchReceiptAttachments(id);
+          ro.attachments = Array.isArray(rows) ? rows : [];
+          ro.attachmentsError = '';
+          ro._attachmentsLoaded = true;
+        }catch(e){
+          ro.attachments = [];
+          ro.attachmentsError = e && e.message ? e.message : 'Failed to load attachments';
+          ro._attachmentsLoaded = false;
+        }finally{
+          ro.attachmentsLoading = false;
+          renderReceiveOrderModal();
+        }
+      }
       function renderReceiptsInboxIndicator(){
         const container = $('receiptsPillContainer');
         const countEl = $('receiptsPillCount');
@@ -31143,6 +31358,50 @@ function emptyStateHtml(){
         container.style.display = canShow ? '' : 'none';
         countEl.textContent = String(count);
         if(pill) pill.setAttribute('aria-label', `Receipts (${count})`);
+      }
+      async function handleReceiptAttachmentDownload(attachmentId){
+        const ro = state._receiveOrder;
+        const receiptId = ro && ro.receiptId ? String(ro.receiptId).trim() : '';
+        const id = String(attachmentId || '').trim();
+        if(!receiptId || !id) return;
+        try{
+          const url = await sbFetchReceiptAttachmentDownloadUrl(receiptId, id);
+          const link = document.createElement('a');
+          link.href = url;
+          link.target = '_blank';
+          link.rel = 'noopener';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }catch(e){
+          toast(e && e.message ? e.message : 'Download failed');
+        }
+      }
+      async function handleReceiptAttachmentDelete(attachmentId){
+        const ro = state._receiveOrder;
+        const receiptId = ro && ro.receiptId ? String(ro.receiptId).trim() : '';
+        const id = String(attachmentId || '').trim();
+        if(!receiptId || !id) return;
+        if(!canManageReceiptAttachments()){
+          toast('Attachment delete permission required');
+          return;
+        }
+        const ok = await openConfirmModal(
+          'Delete attachment?',
+          'This removes the stored file. Receipt data remains unchanged.',
+          { okText:'Delete', cancelText:'Cancel' }
+        );
+        if(!ok) return;
+        try{
+          await sbDeleteReceiptAttachment(receiptId, id);
+          if(ro && Array.isArray(ro.attachments)){
+            ro.attachments = ro.attachments.filter(att => String(att && att.id ? att.id : '') !== id);
+          }
+          toast('Attachment deleted');
+          renderReceiveOrderModal();
+        }catch(e){
+          toast(e && e.message ? e.message : 'Delete failed');
+        }
       }
       async function openReceiveDraftReceipt(receiptId, companyId){
         const id = String(receiptId || '').trim();
@@ -31180,7 +31439,12 @@ function emptyStateHtml(){
           manualSearch: '',
           loading:true,
           rawReceiptText: '',
-          receiptSource: ''
+          receiptSource: '',
+          attachments: [],
+          attachmentsLoading: false,
+          attachmentsError: '',
+          _attachmentsLoaded: false,
+          _attachmentsLoadedFor: ''
         };
         show('receiveOrderModal', true);
         renderReceiveOrderModal();
@@ -31228,7 +31492,7 @@ function emptyStateHtml(){
             };
           });
           state._receiveOrder.lines = lines;
-          state._receiveOrder.receiptStatus = String(receiptRow.status || 'draft').trim();
+          state._receiveOrder.receiptStatus = normalizeReceiptStatus(receiptRow.status || 'draft');
           state._receiveOrder.receiptNotes = String(receiptRow.notes || '').trim();
           state._receiveOrder.possibleDuplicate = !!receiptRow.possible_duplicate;
           state._receiveOrder.rawReceiptText = String(receiptRow.raw_receipt_text || '').trim();
@@ -31247,6 +31511,9 @@ function emptyStateHtml(){
           });
           state._receiveOrder.loading = false;
           renderReceiveOrderModal();
+          if(state._receiveOrder.receiptId){
+            void loadReceiptAttachments(state._receiveOrder.receiptId);
+          }
         }catch(e){
           state._receiveOrder.loading = false;
           renderReceiveOrderModal();
@@ -31295,6 +31562,9 @@ function emptyStateHtml(){
       const planUpgrade = $('receivePlanUpgrade');
       const rawWrap = $('receiveReceiptRaw');
       const rawTextEl = $('receiveReceiptRawText');
+      const attachmentsWrap = $('receiveReceiptAttachments');
+      const attachmentsList = $('receiveReceiptAttachmentsList');
+      const attachmentsGate = $('receiveReceiptAttachmentsGate');
       const manualSection = $('receiveManualSection');
       const summarySection = $('receiveOrderSummarySection');
       const receiptsSection = $('receiveOrderReceiptsSection');
@@ -31321,6 +31591,11 @@ function emptyStateHtml(){
           rawWrap.style.display = 'none';
           rawTextEl.textContent = '';
         }
+        if(attachmentsWrap && attachmentsList && attachmentsGate){
+          attachmentsWrap.style.display = 'none';
+          attachmentsList.innerHTML = '';
+          attachmentsGate.style.display = 'none';
+        }
         if(meta) meta.innerHTML = '';
         if(summary) summary.innerHTML = '';
         if(linesWrap) linesWrap.innerHTML = `<div class="muted">Loading receipt details…</div>`;
@@ -31331,8 +31606,9 @@ function emptyStateHtml(){
 	      const mode = String(ro.mode || 'order');
 	      const isOrderMode = mode === 'order';
 	      const isInboxMode = mode === 'inbox';
-	      const receiptStatus = String(ro.receiptStatus || 'draft').trim().toLowerCase();
-	      const statusText = formatStateToken(receiptStatus || 'draft');
+	      const receiptStatusRaw = String(ro.receiptStatus || 'draft').trim().toLowerCase();
+	      const receiptStatus = normalizeReceiptStatus(receiptStatusRaw);
+	      const statusText = formatReceiptStatusLabel(receiptStatus || 'draft');
 	      const isDraftLike = isReceiptDraftLike(receiptStatus);
 	      const isEditable = isDraftLike && canReceivingEdit();
 	      const planBlocked = isReceiptPlanBlocked(receiptStatus);
@@ -31365,6 +31641,57 @@ function emptyStateHtml(){
           }else{
             rawWrap.style.display = 'none';
             rawTextEl.textContent = '';
+          }
+        }
+      }
+      if(attachmentsWrap && attachmentsList && attachmentsGate){
+        const showAttachments = !isInboxMode && !!ro.receiptId;
+        if(!showAttachments){
+          attachmentsWrap.style.display = 'none';
+          attachmentsList.innerHTML = '';
+          attachmentsGate.style.display = 'none';
+        }else{
+          attachmentsWrap.style.display = '';
+          if(!canReceiptAttachmentStorage()){
+            attachmentsGate.style.display = '';
+            attachmentsList.innerHTML = `<div class="receive-attachments-empty">Receipt scans and storage are available on Pro plans.</div>`;
+          }else{
+            attachmentsGate.style.display = 'none';
+            if(ro.attachmentsLoading){
+              attachmentsList.innerHTML = `<div class="receive-attachments-empty">Loading attachments…</div>`;
+            }else if(ro.attachmentsError){
+              attachmentsList.innerHTML = `<div class="receive-attachments-empty">${escapeHtml(ro.attachmentsError)}</div>`;
+            }else{
+              const attachments = Array.isArray(ro.attachments) ? ro.attachments.filter(att => att && att.id) : [];
+              if(!attachments.length){
+                attachmentsList.innerHTML = `<div class="receive-attachments-empty">No attachments stored.</div>`;
+              }else{
+                const allowDelete = canManageReceiptAttachments();
+                attachmentsList.innerHTML = attachments.map(att => {
+                  const id = String(att.id || '').trim();
+                  const name = String(att.file_name || 'Attachment').trim() || 'Attachment';
+                  const contentType = String(att.content_type || '').trim();
+                  const typeLabel = formatReceiptAttachmentType(contentType);
+                  const sizeLabel = formatReceiptAttachmentSize(att.byte_size);
+                  const metaText = [typeLabel, sizeLabel].filter(Boolean).join(' • ');
+                  const deleteBtn = allowDelete
+                    ? `<button class="btn-tertiary btn-sm btn-danger" type="button" data-receipt-attachment-delete="${escapeHtmlAttr(id)}">Delete</button>`
+                    : '';
+                  return (
+                    `<div class="receive-attachment-item" data-receipt-attachment-id="${escapeHtmlAttr(id)}">`+
+                      `<div class="receive-attachment-info">`+
+                        `<div class="receive-attachment-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
+                        `<div class="receive-attachment-meta">${escapeHtml(metaText || 'File')}</div>`+
+                      `</div>`+
+                      `<div class="receive-attachment-actions">`+
+                        `<button class="btn-tertiary btn-sm" type="button" data-receipt-attachment-download="${escapeHtmlAttr(id)}">Download</button>`+
+                        `${deleteBtn}`+
+                      `</div>`+
+                    `</div>`
+                  );
+                }).join('');
+              }
+            }
           }
         }
       }
@@ -31582,14 +31909,14 @@ function emptyStateHtml(){
 	            visibleReceipts.map(r => {
 	              const receiptId = String(r && r.id ? r.id : '').trim();
 	              const rStatus = String(r && r.status ? r.status : '').trim();
-	              const statusLabel = formatStateToken(rStatus || '');
+	              const statusLabel = formatReceiptStatusLabel(rStatus || '');
 	              const when = r && (r.received_at || r.voided_at || r.created_at)
 	                ? formatEasternDateTime(r.received_at || r.voided_at || r.created_at)
 	                : '';
 	              const lines = ro.receiptLinesByReceipt && ro.receiptLinesByReceipt.get(receiptId) ? ro.receiptLinesByReceipt.get(receiptId) : [];
 	              const totalReceived = lines.reduce((sum, l) => sum + toInt(l.received_qty, 0), 0);
 	              const totalRejected = lines.reduce((sum, l) => sum + toInt(l.rejected_qty, 0), 0);
-	              const canVoid = (rStatus === 'completed') && canReceivingVoid();
+	              const canVoid = (normalizeReceiptStatus(rStatus) === 'received') && canReceivingVoid();
 	              return (
 	                `<div class="receive-receipt">`+
 	                  `<div class="receive-receipt-header">`+
@@ -31631,16 +31958,16 @@ function emptyStateHtml(){
         setReceiveOrderMessage('Review before inventory is updated. Receipts are never received automatically.');
       }else if(receiptStatus === 'pending'){
         setReceiveOrderMessage('Receipt is pending approval.');
-      }else if(receiptStatus === 'completed'){
-        setReceiveOrderMessage('Receipt completed. Inventory updated on completion.');
+      }else if(receiptStatus === 'received'){
+        setReceiveOrderMessage('Receipt received. Inventory updated on confirmation.');
       }else if(receiptStatus === 'voided'){
         setReceiveOrderMessage('Receipt voided. Inventory unchanged.');
       }else if(receiptStatus === 'blocked_by_plan'){
         setReceiveOrderMessage(planBlocked
           ? 'Upgrade to enable receipt-based receiving.'
-          : 'Draft receipt ready. Save or complete to update inventory.');
+          : 'Draft receipt ready. Save or receive to update inventory.');
       }else if(receiptStatus === 'draft'){
-        setReceiveOrderMessage('Draft receipt ready. Save or complete to update inventory.');
+        setReceiveOrderMessage('Draft receipt ready. Save or receive to update inventory.');
       }else{
         setReceiveOrderMessage('');
       }
@@ -31672,16 +31999,24 @@ function emptyStateHtml(){
 	        poLines = fetched.get(id) || [];
 	      }
 	      const { receipts, receiptLines } = await sbFetchReceiptDataForPo(id);
-	      const next = buildReceiveOrderState(poRow, poLines, receipts, receiptLines, {
-	        receiptId: existingState ? existingState.receiptId : '',
-	        receiptStatus: existingState ? existingState.receiptStatus : 'draft',
-	        receiptNotes: existingState ? existingState.receiptNotes : '',
-	        mode: 'order'
-	      });
-	      next.loading = false;
-	      state._receiveOrder = next;
-	      renderReceiveOrderModal();
-	    }
+      const next = buildReceiveOrderState(poRow, poLines, receipts, receiptLines, {
+        receiptId: existingState ? existingState.receiptId : '',
+        receiptStatus: existingState ? existingState.receiptStatus : 'draft',
+        receiptNotes: existingState ? existingState.receiptNotes : '',
+        mode: 'order'
+      });
+      next.loading = false;
+      next.attachments = [];
+      next.attachmentsLoading = false;
+      next.attachmentsError = '';
+      next._attachmentsLoaded = false;
+      next._attachmentsLoadedFor = '';
+      state._receiveOrder = next;
+      renderReceiveOrderModal();
+      if(next.receiptId){
+        void loadReceiptAttachments(next.receiptId);
+      }
+    }
 	    async function ensureDraftReceiptId(receiveState){
 	      if(receiveState.receiptId) return receiveState.receiptId;
 	      const payload = { p_company_id: SB.companyId };
@@ -31692,13 +32027,13 @@ function emptyStateHtml(){
 	      if(data && data.success === false){
 	        throw new Error(data.error || 'Failed to create receipt');
 	      }
-	      const receiptId = data && (data.receipt_id || data.id) ? String(data.receipt_id || data.id).trim() : '';
-	      if(!receiptId) throw new Error('Failed to create receipt');
-	      const status = data && (data.status || data.receipt_status) ? String(data.status || data.receipt_status).trim() : 'draft';
-	      receiveState.receiptId = receiptId;
-	      receiveState.receiptStatus = status || 'draft';
-	      return receiptId;
-	    }
+      const receiptId = data && (data.receipt_id || data.id) ? String(data.receipt_id || data.id).trim() : '';
+      if(!receiptId) throw new Error('Failed to create receipt');
+      const status = data && (data.status || data.receipt_status) ? String(data.status || data.receipt_status).trim() : 'draft';
+      receiveState.receiptId = receiptId;
+      receiveState.receiptStatus = normalizeReceiptStatus(status || 'draft');
+      return receiptId;
+    }
       async function saveReceiptNotes(receiveState, receiptId){
         if(!receiveState || !receiptId) return;
         const status = String(receiveState.receiptStatus || '').trim().toLowerCase();
@@ -31872,13 +32207,13 @@ function emptyStateHtml(){
 	        return;
 	      }
 	      if(!(draftLike ? canCompleteReceipt() : canReceivingApprove())){
-	        toast('Complete receipt permission required');
+	        toast('Receive receipt permission required');
 	        return;
 	      }
 	      const ok = await openConfirmModal(
         'Confirm & receive inventory?',
         'Review before inventory is updated. Receipts are never received automatically.',
-	        { okText:'Complete', cancelText:'Cancel' }
+	        { okText:'Receive', cancelText:'Cancel' }
 	      );
 	      if(!ok) return;
 
@@ -31890,19 +32225,19 @@ function emptyStateHtml(){
 	          ? await saveReceiptLines(ro, { requireLine:true })
 	          : String(ro.receiptId || '').trim();
 	        if(!receiptId) throw new Error('Receipt not found.');
-	        const transitionToCompleted = async () => {
+	        const transitionToReceived = async () => {
 	          const { data, error } = await SB.client.rpc('transition_receipt_status', {
 	            p_receipt_id: receiptId,
-	            p_status: 'completed'
+	            p_status: 'received'
 	          });
 	          if(error) throw error;
 	          if(data && data.success === false){
-	            throw new Error(data.error || 'Failed to complete receipt');
+	            throw new Error(data.error || 'Failed to receive receipt');
 	          }
 	          return data || {};
 	        };
 	        try{
-	          await transitionToCompleted();
+	          await transitionToReceived();
 	        }catch(err){
 	          const msg = err && err.message ? String(err.message) : '';
 	          if(draftLike && canReceivingApprove()){
@@ -31912,16 +32247,16 @@ function emptyStateHtml(){
 	            });
 	            if(pendErr) throw pendErr;
 	            if(pendData && pendData.success === false){
-	              throw new Error(pendData.error || 'Failed to submit receipt');
-	            }
-	            await transitionToCompleted();
+	            throw new Error(pendData.error || 'Failed to submit receipt');
+	          }
+	            await transitionToReceived();
 	          }else{
-	            throw new Error(msg || 'Failed to complete receipt');
+	            throw new Error(msg || 'Failed to receive receipt');
 	          }
 	        }
-	        ro.receiptStatus = 'completed';
-	        toast('Receipt completed');
-	        setReceiveOrderMessage('Receipt completed. Inventory updated on completion.');
+	        ro.receiptStatus = 'received';
+	        toast('Receipt received');
+	        setReceiveOrderMessage('Receipt received. Inventory updated on confirmation.');
 	        await refreshInventoryAfterReceipt(ro);
 	        if(ro.mode === 'order'){
 	          await refreshReceiveOrderModal(ro.po && ro.po.id ? ro.po.id : ro.poId);
@@ -31929,9 +32264,9 @@ function emptyStateHtml(){
 	          renderReceiveOrderModal();
 	        }
 	      }catch(e){
-	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to complete receipt');
+	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to receive receipt');
 	      }finally{
-	        if(btn){ btn.disabled = false; btn.textContent = prior || 'Complete Receipt'; }
+	        if(btn){ btn.disabled = false; btn.textContent = prior || 'Receive Receipt'; }
 	      }
 	    }
 	    async function handleVoidReceipt(receiptId, btnEl){
@@ -32033,7 +32368,12 @@ function emptyStateHtml(){
         manualSearch: '',
         loading:true,
         rawReceiptText: '',
-        receiptSource: ''
+        receiptSource: '',
+        attachments: [],
+        attachmentsLoading: false,
+        attachmentsError: '',
+        _attachmentsLoaded: false,
+        _attachmentsLoadedFor: ''
       };
       show('receiveOrderModal', true);
       renderReceiveOrderModal();
@@ -32077,7 +32417,12 @@ function emptyStateHtml(){
         manualSearch: '',
         loading:true,
         rawReceiptText: '',
-        receiptSource: ''
+        receiptSource: '',
+        attachments: [],
+        attachmentsLoading: false,
+        attachmentsError: '',
+        _attachmentsLoaded: false,
+        _attachmentsLoadedFor: ''
       };
       show('receiveOrderModal', true);
       renderReceiveOrderModal();
@@ -32125,7 +32470,12 @@ function emptyStateHtml(){
         manualSearch: '',
         loading:true,
         rawReceiptText: '',
-        receiptSource: ''
+        receiptSource: '',
+        attachments: [],
+        attachmentsLoading: false,
+        attachmentsError: '',
+        _attachmentsLoaded: false,
+        _attachmentsLoadedFor: ''
       };
       show('receiveOrderModal', true);
       renderReceiveOrderModal();
@@ -37215,6 +37565,20 @@ function emptyStateHtml(){
 	      if(!id) return;
 	      void handleVoidReceipt(id, btn);
 	    });
+    const receiveReceiptAttachmentsList = $('receiveReceiptAttachmentsList');
+    if(receiveReceiptAttachmentsList) receiveReceiptAttachmentsList.addEventListener('click', (e)=>{
+      const downloadBtn = e.target.closest('[data-receipt-attachment-download]');
+      if(downloadBtn){
+        const id = String(downloadBtn.getAttribute('data-receipt-attachment-download') || '').trim();
+        if(id) void handleReceiptAttachmentDownload(id);
+        return;
+      }
+      const deleteBtn = e.target.closest('[data-receipt-attachment-delete]');
+      if(deleteBtn){
+        const id = String(deleteBtn.getAttribute('data-receipt-attachment-delete') || '').trim();
+        if(id) void handleReceiptAttachmentDelete(id);
+      }
+    });
 
     const btnShippingAddressClose = $('btnShippingAddressClose');
     if(btnShippingAddressClose) btnShippingAddressClose.addEventListener('click', closeShippingAddressModal);
