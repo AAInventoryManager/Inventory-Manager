@@ -3842,64 +3842,218 @@
       color:var(--fg);
     }
     .receive-draft-inbox{
-      margin-top:10px;
+      margin-top:12px;
       border:1px solid var(--border);
       border-radius:12px;
-      background:#0d1420;
-      padding:10px;
+      background:#0b0f14;
+      padding:12px;
+    }
+    .receive-draft-inbox-header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
     }
     .receive-draft-inbox-title{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
       font-size:12px;
       font-weight:800;
       letter-spacing:.08em;
       text-transform:uppercase;
       color:var(--muted);
-      margin-bottom:8px;
     }
-    .receive-draft-inbox-badge{
+    .receive-draft-inbox-subtitle{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+      max-width:520px;
+    }
+    .receive-draft-inbox-count{
       display:inline-flex;
       align-items:center;
-      padding:2px 6px;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      background:rgba(251,146,60,0.16);
+      border:1px solid rgba(251,146,60,0.35);
+      color:#fed7aa;
+      white-space:nowrap;
+    }
+    .receive-draft-inbox-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .receive-draft-inbox-empty{
+      padding:14px;
+      border-radius:10px;
+      background:rgba(15,23,42,0.45);
+      border:1px dashed var(--border-subtle);
+      color:var(--muted);
+      font-size:13px;
+    }
+    .receive-inbox-card{
+      border-radius:12px;
+      border:1px solid var(--border-subtle);
+      background:rgba(15,23,42,0.6);
+      padding:12px;
+      transition:border-color 0.15s, background 0.15s, transform 0.15s;
+      cursor:pointer;
+    }
+    .receive-inbox-card:hover{
+      border-color:rgba(255,255,255,0.18);
+      background:rgba(17,24,39,0.75);
+      transform:translateY(-1px);
+    }
+    .receive-inbox-vendor{
+      font-size:14px;
+      font-weight:700;
+      color:var(--fg);
+      max-width:260px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .receive-inbox-company{
+      color:var(--muted);
+      font-weight:500;
+    }
+    .receive-inbox-meta{
+      flex-wrap:wrap;
+      row-gap:4px;
+    }
+    .receive-inbox-status,
+    .receive-inbox-source{
+      display:inline-flex;
+      align-items:center;
+      padding:2px 8px;
       border-radius:999px;
       font-size:10px;
       font-weight:700;
       letter-spacing:.06em;
       text-transform:uppercase;
-      color:#fb923c;
-      background:rgba(249,115,22,0.12);
-      border:1px solid rgba(249,115,22,0.2);
-      margin-left:6px;
+      border:1px solid transparent;
+      white-space:nowrap;
     }
-    .receive-draft-inbox-item{
+    .receive-inbox-status[data-status="draft"]{
+      color:#bfdbfe;
+      background:rgba(59,130,246,0.18);
+      border-color:rgba(59,130,246,0.35);
+    }
+    .receive-inbox-status[data-status="blocked_by_plan"]{
+      color:#fdba74;
+      background:rgba(249,115,22,0.18);
+      border-color:rgba(249,115,22,0.35);
+    }
+    .receive-inbox-source{
+      color:var(--muted);
+      background:rgba(255,255,255,0.06);
+      border-color:rgba(255,255,255,0.12);
+    }
+    .receipt-details-grid{
+      margin-top:6px;
+    }
+    .receipt-details-meta{
+      margin-top:10px;
       display:flex;
       align-items:center;
-      justify-content:space-between;
       gap:10px;
-      padding:8px 10px;
-      border-radius:10px;
-      background:rgba(15,23,42,0.6);
-      border:1px solid var(--border);
+      flex-wrap:wrap;
     }
-    .receive-draft-inbox-item + .receive-draft-inbox-item{
-      margin-top:8px;
-    }
-    .receive-draft-inbox-name{
+    .receipt-source-pill{
+      display:inline-flex;
+      align-items:center;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:10px;
       font-weight:700;
-      font-size:13px;
-      color:#e2e8f0;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      background:rgba(56,189,248,0.14);
+      border:1px solid rgba(56,189,248,0.3);
+      color:#bae6fd;
     }
-    .receive-draft-inbox-meta{
+    .receipt-details-note{
       font-size:12px;
       color:var(--muted);
-      margin-top:4px;
     }
-    .receive-draft-inbox-actions{
+    .receipt-parsed-lines{
+      margin-top:12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:rgba(15,23,42,0.55);
+    }
+    .receipt-parsed-title{
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .receipt-parsed-line{
+      border:1px solid var(--border-subtle);
+      border-radius:10px;
+      padding:10px;
+      background:rgba(11,15,20,0.7);
+    }
+    .receipt-parsed-line + .receipt-parsed-line{
+      margin-top:10px;
+    }
+    .receipt-parsed-grid{
+      display:grid;
+      grid-template-columns:minmax(0,2fr) repeat(2, minmax(0,1fr)) minmax(0,1fr);
+      gap:10px;
+      align-items:end;
+    }
+    .receipt-parsed-field{
       display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .receipt-parsed-field label{
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .receipt-parsed-total{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .receipt-parsed-total-value{
+      min-height:42px;
+      padding:9px 10px;
+      border-radius:10px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid var(--border-subtle);
+      color:var(--fg);
+      font-weight:600;
+      display:flex;
+      align-items:center;
+    }
+    .receipt-parsed-actions{
+      margin-top:10px;
+      display:flex;
+      justify-content:flex-end;
+    }
+    .receive-plan-upgrade{
+      display:flex;
+      align-items:center;
       gap:8px;
-      flex-shrink:0;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+    @media (max-width: 720px){
+      .receipt-parsed-grid{
+        grid-template-columns:repeat(2, minmax(0,1fr));
+      }
     }
     .receive-raw{
       margin-top:10px;
@@ -8094,6 +8248,48 @@
     .order-pill-btn--clear:hover{
       background:rgba(239,68,68,0.4);
     }
+    .receipts-pill-container{
+      position:relative;
+      top:auto;
+      z-index:1;
+      display:flex;
+      justify-content:center;
+      padding:0;
+      margin:4px 0 2px;
+    }
+    .receipts-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      border:none;
+      border-radius:14px;
+      padding:10px 16px;
+      background:rgba(251,146,60,0.18);
+      border:1px solid rgba(251,146,60,0.45);
+      color:#fff7ed;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow:0 0 0 1px rgba(251,146,60,0.12), 0 10px 24px rgba(0,0,0,0.35);
+      transition:transform 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .receipts-pill:hover{
+      background:rgba(251,146,60,0.28);
+      transform:translateY(-1px);
+    }
+    .receipts-pill:active{
+      transform:translateY(0);
+    }
+    .receipts-pill-icon{
+      width:18px;
+      height:18px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .receipts-pill-label{
+      font-size:14px;
+      letter-spacing:0.01em;
+    }
     .menu-backdrop,
     .profile-backdrop{
       display:none;
@@ -10497,6 +10693,18 @@
             </div>
           </div>
         </div>
+        <div class="receipts-pill-container" id="receiptsPillContainer" style="display:none;">
+          <button class="receipts-pill" id="receiptsPill" type="button" aria-label="Receipts (0)">
+            <span class="receipts-pill-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 8v10a2 2 0 0 1-2 2H7l-4-4V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"></path>
+                <path d="M7 8h10"></path>
+                <path d="M7 12h6"></path>
+              </svg>
+            </span>
+            <span class="receipts-pill-label">Receipts (<span id="receiptsPillCount">0</span>)</span>
+          </button>
+        </div>
         <div class="toast" id="toast" role="status" aria-live="polite"></div>
       </div>
     </div>
@@ -12429,6 +12637,28 @@
                 <pre id="receiveReceiptRawText"></pre>
               </details>
             </div>
+            <div class="form-section" id="receiptReviewSection" style="display:none;">
+              <div class="section-label">Receipt Review</div>
+              <div class="receipt-details-grid edit-grid-3">
+                <div class="edit-field">
+                  <label for="receiveReceiptVendor">Vendor</label>
+                  <input id="receiveReceiptVendor" type="text" placeholder="Vendor name" />
+                </div>
+                <div class="edit-field">
+                  <label for="receiveReceiptDate">Receipt date</label>
+                  <input id="receiveReceiptDate" type="date" />
+                </div>
+                <div class="edit-field">
+                  <label for="receiveReceiptTotal">Total</label>
+                  <input id="receiveReceiptTotal" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00" />
+                </div>
+              </div>
+              <div class="receipt-details-meta">
+                <span id="receiveReceiptSourceBadge" class="receipt-source-pill" style="display:none;">Email</span>
+                <div class="receipt-details-note">Review before inventory is updated. Receipts are never received automatically.</div>
+              </div>
+              <div class="receipt-parsed-lines" id="receiptParsedLines"></div>
+            </div>
             <div class="form-section" id="receiveOrderSummarySection">
               <div class="section-label">Order Summary</div>
               <div id="receiveOrderMeta" class="receive-order-meta"></div>
@@ -12461,11 +12691,15 @@
           <div class="modal-footer">
             <div class="footer-left">
               <div id="receiveOrderMsg" class="muted"></div>
+              <div class="receive-plan-upgrade" id="receivePlanUpgrade" style="display:none;">
+                <span class="muted">Upgrade to enable receipt-based receiving.</span>
+                <button class="btn-tertiary btn-sm" type="button" data-receipt-upgrade>Upgrade to Pro</button>
+              </div>
               <button class="btn-secondary" id="btnReceiveOrderSave" type="button">Save Draft</button>
             </div>
             <div class="footer-right">
               <button class="btn-secondary" id="btnReceiveOrderCancel" type="button" data-modal-close="receiveOrderModal">Cancel</button>
-              <button class="btn-primary" id="btnReceiveOrderComplete" type="button">Complete Receipt</button>
+              <button class="btn-primary" id="btnReceiveOrderComplete" type="button">Confirm &amp; Receive Inventory</button>
             </div>
           </div>
         </div>
@@ -14024,6 +14258,7 @@
       _orderHistoryLinesByPo:new Map(),
       _receiveOrder:null,
       _draftEmailReceipts:[],
+      _draftEmailReceiptsCount:0,
       _draftEmailReceiptsLoaded:false,
       _draftEmailReceiptsNotified:false,
       _shippingAddresses:[],
@@ -16606,6 +16841,7 @@
       const chkAll = $('chkAll');
       if(chkAll) chkAll.disabled = !allowSelect;
       setEditHint();
+      renderReceiptsInboxIndicator();
     }
 
     // ---------- Auth + profile ----------
@@ -20826,6 +21062,7 @@
       state._orderHistoryLinesByPo = new Map();
       state._orderHistoryFilter = '';
       state._draftEmailReceipts = [];
+      state._draftEmailReceiptsCount = 0;
       state._draftEmailReceiptsLoaded = false;
       state._draftEmailReceiptsNotified = false;
 	      const orderHistoryFilter = $('orderHistoryFilter');
@@ -20864,6 +21101,7 @@
       _inviteCompanyId = '';
       _userMgmtCompanyId = '';
       updateOrderCounterBadge();
+      renderReceiptsInboxIndicator();
     }
 	    async function sbSwitchCompany(nextCompanyId, opts = {}){
 	      if(!SB.ready || !SB.session) return false;
@@ -20948,11 +21186,14 @@
         await handleOnboardingRoute();
       }
       if(!SB.authorized) return true;
+      if(canAccessReceivingInbox()){
+        void loadDraftEmailReceipts();
+      }
       await checkServerHealth();
-	      if(isOnline()){
-	        await sbLoadSnapshot();
-	        sbStartRealtime();
-	      }
+      if(isOnline()){
+        await sbLoadSnapshot();
+        sbStartRealtime();
+      }
 	      return true;
 	    }
 	    async function sbEnsureProfile(){
@@ -21206,6 +21447,9 @@
         return;
       }
 
+      if(canAccessReceivingInbox()){
+        void loadDraftEmailReceipts();
+      }
       await checkServerHealth();
       if(isOnline()){
         await sbLoadSnapshot();
@@ -30730,84 +30974,195 @@ function emptyStateHtml(){
         if(!Number.isFinite(num)) return '—';
         return `$${num.toFixed(2)}`;
       }
+      function formatReceiptSourceLabel(source){
+        const raw = String(source || '').toLowerCase();
+        if(!raw) return '';
+        if(raw.includes('pdf')) return 'PDF';
+        if(raw.includes('image')) return 'Image';
+        if(raw.includes('email')) return 'Email';
+        return 'Receipt';
+      }
+      function formatReceiptInputValue(value){
+        const num = Number(value);
+        if(!Number.isFinite(num)) return '';
+        return String(num);
+      }
+      function parseReceiptNumber(value){
+        const raw = String(value ?? '').trim();
+        if(!raw) return null;
+        const num = Number(raw);
+        if(!Number.isFinite(num)) return null;
+        return num;
+      }
+      function normalizeParsedLineItems(raw){
+        if(!Array.isArray(raw)) return [];
+        return raw.map(item => ({
+          description: String(item && item.description ? item.description : '').trim(),
+          qty: parseReceiptNumber(item && item.qty),
+          unit_price: parseReceiptNumber(item && item.unit_price),
+          line_total: parseReceiptNumber(item && item.line_total),
+        })).slice(0, 200);
+      }
+      function sanitizeParsedLineItems(lines){
+        if(!Array.isArray(lines)) return null;
+        const cleaned = lines.map(item => ({
+          description: String(item && item.description ? item.description : '').trim(),
+          qty: parseReceiptNumber(item && item.qty),
+          unit_price: parseReceiptNumber(item && item.unit_price),
+          line_total: parseReceiptNumber(item && item.line_total),
+        })).filter(item => item.description || item.qty !== null || item.unit_price !== null || item.line_total !== null);
+        return cleaned.length ? cleaned : null;
+      }
+      function getParsedLineTotal(line){
+        const qty = parseReceiptNumber(line && line.qty);
+        const unit = parseReceiptNumber(line && line.unit_price);
+        if(qty !== null && unit !== null) return qty * unit;
+        const existing = parseReceiptNumber(line && line.line_total);
+        return existing !== null ? existing : null;
+      }
       async function sbFetchDraftEmailReceipts(){
-        if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
-        const sources = ['email_html','email_pdf','email_text','image_upload'];
-        const { data, error } = await SB.client
-          .from('receipts')
-          .select('id,receipt_number,receipt_source,status,vendor_name,receipt_date,total,created_at,email_metadata,possible_duplicate')
-          .eq('company_id', SB.companyId)
+        if(!SB.ready || !SB.session || !SB.authorized) return { rows: [], count: 0 };
+        const query = SB.client
+          .from('receipts_with_company')
+          .select('receipt_id,company_id,company_name,company_slug,vendor_name,receipt_date,total,receipt_source,status,created_at', { count: 'exact' })
           .in('status', ['draft','blocked_by_plan'])
-          .in('receipt_source', sources)
           .order('created_at', { ascending: false })
-          .limit(20);
+          .limit(60);
+        if(!isEffectiveSuperUser()){
+          if(!SB.companyId) return { rows: [], count: 0 };
+          query.eq('company_id', SB.companyId);
+        }
+        const { data, error, count } = await query;
         if(error) throw error;
-        return Array.isArray(data) ? data : [];
+        const rows = Array.isArray(data)
+          ? data.map(row => ({
+              id: row.receipt_id,
+              receipt_id: row.receipt_id,
+              company_id: row.company_id,
+              company_name: row.company_name,
+              company_slug: row.company_slug,
+              vendor_name: row.vendor_name,
+              receipt_date: row.receipt_date,
+              total: row.total,
+              receipt_source: row.receipt_source,
+              status: row.status,
+              created_at: row.created_at,
+            }))
+          : [];
+        return { rows, count: Number.isFinite(count) ? count : rows.length };
       }
       function renderReceiveDraftInbox(){
         const wrap = $('receiveDraftInbox');
         if(!wrap) return;
+        const ro = state._receiveOrder;
         const drafts = Array.isArray(state._draftEmailReceipts) ? state._draftEmailReceipts : [];
-        if(!drafts.length){
+        const isInboxMode = !!(ro && ro.mode === 'inbox');
+        if(!drafts.length && !isInboxMode){
           wrap.style.display = 'none';
           wrap.innerHTML = '';
           return;
         }
+        const count = Number.isFinite(state._draftEmailReceiptsCount)
+          ? state._draftEmailReceiptsCount
+          : drafts.length;
+        const countLabel = count === 1 ? '1 receipt' : `${count} receipts`;
         wrap.style.display = '';
-        wrap.innerHTML = `<div class="receive-draft-inbox-title">Email receipts waiting for review</div>`+
-          drafts.map(row => {
-            const vendor = String(row.vendor_name || '').trim();
-            const meta = row.email_metadata && typeof row.email_metadata === 'object' ? row.email_metadata : {};
-            const subject = String(meta.subject || '').trim();
-            const title = vendor || subject || `Receipt ${shortId(row.id || '') || ''}`.trim() || 'Receipt';
-            const dateText = row.receipt_date ? formatEasternDateTime(row.receipt_date) : (row.created_at ? formatEasternDateTime(row.created_at) : '');
-            const totalText = formatReceiptMoney(row.total);
-            const dupNote = row.possible_duplicate ? ' • Possible duplicate' : '';
-            const status = String(row.status || '').trim().toLowerCase();
-            const statusBadge = status === 'blocked_by_plan' && isReceiptPlanBlocked(status)
-              ? ` <span class="receive-draft-inbox-badge">Plan locked</span>`
-              : '';
-            return (
-              `<div class="receive-draft-inbox-item">`+
-                `<div>`+
-                  `<div class="receive-draft-inbox-name">${escapeHtml(title)}</div>`+
-                  `<div class="receive-draft-inbox-meta">${escapeHtml(dateText || 'Received')} • Total ${escapeHtml(totalText)}${escapeHtml(dupNote)}${statusBadge}</div>`+
-                `</div>`+
-                `<div class="receive-draft-inbox-actions">`+
-                  `<button class="btn-tertiary btn-sm" type="button" data-receipt-review-id="${escapeHtmlAttr(row.id)}">Review</button>`+
-                `</div>`+
-              `</div>`
-            );
-          }).join('');
+        wrap.innerHTML =
+          `<div class="receive-draft-inbox-header">`+
+            `<div>`+
+              `<div class="receive-draft-inbox-title">Receipts inbox</div>`+
+              `<div class="receive-draft-inbox-subtitle">Review before inventory is updated. Receipts are never received automatically.</div>`+
+            `</div>`+
+            `<div class="receive-draft-inbox-count">${escapeHtml(countLabel)}</div>`+
+          `</div>`+
+          `<div class="receive-draft-inbox-list">`+
+            (drafts.length ? drafts.map(row => {
+              const vendor = String(row.vendor_name || '').trim() || 'Unknown vendor';
+              const companyName = String(row.company_name || row.company_slug || row.company_id || '').trim() || 'Unknown company';
+              const dateText = row.receipt_date ? formatDateShort(row.receipt_date) : (row.created_at ? formatDateShort(row.created_at) : '');
+              const totalText = formatReceiptMoney(row.total);
+              const status = String(row.status || '').trim().toLowerCase();
+              const statusKey = status === 'blocked_by_plan' ? 'blocked_by_plan' : 'draft';
+              const statusLabel = statusKey === 'blocked_by_plan' ? 'Upgrade required' : 'Needs review';
+              const sourceLabel = formatReceiptSourceLabel(row.receipt_source) || 'Email';
+              const receiptId = String(row.id || '').trim();
+              const companyId = String(row.company_id || '').trim();
+              const metaParts = [
+                companyName ? `<span class="receive-inbox-company">${escapeHtml(companyName)}</span>` : '',
+                dateText ? `<span>• ${escapeHtml(dateText)}</span>` : '',
+                `<span>• Total ${escapeHtml(totalText)}</span>`
+              ].filter(Boolean).join(' ');
+              return (
+                `<div class="receive-inbox-card" data-receipt-review-id="${escapeHtmlAttr(receiptId)}" data-receipt-company-id="${escapeHtmlAttr(companyId)}">`+
+                  `<div class="card-row">`+
+                    `<div class="card-info">`+
+                      `<div class="card-info-top">`+
+                        `<div class="receive-inbox-vendor">${escapeHtml(vendor)}</div>`+
+                        `<span class="receive-inbox-status" data-status="${escapeHtmlAttr(statusKey)}">${escapeHtml(statusLabel)}</span>`+
+                        `<span class="receive-inbox-source">${escapeHtml(sourceLabel)}</span>`+
+                      `</div>`+
+                      `<div class="card-info-bottom receive-inbox-meta">${metaParts}</div>`+
+                    `</div>`+
+                    `<div class="card-actions">`+
+                      `<button class="btn-primary btn-sm" type="button" data-receipt-review-id="${escapeHtmlAttr(receiptId)}" data-receipt-company-id="${escapeHtmlAttr(companyId)}">Review &amp; Receive</button>`+
+                    `</div>`+
+                  `</div>`+
+                `</div>`
+              );
+            }).join('') : `<div class="receive-draft-inbox-empty">No receipts waiting for review.</div>`) +
+          `</div>`;
       }
       async function loadDraftEmailReceipts(){
         try{
-          const rows = await sbFetchDraftEmailReceipts();
+          const result = await sbFetchDraftEmailReceipts();
+          const rows = result && Array.isArray(result.rows) ? result.rows : [];
           state._draftEmailReceipts = rows;
+          state._draftEmailReceiptsCount = Number.isFinite(result && result.count) ? result.count : rows.length;
           state._draftEmailReceiptsLoaded = true;
           renderReceiveDraftInbox();
+          renderReceiptsInboxIndicator();
           if(!state._draftEmailReceiptsNotified && rows.length){
             toast('New receipt received — ready for review.');
             state._draftEmailReceiptsNotified = true;
           }
         }catch(e){
           state._draftEmailReceipts = [];
+          state._draftEmailReceiptsCount = 0;
           state._draftEmailReceiptsLoaded = true;
           renderReceiveDraftInbox();
+          renderReceiptsInboxIndicator();
         }
       }
-      async function openReceiveDraftReceipt(receiptId){
+      function renderReceiptsInboxIndicator(){
+        const container = $('receiptsPillContainer');
+        const countEl = $('receiptsPillCount');
+        const pill = $('receiptsPill');
+        if(!container || !countEl) return;
+        const count = toInt(state._draftEmailReceiptsCount, 0);
+        const canShow = count > 0 && canAccessReceivingInbox();
+        container.style.display = canShow ? '' : 'none';
+        countEl.textContent = String(count);
+        if(pill) pill.setAttribute('aria-label', `Receipts (${count})`);
+      }
+      async function openReceiveDraftReceipt(receiptId, companyId){
         const id = String(receiptId || '').trim();
         if(!id) return;
         if(!SB.ready){ toast('Supabase not configured'); return; }
         if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
         if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
         if(!canAccessReceivingInbox()){ toast('Receiving access required'); return; }
+        let receiptCompanyId = String(companyId || '').trim() || (SB.companyId ? String(SB.companyId) : '');
+        if(receiptCompanyId && SB.companyId && receiptCompanyId !== String(SB.companyId) && isEffectiveSuperUser()){
+          const switched = await sbSwitchCompany(receiptCompanyId, { persist:false, audit:true, source:'receipts_inbox' });
+          if(!switched) return;
+          receiptCompanyId = SB.companyId ? String(SB.companyId) : receiptCompanyId;
+        }
 
         setReceiveOrderMessage('');
         setReceiveOrderWarning('');
         state._receiveOrder = {
           mode: 'manual',
+          companyId: receiptCompanyId,
           poId: '',
           po: null,
           lines: [],
@@ -30817,6 +31172,10 @@ function emptyStateHtml(){
           receiptId: id,
           receiptStatus: 'draft',
           receiptNotes: '',
+          receiptVendor: '',
+          receiptDate: '',
+          receiptTotal: '',
+          parsedLineItems: [],
           possibleDuplicate: false,
           manualSearch: '',
           loading:true,
@@ -30828,12 +31187,16 @@ function emptyStateHtml(){
         try{
           await ensureInventoryLoaded();
           await ensureIncomingOrdersLoaded();
-          const { data: receiptRow, error: receiptErr } = await SB.client
+          let receiptQuery = SB.client
             .from('receipts')
-            .select('id,receipt_number,status,notes,raw_receipt_text,receipt_source,possible_duplicate')
-            .eq('company_id', SB.companyId)
-            .eq('id', id)
-            .maybeSingle();
+            .select('id,receipt_number,status,notes,raw_receipt_text,receipt_source,possible_duplicate,vendor_name,receipt_date,total,parsed_line_items')
+            .eq('id', id);
+          if(receiptCompanyId){
+            receiptQuery = receiptQuery.eq('company_id', receiptCompanyId);
+          }else if(SB.companyId){
+            receiptQuery = receiptQuery.eq('company_id', SB.companyId);
+          }
+          const { data: receiptRow, error: receiptErr } = await receiptQuery.maybeSingle();
           if(receiptErr) throw receiptErr;
           if(!receiptRow){
             throw new Error('Receipt not found');
@@ -30870,6 +31233,18 @@ function emptyStateHtml(){
           state._receiveOrder.possibleDuplicate = !!receiptRow.possible_duplicate;
           state._receiveOrder.rawReceiptText = String(receiptRow.raw_receipt_text || '').trim();
           state._receiveOrder.receiptSource = String(receiptRow.receipt_source || '').trim();
+          state._receiveOrder.receiptVendor = String(receiptRow.vendor_name || '').trim();
+          state._receiveOrder.receiptDate = receiptRow.receipt_date ? String(receiptRow.receipt_date).trim() : '';
+          state._receiveOrder.receiptTotal = (typeof receiptRow.total === 'number' || typeof receiptRow.total === 'string')
+            ? String(receiptRow.total).trim()
+            : '';
+          state._receiveOrder.parsedLineItems = normalizeParsedLineItems(receiptRow.parsed_line_items);
+          state._receiveOrder._lastSavedMetaKey = JSON.stringify({
+            vendor_name: state._receiveOrder.receiptVendor || null,
+            receipt_date: state._receiveOrder.receiptDate || null,
+            total: parseReceiptNumber(state._receiveOrder.receiptTotal),
+            parsed_line_items: sanitizeParsedLineItems(state._receiveOrder.parsedLineItems),
+          });
           state._receiveOrder.loading = false;
           renderReceiveOrderModal();
         }catch(e){
@@ -30911,11 +31286,19 @@ function emptyStateHtml(){
       const modeEl = $('receiveReceiptMode');
       const receiptIdEl = $('receiveReceiptId');
       const notesEl = $('receiveReceiptNotes');
+      const reviewSection = $('receiptReviewSection');
+      const vendorEl = $('receiveReceiptVendor');
+      const dateEl = $('receiveReceiptDate');
+      const totalEl = $('receiveReceiptTotal');
+      const sourceBadge = $('receiveReceiptSourceBadge');
+      const parsedLinesWrap = $('receiptParsedLines');
+      const planUpgrade = $('receivePlanUpgrade');
       const rawWrap = $('receiveReceiptRaw');
       const rawTextEl = $('receiveReceiptRawText');
-	      const manualSection = $('receiveManualSection');
-	      const summarySection = $('receiveOrderSummarySection');
-	      const receiptsSection = $('receiveOrderReceiptsSection');
+      const manualSection = $('receiveManualSection');
+      const summarySection = $('receiveOrderSummarySection');
+      const receiptsSection = $('receiveOrderReceiptsSection');
+      const linesSection = linesWrap ? linesWrap.closest('.form-section') : null;
 	      if(!meta || !summary || !linesWrap || !receiptsWrap) return;
         renderReceiveForwardingHint();
 
@@ -30927,6 +31310,13 @@ function emptyStateHtml(){
         if(modeEl) modeEl.textContent = 'Order Receipt';
         if(receiptIdEl) receiptIdEl.textContent = '';
         if(notesEl){ notesEl.value = ''; notesEl.disabled = true; }
+        if(reviewSection) reviewSection.style.display = 'none';
+        if(vendorEl){ vendorEl.value = ''; vendorEl.disabled = true; }
+        if(dateEl){ dateEl.value = ''; dateEl.disabled = true; }
+        if(totalEl){ totalEl.value = ''; totalEl.disabled = true; }
+        if(sourceBadge){ sourceBadge.style.display = 'none'; sourceBadge.textContent = ''; }
+        if(parsedLinesWrap) parsedLinesWrap.innerHTML = '';
+        if(planUpgrade) planUpgrade.style.display = 'none';
         if(rawWrap && rawTextEl){
           rawWrap.style.display = 'none';
           rawTextEl.textContent = '';
@@ -30979,10 +31369,89 @@ function emptyStateHtml(){
         }
       }
 
-	      if(summarySection) summarySection.style.display = isOrderMode ? '' : 'none';
-	      if(receiptsSection) receiptsSection.style.display = isOrderMode ? '' : 'none';
-	      if(manualSection) manualSection.style.display = (!isOrderMode && !isInboxMode) ? '' : 'none';
-	      if(!isOrderMode && !isInboxMode){
+      const hasReceiptDetails = !!(
+        String(ro.receiptSource || '').trim() ||
+        String(ro.rawReceiptText || '').trim() ||
+        (Array.isArray(ro.parsedLineItems) && ro.parsedLineItems.length) ||
+        String(ro.receiptVendor || '').trim() ||
+        String(ro.receiptDate || '').trim() ||
+        String(ro.receiptTotal || '').trim()
+      );
+      if(reviewSection) reviewSection.style.display = (!isInboxMode && hasReceiptDetails) ? '' : 'none';
+      const allowDetailsEdit = !isInboxMode && isEditable;
+      if(vendorEl){
+        vendorEl.value = String(ro.receiptVendor || '');
+        vendorEl.disabled = !allowDetailsEdit;
+      }
+      if(dateEl){
+        dateEl.value = String(ro.receiptDate || '');
+        dateEl.disabled = !allowDetailsEdit;
+      }
+      if(totalEl){
+        totalEl.value = formatReceiptInputValue(ro.receiptTotal);
+        totalEl.disabled = !allowDetailsEdit;
+      }
+      if(sourceBadge){
+        const label = formatReceiptSourceLabel(ro.receiptSource);
+        if(label){
+          sourceBadge.textContent = label;
+          sourceBadge.style.display = '';
+        }else{
+          sourceBadge.textContent = '';
+          sourceBadge.style.display = 'none';
+        }
+      }
+      if(parsedLinesWrap){
+        if(!hasReceiptDetails){
+          parsedLinesWrap.innerHTML = '';
+        }else{
+          const parsedLines = Array.isArray(ro.parsedLineItems) ? ro.parsedLineItems : [];
+          const linesHtml = parsedLines.length
+            ? parsedLines.map((line, idx) => {
+                const desc = String(line && line.description ? line.description : '');
+                const qtyVal = formatReceiptInputValue(line && line.qty);
+                const unitVal = formatReceiptInputValue(line && line.unit_price);
+                const lineTotal = getParsedLineTotal(line);
+                const totalText = (lineTotal === null || typeof lineTotal === 'undefined')
+                  ? '—'
+                  : formatReceiptMoney(lineTotal);
+                const disabled = !allowDetailsEdit;
+                return (
+                  `<div class="receipt-parsed-line" data-receipt-line-index="${idx}">`+
+                    `<div class="receipt-parsed-grid">`+
+                      `<div class="receipt-parsed-field">`+
+                        `<label>Description</label>`+
+                        `<input type="text" value="${escapeHtmlAttr(desc)}" data-receipt-line-field="description" data-receipt-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
+                      `</div>`+
+                      `<div class="receipt-parsed-field">`+
+                        `<label>Qty</label>`+
+                        `<input type="number" inputmode="numeric" step="1" min="0" value="${escapeHtmlAttr(qtyVal)}" data-receipt-line-field="qty" data-receipt-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
+                      `</div>`+
+                      `<div class="receipt-parsed-field">`+
+                        `<label>Unit</label>`+
+                        `<input type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtmlAttr(unitVal)}" data-receipt-line-field="unit_price" data-receipt-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
+                      `</div>`+
+                      `<div class="receipt-parsed-total">`+
+                        `<label>Total</label>`+
+                        `<div class="receipt-parsed-total-value">${escapeHtml(totalText)}</div>`+
+                      `</div>`+
+                    `</div>`+
+                  `</div>`
+                );
+              }).join('')
+            : `<div class="muted">No parsed line items yet.</div>`;
+          const addAction = allowDetailsEdit
+            ? `<div class="receipt-parsed-actions"><button class="btn-tertiary btn-sm" type="button" data-receipt-line-add>Add line item</button></div>`
+            : '';
+          parsedLinesWrap.innerHTML = `<div class="receipt-parsed-title">Parsed line items</div>` + linesHtml + addAction;
+        }
+      }
+
+      if(summarySection) summarySection.style.display = isOrderMode ? '' : 'none';
+      if(receiptsSection) receiptsSection.style.display = isOrderMode ? '' : 'none';
+      if(manualSection) manualSection.style.display = (!isOrderMode && !isInboxMode) ? '' : 'none';
+      if(linesSection) linesSection.style.display = isInboxMode ? 'none' : '';
+      if(!isOrderMode && !isInboxMode){
 	        const manualInput = $('receiveManualSearch');
 	        if(manualInput){
 	          manualInput.value = String(ro.manualSearch || '');
@@ -31158,23 +31627,26 @@ function emptyStateHtml(){
 	        receiptsWrap.innerHTML = '';
 	      }
 
-	      if(isInboxMode){
-	        setReceiveOrderMessage('Review incoming receipts below.');
-	      }else if(receiptStatus === 'pending'){
-	        setReceiveOrderMessage('Receipt is pending approval.');
-	      }else if(receiptStatus === 'completed'){
-	        setReceiveOrderMessage('Receipt completed. Inventory updated on completion.');
-	      }else if(receiptStatus === 'voided'){
-	        setReceiveOrderMessage('Receipt voided. Inventory unchanged.');
-	      }else if(receiptStatus === 'blocked_by_plan'){
-	        setReceiveOrderMessage(planBlocked
-	          ? 'Upgrade to enable receipt-based receiving.'
-	          : 'Draft receipt ready. Save or complete to update inventory.');
-	      }else if(receiptStatus === 'draft'){
-	        setReceiveOrderMessage('Draft receipt ready. Save or complete to update inventory.');
-	      }else{
-	        setReceiveOrderMessage('');
-	      }
+      if(isInboxMode){
+        setReceiveOrderMessage('Review before inventory is updated. Receipts are never received automatically.');
+      }else if(receiptStatus === 'pending'){
+        setReceiveOrderMessage('Receipt is pending approval.');
+      }else if(receiptStatus === 'completed'){
+        setReceiveOrderMessage('Receipt completed. Inventory updated on completion.');
+      }else if(receiptStatus === 'voided'){
+        setReceiveOrderMessage('Receipt voided. Inventory unchanged.');
+      }else if(receiptStatus === 'blocked_by_plan'){
+        setReceiveOrderMessage(planBlocked
+          ? 'Upgrade to enable receipt-based receiving.'
+          : 'Draft receipt ready. Save or complete to update inventory.');
+      }else if(receiptStatus === 'draft'){
+        setReceiveOrderMessage('Draft receipt ready. Save or complete to update inventory.');
+      }else{
+        setReceiveOrderMessage('');
+      }
+      if(planUpgrade){
+        planUpgrade.style.display = receiptStatus === 'blocked_by_plan' ? '' : 'none';
+      }
 
 	      updateReceiveOrderWarning();
 	      const saveBtn = $('btnReceiveOrderSave');
@@ -31227,34 +31699,72 @@ function emptyStateHtml(){
 	      receiveState.receiptStatus = status || 'draft';
 	      return receiptId;
 	    }
-	    async function saveReceiptNotes(receiveState, receiptId){
-	      if(!receiveState || !receiptId) return;
-	      const status = String(receiveState.receiptStatus || '').trim().toLowerCase();
-	      if(status && !isReceiptDraftLike(status)) return;
-	      const notes = String(receiveState.receiptNotes || '').trim();
-	      const last = String(receiveState._lastSavedNotes || '');
-	      if(notes === last) return;
-	      const patch = {
-	        notes: notes ? notes : null,
-	        updated_at: new Date().toISOString(),
-	        updated_by: SB.user ? SB.user.id : null
-	      };
-	      const { error } = await SB.client
-	        .from('receipts')
-	        .update(patch)
-	        .eq('id', receiptId)
-	        .eq('company_id', SB.companyId);
-	      if(error) throw error;
-	      receiveState._lastSavedNotes = notes;
-	    }
+      async function saveReceiptNotes(receiveState, receiptId){
+        if(!receiveState || !receiptId) return;
+        const status = String(receiveState.receiptStatus || '').trim().toLowerCase();
+        if(status && !isReceiptDraftLike(status)) return;
+        const notes = String(receiveState.receiptNotes || '').trim();
+        const last = String(receiveState._lastSavedNotes || '');
+        if(notes === last) return;
+        const companyId = receiveState.companyId || SB.companyId;
+        const patch = {
+          notes: notes ? notes : null,
+          updated_at: new Date().toISOString(),
+          updated_by: SB.user ? SB.user.id : null
+        };
+        let query = SB.client
+          .from('receipts')
+          .update(patch)
+          .eq('id', receiptId);
+        if(companyId){
+          query = query.eq('company_id', companyId);
+        }
+        const { error } = await query;
+        if(error) throw error;
+        receiveState._lastSavedNotes = notes;
+      }
+      async function saveReceiptMeta(receiveState, receiptId){
+        if(!receiveState || !receiptId) return;
+        const status = String(receiveState.receiptStatus || '').trim().toLowerCase();
+        if(status && !isReceiptDraftLike(status)) return;
+        const companyId = receiveState.companyId || SB.companyId;
+        const vendor = String(receiveState.receiptVendor || '').trim();
+        const receiptDate = String(receiveState.receiptDate || '').trim();
+        const total = parseReceiptNumber(receiveState.receiptTotal);
+        const parsedLineItems = sanitizeParsedLineItems(receiveState.parsedLineItems);
+        const metaPayload = {
+          vendor_name: vendor || null,
+          receipt_date: receiptDate || null,
+          total: total,
+          parsed_line_items: parsedLineItems,
+        };
+        const metaKey = JSON.stringify(metaPayload);
+        if(metaKey === receiveState._lastSavedMetaKey) return;
+        const patch = {
+          ...metaPayload,
+          updated_at: new Date().toISOString(),
+          updated_by: SB.user ? SB.user.id : null,
+        };
+        let query = SB.client
+          .from('receipts')
+          .update(patch)
+          .eq('id', receiptId);
+        if(companyId){
+          query = query.eq('company_id', companyId);
+        }
+        const { error } = await query;
+        if(error) throw error;
+        receiveState._lastSavedMetaKey = metaKey;
+      }
 	    async function saveReceiptLines(receiveState, opts = {}){
 	      const lines = receiveState.lines || [];
 	      const requireLine = !!opts.requireLine;
-	      const hasAny = lines.some(l => !l.disabled && (toInt(l.qty_received, 0) > 0 || toInt(l.qty_rejected, 0) > 0));
-	      if(requireLine && !hasAny) throw new Error('Enter at least one received or rejected quantity.');
-	      const receiptId = await ensureDraftReceiptId(receiveState);
-	      await saveReceiptNotes(receiveState, receiptId);
-	      for(const line of lines){
+      const hasAny = lines.some(l => !l.disabled && (toInt(l.qty_received, 0) > 0 || toInt(l.qty_rejected, 0) > 0));
+      if(requireLine && !hasAny) throw new Error('Enter at least one received or rejected quantity.');
+      const receiptId = await ensureDraftReceiptId(receiveState);
+      await saveReceiptMeta(receiveState, receiptId);
+      await saveReceiptNotes(receiveState, receiptId);
+      for(const line of lines){
 	        if(line.disabled) continue;
 	        if(!line.item_id) continue;
 	        const qtyReceived = toInt(line.qty_received, 0);
@@ -31366,8 +31876,8 @@ function emptyStateHtml(){
 	        return;
 	      }
 	      const ok = await openConfirmModal(
-	        'Complete receipt?',
-	        'Inventory is updated only when the receipt is completed.',
+        'Confirm & receive inventory?',
+        'Review before inventory is updated. Receipts are never received automatically.',
 	        { okText:'Complete', cancelText:'Cancel' }
 	      );
 	      if(!ok) return;
@@ -31503,21 +32013,28 @@ function emptyStateHtml(){
 
 	      setReceiveOrderMessage('');
 	      setReceiveOrderWarning('');
-	      state._receiveOrder = {
-	        mode: 'order',
-	        poId: id,
-	        po: getOrderHistoryRowById(id),
-	        lines: [],
-	        receipts: [],
-	        receiptLines: [],
-	        receiptLinesByReceipt: new Map(),
-	        receiptId: '',
-	        receiptStatus: 'draft',
-	        receiptNotes: '',
-          possibleDuplicate: false,
-	        manualSearch: '',
-	        loading:true
-	      };
+      state._receiveOrder = {
+        mode: 'order',
+        companyId: SB.companyId ? String(SB.companyId) : '',
+        poId: id,
+        po: getOrderHistoryRowById(id),
+        lines: [],
+        receipts: [],
+        receiptLines: [],
+        receiptLinesByReceipt: new Map(),
+        receiptId: '',
+        receiptStatus: 'draft',
+        receiptNotes: '',
+        receiptVendor: '',
+        receiptDate: '',
+        receiptTotal: '',
+        parsedLineItems: [],
+        possibleDuplicate: false,
+        manualSearch: '',
+        loading:true,
+        rawReceiptText: '',
+        receiptSource: ''
+      };
       show('receiveOrderModal', true);
       renderReceiveOrderModal();
       try{
@@ -31540,23 +32057,28 @@ function emptyStateHtml(){
 
 	      setReceiveOrderMessage('');
 	      setReceiveOrderWarning('');
-	      state._receiveOrder = {
-	        mode: 'inbox',
-	        poId: '',
-	        po: null,
-	        lines: [],
-	        receipts: [],
-	        receiptLines: [],
-	        receiptLinesByReceipt: new Map(),
-	        receiptId: '',
-	        receiptStatus: 'draft',
-	        receiptNotes: '',
-          possibleDuplicate: false,
-	        manualSearch: '',
-	        loading:true,
-	        rawReceiptText: '',
-	        receiptSource: ''
-	      };
+      state._receiveOrder = {
+        mode: 'inbox',
+        companyId: SB.companyId ? String(SB.companyId) : '',
+        poId: '',
+        po: null,
+        lines: [],
+        receipts: [],
+        receiptLines: [],
+        receiptLinesByReceipt: new Map(),
+        receiptId: '',
+        receiptStatus: 'draft',
+        receiptNotes: '',
+        receiptVendor: '',
+        receiptDate: '',
+        receiptTotal: '',
+        parsedLineItems: [],
+        possibleDuplicate: false,
+        manualSearch: '',
+        loading:true,
+        rawReceiptText: '',
+        receiptSource: ''
+      };
       show('receiveOrderModal', true);
       renderReceiveOrderModal();
       try{
@@ -31583,21 +32105,28 @@ function emptyStateHtml(){
 
 	      setReceiveOrderMessage('');
 	      setReceiveOrderWarning('');
-	      state._receiveOrder = {
-	        mode: 'manual',
-	        poId: '',
-	        po: null,
-	        lines: [],
-	        receipts: [],
-	        receiptLines: [],
-	        receiptLinesByReceipt: new Map(),
-	        receiptId: '',
-	        receiptStatus: 'draft',
-	        receiptNotes: '',
-          possibleDuplicate: false,
-	        manualSearch: '',
-	        loading:true
-	      };
+      state._receiveOrder = {
+        mode: 'manual',
+        companyId: SB.companyId ? String(SB.companyId) : '',
+        poId: '',
+        po: null,
+        lines: [],
+        receipts: [],
+        receiptLines: [],
+        receiptLinesByReceipt: new Map(),
+        receiptId: '',
+        receiptStatus: 'draft',
+        receiptNotes: '',
+        receiptVendor: '',
+        receiptDate: '',
+        receiptTotal: '',
+        parsedLineItems: [],
+        possibleDuplicate: false,
+        manualSearch: '',
+        loading:true,
+        rawReceiptText: '',
+        receiptSource: ''
+      };
       show('receiveOrderModal', true);
       renderReceiveOrderModal();
       try{
@@ -36542,10 +37071,72 @@ function emptyStateHtml(){
 	    if(btnReceiveOrderSave) btnReceiveOrderSave.addEventListener('click', handleSaveReceiptDraft);
 	    const btnReceiveOrderComplete = $('btnReceiveOrderComplete');
 	    if(btnReceiveOrderComplete) btnReceiveOrderComplete.addEventListener('click', handleCompleteReceipt);
-	    const receiveReceiptNotes = $('receiveReceiptNotes');
-	    if(receiveReceiptNotes) receiveReceiptNotes.addEventListener('input', ()=>{
-	      if(state._receiveOrder) state._receiveOrder.receiptNotes = String(receiveReceiptNotes.value || '');
-	    });
+    const receiveReceiptNotes = $('receiveReceiptNotes');
+    if(receiveReceiptNotes) receiveReceiptNotes.addEventListener('input', ()=>{
+      if(state._receiveOrder) state._receiveOrder.receiptNotes = String(receiveReceiptNotes.value || '');
+    });
+    const receiveReceiptVendor = $('receiveReceiptVendor');
+    if(receiveReceiptVendor) receiveReceiptVendor.addEventListener('input', ()=>{
+      if(state._receiveOrder) state._receiveOrder.receiptVendor = String(receiveReceiptVendor.value || '');
+    });
+    const receiveReceiptDate = $('receiveReceiptDate');
+    if(receiveReceiptDate) receiveReceiptDate.addEventListener('input', ()=>{
+      if(state._receiveOrder) state._receiveOrder.receiptDate = String(receiveReceiptDate.value || '');
+    });
+    const receiveReceiptTotal = $('receiveReceiptTotal');
+    if(receiveReceiptTotal) receiveReceiptTotal.addEventListener('input', ()=>{
+      if(state._receiveOrder) state._receiveOrder.receiptTotal = String(receiveReceiptTotal.value || '');
+    });
+    const receiptParsedLines = $('receiptParsedLines');
+    if(receiptParsedLines && !receiptParsedLines._wired){
+      receiptParsedLines._wired = true;
+      receiptParsedLines.addEventListener('input', (e)=>{
+        const inp = e.target.closest('[data-receipt-line-field]');
+        if(!inp || !state._receiveOrder) return;
+        const idx = toInt(inp.getAttribute('data-receipt-line-index'), -1);
+        if(idx < 0) return;
+        const field = String(inp.getAttribute('data-receipt-line-field') || '').trim();
+        const lines = Array.isArray(state._receiveOrder.parsedLineItems) ? state._receiveOrder.parsedLineItems : [];
+        const line = lines[idx];
+        if(!line) return;
+        if(field === 'description'){
+          line.description = String(inp.value || '');
+        }else if(field === 'qty' || field === 'unit_price'){
+          line[field] = parseReceiptNumber(inp.value);
+          line.line_total = getParsedLineTotal(line);
+        }
+        const row = inp.closest('.receipt-parsed-line');
+        const totalEl = row ? row.querySelector('.receipt-parsed-total-value') : null;
+        if(totalEl){
+          const lineTotal = getParsedLineTotal(line);
+          totalEl.textContent = (lineTotal === null || typeof lineTotal === 'undefined') ? '—' : formatReceiptMoney(lineTotal);
+        }
+      });
+      receiptParsedLines.addEventListener('click', (e)=>{
+        const btn = e.target.closest('[data-receipt-line-add]');
+        if(!btn || !state._receiveOrder) return;
+        if(!Array.isArray(state._receiveOrder.parsedLineItems)) state._receiveOrder.parsedLineItems = [];
+        state._receiveOrder.parsedLineItems.push({
+          description: '',
+          qty: null,
+          unit_price: null,
+          line_total: null,
+        });
+        renderReceiveOrderModal();
+      });
+    }
+    const receiptsPill = $('receiptsPill');
+    if(receiptsPill) receiptsPill.addEventListener('click', ()=>{
+      openReceiveInboxModal();
+    });
+    const receiptUpgradeBtn = document.querySelector('[data-receipt-upgrade]');
+    if(receiptUpgradeBtn) receiptUpgradeBtn.addEventListener('click', ()=>{
+      if(isEffectiveSuperUser()){
+        openSubscriptionManagerModal();
+      }else{
+        toast('Contact an admin to upgrade.');
+      }
+    });
 	    const receiveForwardingHint = $('receiveForwardingHint');
 	    if(receiveForwardingHint && !receiveForwardingHint._wired){
 	      receiveForwardingHint._wired = true;
@@ -36606,14 +37197,16 @@ function emptyStateHtml(){
 	      if(!id) return;
 	      void addManualReceiveLine(id);
 	    });
-	    const receiveDraftInbox = $('receiveDraftInbox');
-	    if(receiveDraftInbox) receiveDraftInbox.addEventListener('click', (e)=>{
-	      const btn = e.target.closest('button[data-receipt-review-id]');
-	      if(!btn) return;
-	      const id = String(btn.getAttribute('data-receipt-review-id') || '').trim();
-	      if(!id) return;
-	      void openReceiveDraftReceipt(id);
-	    });
+    const receiveDraftInbox = $('receiveDraftInbox');
+    if(receiveDraftInbox) receiveDraftInbox.addEventListener('click', (e)=>{
+      const target = e.target.closest('[data-receipt-review-id]');
+      if(!target) return;
+      const id = String(target.getAttribute('data-receipt-review-id') || '').trim();
+      if(!id) return;
+      const companyId = String(target.getAttribute('data-receipt-company-id') || '').trim()
+        || String((target.closest('[data-receipt-company-id]') || {}).getAttribute?.('data-receipt-company-id') || '').trim();
+      void openReceiveDraftReceipt(id, companyId);
+    });
 	    const receiveOrderReceipts = $('receiveOrderReceipts');
 	    if(receiveOrderReceipts) receiveOrderReceipts.addEventListener('click', (e)=>{
 	      const btn = e.target.closest('button[data-void-receipt-id]');
