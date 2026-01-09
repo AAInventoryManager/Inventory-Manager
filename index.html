@@ -4634,6 +4634,31 @@
     #receiveOrderModal .receive-footer--icons .footer-message{
       text-align:center;
       font-size:12px;
+      transition:all 0.2s ease;
+    }
+    #receiveOrderModal .receive-footer--icons .footer-message.is-error{
+      background:rgba(239,68,68,0.15);
+      color:#f87171;
+      font-size:14px;
+      font-weight:600;
+      padding:12px 16px;
+      border-radius:10px;
+      border:1px solid rgba(239,68,68,0.3);
+      animation:shake 0.4s ease;
+    }
+    @keyframes shake{
+      0%,100%{transform:translateX(0)}
+      20%,60%{transform:translateX(-6px)}
+      40%,80%{transform:translateX(6px)}
+    }
+    #receiveOrderModal .receive-footer--icons .footer-message.is-success{
+      background:rgba(34,197,94,0.15);
+      color:#4ade80;
+      font-size:14px;
+      font-weight:600;
+      padding:12px 16px;
+      border-radius:10px;
+      border:1px solid rgba(34,197,94,0.3);
     }
     #receiveOrderModal .receive-footer--icons .footer-actions{
       display:flex;
@@ -33685,9 +33710,12 @@ function emptyStateHtml(){
 	      );
 	    }
 
-	    function setReceiveOrderMessage(msg){
+	    function setReceiveOrderMessage(msg, type){
 	      const el = $('receiveOrderMsg'); if(!el) return;
 	      el.textContent = String(msg || '');
+	      el.classList.remove('is-error', 'is-success');
+	      if(type === 'error') el.classList.add('is-error');
+	      else if(type === 'success') el.classList.add('is-success');
 	    }
 	    function setReceiveOrderWarning(msg){
 	      const el = $('receiveOrderWarning'); if(!el) return;
@@ -34742,7 +34770,7 @@ function emptyStateHtml(){
         }catch(e){
           state._receiveOrder.loading = false;
           renderReceiveOrderModal();
-          setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt');
+          setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt', 'error');
         }
       }
       function renderReceiveForwardingHint(){
@@ -35514,7 +35542,7 @@ function emptyStateHtml(){
       }else if(receiptStatus === 'pending'){
         setReceiveOrderMessage('Receipt is pending approval.');
       }else if(receiptStatus === 'received'){
-        setReceiveOrderMessage('Receipt received. Inventory updated on confirmation.');
+        setReceiveOrderMessage('Receipt received. Inventory updated.', 'success');
       }else if(receiptStatus === 'voided'){
         setReceiveOrderMessage('Receipt voided. Inventory unchanged.');
       }else if(receiptStatus === 'blocked_by_plan'){
@@ -35757,10 +35785,10 @@ function emptyStateHtml(){
       try{
         await saveReceiptLines(ro, { requireLine:false });
         toast('Draft saved', 'success');
-        setReceiveOrderMessage('Draft saved.');
+        setReceiveOrderMessage('Draft saved.', 'success');
         scheduleMenuActionBadgeRefresh({ force: true });
       }catch(e){
-        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to save draft');
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to save draft', 'error');
       }finally{
         if(btn){
           btn.disabled = false;
@@ -35831,7 +35859,7 @@ function emptyStateHtml(){
 	        }
 	        ro.receiptStatus = 'received';
 	        toast('Receipt received');
-	        setReceiveOrderMessage('Receipt received. Inventory updated on confirmation.');
+	        setReceiveOrderMessage('Receipt received. Inventory updated.', 'success');
 	        await refreshInventoryAfterReceipt(ro);
 	        if(ro.mode === 'order'){
 	          await refreshReceiveOrderModal(ro.po && ro.po.id ? ro.po.id : ro.poId);
@@ -35840,7 +35868,7 @@ function emptyStateHtml(){
 	        }
         scheduleMenuActionBadgeRefresh({ force: true });
 	      }catch(e){
-	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to receive receipt');
+	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to receive receipt', 'error');
 	      }finally{
 	        if(btn){ btn.disabled = false; btn.textContent = prior || 'Receive Receipt'; }
 	      }
@@ -35962,7 +35990,7 @@ function emptyStateHtml(){
         await ensureDraftReceiptId(state._receiveOrder);
         await refreshReceiveOrderModal(id);
       }catch(e){
-        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt data');
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt data', 'error');
         renderReceiveOrderModal();
 	      }
 	    }
@@ -36010,7 +36038,7 @@ function emptyStateHtml(){
         await ensureIncomingOrdersLoaded();
         await loadDraftEmailReceipts();
       }catch(e){
-        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipts');
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipts', 'error');
       }finally{
         if(state._receiveOrder) state._receiveOrder.loading = false;
 	        renderReceiveOrderModal();
@@ -36060,7 +36088,7 @@ function emptyStateHtml(){
         await ensureIncomingOrdersLoaded();
         await loadDraftEmailReceipts();
       }catch(e){
-        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load pending orders');
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load pending orders', 'error');
       }finally{
         if(state._receiveOrder) state._receiveOrder.loading = false;
         renderReceiveOrderModal();
@@ -36117,7 +36145,7 @@ function emptyStateHtml(){
         state._receiveOrder.loading = false;
         renderReceiveOrderModal();
       }catch(e){
-        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to create receipt');
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to create receipt', 'error');
 	        state._receiveOrder.loading = false;
 	        renderReceiveOrderModal();
 	      }
