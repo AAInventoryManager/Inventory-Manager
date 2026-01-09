@@ -3753,43 +3753,6 @@
       background:rgba(0,0,0,0.15);
       flex-wrap:wrap;
     }
-    #orderHistoryModal .order-history-toolbar--batch{
-      padding-top:10px;
-      border-top:1px solid var(--border);
-      background:rgba(0,0,0,0.08);
-    }
-    #orderHistoryModal .receipt-batch-actions{
-      display:flex;
-      align-items:center;
-      gap:14px;
-      flex-wrap:wrap;
-      width:100%;
-    }
-    #orderHistoryModal .receipt-select-all{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-size:12px;
-      font-weight:600;
-      color:var(--muted);
-    }
-    #orderHistoryModal .receipt-select-all input{
-      width:14px;
-      height:14px;
-      accent-color:var(--accent);
-    }
-    #orderHistoryModal .receipt-batch-count{
-      font-size:12px;
-      color:var(--muted);
-    }
-    #orderHistoryModal .order-history-toolbar-btn--danger{
-      background:rgba(248,113,113,0.12);
-      border-color:rgba(248,113,113,0.5);
-      color:#ffecec;
-    }
-    #orderHistoryModal .order-history-toolbar-btn--danger:hover{
-      background:rgba(248,113,113,0.2);
-    }
     #orderHistoryModal .order-history-toolbar-btn:disabled{
       opacity:0.5;
       cursor:not-allowed;
@@ -4209,29 +4172,9 @@
       cursor:pointer;
       transition:all 0.15s ease;
     }
-    #orderHistoryModal .receipt-card.is-selected{
-      border-color:rgba(90,169,255,0.6);
-      box-shadow:0 0 0 1px rgba(90,169,255,0.4);
-      background:rgba(90,169,255,0.08);
-    }
     #orderHistoryModal .receipt-card:hover{
       background:rgba(0,0,0,0.35);
       border-color:rgba(255,255,255,0.12);
-    }
-    #orderHistoryModal .receipt-card-select{
-      display:flex;
-      align-items:center;
-      margin-right:4px;
-      flex-shrink:0;
-    }
-    #orderHistoryModal .receipt-card-select input{
-      width:16px;
-      height:16px;
-      accent-color:var(--accent);
-    }
-    #orderHistoryModal .receipt-card-select.is-disabled{
-      opacity:0.4;
-      pointer-events:none;
     }
     #orderHistoryModal .receipt-card-icon{
       width:42px;
@@ -5518,6 +5461,41 @@
       border:none;
       background:transparent;
     }
+    #receiveOrderModal .receive-draft-batch-bar{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:10px 12px;
+      margin:0 0 12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:rgba(0,0,0,0.2);
+      flex-wrap:wrap;
+    }
+    #receiveOrderModal .receive-draft-batch-actions{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      width:100%;
+    }
+    #receiveOrderModal .receive-draft-select-all{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      font-weight:600;
+      color:var(--muted);
+    }
+    #receiveOrderModal .receive-draft-select-all input{
+      width:14px;
+      height:14px;
+      accent-color:var(--accent);
+    }
+    #receiveOrderModal .receive-draft-batch-count{
+      font-size:12px;
+      color:var(--muted);
+    }
     #receiveOrderModal .receive-draft-inbox-header{
       margin-bottom:10px;
     }
@@ -5562,6 +5540,31 @@
     #receiveOrderModal .queue-item.active{
       background:rgba(245,158,11,0.08);
       border-color:rgba(245,158,11,0.3);
+    }
+    #receiveOrderModal .queue-item.is-selected{
+      border-color:rgba(90,169,255,0.6);
+      box-shadow:0 0 0 1px rgba(90,169,255,0.35);
+      background:rgba(90,169,255,0.08);
+    }
+    #receiveOrderModal .queue-item.active.is-selected{
+      border-color:rgba(245,158,11,0.5);
+      box-shadow:0 0 0 1px rgba(245,158,11,0.35);
+      background:rgba(245,158,11,0.1);
+    }
+    #receiveOrderModal .receive-draft-select{
+      display:flex;
+      align-items:center;
+      margin-right:4px;
+      flex-shrink:0;
+    }
+    #receiveOrderModal .receive-draft-select input{
+      width:16px;
+      height:16px;
+      accent-color:var(--accent);
+    }
+    #receiveOrderModal .receive-draft-select.is-disabled{
+      opacity:0.4;
+      pointer-events:none;
     }
     #receiveOrderModal .queue-item-icon{
       width:40px;
@@ -14599,16 +14602,6 @@
                   <input id="orderHistoryReceiptFilter" class="order-history-search-input" type="search" placeholder="Filter receipts…" autocomplete="off" />
                 </div>
               </div>
-              <div class="order-history-toolbar order-history-toolbar--batch" id="orderHistoryReceiptsBatchBar" style="display:none;">
-                <div class="receipt-batch-actions">
-                  <label class="receipt-select-all">
-                    <input type="checkbox" id="orderHistoryReceiptsSelectAll" aria-label="Select all receipts" />
-                    <span>Select all</span>
-                  </label>
-                  <span class="receipt-batch-count" id="orderHistoryReceiptsSelectedCount">0 selected</span>
-                  <button class="order-history-toolbar-btn order-history-toolbar-btn--danger" id="btnOrderHistoryReceiptsDelete" type="button" disabled>Delete selected</button>
-                </div>
-              </div>
               <div class="order-history-body">
                 <div id="orderHistoryReceiptsList" aria-live="polite"></div>
               </div>
@@ -16420,12 +16413,12 @@
       _orderHistoryReceiptsCount:0,
       _orderHistoryReceiptsFilter:'',
       _orderHistoryReceiptsLoaded:false,
-      _orderHistoryReceiptsSelected:new Set(),
       _orderHistoryLinesByPo:new Map(),
       _receiveOrder:null,
       _draftEmailReceipts:[],
       _draftEmailReceiptsCount:0,
       _draftEmailReceiptsLoaded:false,
+      _receiveDraftSelected:new Set(),
       _draftEmailReceiptsNotified:false,
       _shippingAddresses:[],
 	      _shippingAddressById:new Map(),
@@ -23240,6 +23233,7 @@
       state._draftEmailReceipts = [];
       state._draftEmailReceiptsCount = 0;
       state._draftEmailReceiptsLoaded = false;
+      state._receiveDraftSelected = new Set();
       state._draftEmailReceiptsNotified = false;
 	      const orderHistoryFilter = $('orderHistoryFilter');
 	      if(orderHistoryFilter) orderHistoryFilter.value = '';
@@ -33398,9 +33392,69 @@ function emptyStateHtml(){
               receipt_source: row.receipt_source,
               status: row.status,
               created_at: row.created_at,
-            }))
+          }))
           : [];
         return { rows, count: Number.isFinite(count) ? count : rows.length };
+      }
+      function syncReceiveDraftSelection(rows){
+        if(!canReceiptDelete()){
+          state._receiveDraftSelected = new Set();
+          return;
+        }
+        const selected = state._receiveDraftSelected;
+        if(!selected || typeof selected.has !== 'function'){
+          state._receiveDraftSelected = new Set();
+          return;
+        }
+        const validIds = new Set();
+        (rows || []).forEach(r => {
+          const id = String((r && (r.id || r.receipt_id)) || '').trim();
+          if(!id) return;
+          if(!canDeleteReceiptRow(r && r.status)) return;
+          validIds.add(id);
+        });
+        selected.forEach(id => {
+          if(!validIds.has(id)) selected.delete(id);
+        });
+      }
+      function renderReceiveDraftBatchBar(rows){
+        const bar = $('receiveDraftBatchBar');
+        if(!bar) return;
+        if(!canReceiptDelete() || !(rows && rows.length)){
+          bar.style.display = 'none';
+          return;
+        }
+        bar.style.display = '';
+        const selected = state._receiveDraftSelected || new Set();
+        const selectableIds = [];
+        (rows || []).forEach(r => {
+          const id = String((r && (r.id || r.receipt_id)) || '').trim();
+          if(!id) return;
+          if(!canDeleteReceiptRow(r && r.status)) return;
+          selectableIds.push(id);
+        });
+        const selectedVisible = selectableIds.filter(id => selected.has(id));
+
+        const countEl = $('receiveDraftSelectedCount');
+        if(countEl) countEl.textContent = `${selectedVisible.length} selected`;
+
+        const selectAll = $('receiveDraftSelectAll');
+        if(selectAll){
+          selectAll.disabled = selectableIds.length === 0;
+          selectAll.checked = selectableIds.length > 0 && selectedVisible.length === selectableIds.length;
+          selectAll.indeterminate = selectedVisible.length > 0 && selectedVisible.length < selectableIds.length;
+        }
+
+        const deleteBtn = $('btnReceiveDraftDelete');
+        if(deleteBtn) deleteBtn.disabled = selectedVisible.length === 0;
+      }
+      function setReceiveDraftSelected(id, isSelected){
+        const receiptId = String(id || '').trim();
+        if(!receiptId) return;
+        const selected = state._receiveDraftSelected || new Set();
+        if(isSelected) selected.add(receiptId);
+        else selected.delete(receiptId);
+        state._receiveDraftSelected = selected;
       }
       function renderReceiveDraftInbox(){
         const wrap = $('receiveDraftInbox');
@@ -33408,6 +33462,9 @@ function emptyStateHtml(){
         const ro = state._receiveOrder;
         const drafts = Array.isArray(state._draftEmailReceipts) ? state._draftEmailReceipts : [];
         const isInboxMode = !!(ro && ro.mode === 'inbox');
+        syncReceiveDraftSelection(drafts);
+        const allowDelete = canReceiptDelete();
+        const selected = allowDelete ? (state._receiveDraftSelected || new Set()) : new Set();
         if(!drafts.length && !isInboxMode){
           wrap.style.display = 'none';
           wrap.innerHTML = '';
@@ -33426,6 +33483,16 @@ function emptyStateHtml(){
             `</div>`+
             `<div class="receive-draft-inbox-count">${escapeHtml(countLabel)}</div>`+
           `</div>`+
+          `<div class="receive-draft-batch-bar" id="receiveDraftBatchBar" style="display:none;">`+
+            `<div class="receive-draft-batch-actions">`+
+              `<label class="receive-draft-select-all">`+
+                `<input type="checkbox" id="receiveDraftSelectAll" aria-label="Select all receipts" />`+
+                `<span>Select all</span>`+
+              `</label>`+
+              `<span class="receive-draft-batch-count" id="receiveDraftSelectedCount">0 selected</span>`+
+              `<button class="btn-tertiary btn-sm btn-danger" id="btnReceiveDraftDelete" type="button" disabled>Delete selected</button>`+
+            `</div>`+
+          `</div>`+
           `<div class="scanned-queue">`+
             (drafts.length ? drafts.map(row => {
               const vendor = String(row.vendor_name || '').trim() || 'Unknown vendor';
@@ -33441,8 +33508,16 @@ function emptyStateHtml(){
               const receiptId = String(row.id || '').trim();
               const companyId = String(row.company_id || '').trim();
               const isActive = ro && String(ro.receiptId || '').trim() === receiptId;
+              const canSelect = allowDelete && canDeleteReceiptRow(row && row.status);
+              const isSelected = selected.has(receiptId);
+              const selectHtml = allowDelete
+                ? `<label class="receive-draft-select${canSelect ? '' : ' is-disabled'}">`+
+                    `<input type="checkbox" data-receipt-select="${escapeHtmlAttr(receiptId)}" aria-label="Select receipt"${isSelected ? ' checked' : ''}${canSelect ? '' : ' disabled'} />`+
+                  `</label>`
+                : '';
               return (
-                `<div class="queue-item${isActive ? ' active' : ''}" data-receipt-review-id="${escapeHtmlAttr(receiptId)}" data-receipt-company-id="${escapeHtmlAttr(companyId)}">`+
+                `<div class="queue-item${isActive ? ' active' : ''}${isSelected ? ' is-selected' : ''}" data-receipt-review-id="${escapeHtmlAttr(receiptId)}" data-receipt-company-id="${escapeHtmlAttr(companyId)}">`+
+                  `${selectHtml}`+
                   `<div class="queue-item-icon">`+
                     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
                       `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>`+
@@ -33475,6 +33550,7 @@ function emptyStateHtml(){
               `</div>`
             )) +
           `</div>`;
+        renderReceiveDraftBatchBar(drafts);
       }
       async function loadDraftEmailReceipts(){
         try{
@@ -33497,6 +33573,71 @@ function emptyStateHtml(){
           renderReceiveDraftInbox();
           updateReceiveTabBadge();
           renderReceiptsInboxIndicator();
+        }
+      }
+      async function deleteSelectedDraftReceipts(){
+        if(!canReceiptDelete()){
+          toast('Admin access required');
+          return;
+        }
+        const rows = Array.isArray(state._draftEmailReceipts) ? state._draftEmailReceipts : [];
+        const selected = state._receiveDraftSelected || new Set();
+        const selectedRows = rows.filter(r => selected.has(String((r && (r.id || r.receipt_id)) || '').trim()));
+        if(!selectedRows.length){
+          toast('Select receipts to delete');
+          return;
+        }
+        const requiresForce = selectedRows.some(r => !isReceiptDeleteSafeStatus(r && r.status));
+        if(requiresForce && !isEffectiveSuperUser()){
+          toast('Only super users can delete received or pending receipts');
+          return;
+        }
+        const count = selectedRows.length;
+        const title = requiresForce ? 'Delete receipts permanently?' : 'Delete receipts?';
+        const message = requiresForce
+          ? `This will permanently delete ${count} receipt${count === 1 ? '' : 's'}, including received or pending receipts. This can break inventory history and audit trails. Continue?`
+          : `Delete ${count} receipt${count === 1 ? '' : 's'}?`;
+        const ok = await openConfirmModal(title, message, {
+          okText: requiresForce ? 'Delete Permanently' : 'Delete',
+          cancelText: 'Cancel',
+          okClass: 'btn-danger'
+        });
+        if(!ok) return;
+
+        const btn = $('btnReceiveDraftDelete');
+        const prior = btn ? btn.textContent : '';
+        if(btn){ btn.disabled = true; btn.textContent = 'Deleting…'; }
+        try{
+          const ids = selectedRows
+            .map(r => String((r && (r.id || r.receipt_id)) || '').trim())
+            .filter(Boolean);
+          const result = await sbDeleteReceipts(ids, requiresForce);
+          state._receiveDraftSelected = new Set();
+          const activeId = state._receiveOrder && state._receiveOrder.receiptId
+            ? String(state._receiveOrder.receiptId).trim()
+            : '';
+          if(activeId && ids.includes(activeId)){
+            await openReceiveInboxModal();
+          }else{
+            await loadDraftEmailReceipts();
+          }
+          const deletedCount = result && typeof result === 'object' && Number.isFinite(result.deleted_receipts)
+            ? result.deleted_receipts
+            : ids.length;
+          const missingCount = result && typeof result === 'object' && Number.isFinite(result.missing)
+            ? result.missing
+            : 0;
+          const msg = missingCount > 0
+            ? `Deleted ${deletedCount} receipt${deletedCount === 1 ? '' : 's'} (${missingCount} missing)`
+            : `Deleted ${deletedCount} receipt${deletedCount === 1 ? '' : 's'}`;
+          toast(msg);
+        }catch(e){
+          toast((e && e.message) ? e.message : 'Delete failed');
+        }finally{
+          if(btn){
+            btn.disabled = false;
+            btn.textContent = prior || 'Delete selected';
+          }
         }
       }
       async function loadReceiptAttachments(receiptId){
@@ -35414,70 +35555,10 @@ function emptyStateHtml(){
 	        return tokens.every(t => hay.includes(t));
 	      });
 	    }
-	    function syncOrderHistoryReceiptSelection(rows){
-	      const selected = state._orderHistoryReceiptsSelected;
-	      if(!selected || typeof selected.has !== 'function'){
-	        state._orderHistoryReceiptsSelected = new Set();
-	        return;
-	      }
-	      const validIds = new Set();
-	      (rows || []).forEach(r => {
-	        const id = String((r && (r.id || r.receipt_id)) || '').trim();
-	        if(!id) return;
-	        if(!canDeleteReceiptRow(r && r.status)) return;
-	        validIds.add(id);
-	      });
-	      selected.forEach(id => {
-	        if(!validIds.has(id)) selected.delete(id);
-	      });
-	    }
-	    function renderOrderHistoryReceiptsBatchBar(rows){
-	      const bar = $('orderHistoryReceiptsBatchBar');
-	      if(!bar) return;
-	      if(!canReceiptDelete()){
-	        bar.style.display = 'none';
-	        return;
-	      }
-	      bar.style.display = '';
-	      const selected = state._orderHistoryReceiptsSelected || new Set();
-	      const rowById = new Map(
-	        (rows || [])
-	          .map(r => [String((r && (r.id || r.receipt_id)) || '').trim(), r])
-	          .filter(([id]) => id)
-	      );
-	      const selectableIds = [];
-	      rowById.forEach((row, id) => {
-	        if(canDeleteReceiptRow(row && row.status)) selectableIds.push(id);
-	      });
-	      const selectedVisible = selectableIds.filter(id => selected.has(id));
-
-	      const countEl = $('orderHistoryReceiptsSelectedCount');
-	      if(countEl) countEl.textContent = `${selectedVisible.length} selected`;
-
-	      const selectAll = $('orderHistoryReceiptsSelectAll');
-	      if(selectAll){
-	        selectAll.disabled = selectableIds.length === 0;
-	        selectAll.checked = selectableIds.length > 0 && selectedVisible.length === selectableIds.length;
-	        selectAll.indeterminate = selectedVisible.length > 0 && selectedVisible.length < selectableIds.length;
-	      }
-
-	      const deleteBtn = $('btnOrderHistoryReceiptsDelete');
-	      if(deleteBtn) deleteBtn.disabled = selectedVisible.length === 0;
-	    }
-	    function setOrderHistoryReceiptSelected(id, isSelected){
-	      const receiptId = String(id || '').trim();
-	      if(!receiptId) return;
-	      const selected = state._orderHistoryReceiptsSelected || new Set();
-	      if(isSelected) selected.add(receiptId);
-	      else selected.delete(receiptId);
-	      state._orderHistoryReceiptsSelected = selected;
-	    }
 	    function renderOrderHistoryReceiptsList(list, opts = {}){
 	      const wrap = $('orderHistoryReceiptsList');
 	      if(!wrap) return;
 	      const rows = Array.isArray(list) ? list : [];
-	      const selected = state._orderHistoryReceiptsSelected || new Set();
-	      const allowDelete = canReceiptDelete();
 	      if(!rows.length){
 	        const emptyText = (opts && typeof opts.emptyText === 'string' && opts.emptyText.trim())
 	          ? opts.emptyText.trim()
@@ -35518,10 +35599,7 @@ function emptyStateHtml(){
 	        const dateText = r.receipt_date ? formatDateShort(r.receipt_date) : (r.created_at ? formatDateShort(r.created_at) : '');
 	        const totalText = formatReceiptMoney(r.total);
 	        const sourceLabel = formatReceiptSourceLabel(r.receipt_source) || 'Receipt';
-	        const source = String(r.receipt_source || '').toLowerCase();
-	        const status = String(r.status || '').trim();
-	        const canSelect = allowDelete && canDeleteReceiptRow(status);
-	        const isSelected = selected.has(id);
+        const source = String(r.receipt_source || '').toLowerCase();
 
 	        let iconClass = 'receipt-card-icon--scanned';
 	        let iconSvg = scannedIcon;
@@ -35558,15 +35636,8 @@ function emptyStateHtml(){
 	          metaParts.push(`<span class="receipt-card-tag ${escapeHtmlAttr(tagClass)}">${escapeHtml(tagLabel)}</span>`);
 	        }
 
-	        const selectHtml = allowDelete
-	          ? `<label class="receipt-card-select${canSelect ? '' : ' is-disabled'}">`+
-	              `<input type="checkbox" data-receipt-select="${escapeHtmlAttr(id)}" aria-label="Select receipt"${isSelected ? ' checked' : ''}${canSelect ? '' : ' disabled'} />`+
-	            `</label>`
-	          : '';
-
 	        return (
-	          `<div class="receipt-card${isSelected ? ' is-selected' : ''}" data-receipt-review-id="${escapeHtmlAttr(id)}" data-receipt-company-id="${escapeHtmlAttr(companyId)}">`+
-	            `${selectHtml}`+
+	          `<div class="receipt-card" data-receipt-review-id="${escapeHtmlAttr(id)}" data-receipt-company-id="${escapeHtmlAttr(companyId)}">`+
 	            `<div class="receipt-card-icon ${escapeHtmlAttr(iconClass)}">${iconSvg}</div>`+
 	            `<div class="receipt-card-info">`+
 	              `<div class="receipt-card-title">${escapeHtml(vendor)}</div>`+
@@ -35579,12 +35650,10 @@ function emptyStateHtml(){
 	    }
 	    function renderOrderHistoryReceiptsFiltered(){
 	      const rows = getOrderHistoryReceiptsFilteredRows();
-	      syncOrderHistoryReceiptSelection(rows);
 	      const emptyText = String(state._orderHistoryReceiptsFilter || '').trim()
 	        ? 'No matching receipts.'
 	        : 'No receipts yet.';
 	      renderOrderHistoryReceiptsList(rows, { emptyText });
-	      renderOrderHistoryReceiptsBatchBar(rows);
 	    }
 	    async function sbFetchOrderHistoryReceipts(limit = 60){
 	      if(!SB.ready) throw new Error('Supabase not configured');
@@ -35631,67 +35700,8 @@ function emptyStateHtml(){
 	      if(error) throw error;
 	      return data;
 	    }
-	    async function deleteSelectedReceipts(){
-	      if(!canReceiptDelete()){
-	        toast('Admin access required');
-	        return;
-	      }
-	      const rows = getOrderHistoryReceiptsFilteredRows();
-	      const selected = state._orderHistoryReceiptsSelected || new Set();
-	      const selectedRows = rows.filter(r => selected.has(String((r && (r.id || r.receipt_id)) || '').trim()));
-	      if(!selectedRows.length){
-	        toast('Select receipts to delete');
-	        return;
-	      }
-	      const requiresForce = selectedRows.some(r => !isReceiptDeleteSafeStatus(r && r.status));
-	      if(requiresForce && !isEffectiveSuperUser()){
-	        toast('Only super users can delete received or pending receipts');
-	        return;
-	      }
-	      const count = selectedRows.length;
-	      const title = requiresForce ? 'Delete receipts permanently?' : 'Delete receipts?';
-	      const message = requiresForce
-	        ? `This will permanently delete ${count} receipt${count === 1 ? '' : 's'}, including received or pending receipts. This can break inventory history and audit trails. Continue?`
-	        : `Delete ${count} receipt${count === 1 ? '' : 's'}?`;
-	      const ok = await openConfirmModal(title, message, {
-	        okText: requiresForce ? 'Delete Permanently' : 'Delete',
-	        cancelText: 'Cancel',
-	        okClass: 'btn-danger'
-	      });
-	      if(!ok) return;
-
-	      const btn = $('btnOrderHistoryReceiptsDelete');
-	      const prior = btn ? btn.textContent : '';
-	      if(btn){ btn.disabled = true; btn.textContent = 'Deleting…'; }
-	      try{
-	        const ids = selectedRows
-	          .map(r => String((r && (r.id || r.receipt_id)) || '').trim())
-	          .filter(Boolean);
-	        const result = await sbDeleteReceipts(ids, requiresForce);
-	        state._orderHistoryReceiptsSelected = new Set();
-	        await refreshOrderHistoryReceipts();
-	        const deletedCount = result && typeof result === 'object' && Number.isFinite(result.deleted_receipts)
-	          ? result.deleted_receipts
-	          : ids.length;
-	        const missingCount = result && typeof result === 'object' && Number.isFinite(result.missing)
-	          ? result.missing
-	          : 0;
-	        const msg = missingCount > 0
-	          ? `Deleted ${deletedCount} receipt${deletedCount === 1 ? '' : 's'} (${missingCount} missing)`
-	          : `Deleted ${deletedCount} receipt${deletedCount === 1 ? '' : 's'}`;
-	        toast(msg);
-	      }catch(e){
-	        toast((e && e.message) ? e.message : 'Delete failed');
-	      }finally{
-	        if(btn){
-	          btn.disabled = false;
-	          btn.textContent = prior || 'Delete selected';
-	        }
-	      }
-	    }
 	    async function refreshOrderHistoryReceipts(){
 	      const wrap = $('orderHistoryReceiptsList');
-	      state._orderHistoryReceiptsSelected = new Set();
 	      if(wrap){
 	        wrap.innerHTML =
 	          `<div class="order-history-empty">`+
@@ -35718,7 +35728,6 @@ function emptyStateHtml(){
 	              `<div class="order-history-empty-text">Try again in a moment.</div>`+
 	            `</div>`;
 	        }
-	        renderOrderHistoryReceiptsBatchBar([]);
 	      }finally{
 	        updateOrderHistoryTabBadges();
 	      }
@@ -40753,15 +40762,51 @@ function emptyStateHtml(){
 	      void addManualReceiveLine(id);
 	    });
     const receiveDraftInbox = $('receiveDraftInbox');
-    if(receiveDraftInbox) receiveDraftInbox.addEventListener('click', (e)=>{
-      const target = e.target.closest('[data-receipt-review-id]');
-      if(!target) return;
-      const id = String(target.getAttribute('data-receipt-review-id') || '').trim();
-      if(!id) return;
-      const companyId = String(target.getAttribute('data-receipt-company-id') || '').trim()
-        || String((target.closest('[data-receipt-company-id]') || {}).getAttribute?.('data-receipt-company-id') || '').trim();
-      void openReceiveDraftReceipt(id, companyId);
-    });
+    if(receiveDraftInbox){
+      receiveDraftInbox.addEventListener('change', (e)=>{
+        const selectAll = e.target && e.target.closest ? e.target.closest('#receiveDraftSelectAll') : null;
+        if(selectAll){
+          const rows = Array.isArray(state._draftEmailReceipts) ? state._draftEmailReceipts : [];
+          const selected = state._receiveDraftSelected || new Set();
+          if(selectAll.checked){
+            rows.forEach(row => {
+              const id = String((row && (row.id || row.receipt_id)) || '').trim();
+              if(!id) return;
+              if(canDeleteReceiptRow(row && row.status)) selected.add(id);
+            });
+          }else{
+            rows.forEach(row => {
+              const id = String((row && (row.id || row.receipt_id)) || '').trim();
+              if(!id) return;
+              selected.delete(id);
+            });
+          }
+          state._receiveDraftSelected = selected;
+          renderReceiveDraftInbox();
+          return;
+        }
+        const input = e.target && e.target.closest ? e.target.closest('input[data-receipt-select]') : null;
+        if(!input) return;
+        const id = input.getAttribute('data-receipt-select');
+        setReceiveDraftSelected(id, input.checked);
+        renderReceiveDraftInbox();
+      });
+      receiveDraftInbox.addEventListener('click', (e)=>{
+        const deleteBtn = e.target.closest('#btnReceiveDraftDelete');
+        if(deleteBtn){
+          void deleteSelectedDraftReceipts();
+          return;
+        }
+        if(e.target.closest('.receive-draft-select') || e.target.closest('.receive-draft-select-all')) return;
+        const target = e.target.closest('[data-receipt-review-id]');
+        if(!target) return;
+        const id = String(target.getAttribute('data-receipt-review-id') || '').trim();
+        if(!id) return;
+        const companyId = String(target.getAttribute('data-receipt-company-id') || '').trim()
+          || String((target.closest('[data-receipt-company-id]') || {}).getAttribute?.('data-receipt-company-id') || '').trim();
+        void openReceiveDraftReceipt(id, companyId);
+      });
+    }
 	    const receiveOrderReceipts = $('receiveOrderReceipts');
 	    if(receiveOrderReceipts) receiveOrderReceipts.addEventListener('click', (e)=>{
 	      const btn = e.target.closest('button[data-void-receipt-id]');
@@ -40997,35 +41042,6 @@ function emptyStateHtml(){
 	          state._orderHistoryReceiptsFilter = '';
 	          renderOrderHistoryReceiptsFiltered();
 	        }
-	      });
-	    }
-	    const orderHistoryReceiptsSelectAll = $('orderHistoryReceiptsSelectAll');
-	    if(orderHistoryReceiptsSelectAll){
-	      orderHistoryReceiptsSelectAll.addEventListener('change', ()=>{
-	        const rows = getOrderHistoryReceiptsFilteredRows();
-	        const selected = state._orderHistoryReceiptsSelected || new Set();
-	        const rowById = new Map(
-	          (rows || [])
-	            .map(r => [String((r && (r.id || r.receipt_id)) || '').trim(), r])
-	            .filter(([id]) => id)
-	        );
-	        if(orderHistoryReceiptsSelectAll.checked){
-	          rowById.forEach((row, id) => {
-	            if(canDeleteReceiptRow(row && row.status)) selected.add(id);
-	          });
-	        }else{
-	          rowById.forEach((_row, id) => {
-	            selected.delete(id);
-	          });
-	        }
-	        state._orderHistoryReceiptsSelected = selected;
-	        renderOrderHistoryReceiptsFiltered();
-	      });
-	    }
-	    const btnOrderHistoryReceiptsDelete = $('btnOrderHistoryReceiptsDelete');
-	    if(btnOrderHistoryReceiptsDelete){
-	      btnOrderHistoryReceiptsDelete.addEventListener('click', ()=>{
-	        void deleteSelectedReceipts();
 	      });
 	    }
 	    const btnClearOrderHistoryFilter = $('btnClearOrderHistoryFilter');
@@ -41400,15 +41416,7 @@ function emptyStateHtml(){
     });
     const orderHistoryReceiptsList = $('orderHistoryReceiptsList');
     if(orderHistoryReceiptsList){
-      orderHistoryReceiptsList.addEventListener('change', (e)=>{
-        const input = e.target.closest('input[data-receipt-select]');
-        if(!input) return;
-        const id = input.getAttribute('data-receipt-select');
-        setOrderHistoryReceiptSelected(id, input.checked);
-        renderOrderHistoryReceiptsFiltered();
-      });
       orderHistoryReceiptsList.addEventListener('click', (e)=>{
-        if(e.target.closest('.receipt-card-select')) return;
         const card = e.target.closest('[data-receipt-review-id]');
         if(!card) return;
         const id = String(card.getAttribute('data-receipt-review-id') || '').trim();
