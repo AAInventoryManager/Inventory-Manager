@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;1,100;1,200;1,300&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Saira+Extra+Condensed:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <title>Inventory Manager by Modulus Software, LLC</title>
 
   <!-- Supabase client -->
@@ -88,6 +89,7 @@
       z-index:19;
       background:var(--card);
       padding:25px 12px 4px;
+      position:relative;
     }
     :root{
       --glass-btn-blur: 14px;
@@ -791,7 +793,7 @@
       display:block;
       margin:0 auto;
     }
-	    .brandtext{display:flex;align-items:center;justify-content:center;flex:1;min-width:0;}
+	    .brandtext{display:flex;align-items:center;justify-content:flex-start;min-width:0;}
 	    .site-footer{
 	      max-width:1100px;
 	      margin:16px auto 26px;
@@ -1067,28 +1069,111 @@
 	      #mobileSort{ padding:12px; border-radius:10px; }
 	    }
     td.editing{padding:6px}
+    /* Modern Toast System - React-toastify inspired */
     .toast{
       position:relative;
-      left:auto;
-      bottom:auto;
-      transform:none;
-      background:rgba(255,255,255,0.96);
-      border:1px solid rgba(0,0,0,0.12);
-      color:#0b1020;
-      font-weight:800;
-      padding:10px 14px;
-      border-radius:10px;
-      box-shadow:0 12px 30px rgba(0,0,0,.55);
       display:none;
-      max-width:min(560px, 92vw);
-      text-align:center;
-      margin-top:4px;
+      align-items:center;
+      gap:12px;
+      min-width:280px;
+      max-width:min(420px, 90vw);
+      padding:14px 18px;
+      border-radius:12px;
+      font-size:14px;
+      font-weight:500;
+      line-height:1.4;
+      box-shadow:0 10px 40px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2);
+      animation:toastSlideIn 0.3s cubic-bezier(0.21,1.02,0.73,1);
+      overflow:hidden;
+    }
+    .toast.is-visible{ display:flex; }
+    .toast-icon{
+      flex-shrink:0;
+      width:24px;
+      height:24px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .toast-icon svg{
+      width:22px;
+      height:22px;
+    }
+    .toast-content{
+      flex:1;
+      min-width:0;
+    }
+    .toast-message{
+      font-weight:600;
+    }
+    .toast-progress{
+      position:absolute;
+      bottom:0;
+      left:0;
+      height:4px;
+      border-radius:0 0 12px 12px;
+      animation:toastProgress 2s linear forwards;
+    }
+    @keyframes toastSlideIn{
+      from{ opacity:0; transform:translateY(-16px) scale(0.95); }
+      to{ opacity:1; transform:translateY(0) scale(1); }
+    }
+    @keyframes toastSlideOut{
+      from{ opacity:1; transform:translateY(0) scale(1); }
+      to{ opacity:0; transform:translateY(-12px) scale(0.95); }
+    }
+    @keyframes toastProgress{
+      from{ width:100%; }
+      to{ width:0%; }
+    }
+    /* Toast variants */
+    .toast--success{
+      background:linear-gradient(135deg, #065f46 0%, #047857 100%);
+      color:#ecfdf5;
+      border:1px solid rgba(16,185,129,0.3);
+    }
+    .toast--success .toast-icon{ color:#34d399; }
+    .toast--success .toast-progress{ background:#34d399; }
+    .toast--error{
+      background:linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+      color:#fef2f2;
+      border:1px solid rgba(248,113,113,0.3);
+    }
+    .toast--error .toast-icon{ color:#f87171; }
+    .toast--error .toast-progress{ background:#f87171; }
+    .toast--warning{
+      background:linear-gradient(135deg, #78350f 0%, #92400e 100%);
+      color:#fffbeb;
+      border:1px solid rgba(251,191,36,0.3);
+    }
+    .toast--warning .toast-icon{ color:#fbbf24; }
+    .toast--warning .toast-progress{ background:#fbbf24; }
+    .toast--info{
+      background:linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
+      color:#eff6ff;
+      border:1px solid rgba(96,165,250,0.3);
+    }
+    .toast--info .toast-icon{ color:#60a5fa; }
+    .toast--info .toast-progress{ background:#60a5fa; }
+    .toast--default{
+      background:linear-gradient(135deg, #1f2937 0%, #374151 100%);
+      color:#f9fafb;
+      border:1px solid rgba(156,163,175,0.2);
+    }
+    .toast--default .toast-icon{ color:#9ca3af; }
+    .toast--default .toast-progress{ background:#9ca3af; }
+    /* Toast in header zone overrides */
+    .header-toast-zone .toast{
+      min-width:auto;
     }
     .header-notices{
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:8px;
+      justify-content:center;
+      gap:6px;
+      min-height:28px;
+      padding:0 12px 8px;
     }
 	    .modal-backdrop{
 	      display:none;
@@ -6039,6 +6124,140 @@
       min-height:40px;
       resize:vertical;
     }
+    /* Stepper controls for quantities */
+    #receiveOrderModal .qty-stepper{
+      display:inline-flex;
+      align-items:center;
+      gap:0;
+      background:rgba(255,255,255,0.06);
+      border:1px solid var(--border);
+      border-radius:8px;
+      overflow:hidden;
+    }
+    #receiveOrderModal .qty-stepper-btn{
+      width:32px;
+      height:32px;
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:all 0.15s;
+    }
+    #receiveOrderModal .qty-stepper-btn:hover{
+      background:rgba(255,255,255,0.1);
+      color:var(--fg);
+    }
+    #receiveOrderModal .qty-stepper-btn:active{
+      background:rgba(255,255,255,0.15);
+    }
+    #receiveOrderModal .qty-stepper-btn svg{
+      width:16px;
+      height:16px;
+    }
+    #receiveOrderModal .qty-stepper-value{
+      min-width:44px;
+      padding:0 4px;
+      text-align:center;
+    }
+    #receiveOrderModal .qty-stepper-value input{
+      width:100%;
+      background:transparent;
+      border:none;
+      color:var(--fg);
+      font-size:15px;
+      font-weight:700;
+      text-align:center;
+      padding:6px 0;
+      outline:none;
+    }
+    #receiveOrderModal .qty-stepper--received{
+      background:rgba(34,197,94,0.1);
+      border-color:rgba(34,197,94,0.3);
+    }
+    #receiveOrderModal .qty-stepper--received .qty-stepper-value input{
+      color:#22c55e;
+    }
+    #receiveOrderModal .qty-stepper--mismatch{
+      background:rgba(251,191,36,0.1);
+      border-color:rgba(251,191,36,0.3);
+    }
+    #receiveOrderModal .qty-stepper--mismatch .qty-stepper-value input{
+      color:#fbbf24;
+    }
+    /* Parsed item SKU field */
+    #receiveOrderModal .parsed-item-sku{
+      margin-top:2px;
+    }
+    #receiveOrderModal .parsed-item-sku input{
+      width:100%;
+      background:transparent;
+      border:none;
+      color:var(--muted);
+      font-size:11px;
+      padding:0;
+      outline:none;
+    }
+    #receiveOrderModal .parsed-item-sku input::placeholder{
+      color:var(--muted);
+      opacity:0.6;
+    }
+    /* Updated actuals layout */
+    #receiveOrderModal .parsed-item-actuals{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      padding:12px 14px;
+      background:rgba(0,0,0,0.15);
+      border-top:1px solid var(--border-subtle);
+    }
+    #receiveOrderModal .parsed-item-actuals-row{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      width:100%;
+    }
+    #receiveOrderModal .parsed-item-actuals-group{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    #receiveOrderModal .parsed-item-actuals-label{
+      font-size:11px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.03em;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    #receiveOrderModal .parsed-item-rejection{
+      width:100%;
+      margin-top:4px;
+      display:none;
+    }
+    #receiveOrderModal .parsed-item-rejection.is-visible{
+      display:block;
+    }
+    #receiveOrderModal .parsed-item-rejection textarea{
+      width:100%;
+      background:rgba(239,68,68,0.1);
+      border:1px solid rgba(239,68,68,0.3);
+      border-radius:6px;
+      padding:8px 10px;
+      font-size:12px;
+      color:var(--fg);
+      min-height:36px;
+      resize:vertical;
+    }
+    #receiveOrderModal .parsed-item-rejection textarea::placeholder{
+      color:rgba(239,68,68,0.7);
+    }
+    #receiveOrderModal .parsed-item-rejection textarea:focus{
+      outline:none;
+      border-color:rgba(239,68,68,0.5);
+    }
     #receiveOrderModal .parsed-item-match-row{
       display:flex;
       align-items:center;
@@ -7477,6 +7696,51 @@
       font-weight:600;
       min-height:0;
     }
+    /* Materials readiness banner - single source of readiness messaging */
+    .job-materials-readiness-banner{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 14px;
+      margin-bottom:14px;
+      border-radius:10px;
+      border:1px solid rgba(148,163,184,0.2);
+      background:rgba(0,0,0,0.15);
+      font-size:13px;
+      line-height:1.4;
+    }
+    .job-materials-readiness-banner svg{
+      width:18px;
+      height:18px;
+      flex-shrink:0;
+    }
+    .job-materials-readiness-banner--empty{
+      border-color:rgba(148,163,184,0.25);
+      background:rgba(148,163,184,0.06);
+      color:#94a3b8;
+    }
+    .job-materials-readiness-banner--shortage{
+      border-color:rgba(245,158,11,0.35);
+      background:rgba(245,158,11,0.08);
+      color:#fbbf24;
+    }
+    .job-materials-readiness-banner--ready{
+      border-color:rgba(34,197,94,0.35);
+      background:rgba(34,197,94,0.08);
+      color:#4ade80;
+    }
+    .job-materials-readiness-banner-content{
+      flex:1;
+      min-width:0;
+    }
+    .job-materials-readiness-banner-text{
+      font-weight:600;
+    }
+    .job-materials-readiness-banner-sub{
+      font-size:12px;
+      opacity:0.8;
+      margin-top:2px;
+    }
     .job-blocking-section{
       margin-top:12px;
     }
@@ -8082,32 +8346,39 @@
     }
     .cart-feedback-toast{
       position:relative;
-      left:auto;
-      bottom:auto;
-      transform:none;
-      background:linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-      color:#fff;
-      font-size:13px;
-      font-weight:600;
-      padding:10px 18px;
-      border-radius:10px;
-      box-shadow:0 8px 24px rgba(34,197,94,0.35);
-      animation:cartToastIn 0.3s ease;
       display:flex;
       align-items:center;
-      gap:8px;
+      gap:12px;
+      background:linear-gradient(135deg, #065f46 0%, #047857 100%);
+      color:#ecfdf5;
+      border:1px solid rgba(16,185,129,0.3);
+      font-size:14px;
+      font-weight:600;
+      padding:14px 18px;
+      border-radius:12px;
+      box-shadow:0 10px 40px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2);
+      animation:toastSlideIn 0.3s cubic-bezier(0.21,1.02,0.73,1);
+      overflow:hidden;
     }
     .cart-feedback-toast svg{
-      width:18px;
-      height:18px;
+      width:22px;
+      height:22px;
+      color:#34d399;
+      flex-shrink:0;
     }
-    @keyframes cartToastIn{
-      0%{ opacity:0; transform:translateY(20px) scale(0.9); }
-      100%{ opacity:1; transform:translateY(0) scale(1); }
+    .cart-feedback-toast span{
+      font-weight:600;
     }
-    @keyframes cartToastOut{
-      0%{ opacity:1; transform:translateY(0) scale(1); }
-      100%{ opacity:0; transform:translateY(-10px) scale(0.9); }
+    .cart-feedback-toast::after{
+      content:'';
+      position:absolute;
+      bottom:0;
+      left:0;
+      height:4px;
+      width:100%;
+      background:#34d399;
+      border-radius:0 0 12px 12px;
+      animation:toastProgress 1.7s linear forwards;
     }
     /* Persistent "In Cart" badge for job BOM cards */
     .job-bom-in-cart{
@@ -9269,6 +9540,17 @@
       opacity:1;
       overflow-y:auto;
     }
+    /* Layout tab opens as overlay so users can see impact on cards below */
+    .inv-tab-content[data-inv-tab-content="layout"]{
+      position:absolute;
+      left:12px;
+      right:12px;
+      z-index:25;
+      box-shadow:0 12px 40px rgba(0,0,0,0.5);
+    }
+    .inv-tab-content[data-inv-tab-content="layout"].is-active{
+      max-height:calc(100vh - 280px);
+    }
 
     /* Layout tab sections */
     .inv-layout-options{
@@ -9978,6 +10260,8 @@
       .header-inner{ padding: 0 12px; }
       .brandrow{ gap:8px }
       .title-logo{ width:min(300px, 76vw); height:auto; }
+      .header-company-name{ font-size:12px; max-width:140px; }
+      .header-notices{ padding:0 8px 6px; min-height:24px; }
       .modal-backdrop{ padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom)); }
       .order-header{ padding:12px; }
       .order-body{ padding:10px 12px 12px; }
@@ -10179,14 +10463,61 @@
     }
     .menu-item--danger .menu-icon-svg{ color:#ef4444; }
     .menu-item--danger:hover{ background:rgba(239,68,68,0.1); }
-    .menu-item-badge{
+    .menu-item-badges{
       margin-left:auto;
-      padding:2px 7px;
-      border-radius:10px;
-      font-size:11px;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .menu-item-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:10px;
       font-weight:600;
+      letter-spacing:0.2px;
+      border:1px solid transparent;
+      cursor:pointer;
+      transition:transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .menu-item-badge:hover{
+      transform:translateY(-1px);
+    }
+    .menu-item-badge-label{
+      opacity:0.75;
+      font-weight:600;
+    }
+    .menu-item-badge-value{
+      font-weight:700;
+    }
+    .menu-item-badge--accent{
       color:#7dd3fc;
-      background:rgba(99,179,237,0.2);
+      background:rgba(56,189,248,0.18);
+      border-color:rgba(56,189,248,0.35);
+    }
+    .menu-item-badge--muted{
+      color:#94a3b8;
+      background:rgba(148,163,184,0.16);
+      border-color:rgba(148,163,184,0.32);
+    }
+    .menu-item-badge--warning{
+      color:#f59e0b;
+      background:rgba(245,158,11,0.18);
+      border-color:rgba(245,158,11,0.36);
+    }
+    .menu-item-badge--success{
+      color:#22c55e;
+      background:rgba(34,197,94,0.18);
+      border-color:rgba(34,197,94,0.36);
+    }
+    .menu-item-badge--info{
+      color:#93c5fd;
+      background:rgba(147,197,253,0.18);
+      border-color:rgba(147,197,253,0.35);
     }
     .menu-divider{
       height:1px;
@@ -10199,77 +10530,132 @@
       align-items:center;
       gap:12px;
     }
-    .header-right{
-      grid-column:3;
-      display:flex;
-      align-items:center;
-      justify-content:flex-end;
-      justify-self:end;
-      gap:8px;
-    }
     .header-left{
       grid-column:2;
       display:flex;
       align-items:center;
       justify-content:center;
+      position:relative;
       gap:12px;
       min-width:0;
-      justify-self:center;
     }
-    /* Main app order pill - positioned below sticky toolbar, sticky */
+    /* Toast overlay zone - sits on top of logo */
+    .header-toast-zone{
+      position:absolute;
+      inset:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity 200ms ease;
+    }
+    .header-toast-zone.is-visible{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .header-toast-zone::before{
+      content:'';
+      position:absolute;
+      inset:-40px -80px;
+      background:radial-gradient(ellipse at center, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 35%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 80%);
+      filter:blur(12px);
+    }
+    .header-toast-zone .toast,
+    .header-toast-zone .order-pill-container,
+    .header-toast-zone .cart-feedback-toast{
+      position:relative;
+      z-index:1;
+    }
+    .header-company-name{
+      font-family:'Poppins', sans-serif;
+      font-size:15px;
+      font-weight:500;
+      letter-spacing:0.02em;
+      color:#fff;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:280px;
+      opacity:0.95;
+    }
+    .header-right{
+      grid-column:3;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      justify-self:end;
+      gap:4px;
+    }
+    .header-icons{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    /* Main app order pill - in header notifications zone */
     .order-pill-container{
       position:relative;
-      top:auto;
       z-index:1;
       display:flex;
       justify-content:center;
       padding:0;
-      margin:4px 0 2px;
+      margin:0;
       background:transparent;
-    }
-    @supports not (top: env(safe-area-inset-top)){
-      .order-pill-container{ top:auto; }
     }
     .order-pill{
       width:auto;
       max-width:400px;
       display:flex;
       align-items:center;
-      gap:12px;
-      background:rgba(34,197,94,0.18);
-      border:1px solid rgba(34,197,94,0.55);
-      color:#fff;
+      gap:14px;
+      background:linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
+      border:1px solid rgba(96,165,250,0.35);
+      color:#eff6ff;
       font-weight:600;
-      padding:10px 12px 10px 18px;
-      border-radius:14px;
-      box-shadow: 0 0 0 1px rgba(34,197,94,0.12), 0 10px 24px rgba(0,0,0,0.35);
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
-      animation: orderPillIn 220ms ease;
+      padding:12px 14px 12px 18px;
+      border-radius:12px;
+      box-shadow:0 10px 40px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2);
+      animation:toastSlideIn 0.3s cubic-bezier(0.21,1.02,0.73,1);
     }
-    @keyframes orderPillIn{
-      from{ opacity:0; transform:translateY(-8px); }
-      to{ opacity:1; transform:translateY(0); }
+    .order-pill-icon{
+      width:24px;
+      height:24px;
+      color:#60a5fa;
+      flex-shrink:0;
+    }
+    .order-pill-icon svg{
+      width:24px;
+      height:24px;
+    }
+    .order-pill-text{
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
     .order-pill-value{
-      font-size:20px;
+      font-size:18px;
       font-weight:700;
+      color:#fff;
     }
     .order-pill-label{
-      font-size:15px;
-      font-weight:600;
+      font-size:14px;
+      font-weight:500;
+      color:#bfdbfe;
     }
     .order-pill-actions{
       display:flex;
-      gap:6px;
+      gap:8px;
       margin-left:4px;
     }
     .order-pill-btn{
-      width:44px;
-      height:44px;
+      width:36px;
+      height:36px;
       border-radius:10px;
       border:none;
-      background:rgba(255,255,255,0.15);
+      background:rgba(255,255,255,0.12);
       color:#fff;
       cursor:pointer;
       display:flex;
@@ -10277,22 +10663,24 @@
       justify-content:center;
       transition:all 0.15s;
     }
+    .order-pill-btn svg{
+      width:20px;
+      height:20px;
+    }
     .order-pill-btn:hover{
-      background:rgba(255,255,255,0.25);
+      background:rgba(255,255,255,0.22);
+      transform:translateY(-1px);
     }
     .order-pill-btn:active{
       transform:scale(0.95);
-      background:rgba(255,255,255,0.3);
-    }
-    .order-pill-btn svg{
-      width:22px;
-      height:22px;
+      background:rgba(255,255,255,0.28);
     }
     .order-pill-btn--clear{
-      background:rgba(239,68,68,0.25);
+      background:rgba(239,68,68,0.2);
+      color:#fca5a5;
     }
     .order-pill-btn--clear:hover{
-      background:rgba(239,68,68,0.4);
+      background:rgba(239,68,68,0.35);
     }
     .receipts-pill-container{
       position:relative;
@@ -12476,8 +12864,39 @@
           <div class="brandtext">
             <img class="title-logo" src="./assets/modulus/logo/inventory-manager-header.svg" alt="Inventory Manager logo" />
           </div>
+          <div class="header-toast-zone" id="headerToastZone">
+            <div class="order-pill-container" id="orderPillContainer" style="display:none;">
+              <div class="order-pill" id="orderPill" role="status" aria-live="polite">
+                <span class="order-pill-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                </span>
+                <span class="order-pill-text">
+                  <span class="order-pill-value" id="orderPillValue">0</span>
+                  <span class="order-pill-label">Items in Cart</span>
+                </span>
+                <div class="order-pill-actions">
+                  <button class="order-pill-btn" id="orderPillOpen" type="button" title="Create Order" aria-label="Create Order">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                  </button>
+                  <button class="order-pill-btn order-pill-btn--clear" id="orderPillClear" type="button" title="Clear Cart" aria-label="Clear Cart" data-order-reset>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="toast" id="toast" role="status" aria-live="polite"></div>
+          </div>
         </div>
         <div class="header-right">
+          <div class="header-company-name" id="headerCompanyName"></div>
+          <div class="header-icons">
+          <div class="hamburger-menu">
+            <button class="icon-btn icon-btn--default hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          </div>
           <div class="profile-menu">
             <button class="icon-btn icon-btn--default profile-btn" id="profileBtn" aria-label="Account menu" aria-expanded="false">
               <span class="profile-status" id="profileStatus"></span>
@@ -12574,12 +12993,6 @@
             </div>
             </div>
           </div>
-          <div class="hamburger-menu">
-            <button class="icon-btn icon-btn--default hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
-              <span></span>
-              <span></span>
-              <span></span>
-            </button>
           </div>
         </div>
       </div>
@@ -12666,7 +13079,16 @@
                   <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                 </svg>
                 <span>Orders</span>
-                <span class="menu-item-badge" id="menuOrderBadge" style="display:none;">0</span>
+                <span class="menu-item-badges" id="menuOrderBadges" style="display:none;">
+                  <span class="menu-item-badge menu-item-badge--accent" id="menuOrderDraftBadge" data-menu-badge="orders-draft" title="View draft orders" style="display:none;">
+                    <span class="menu-item-badge-label">Draft</span>
+                    <span class="menu-item-badge-value">0</span>
+                  </span>
+                  <span class="menu-item-badge menu-item-badge--muted" id="menuOrderSubmittedBadge" data-menu-badge="orders-submitted" title="View submitted orders" style="display:none;">
+                    <span class="menu-item-badge-label">Submitted</span>
+                    <span class="menu-item-badge-value">0</span>
+                  </span>
+                </span>
               </button>
               <button class="menu-item" id="menuReceive" type="button">
                 <svg class="menu-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -12676,6 +13098,16 @@
                   <polyline points="9 11 12 14 16 10"></polyline>
                 </svg>
                 <span>Receive Inventory</span>
+                <span class="menu-item-badges" id="menuReceiveBadges" style="display:none;">
+                  <span class="menu-item-badge menu-item-badge--accent" id="menuReceiveReceiptsBadge" data-menu-badge="receive-receipts" title="Review receipts" style="display:none;">
+                    <span class="menu-item-badge-label">Receipts</span>
+                    <span class="menu-item-badge-value">0</span>
+                  </span>
+                  <span class="menu-item-badge menu-item-badge--info" id="menuReceivePendingBadge" data-menu-badge="receive-pending" title="Receive pending orders" style="display:none;">
+                    <span class="menu-item-badge-label">Pending</span>
+                    <span class="menu-item-badge-value">0</span>
+                  </span>
+                </span>
               </button>
               <button class="menu-item" id="menuJobs" type="button">
                 <svg class="menu-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -12683,7 +13115,16 @@
                   <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
                 </svg>
                 <span>Jobs</span>
-                <span class="menu-item-badge" id="menuJobsBadge" style="display:none;">0</span>
+                <span class="menu-item-badges" id="menuJobsBadges" style="display:none;">
+                  <span class="menu-item-badge menu-item-badge--warning" id="menuJobsDraftBadge" data-menu-badge="jobs-draft" title="Review draft jobs" style="display:none;">
+                    <span class="menu-item-badge-label">Draft</span>
+                    <span class="menu-item-badge-value">0</span>
+                  </span>
+                  <span class="menu-item-badge menu-item-badge--success" id="menuJobsReadyBadge" data-menu-badge="jobs-ready" title="Approve ready jobs" style="display:none;">
+                    <span class="menu-item-badge-label">Ready</span>
+                    <span class="menu-item-badge-value">0</span>
+                  </span>
+                </span>
               </button>
               <button class="menu-item" id="menuHistory" type="button">
                 <svg class="menu-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -12723,35 +13164,6 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="header-notices" id="headerNotices">
-        <div class="order-pill-container" id="orderPillContainer" style="display:none;">
-          <div class="order-pill" id="orderPill" role="status" aria-live="polite">
-            <span class="order-pill-value" id="orderPillValue">0</span>
-            <span class="order-pill-label">Items in Cart</span>
-            <div class="order-pill-actions">
-              <button class="order-pill-btn" id="orderPillOpen" type="button" title="Create Order" aria-label="Create Order">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.6a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6l1.65-8.6H6"></path></svg>
-              </button>
-              <button class="order-pill-btn order-pill-btn--clear" id="orderPillClear" type="button" title="Clear Cart" aria-label="Clear Cart" data-order-reset>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="receipts-pill-container" id="receiptsPillContainer" style="display:none;">
-          <button class="receipts-pill" id="receiptsPill" type="button" aria-label="Receipts (0)">
-            <span class="receipts-pill-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 8v10a2 2 0 0 1-2 2H7l-4-4V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"></path>
-                <path d="M7 8h10"></path>
-                <path d="M7 12h6"></path>
-              </svg>
-            </span>
-            <span class="receipts-pill-label">Receipts (<span id="receiptsPillCount">0</span>)</span>
-          </button>
-        </div>
-        <div class="toast" id="toast" role="status" aria-live="polite"></div>
       </div>
     </div>
   </header>
@@ -14189,7 +14601,6 @@
         <div class="job-status-bar">
           <div class="job-status-name" id="jobStatusName">Untitled Job</div>
           <div id="jobStatusBadge" class="job-status-badge job-status-badge--draft">DRAFT</div>
-          <div id="jobReadinessBadge" class="job-readiness-badge job-readiness-badge--unknown">UNKNOWN</div>
           <div id="jobAutosaveStatus" class="job-autosave-status" aria-live="polite"></div>
         </div>
         <div class="job-progress-stepper" id="jobProgressStepper" aria-label="Job progress">
@@ -14238,32 +14649,10 @@
                 <div id="jobCreatedMeta" class="job-date-display">--</div>
               </div>
             </div>
-            <div class="job-readiness-section" id="jobReadinessSection">
-              <div class="job-readiness-section-title">Job readiness</div>
-              <div id="jobReadinessCard" class="job-readiness-card job-readiness-card--unknown">
-                <span id="jobReadinessCardIcon" class="job-readiness-card-icon"></span>
-                <div class="job-readiness-card-content">
-                  <div id="jobReadinessCardTitle" class="job-readiness-card-title">Checking readiness…</div>
-                  <div id="jobReadinessCardSub" class="job-readiness-card-sub">Calculating required inventory.</div>
-                  <div class="job-readiness-card-actions" id="jobReadinessActions" style="display:none;">
-                    <button class="btn-secondary job-readiness-card-btn" id="btnJobCreatePoFromBlockers" type="button">
-                      Create PO from blockers
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div id="jobBlockingItemsSection" class="job-blocking-section" style="display:none;">
-                <div class="job-blocking-title">Blocking items</div>
-                <div id="jobBlockingItemsList" class="job-blocking-list"></div>
-              </div>
-            </div>
             <div class="job-field-group">
               <label class="job-field-label" for="jobNotesInput">Notes</label>
               <textarea id="jobNotesInput" class="job-text-area" placeholder="Add notes about this job"></textarea>
             </div>
-            <button class="btn-secondary job-save-btn" id="btnJobSave" type="button">
-              Save Job Details
-            </button>
             <div class="job-quick-stats">
               <div class="job-quick-stat-item" id="jobDetailsStatItemsWrap">
                 <span id="jobDetailsStatItems" class="job-quick-stat-value">0</span>
@@ -14286,6 +14675,13 @@
             <p class="job-step-hint" id="jobDetailsHint"></p>
           </section>
           <section id="jobTabMaterials" class="job-tab-panel" data-job-tab-panel="materials" role="tabpanel" aria-labelledby="jobTabBtnMaterials" style="display:none;">
+            <div id="jobMaterialsReadinessBanner" class="job-materials-readiness-banner job-materials-readiness-banner--empty">
+              <span id="jobMaterialsReadinessIcon" aria-hidden="true"></span>
+              <div class="job-materials-readiness-banner-content">
+                <div id="jobMaterialsReadinessText" class="job-materials-readiness-banner-text">Add materials to determine job readiness.</div>
+                <div id="jobMaterialsReadinessSub" class="job-materials-readiness-banner-sub" style="display:none;"></div>
+              </div>
+            </div>
             <button class="btn-tertiary job-add-item-btn" id="btnJobAddItem" type="button">
               <span class="job-add-item-icon" aria-hidden="true"></span>
               Add Item
@@ -16479,6 +16875,7 @@
       _orderHistoryRows:[],
       _orderHistoryById:new Map(),
       _orderHistoryFilter:'',
+      _orderHistoryStatusFilter:[],
       _orderHistoryTab:'orders',
       _orderHistoryExpanded:new Set(),
       _orderHistoryReceipts:[],
@@ -18437,11 +18834,13 @@
     function renderProfileHeaderInfo(){
       const emailEl = $('profileEmail');
       const companyEl = $('profileCompanyName');
+      const headerCompanyEl = $('headerCompanyName');
       const roleEl = $('profileRoleBadge');
       const email = SB.session?.user?.email || (SB.ready ? 'Not signed in' : 'Not configured');
       if(emailEl) emailEl.textContent = email;
       const companyName = SB.company ? String(SB.company.company_name || SB.company.company_slug || SB.company.company_id || '').trim() : '';
       if(companyEl) companyEl.textContent = companyName || 'No company selected';
+      if(headerCompanyEl) headerCompanyEl.textContent = companyName || '';
       const roleLabel = SB.session ? formatRoleBadgeLabel(getEffectiveRole()) : 'GUEST';
       if(roleEl) roleEl.textContent = roleLabel;
     }
@@ -18695,8 +19094,8 @@
       }
     }
     async function openCompanySwitcherModal(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
       setCompanySwitcherMode('basic');
       setAdvancedCompanyMessage('');
       renderBasicCompanyResults();
@@ -19204,10 +19603,10 @@
       return '\ufeff' + out.join('\n');
     }
     async function downloadAuditCsv(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!hasTier('enterprise')){ toast('Audit log requires Enterprise tier'); return; }
-      if(!canAuditView()){ toast('Permission denied'); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
+      if(!hasTier('enterprise')){ toast('Audit log requires Enterprise tier', 'info'); return; }
+      if(!canAuditView()){ toast('Permission denied', 'error'); return; }
       const btn = $('btnAuditDownload');
       const priorTitle = btn ? btn.getAttribute('title') : '';
       if(btn){ btn.disabled = true; btn.setAttribute('title', 'Downloading…'); }
@@ -19260,10 +19659,10 @@
       }
     }
     async function openAuditModal(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!hasTier('enterprise')){ toast('Audit log requires Enterprise tier'); return; }
-      if(!canAuditView()){ toast('Permission denied'); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
+      if(!hasTier('enterprise')){ toast('Audit log requires Enterprise tier', 'info'); return; }
+      if(!canAuditView()){ toast('Permission denied', 'error'); return; }
       show('auditModal', true);
       const tableFilter = $('auditTableFilter'); if(tableFilter) tableFilter.value = state._auditTableFilter || '';
       const actionFilter = $('auditActionFilter'); if(actionFilter) actionFilter.value = state._auditActionFilter || '';
@@ -19347,11 +19746,11 @@
       }
     }
     async function openSnapshotsModal(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!SB.companyId){ toast('No company selected'); return; }
-      if(!hasTier('business')){ toast('Snapshots require Business or Enterprise tier'); return; }
-      if(!canSnapshotsView()){ toast('Permission denied'); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
+      if(!SB.companyId){ toast('No company selected', 'warning'); return; }
+      if(!hasTier('business')){ toast('Snapshots require Business or Enterprise tier', 'info'); return; }
+      if(!canSnapshotsView()){ toast('Permission denied', 'error'); return; }
       show('snapshotsModal', true);
       showSnapshotList();
       await loadSnapshots();
@@ -19440,15 +19839,15 @@
       if(!allowPlatform) viewSelect.value = 'company';
     }
     function openMetricsModal(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!SB.companyId){ toast('No company selected'); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
+      if(!SB.companyId){ toast('No company selected', 'warning'); return; }
       if(!canAccessMetrics()){
         if(!hasTier('professional')){
-          toast('Metrics require Professional tier or higher');
+          toast('Metrics require Professional tier or higher', 'info');
           return;
         }
-        toast('Permission denied');
+        toast('Permission denied', 'error');
         return;
       }
       show('metricsModal', true);
@@ -19962,10 +20361,10 @@
       }
     }
     async function openUserMgmtModal(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!hasTier('business')){ toast('User management requires Business tier'); return; }
-      if(!canMembersView()){ toast('Permission denied'); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
+      if(!hasTier('business')){ toast('User management requires Business tier', 'info'); return; }
+      if(!canMembersView()){ toast('Permission denied', 'error'); return; }
       renderUserMgmtControls();
       renderUserMgmtHeaderActions();
       renderPendingInvitesSection();
@@ -19976,18 +20375,18 @@
       show('userMgmtModal', false);
     }
     function openInviteFromUserMgmt(){
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!hasTier('business')){ toast('Invites require Business tier'); return; }
-      if(!canMembersInvite()){ toast('Permission denied'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
+      if(!hasTier('business')){ toast('Invites require Business tier', 'info'); return; }
+      if(!canMembersInvite()){ toast('Permission denied', 'error'); return; }
       show('userMgmtModal', false);
       renderInviteUi();
       show('inviteModal', true);
     }
     function openSubscriptionManagerModal(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!isEffectiveSuperUser()){ toast('Super user access required'); return; }
-      if(!SB.companyId){ toast('Select a company first.'); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
+      if(!isEffectiveSuperUser()){ toast('Super user access required', 'error'); return; }
+      if(!SB.companyId){ toast('Select a company first', 'warning'); return; }
       renderTierAdminSection();
       show('subscriptionManagerModal', true);
     }
@@ -19999,18 +20398,18 @@
       if(addressEl) addressEl.textContent = getReceiptForwardingAddress();
     }
     function openManageCompanyModal(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!canAccessCompanyLocations()){ toast('Company admin access required'); return; }
-      if(!SB.companyId){ toast('Select a company first.'); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
+      if(!canAccessCompanyLocations()){ toast('Company admin access required', 'error'); return; }
+      if(!SB.companyId){ toast('Select a company first', 'warning'); return; }
       renderManageCompanyModal();
       show('manageCompanyModal', true);
     }
     async function openTierOverrideFromUserMgmt(){
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
-      if(!isEffectiveSuperUser()){ toast('Super user access required'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
+      if(!isEffectiveSuperUser()){ toast('Super user access required', 'error'); return; }
       const targetCompanyId = getUserMgmtCompanyId();
-      if(!targetCompanyId){ toast('No company selected'); return; }
+      if(!targetCompanyId){ toast('No company selected', 'warning'); return; }
       show('userMgmtModal', false);
       if(String(targetCompanyId) !== String(SB.companyId || '')){
         const ok = await openConfirmModal(
@@ -20076,8 +20475,8 @@
       el.textContent = String(msg || '');
     }
     async function openRoleManagerModal(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
       if(!canAccessRoleManager()){
         toast(hasTier('business') ? 'Super user access required' : 'Role Manager requires Business tier');
         return;
@@ -20143,7 +20542,7 @@
     }
     async function saveRoleManagerChanges(){
       if(!canAccessRoleManager()){
-        toast('Permission denied');
+        toast('Permission denied', 'error');
         return;
       }
       const entries = Object.entries(state._roleChanges || {});
@@ -20169,7 +20568,7 @@
         await sbLoadPermissions();
         applyPermissionUI();
         setRoleManagerMessage('Role permissions saved.');
-        toast('Role permissions saved');
+        toast('Role permissions saved', 'success');
       }catch(e){
         const msg = e && e.message ? e.message : 'Save failed';
         setRoleManagerMessage(msg);
@@ -20437,7 +20836,7 @@
     function openCompanyEnvironmentModal(company, opts = {}){
       if(!company) return;
       if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       const id = String(company.company_id || '').trim();
@@ -20458,11 +20857,11 @@
     async function confirmCompanyEnvironment(){
       if(!state._companyEnvironment) return;
       if(!SB.ready || !SB.session || !SB.client){
-        toast('Supabase not configured');
+        toast('Supabase not configured', 'error');
         return;
       }
       if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       const data = state._companyEnvironment;
@@ -20527,7 +20926,7 @@
     function openRenameCompanyModal(company){
       if(!company) return;
       if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       const id = String(company.company_id || '').trim();
@@ -20545,7 +20944,7 @@
     }
     async function confirmRenameCompany(){
       if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       const data = state._renameCompany;
@@ -20574,7 +20973,7 @@
         }
         show('renameCompanyModal', false);
         await loadAdvancedCompanies();
-        toast('Company renamed');
+        toast('Company renamed', 'success');
       }catch(e){
         setRenameCompanyMessage(e && e.message ? e.message : 'Rename failed');
       }finally{
@@ -20640,7 +21039,7 @@
     async function openManageUsersModal(company){
       if(!company) return;
       if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       const companyId = String(company.company_id || '').trim();
@@ -20786,7 +21185,7 @@
     async function openManageInventoryModal(company){
       if(!company) return;
       if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       const companyId = String(company.company_id || '').trim();
@@ -20823,7 +21222,7 @@
     async function openManageCompanyLocationsModal(company){
       if(!company) return;
       if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       const companyId = String(company.company_id || '').trim();
@@ -20919,7 +21318,7 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast('Companies exported');
+      toast('Companies exported', 'success');
       closeManageCompaniesMenu();
     }
     function debouncedAdvancedSearch(){
@@ -21147,7 +21546,7 @@
     async function openSeedInventoryModal(company){
       if(!company) return;
       if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       if(!(await ensureCompanyTestEnvironment(company, 'Inventory seeding'))){
@@ -21180,11 +21579,11 @@
     async function confirmSeedInventory(){
       if(!state._seedInventory) return;
       if(!SB.ready || !SB.session || !SB.client){
-        toast('Supabase not configured');
+        toast('Supabase not configured', 'error');
         return;
       }
       if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       const data = state._seedInventory;
@@ -21278,11 +21677,11 @@
     async function deleteCompanyInventory(company){
       if(!company) return;
       if(!SB.ready || !SB.session || !SB.client){
-        toast('Supabase not configured');
+        toast('Supabase not configured', 'error');
         return;
       }
       if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       if(!(await ensureCompanyTestEnvironment(company, 'Delete inventory'))){
@@ -21327,11 +21726,11 @@
     async function deleteCompanyUsers(company){
       if(!company) return;
       if(!SB.ready || !SB.session || !SB.client){
-        toast('Supabase not configured');
+        toast('Supabase not configured', 'error');
         return;
       }
       if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       if(!(await ensureCompanyTestEnvironment(company, 'Delete users'))){
@@ -21376,11 +21775,11 @@
     async function deleteCompanyRecord(company){
       if(!company) return;
       if(!SB.ready || !SB.session || !SB.client){
-        toast('Supabase not configured');
+        toast('Supabase not configured', 'error');
         return;
       }
       if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       if(!(await ensureCompanyTestEnvironment(company, 'Delete company'))){
@@ -21416,7 +21815,7 @@
         state._advancedCompanies = (Array.isArray(state._advancedCompanies) ? state._advancedCompanies : [])
           .filter(row => String(row.company_id || '') !== id);
         renderAdvancedCompanyResults();
-        toast('Company deleted');
+        toast('Company deleted', 'success');
         if(String(SB.companyId || '') === id){
           const fallbackId = getDefaultProductionCompanyId();
           if(fallbackId && fallbackId !== id){
@@ -21430,11 +21829,11 @@
     async function resetInventorySeedRun(company){
       if(!company) return;
       if(!SB.ready || !SB.session || !SB.client){
-        toast('Supabase not configured');
+        toast('Supabase not configured', 'error');
         return;
       }
       if(!isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       if(!(await ensureCompanyTestEnvironment(company, 'Reset seed lock'))){
@@ -21618,9 +22017,9 @@
             if(cid){
               try{
                 await navigator.clipboard.writeText(cid);
-                toast('Company ID copied to clipboard');
+                toast('Company ID copied to clipboard', 'success');
               }catch(err){
-                toast('Copy failed');
+                toast('Copy failed', 'error');
               }
             }
             return;
@@ -21842,7 +22241,7 @@
     }
     async function openAdvancedCompanySwitcher(){
       if(!SB.session || !isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       setCompanySwitcherMode('advanced');
@@ -21880,7 +22279,7 @@
     async function handleAdvancedCompanySwitch(company){
       if(!company) return;
       if(!SB.session || !isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       const envType = normalizeEnvironmentType(company.environment_type);
@@ -22233,7 +22632,7 @@
         return;
       }
       if(!SB.session || !isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       show('provisioningModal', true);
@@ -22685,9 +23084,9 @@
       return JSON.parse(raw);
     }
     async function runDiagnosticsMetricPreview(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
       if(!SB.session || !isEffectiveSuperUser()){
-        toast('Super user access required');
+        toast('Super user access required', 'error');
         return;
       }
       const metricId = String($('diagMetricId')?.value || '').trim();
@@ -22752,7 +23151,7 @@
     }
     function openDiagnosticsModal(){
       if(!SB.session || !isEffectiveSuperUser()){
-        toast('Super user access required.');
+        toast('Super user access required', 'error');
         return;
       }
       const roleSelect = $('diagRoleSelect');
@@ -23296,6 +23695,7 @@
       state._orderHistoryById = new Map();
       state._orderHistoryLinesByPo = new Map();
       state._orderHistoryFilter = '';
+      state._orderHistoryStatusFilter = [];
       state._orderHistoryTab = 'orders';
       state._orderHistoryExpanded = new Set();
       state._orderHistoryReceipts = [];
@@ -23345,6 +23745,12 @@
       _inviteCompanyId = '';
       _userMgmtCompanyId = '';
       updateOrderCounterBadge();
+      const cachedCounts = getCachedMenuActionCounts(SB.companyId ? String(SB.companyId) : '');
+      if(cachedCounts){
+        applyMenuActionCounts(cachedCounts);
+      }else{
+        applyMenuActionCounts(createEmptyMenuActionCounts());
+      }
       renderReceiptsInboxIndicator();
     }
 	    async function sbSwitchCompany(nextCompanyId, opts = {}){
@@ -23364,7 +23770,7 @@
 	        return false;
 	      }
       if(rowOverride && !isEffectiveSuperUser()){
-        toast('Super user access required');
+        toast('Super user access required', 'error');
         return false;
       }
       const prev = {
@@ -23433,6 +23839,7 @@
       if(canAccessReceivingInbox()){
         void loadDraftEmailReceipts();
       }
+      void refreshMenuJobsBadge();
       await checkServerHealth();
       if(isOnline()){
         await sbLoadSnapshot();
@@ -23694,6 +24101,7 @@
       if(canAccessReceivingInbox()){
         void loadDraftEmailReceipts();
       }
+      void refreshMenuJobsBadge();
       await checkServerHealth();
       if(isOnline()){
         await sbLoadSnapshot();
@@ -23896,7 +24304,7 @@
       try{
         await sbUpdatePassword(pw);
         setResetMessage('Password updated. You can close this window.');
-        toast('Password updated');
+        toast('Password updated', 'success');
       }catch(e){
         setResetMessage(e && e.message ? e.message : 'Update failed');
       }finally{
@@ -23938,7 +24346,7 @@
         await sbRefreshAccess();
         await refreshTierAdminDetails();
         setTierOverrideMessage('Base tier updated.');
-        toast('Base tier updated');
+        toast('Base tier updated', 'success');
       }catch(e){
         setTierOverrideMessage(e && e.message ? e.message : 'Base tier update failed');
       }finally{
@@ -24426,9 +24834,9 @@
       if(!url){ toast('No invite link'); return; }
       try{
         await copyText(String(url));
-        toast('Invite link copied');
+        toast('Invite link copied', 'success');
       }catch(e){
-        toast('Copy failed');
+        toast('Copy failed', 'error');
       }
     });
 
@@ -24490,9 +24898,9 @@
         if(!address) return;
         try{
           await copyText(String(address));
-          toast('Receipt address copied to clipboard');
+          toast('Receipt address copied to clipboard', 'success');
         }catch(err){
-          toast('Copy failed');
+          toast('Copy failed', 'error');
         }
       });
     }
@@ -24570,7 +24978,7 @@
       }
       try{
         await sbUpdateMemberRole(userId, nextRole);
-        toast('Role updated');
+        toast('Role updated', 'success');
         await refreshUserMgmt();
       }catch(err){
         select.value = currentRole;
@@ -24619,7 +25027,7 @@
             state._pendingInvites[idx] = { ...current, resend_count: nextResend, last_sent_at: nextLastSent };
             renderPendingInvitesList();
           }
-          toast('Invite resent');
+          toast('Invite resent', 'success');
         }catch(err){
           toast(err && err.message ? err.message : 'Resend failed');
         }finally{
@@ -24685,7 +25093,7 @@
         await sbSaveProfile(firstName, lastName, phone, silenceLowStockAlerts);
         renderProfileUi();
         try{ renderTable(); }catch(e){}
-        toast('Auto-saved');
+        toast('Auto-saved', 'success');
       }catch(e){
         setProfileMessage(e && e.message ? e.message : 'Save failed');
       }
@@ -26089,7 +26497,9 @@ function updateOrderHistoryFilterClearBtn(){
   const inp = $('orderHistoryFilter');
   const btn = $('btnClearOrderHistoryFilter');
   if(!inp || !btn) return;
-  const has = String(inp.value || '').length > 0;
+  const hasText = String(inp.value || '').length > 0;
+  const hasStatus = Array.isArray(state._orderHistoryStatusFilter) && state._orderHistoryStatusFilter.length > 0;
+  const has = hasText || hasStatus;
   btn.style.display = has ? 'flex' : 'none';
   btn.disabled = !has;
   btn.setAttribute('aria-hidden', has ? 'false' : 'true');
@@ -27525,7 +27935,7 @@ function emptyStateHtml(){
 	        await commitItemUpdate(id, { name, sku, desc, unitOfMeasure, locationId, categoryId, lowStockQty, reorderPoint: lowStockQty, reorderQty, reorderEnabled });
 	        try{ syncLowStockOverrideIndicatorForRow(id); }catch(e){}
 	        try{ syncLowStockIndicatorForRow(id); }catch(e){}
-	        toast('Auto-saved');
+	        toast('Auto-saved', 'success');
 	        return true;
 	      }catch(e){
 	        const msg = (e && e.message) ? e.message : 'Update failed';
@@ -27563,7 +27973,7 @@ function emptyStateHtml(){
 	        try{ removeOrderLine(id); }catch(e){}
 	        await sbLoadSnapshot();
 	        closeEditItemModal();
-	        toast('Item deleted');
+	        toast('Item deleted', 'success');
 	      }catch(e){
 	        const msg = (e && e.message) ? e.message : 'Delete failed';
 	        setEditItemMessage(msg);
@@ -28198,7 +28608,7 @@ function emptyStateHtml(){
       if(isOpen){
         initMenuTabs();
         restoreMenuTab();
-        updateMenuJobsBadge();
+        scheduleMenuActionBadgeRefresh();
         focusMenuFirst();
       }
     }
@@ -30313,7 +30723,6 @@ function emptyStateHtml(){
       const pillContainer = $('orderPillContainer');
       const pillValue = $('orderPillValue');
       const pill = $('orderPill');
-      const menuBadge = $('menuOrderBadge');
       if(pillContainer){
         if(count > 0){
           pillContainer.style.display = 'flex';
@@ -30323,15 +30732,7 @@ function emptyStateHtml(){
         }else{
           pillContainer.style.display = 'none';
         }
-      }
-      if(menuBadge){
-        if(count > 0){
-          menuBadge.textContent = String(count);
-          menuBadge.style.display = '';
-        }else{
-          menuBadge.textContent = '0';
-          menuBadge.style.display = 'none';
-        }
+        try{ syncToastZoneVisibility(); }catch(e){}
       }
       try{
         const modal = $('reportModal');
@@ -30460,30 +30861,30 @@ function emptyStateHtml(){
       const existingToast = document.querySelector('.cart-feedback-toast');
       if(existingToast) existingToast.remove();
       // Create fixed toast notification
-      const toast = document.createElement('div');
-      toast.className = 'cart-feedback-toast';
-      toast.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg><span>+${qty} added to order</span>`;
-      const notices = $('headerNotices');
-      if(notices){
-        notices.appendChild(toast);
+      const toastEl = document.createElement('div');
+      toastEl.className = 'cart-feedback-toast';
+      toastEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg><span>+${qty} added to order</span>`;
+      const zone = $('headerToastZone');
+      if(zone){
+        zone.appendChild(toastEl);
+        try{ syncToastZoneVisibility(); }catch(e){}
       }else{
-        document.body.appendChild(toast);
+        document.body.appendChild(toastEl);
       }
-      try{ updateInventoryStickyOffset(); }catch(e){}
       // Remove after animation
       setTimeout(()=>{
-        toast.style.animation = 'cartToastOut 0.3s ease forwards';
+        toastEl.style.animation = 'cartToastOut 0.3s ease forwards';
         setTimeout(()=>{
-          toast.remove();
+          toastEl.remove();
           btn.classList.remove('cart-added');
-          try{ updateInventoryStickyOffset(); }catch(e){}
+          try{ syncToastZoneVisibility(); }catch(e){}
         }, 300);
       }, 1700);
     }
     function addToOrderFromBom(itemId, shortage, opts = {}){
       const item = getInventoryById(itemId);
       if(!item){
-        toast('Item not found');
+        toast('Item not found', 'error');
         return;
       }
       const ord = orderState();
@@ -31081,9 +31482,9 @@ function emptyStateHtml(){
     async function copyOrderToClipboard(){
       try{
         await copyText(buildOrderBody());
-        toast('Copied order text');
+        toast('Copied order text', 'success');
       }catch{
-        toast('Copy failed');
+        toast('Copy failed', 'error');
       }
     }
 
@@ -31265,8 +31666,8 @@ function emptyStateHtml(){
       renderShippingAddressList();
     }
     async function openShippingAddressModal(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
       if(!canOrdersManageShipping()){ toast('Shipping address permissions required'); return; }
       clearShippingAddressForm();
       show('shippingAddressModal', true);
@@ -31686,8 +32087,8 @@ function emptyStateHtml(){
       if(editorModal) editorModal.classList.remove('modal-nested');
     }
     async function openCompanyLocationsModal(context){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
       const ctx = (context && context.companyId) ? {
         companyId: String(context.companyId || '').trim(),
         companyName: String(context.companyName || '').trim(),
@@ -31695,7 +32096,7 @@ function emptyStateHtml(){
       } : null;
       if(ctx && ctx.companyId && String(ctx.companyId) !== String(SB.companyId || '').trim()){
         if(!isEffectiveSuperUser()){
-          toast('Super user access required.');
+          toast('Super user access required', 'error');
           return;
         }
       }
@@ -31712,7 +32113,7 @@ function emptyStateHtml(){
       updateCompanyLocationsContextDisplay();
 
       if(!canAccessCompanyLocations()){
-        toast('Company admin access required');
+        toast('Company admin access required', 'error');
         setCompanyLocationsContext(null);
         updateCompanyLocationsContextDisplay();
         return;
@@ -31907,7 +32308,7 @@ function emptyStateHtml(){
         await loadCompanyLocations();
         closeCompanyLocationEditor();
         clearCompanyLocationForm();
-        toast('Location saved');
+        toast('Location saved', 'success');
         const isOnboardingLocations = isOnboardingRoute() && (
           state._onboardingStep === 'locations' ||
           !!document.querySelector('[data-onboarding-step="locations"].active')
@@ -32420,8 +32821,8 @@ function emptyStateHtml(){
 	      return '\ufeff' + out.join('\n');
 	    }
 	    async function downloadOrderHistoryCsv(){
-	      if(!SB.ready){ toast('Supabase not configured'); return; }
-	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+	      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+	      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
 	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
 
 	      const btn = $('btnOrderHistoryDownload');
@@ -32478,11 +32879,13 @@ function emptyStateHtml(){
 	          if(Array.isArray(state._orderHistoryRows)){
 	            state._orderHistoryRows = state._orderHistoryRows.filter(r => String(r && r.id ? r.id : '') !== id);
 	          }
-	        }catch(e){}
-	        renderOrderHistoryFiltered();
-	        updateOrderHistoryTabBadges();
-	        toast('Order deleted');
-	        return true;
+        }catch(e){}
+        renderOrderHistoryFiltered();
+        updateOrderHistoryTabBadges();
+        updateMenuOrderBadgesFromState();
+        scheduleMenuActionBadgeRefresh({ force: true });
+        toast('Order deleted', 'success');
+        return true;
 	      }catch(err){
 	        toast(err && err.message ? err.message : 'Delete failed');
 	        if(btnEl) btnEl.disabled = false;
@@ -33415,19 +33818,27 @@ function emptyStateHtml(){
         if(!Array.isArray(raw)) return [];
         return raw.map(item => ({
           description: String(item && item.description ? item.description : '').trim(),
+          sku: item && item.sku ? String(item.sku).trim() : null,
           qty: parseReceiptNumber(item && item.qty),
           unit_price: parseReceiptNumber(item && item.unit_price),
           line_total: parseReceiptNumber(item && item.line_total),
+          item_id: item && item.item_id ? String(item.item_id).trim() : null,
+          qty_received: item && typeof item.qty_received !== 'undefined' ? parseReceiptNumber(item.qty_received) : null,
+          rejection_reason: item && item.rejection_reason ? String(item.rejection_reason).trim() : null,
         })).slice(0, 200);
       }
       function sanitizeParsedLineItems(lines){
         if(!Array.isArray(lines)) return null;
         const cleaned = lines.map(item => ({
           description: String(item && item.description ? item.description : '').trim(),
+          sku: item && item.sku ? String(item.sku).trim() : null,
           qty: parseReceiptNumber(item && item.qty),
           unit_price: parseReceiptNumber(item && item.unit_price),
           line_total: parseReceiptNumber(item && item.line_total),
-        })).filter(item => item.description || item.qty !== null || item.unit_price !== null || item.line_total !== null);
+          item_id: item && item.item_id ? String(item.item_id).trim() : null,
+          qty_received: item && typeof item.qty_received !== 'undefined' ? parseReceiptNumber(item.qty_received) : null,
+          rejection_reason: item && item.rejection_reason ? String(item.rejection_reason).trim() : null,
+        })).filter(item => item.description || item.sku || item.qty !== null || item.unit_price !== null || item.line_total !== null);
         return cleaned.length ? cleaned : null;
       }
       function getParsedLineTotal(line){
@@ -33745,15 +34156,17 @@ function emptyStateHtml(){
         }
       }
       function renderReceiptsInboxIndicator(){
-        const container = $('receiptsPillContainer');
-        const countEl = $('receiptsPillCount');
-        const pill = $('receiptsPill');
-        if(!container || !countEl) return;
+        if(!canAccessReceivingInbox()){
+          applyMenuActionCounts({ receiving: { receipts: 0, pending: 0 } }, { merge: true });
+          return;
+        }
+        if(isEffectiveSuperUser()){
+          scheduleMenuActionBadgeRefresh({ force: true });
+          return;
+        }
+        if(!state._draftEmailReceiptsLoaded) return;
         const count = toInt(state._draftEmailReceiptsCount, 0);
-        const canShow = count > 0 && canAccessReceivingInbox();
-        container.style.display = canShow ? '' : 'none';
-        countEl.textContent = String(count);
-        if(pill) pill.setAttribute('aria-label', `Receipts (${count})`);
+        applyMenuActionCounts({ receiving: { receipts: count } }, { merge: true });
       }
       async function handleReceiptAttachmentDownload(attachmentId){
         const ro = state._receiveOrder;
@@ -33793,7 +34206,7 @@ function emptyStateHtml(){
           if(ro && Array.isArray(ro.attachments)){
             ro.attachments = ro.attachments.filter(att => String(att && att.id ? att.id : '') !== id);
           }
-          toast('Attachment deleted');
+          toast('Attachment deleted', 'success');
           renderReceiveOrderModal();
         }catch(e){
           toast(e && e.message ? e.message : 'Delete failed');
@@ -33802,8 +34215,8 @@ function emptyStateHtml(){
       async function openReceiveDraftReceipt(receiptId, companyId){
         const id = String(receiptId || '').trim();
         if(!id) return;
-        if(!SB.ready){ toast('Supabase not configured'); return; }
-        if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+        if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+        if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
         if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
         if(!canAccessReceivingInbox()){ toast('Receiving access required'); return; }
         let receiptCompanyId = String(companyId || '').trim() || (SB.companyId ? String(SB.companyId) : '');
@@ -33900,6 +34313,11 @@ function emptyStateHtml(){
             ? String(receiptRow.total).trim()
             : '';
           state._receiveOrder.parsedLineItems = normalizeParsedLineItems(receiptRow.parsed_line_items);
+          // Auto-match parsed lines to inventory by SKU
+          const autoMatched = autoMatchParsedLinesBySku();
+          if(autoMatched > 0){
+            console.log(`Auto-matched ${autoMatched} item(s) by SKU`);
+          }
           state._receiveOrder._lastSavedMetaKey = JSON.stringify({
             vendor_name: state._receiveOrder.receiptVendor || null,
             receipt_date: state._receiveOrder.receiptDate || null,
@@ -34222,24 +34640,30 @@ function emptyStateHtml(){
           const matchLabel = matchedCount > 0 ? ` (${matchedCount} matched)` : '';
           parsedCount.textContent = countLabel + matchLabel;
         }
+        const stepperMinusSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
+        const stepperPlusSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
         const linesHtml = parsedLines.length
           ? parsedLines.map((line, idx) => {
               const desc = String(line && line.description ? line.description : '');
-              const qtyVal = formatReceiptInputValue(line && line.qty);
+              const skuVal = String(line && line.sku ? line.sku : '');
+              const qtyParsed = line && line.qty != null ? Number(line.qty) : 0;
+              const qtyVal = String(qtyParsed || 0);
               const unitVal = formatReceiptInputValue(line && line.unit_price);
               const lineTotal = getParsedLineTotal(line);
               const totalText = (lineTotal === null || typeof lineTotal === 'undefined')
                 ? '—'
                 : formatReceiptMoney(lineTotal);
               const disabled = !allowDetailsEdit;
+              const disabledAttr = disabled ? ' disabled' : '';
               const itemId = line && line.item_id ? String(line.item_id).trim() : '';
               const isMatched = !!itemId;
               const matchedItem = isMatched ? getInventoryById(itemId) : null;
               const matchedName = matchedItem ? String(matchedItem.name || '').trim() : '';
               const matchedSku = matchedItem ? String(matchedItem.sku || '').trim() : '';
-              const qtyReceived = line && typeof line.qty_received !== 'undefined' ? formatQty(line.qty_received) : qtyVal;
-              const qtyRejected = line && typeof line.qty_rejected !== 'undefined' ? formatQty(line.qty_rejected) : '0';
+              const qtyReceivedNum = line && typeof line.qty_received !== 'undefined' ? Number(line.qty_received) : qtyParsed;
+              const qtyReceived = String(qtyReceivedNum || 0);
               const rejectionReason = line && line.rejection_reason ? String(line.rejection_reason).trim() : '';
+              const hasMismatch = qtyReceivedNum < qtyParsed;
               const statusClass = isMatched ? 'parsed-item-status--matched' : 'parsed-item-status--unmatched';
               const statusIcon = isMatched
                 ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>`
@@ -34254,26 +34678,39 @@ function emptyStateHtml(){
                   `</div>`
                 : `<div class="parsed-item-match-row">`+
                     `<div class="parsed-item-search" data-parsed-line-search="${idx}">`+
-                      `<input type="text" placeholder="Search inventory to match..." data-parsed-line-search-input="${idx}"${disabled ? ' disabled' : ''}>`+
+                      `<input type="text" placeholder="Search inventory to match..." data-parsed-line-search-input="${idx}"${disabledAttr}>`+
                       `<div class="parsed-item-search-results" data-parsed-line-results="${idx}" style="display:none;"></div>`+
                     `</div>`+
                   `</div>`;
-              const actualsRow = isMatched
-                ? `<div class="parsed-item-actuals">`+
-                    `<div class="parsed-item-actuals-field">`+
-                      `<label>Qty Received</label>`+
-                      `<input type="number" inputmode="numeric" step="1" min="0" value="${escapeHtmlAttr(qtyReceived)}" data-parsed-line-field="qty_received" data-parsed-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
+              // Actuals row with steppers - shown for all items
+              const receivedStepperClass = hasMismatch ? 'qty-stepper qty-stepper--mismatch' : 'qty-stepper qty-stepper--received';
+              const actualsRow = `<div class="parsed-item-actuals">`+
+                  `<div class="parsed-item-actuals-row">`+
+                    `<div class="parsed-item-actuals-group">`+
+                      `<span class="parsed-item-actuals-label">Parsed</span>`+
+                      `<div class="qty-stepper">`+
+                        `<button type="button" class="qty-stepper-btn" data-stepper-action="dec" data-stepper-field="qty" data-stepper-index="${idx}"${disabledAttr}>${stepperMinusSvg}</button>`+
+                        `<div class="qty-stepper-value">`+
+                          `<input type="number" inputmode="numeric" step="1" min="0" value="${escapeHtmlAttr(qtyVal)}" data-receipt-line-field="qty" data-receipt-line-index="${idx}"${disabledAttr}>`+
+                        `</div>`+
+                        `<button type="button" class="qty-stepper-btn" data-stepper-action="inc" data-stepper-field="qty" data-stepper-index="${idx}"${disabledAttr}>${stepperPlusSvg}</button>`+
+                      `</div>`+
                     `</div>`+
-                    `<div class="parsed-item-actuals-field">`+
-                      `<label>Qty Rejected</label>`+
-                      `<input type="number" inputmode="numeric" step="1" min="0" value="${escapeHtmlAttr(qtyRejected)}" data-parsed-line-field="qty_rejected" data-parsed-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
+                    `<div class="parsed-item-actuals-group">`+
+                      `<span class="parsed-item-actuals-label">Received</span>`+
+                      `<div class="${receivedStepperClass}" data-stepper-received="${idx}">`+
+                        `<button type="button" class="qty-stepper-btn" data-stepper-action="dec" data-stepper-field="qty_received" data-stepper-index="${idx}"${disabledAttr}>${stepperMinusSvg}</button>`+
+                        `<div class="qty-stepper-value">`+
+                          `<input type="number" inputmode="numeric" step="1" min="0" value="${escapeHtmlAttr(qtyReceived)}" data-parsed-line-field="qty_received" data-parsed-line-index="${idx}"${disabledAttr}>`+
+                        `</div>`+
+                        `<button type="button" class="qty-stepper-btn" data-stepper-action="inc" data-stepper-field="qty_received" data-stepper-index="${idx}"${disabledAttr}>${stepperPlusSvg}</button>`+
+                      `</div>`+
                     `</div>`+
-                    `<div class="parsed-item-actuals-field">`+
-                      `<label>Rejection Reason</label>`+
-                      `<textarea placeholder="Required if qty rejected > 0" data-parsed-line-field="rejection_reason" data-parsed-line-index="${idx}"${disabled ? ' disabled' : ''}>${escapeHtml(rejectionReason)}</textarea>`+
-                    `</div>`+
-                  `</div>`
-                : '';
+                  `</div>`+
+                  `<div class="parsed-item-rejection${hasMismatch ? ' is-visible' : ''}" data-rejection-row="${idx}">`+
+                    `<textarea placeholder="Rejection reason (required when received < parsed)" data-parsed-line-field="rejection_reason" data-parsed-line-index="${idx}"${disabledAttr}>${escapeHtml(rejectionReason)}</textarea>`+
+                  `</div>`+
+                `</div>`;
               return (
                 `<div class="parsed-item receipt-parsed-line${isMatched ? ' is-matched' : ''}" data-receipt-line-index="${idx}">`+
                   `<div class="parsed-item-main">`+
@@ -34282,18 +34719,16 @@ function emptyStateHtml(){
                     `</div>`+
                     `<div class="parsed-item-info">`+
                       `<div class="parsed-item-name">`+
-                        `<input type="text" value="${escapeHtmlAttr(desc)}" data-receipt-line-field="description" data-receipt-line-index="${idx}" placeholder="Item description"${disabled ? ' disabled' : ''}>`+
+                        `<input type="text" value="${escapeHtmlAttr(desc)}" data-receipt-line-field="description" data-receipt-line-index="${idx}" placeholder="Item description"${disabledAttr}>`+
                       `</div>`+
-                      `<div class="parsed-item-match">${isMatched ? 'Matched to inventory' : 'Needs inventory match'}</div>`+
+                      `<div class="parsed-item-sku">`+
+                        `<input type="text" value="${escapeHtmlAttr(skuVal)}" data-receipt-line-field="sku" data-receipt-line-index="${idx}" placeholder="SKU / Item #"${disabledAttr}>`+
+                      `</div>`+
                     `</div>`+
                     `<div class="parsed-item-values">`+
-                      `<div class="parsed-item-qty">`+
-                        `<input type="number" inputmode="numeric" step="1" min="0" value="${escapeHtmlAttr(qtyVal)}" data-receipt-line-field="qty" data-receipt-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
-                        `<div class="parsed-item-qty-label">Parsed</div>`+
-                      `</div>`+
                       `<div class="parsed-item-price">`+
                         `<div class="parsed-item-unit">`+
-                          `<input type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtmlAttr(unitVal)}" data-receipt-line-field="unit_price" data-receipt-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
+                          `<input type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtmlAttr(unitVal)}" data-receipt-line-field="unit_price" data-receipt-line-index="${idx}"${disabledAttr}>`+
                         `</div>`+
                         `<div class="parsed-item-total receipt-parsed-total-value">${escapeHtml(totalText)}</div>`+
                       `</div>`+
@@ -34823,12 +35258,13 @@ function emptyStateHtml(){
           btn.textContent = 'Saving...';
         }
       }
-	      try{
-	        await saveReceiptLines(ro, { requireLine:false });
-	        toast('Draft saved');
-	        setReceiveOrderMessage('Draft saved.');
-	      }catch(e){
-	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to save draft');
+      try{
+        await saveReceiptLines(ro, { requireLine:false });
+        toast('Draft saved', 'success');
+        setReceiveOrderMessage('Draft saved.');
+        scheduleMenuActionBadgeRefresh({ force: true });
+      }catch(e){
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to save draft');
       }finally{
         if(btn){
           btn.disabled = false;
@@ -34906,6 +35342,7 @@ function emptyStateHtml(){
 	        }else{
 	          renderReceiveOrderModal();
 	        }
+        scheduleMenuActionBadgeRefresh({ force: true });
 	      }catch(e){
 	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to receive receipt');
 	      }finally{
@@ -34966,6 +35403,7 @@ function emptyStateHtml(){
 	            renderReceiveOrderModal();
 	          }
 	        }
+        scheduleMenuActionBadgeRefresh({ force: true });
 	      }catch(e){
 	        toast(e && e.message ? e.message : 'Failed to void receipt');
 	      }finally{
@@ -34984,8 +35422,8 @@ function emptyStateHtml(){
 	    async function openReceiveOrderModal(orderId){
 	      const id = String(orderId || '').trim();
 	      if(!id) return;
-	      if(!SB.ready){ toast('Supabase not configured'); return; }
-	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+	      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+	      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
 	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
 	      if(!canReceiveOrders()){ toast('Receiving access required'); return; }
 
@@ -35034,8 +35472,8 @@ function emptyStateHtml(){
 	    }
 
 	    async function openReceiveInboxModal(){
-	      if(!SB.ready){ toast('Supabase not configured'); return; }
-	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+	      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+	      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
 	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
 	      if(!canAccessReceivingInbox()){ toast('Receiving access required'); return; }
 
@@ -35079,13 +35517,63 @@ function emptyStateHtml(){
         setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipts');
       }finally{
         if(state._receiveOrder) state._receiveOrder.loading = false;
+	        renderReceiveOrderModal();
+	      }
+	    }
+
+	    async function openReceivePendingModal(){
+	      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+	      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
+	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
+	      if(!canReceiveOrders()){ toast('Receiving access required'); return; }
+
+	      setReceiveOrderMessage('');
+	      setReceiveOrderWarning('');
+      state._receiveOrder = {
+        mode: 'manual',
+        tab: 'po',
+        companyId: SB.companyId ? String(SB.companyId) : '',
+        poId: '',
+        po: null,
+        lines: [],
+        receipts: [],
+        receiptLines: [],
+        receiptLinesByReceipt: new Map(),
+        receiptId: '',
+        receiptStatus: 'draft',
+        receiptNotes: '',
+        receiptVendor: '',
+        receiptDate: '',
+        receiptTotal: '',
+        parsedLineItems: [],
+        possibleDuplicate: false,
+        manualSearch: '',
+        loading:true,
+        rawReceiptText: '',
+        receiptSource: '',
+        attachments: [],
+        attachmentsLoading: false,
+        attachmentsError: '',
+        _attachmentsLoaded: false,
+        _attachmentsLoadedFor: ''
+      };
+      show('receiveOrderModal', true);
+      renderReceiveOrderModal();
+      try{
+        await ensureInventoryLoaded();
+        await ensureIncomingOrdersLoaded();
+        await loadDraftEmailReceipts();
+      }catch(e){
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load pending orders');
+      }finally{
+        if(state._receiveOrder) state._receiveOrder.loading = false;
         renderReceiveOrderModal();
       }
 	    }
 
 	    async function openReceiveManualModal(){
-	      if(!SB.ready){ toast('Supabase not configured'); return; }
-	      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+	      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+	      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
 	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
 	      if(!canAccessReceivingInbox()){ toast('Receiving access required'); return; }
 	      if(!canReceiveOrders()){
@@ -35211,7 +35699,7 @@ function emptyStateHtml(){
 	      if(ro.lines && ro.lines.some(l => String(l && l.item_id ? l.item_id : '').trim() === id)) return;
 	      const item = getInventoryById(id);
 	      if(!item){
-	        toast('Item not found');
+	        toast('Item not found', 'error');
 	        return;
 	      }
 	      const newLine = {
@@ -35548,15 +36036,42 @@ function emptyStateHtml(){
 	      const itemText = items.map(it => `${it.item_name} ${it.item_sku} ${formatQty(it.quantity_ordered)}`).join(' ');
 	      return `${id} ${poNumber} ${companyPo} ${internalPo} ${status} ${orderDate} ${expectedDate} ${receivedDate} ${createdAt} ${subject} ${vendor} ${recipientEmail} ${shipToText} ${notes} ${jobs} ${itemText}`.toLowerCase();
 	    }
+	    function normalizeOrderHistoryStatusFilter(list){
+	      if(!Array.isArray(list)) return [];
+	      const out = [];
+	      list.forEach(entry=>{
+	        const key = normalizePurchaseOrderStatus(entry);
+	        if(!key) return;
+	        if(!out.includes(key)) out.push(key);
+	      });
+	      return out;
+	    }
+	    function setOrderHistoryStatusFilter(list){
+	      state._orderHistoryStatusFilter = normalizeOrderHistoryStatusFilter(list);
+	    }
 	    function renderOrderHistoryFiltered(){
 	      const rows = Array.isArray(state._orderHistoryRows) ? state._orderHistoryRows : [];
+	      const statusFilter = Array.isArray(state._orderHistoryStatusFilter)
+	        ? state._orderHistoryStatusFilter.filter(Boolean)
+	        : [];
 	      const raw = String(state._orderHistoryFilter || '').trim().toLowerCase();
+	      let filtered = rows;
+	      if(statusFilter.length){
+	        const lineMap = state._orderHistoryLinesByPo || new Map();
+	        filtered = filtered.filter(row => {
+	          const id = row && row.id ? String(row.id) : '';
+	          if(!id) return false;
+	          const totals = getPurchaseOrderLineTotalsById(id, lineMap);
+	          const receiveState = getPurchaseOrderReceiveState(row, totals);
+	          return statusFilter.includes(receiveState);
+	        });
+	      }
 	      if(!raw){
-	        renderOrderHistoryList(rows, { emptyText: 'No orders yet.' });
+	        renderOrderHistoryList(filtered, { emptyText: 'No orders yet.' });
 	        return;
 	      }
 	      const tokens = raw.split(/\s+/g).filter(Boolean);
-	      const out = rows.filter(r => {
+	      const out = filtered.filter(r => {
 	        const hay = orderHistorySearchText(r);
 	        return tokens.every(t => hay.includes(t));
 	      });
@@ -35973,12 +36488,14 @@ function emptyStateHtml(){
 	        );
 	        await loadOrderShippingOptions();
 	        const lineMap = state._orderHistoryLinesByPo || new Map();
-	        (state._orderHistoryRows || []).forEach(row=>{
-	          const totals = getPurchaseOrderLineTotalsById(row && row.id, lineMap);
-	          applyPurchaseOrderLineTotals(row, totals);
-	        });
-	        renderOrderHistoryFiltered();
-	      }catch(e){
+        (state._orderHistoryRows || []).forEach(row=>{
+          const totals = getPurchaseOrderLineTotalsById(row && row.id, lineMap);
+          applyPurchaseOrderLineTotals(row, totals);
+        });
+        renderOrderHistoryFiltered();
+        updateMenuOrderBadgesFromState();
+        scheduleMenuActionBadgeRefresh({ force: true });
+      }catch(e){
 	        state._orderHistoryById = new Map();
 	        state._orderHistoryRows = [];
           state._orderHistoryLinesByPo = new Map();
@@ -35997,18 +36514,24 @@ function emptyStateHtml(){
 	    }
     async function openOrderHistoryModal(opts = {}){
       const returnToOrder = !!opts.returnToOrder;
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      const tabOverride = typeof opts.tab === 'string' ? String(opts.tab || '').trim() : '';
+      const hasStatusOverride = Object.prototype.hasOwnProperty.call(opts, 'statusFilter');
+      const hasSearchOverride = Object.prototype.hasOwnProperty.call(opts, 'searchFilter');
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
       if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
       if(!canOrdersView()){ toast('Order history access required'); return; }
+      if(tabOverride) state._orderHistoryTab = tabOverride;
+      if(hasStatusOverride) setOrderHistoryStatusFilter(opts.statusFilter);
+      if(hasSearchOverride) state._orderHistoryFilter = typeof opts.searchFilter === 'string' ? opts.searchFilter : '';
       _orderHistoryReturnToOrder = returnToOrder;
-	      if(returnToOrder) show('orderModal', false);
-	      show('orderHistoryModal', true);
-	      const activeTab = getOrderHistoryActiveTab();
-	      applyOrderHistoryTabState(activeTab);
-	      const f = $('orderHistoryFilter'); if(f) f.value = state._orderHistoryFilter || '';
-	      const rf = $('orderHistoryReceiptFilter'); if(rf) rf.value = state._orderHistoryReceiptsFilter || '';
-	      try{ updateOrderHistoryFilterClearBtn(); }catch(e){}
+      if(returnToOrder) show('orderModal', false);
+      show('orderHistoryModal', true);
+      const activeTab = getOrderHistoryActiveTab();
+      applyOrderHistoryTabState(activeTab);
+      const f = $('orderHistoryFilter'); if(f) f.value = state._orderHistoryFilter || '';
+      const rf = $('orderHistoryReceiptFilter'); if(rf) rf.value = state._orderHistoryReceiptsFilter || '';
+      try{ updateOrderHistoryFilterClearBtn(); }catch(e){}
 	      await refreshOrderHistory();
 	      if(activeTab === 'receipts'){
 	        await refreshOrderHistoryReceipts();
@@ -36499,6 +37022,7 @@ function emptyStateHtml(){
           const totals = getPurchaseOrderLineTotalsById(row && row.id, lineMap);
           applyPurchaseOrderLineTotals(row, totals);
         });
+        updateMenuOrderBadgesFromState();
       }catch(e){
         state._orderHistoryRows = Array.isArray(state._orderHistoryRows) ? state._orderHistoryRows : [];
         state._orderHistoryById = state._orderHistoryById || new Map();
@@ -36828,21 +37352,352 @@ function emptyStateHtml(){
         await sbLoadSnapshot();
       }
     }
-    function updateMenuJobsBadge(rows){
-      const badge = $('menuJobsBadge');
-      if(!badge) return;
-      const list = Array.isArray(rows) ? rows : (Array.isArray(state._jobs) ? state._jobs : []);
-      const activeCount = list.filter(row => {
-        const status = String(row && row.status ? row.status : '').trim();
-        return status !== 'completed' && status !== 'voided';
-      }).length;
-      if(activeCount > 0){
-        badge.textContent = String(activeCount);
-        badge.style.display = '';
-      }else{
-        badge.textContent = '0';
-        badge.style.display = 'none';
+    const MENU_ACTION_COUNTS_TTL_MS = 15000;
+    const MENU_ACTION_COUNTS_DEBOUNCE_MS = 300;
+    let _menuActionCounts = null;
+    let _menuActionCountsCache = new Map();
+    let _menuActionCountsTimer = null;
+    let _menuActionCountsPendingForce = false;
+    let _menuActionCountsInFlight = null;
+
+    function createEmptyMenuActionCounts(){
+      return {
+        orders: { draft: 0, submitted: 0 },
+        jobs: { draft: 0, ready: 0 },
+        receiving: { receipts: 0, pending: 0 },
+      };
+    }
+    function normalizeMenuCountValue(value){
+      return Math.max(0, toInt(value, 0));
+    }
+    function mergeMenuActionCounts(base, patch){
+      const current = base && typeof base === 'object' ? base : createEmptyMenuActionCounts();
+      const next = createEmptyMenuActionCounts();
+      next.orders.draft = normalizeMenuCountValue(current.orders && current.orders.draft);
+      next.orders.submitted = normalizeMenuCountValue(current.orders && current.orders.submitted);
+      next.jobs.draft = normalizeMenuCountValue(current.jobs && current.jobs.draft);
+      next.jobs.ready = normalizeMenuCountValue(current.jobs && current.jobs.ready);
+      next.receiving.receipts = normalizeMenuCountValue(current.receiving && current.receiving.receipts);
+      next.receiving.pending = normalizeMenuCountValue(current.receiving && current.receiving.pending);
+      const patchObj = patch && typeof patch === 'object' ? patch : {};
+      if(patchObj.orders){
+        if(patchObj.orders.draft !== null && typeof patchObj.orders.draft !== 'undefined'){
+          next.orders.draft = normalizeMenuCountValue(patchObj.orders.draft);
+        }
+        if(patchObj.orders.submitted !== null && typeof patchObj.orders.submitted !== 'undefined'){
+          next.orders.submitted = normalizeMenuCountValue(patchObj.orders.submitted);
+        }
       }
+      if(patchObj.jobs){
+        if(patchObj.jobs.draft !== null && typeof patchObj.jobs.draft !== 'undefined'){
+          next.jobs.draft = normalizeMenuCountValue(patchObj.jobs.draft);
+        }
+        if(patchObj.jobs.ready !== null && typeof patchObj.jobs.ready !== 'undefined'){
+          next.jobs.ready = normalizeMenuCountValue(patchObj.jobs.ready);
+        }
+      }
+      if(patchObj.receiving){
+        if(patchObj.receiving.receipts !== null && typeof patchObj.receiving.receipts !== 'undefined'){
+          next.receiving.receipts = normalizeMenuCountValue(patchObj.receiving.receipts);
+        }
+        if(patchObj.receiving.pending !== null && typeof patchObj.receiving.pending !== 'undefined'){
+          next.receiving.pending = normalizeMenuCountValue(patchObj.receiving.pending);
+        }
+      }
+      return next;
+    }
+    function setMenuBadgeValue(badge, count){
+      if(!badge) return false;
+      const valueEl = badge.querySelector('.menu-item-badge-value');
+      const qty = normalizeMenuCountValue(count);
+      if(valueEl) valueEl.textContent = String(qty);
+      badge.style.display = qty > 0 ? 'inline-flex' : 'none';
+      return qty > 0;
+    }
+    function setMenuOrderBadgeCounts(counts){
+      const container = $('menuOrderBadges');
+      const menuOrder = $('menuOrder');
+      if(!container || !menuOrder) return;
+      if(!canOrdersView()){
+        container.style.display = 'none';
+        menuOrder.setAttribute('aria-label', 'Orders');
+        return;
+      }
+      const draftCount = normalizeMenuCountValue(counts && counts.draft);
+      const submittedCount = normalizeMenuCountValue(counts && counts.submitted);
+      const showDraft = setMenuBadgeValue($('menuOrderDraftBadge'), draftCount);
+      const showSubmitted = setMenuBadgeValue($('menuOrderSubmittedBadge'), submittedCount);
+      const show = showDraft || showSubmitted;
+      container.style.display = show ? 'flex' : 'none';
+      if(show){
+        const parts = [];
+        if(showDraft) parts.push(`Draft ${draftCount}`);
+        if(showSubmitted) parts.push(`Submitted ${submittedCount}`);
+        menuOrder.setAttribute('aria-label', `Orders (${parts.join(', ')})`);
+      }else{
+        menuOrder.setAttribute('aria-label', 'Orders');
+      }
+    }
+    function setMenuJobsBadgeCounts(counts){
+      const container = $('menuJobsBadges');
+      const menuJobs = $('menuJobs');
+      if(!container || !menuJobs) return;
+      if(!canItemsView()){
+        container.style.display = 'none';
+        menuJobs.setAttribute('aria-label', 'Jobs');
+        return;
+      }
+      const draftCount = normalizeMenuCountValue(counts && counts.draft);
+      const readyCount = normalizeMenuCountValue(counts && counts.ready);
+      const showDraft = setMenuBadgeValue($('menuJobsDraftBadge'), draftCount);
+      const showReady = setMenuBadgeValue($('menuJobsReadyBadge'), readyCount);
+      const show = showDraft || showReady;
+      container.style.display = show ? 'flex' : 'none';
+      if(show){
+        const parts = [];
+        if(showDraft) parts.push(`Draft ${draftCount}`);
+        if(showReady) parts.push(`Ready ${readyCount}`);
+        menuJobs.setAttribute('aria-label', `Jobs (${parts.join(', ')})`);
+      }else{
+        menuJobs.setAttribute('aria-label', 'Jobs');
+      }
+    }
+    function setMenuReceiveBadgeCounts(counts){
+      const container = $('menuReceiveBadges');
+      const menuReceive = $('menuReceive');
+      if(!container || !menuReceive) return;
+      if(!canAccessReceivingInbox()){
+        container.style.display = 'none';
+        menuReceive.setAttribute('aria-label', 'Receive Inventory');
+        return;
+      }
+      const receiptsCount = normalizeMenuCountValue(counts && counts.receipts);
+      const pendingAllowed = canReceiveOrders();
+      const pendingCount = pendingAllowed ? normalizeMenuCountValue(counts && counts.pending) : 0;
+      const showReceipts = setMenuBadgeValue($('menuReceiveReceiptsBadge'), receiptsCount);
+      const showPending = pendingAllowed ? setMenuBadgeValue($('menuReceivePendingBadge'), pendingCount) : false;
+      if(!pendingAllowed){
+        const pendingEl = $('menuReceivePendingBadge');
+        if(pendingEl) pendingEl.style.display = 'none';
+      }
+      const show = showReceipts || showPending;
+      container.style.display = show ? 'flex' : 'none';
+      if(show){
+        const parts = [];
+        if(showReceipts) parts.push(`Receipts ${receiptsCount}`);
+        if(showPending) parts.push(`Pending ${pendingCount}`);
+        menuReceive.setAttribute('aria-label', `Receive Inventory (${parts.join(', ')})`);
+      }else{
+        menuReceive.setAttribute('aria-label', 'Receive Inventory');
+      }
+    }
+    function applyMenuActionCounts(nextCounts, opts = {}){
+      const useMerge = opts && opts.merge === true;
+      const base = _menuActionCounts || createEmptyMenuActionCounts();
+      const merged = useMerge
+        ? mergeMenuActionCounts(base, nextCounts)
+        : mergeMenuActionCounts(createEmptyMenuActionCounts(), nextCounts);
+      _menuActionCounts = merged;
+      setMenuOrderBadgeCounts(merged.orders);
+      setMenuReceiveBadgeCounts(merged.receiving);
+      setMenuJobsBadgeCounts(merged.jobs);
+    }
+    function cacheMenuActionCounts(companyId, counts){
+      if(!companyId) return;
+      _menuActionCountsCache.set(companyId, { ts: Date.now(), counts });
+    }
+    function getCachedMenuActionCounts(companyId){
+      if(!companyId) return null;
+      const entry = _menuActionCountsCache.get(companyId);
+      if(!entry) return null;
+      if(Date.now() - entry.ts > MENU_ACTION_COUNTS_TTL_MS) return null;
+      return entry.counts;
+    }
+    function scheduleMenuActionBadgeRefresh(opts = {}){
+      if(opts && opts.force) _menuActionCountsPendingForce = true;
+      if(_menuActionCountsTimer) clearTimeout(_menuActionCountsTimer);
+      _menuActionCountsTimer = setTimeout(() => {
+        const force = _menuActionCountsPendingForce;
+        _menuActionCountsPendingForce = false;
+        void refreshMenuActionBadges({ force });
+      }, MENU_ACTION_COUNTS_DEBOUNCE_MS);
+    }
+    function computeOrderActionableCountsFromState(){
+      if(!Array.isArray(state._orderHistoryRows) || !state._orderHistoryRows.length) return null;
+      const lineMap = state._orderHistoryLinesByPo;
+      const counts = { draft: 0, submitted: 0, pending: 0 };
+      state._orderHistoryRows.forEach(row => {
+        const totals = (lineMap && typeof lineMap.get === 'function')
+          ? getPurchaseOrderLineTotalsById(row && row.id, lineMap)
+          : null;
+        const status = totals ? getPurchaseOrderReceiveState(row, totals) : normalizePurchaseOrderStatus(row && row.status);
+        if(status === 'draft') counts.draft += 1;
+        if(status === 'submitted' || status === 'partially_received') counts.submitted += 1;
+        if(status === 'submitted' || status === 'partially_received'){
+          if(!totals || !totals.hasLines){
+            counts.pending += 1;
+          }else if(totals.remaining > 0){
+            counts.pending += 1;
+          }
+        }
+      });
+      return counts;
+    }
+    function updateMenuOrderBadgesFromState(){
+      if(!canOrdersView()) return;
+      const counts = computeOrderActionableCountsFromState();
+      if(!counts) return;
+      applyMenuActionCounts({
+        orders: { draft: counts.draft, submitted: counts.submitted },
+        receiving: { pending: counts.pending }
+      }, { merge: true });
+    }
+    function updateMenuJobsBadge(rows){
+      const list = Array.isArray(rows) ? rows : (Array.isArray(state._jobs) ? state._jobs : []);
+      let draft = 0;
+      let ready = 0;
+      list.forEach(row => {
+        const status = String(row && row.status ? row.status : '').trim().toLowerCase();
+        if(status === 'draft') draft += 1;
+        if(status === 'ready') ready += 1;
+      });
+      applyMenuActionCounts({ jobs: { draft, ready } }, { merge: true });
+    }
+    async function fetchMenuActionCounts(companyId){
+      const counts = {
+        orders: { draft: null, submitted: null },
+        jobs: { draft: null, ready: null },
+        receiving: { receipts: null, pending: null },
+      };
+      if(!SB.ready || !SB.session || !companyId) return counts;
+      const tasks = [];
+      const keys = [];
+      const canOrders = canOrdersView();
+      const canReceipts = canAccessReceivingInbox();
+      const canPending = canReceipts && canReceiveOrders();
+      const orderDraftStatuses = ['draft'];
+      const orderSubmittedStatuses = ['submitted', 'partially_received', 'partial', 'sent', 'approved', 'confirmed'];
+      if(canOrders){
+        tasks.push(
+          SB.client
+            .from('purchase_orders')
+            .select('id', { count: 'exact', head: true })
+            .eq('company_id', companyId)
+            .in('status', orderDraftStatuses)
+        );
+        keys.push(['orders', 'draft']);
+        tasks.push(
+          SB.client
+            .from('purchase_orders')
+            .select('id', { count: 'exact', head: true })
+            .eq('company_id', companyId)
+            .in('status', orderSubmittedStatuses)
+        );
+        keys.push(['orders', 'submitted']);
+      }else{
+        counts.orders.draft = 0;
+        counts.orders.submitted = 0;
+      }
+      if(canItemsView()){
+        tasks.push(
+          SB.client
+            .from('jobs')
+            .select('id', { count: 'exact', head: true })
+            .eq('company_id', companyId)
+            .eq('status', 'draft')
+        );
+        keys.push(['jobs', 'draft']);
+        tasks.push(
+          SB.client
+            .from('jobs')
+            .select('id', { count: 'exact', head: true })
+            .eq('company_id', companyId)
+            .eq('status', 'ready')
+        );
+        keys.push(['jobs', 'ready']);
+      }else{
+        counts.jobs.draft = 0;
+        counts.jobs.ready = 0;
+      }
+      if(canReceipts){
+        tasks.push(
+          SB.client
+            .from('receipts')
+            .select('id', { count: 'exact', head: true })
+            .eq('company_id', companyId)
+            .in('status', ['draft', 'blocked_by_plan'])
+        );
+        keys.push(['receiving', 'receipts']);
+      }else{
+        counts.receiving.receipts = 0;
+        counts.receiving.pending = 0;
+      }
+      if(canPending && !canOrders){
+        tasks.push(
+          SB.client
+            .from('purchase_orders')
+            .select('id', { count: 'exact', head: true })
+            .eq('company_id', companyId)
+            .in('status', orderSubmittedStatuses)
+        );
+        keys.push(['receiving', 'pending']);
+      }
+      const results = await Promise.allSettled(tasks);
+      results.forEach((result, index) => {
+        if(result.status !== 'fulfilled') return;
+        const payload = result.value;
+        if(payload && payload.error) return;
+        const count = payload && Number.isFinite(payload.count) ? payload.count : 0;
+        const key = keys[index];
+        if(!key) return;
+        const [group, field] = key;
+        if(counts[group]) counts[group][field] = count;
+      });
+      if(canPending){
+        const pendingFromState = canOrders ? computeOrderActionableCountsFromState() : null;
+        if(pendingFromState && Number.isFinite(pendingFromState.pending)){
+          counts.receiving.pending = pendingFromState.pending;
+        }else if(canOrders && counts.orders.submitted !== null && counts.receiving.pending === null){
+          counts.receiving.pending = counts.orders.submitted;
+        }
+      }else if(canReceipts){
+        counts.receiving.pending = 0;
+      }
+      return counts;
+    }
+    async function refreshMenuActionBadges(opts = {}){
+      const companyId = SB.companyId ? String(SB.companyId) : '';
+      if(!SB.ready || !SB.session || !companyId){
+        applyMenuActionCounts(createEmptyMenuActionCounts());
+        return null;
+      }
+      const force = opts && opts.force === true;
+      if(!force){
+        const cached = getCachedMenuActionCounts(companyId);
+        if(cached){
+          applyMenuActionCounts(cached);
+          return cached;
+        }
+      }
+      if(_menuActionCountsInFlight) return _menuActionCountsInFlight;
+      _menuActionCountsInFlight = (async () => {
+        try{
+          const counts = await fetchMenuActionCounts(companyId);
+          if(String(SB.companyId || '') !== companyId) return null;
+          applyMenuActionCounts(counts, { merge: true });
+          const merged = _menuActionCounts;
+          cacheMenuActionCounts(companyId, merged);
+          return merged;
+        }catch(e){
+          return null;
+        }finally{
+          _menuActionCountsInFlight = null;
+        }
+      })();
+      return _menuActionCountsInFlight;
+    }
+    async function refreshMenuJobsBadge(){
+      return refreshMenuActionBadges({ force: true });
     }
 
     // UDWE Config for Jobs BOM Table
@@ -37353,8 +38208,8 @@ function emptyStateHtml(){
       }
     }
     function openApproveReadyModal(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
       if(!SB.authorized){ toast('Not authorized'); return; }
       if(!requirePermission(PERMISSIONS.ITEMS_VIEW, 'Inventory access required')) return;
       show('approveReadyModal', true);
@@ -37438,8 +38293,8 @@ function emptyStateHtml(){
       }
     }
     async function openJobsModal(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
       if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
       if(!requirePermission(PERMISSIONS.ITEMS_VIEW, 'Inventory access required')) return;
       show('jobsModal', true);
@@ -37460,11 +38315,6 @@ function emptyStateHtml(){
       const totals = computeJobTotals(editor);
       const actualMap = getJobActualMap(editor);
       const nameOk = !!(job && String(job.name || '').trim());
-      const readiness = editor ? editor.jobReadiness : null;
-      const readinessDetail = editor ? editor.jobReadinessDetail : null;
-      const blockingItems = readinessDetail && Array.isArray(readinessDetail.blocking_items)
-        ? readinessDetail.blocking_items
-        : [];
       const hasShortfall = !isCompleted && totals.totalShortfall > 0;
 
       syncJobActualDraftFromDom();
@@ -37473,16 +38323,10 @@ function emptyStateHtml(){
       const statusName = $('jobStatusName');
       const statusBadge = $('jobStatusBadge');
       const statusPill = $('jobStatusPill');
-      const readinessBadge = $('jobReadinessBadge');
-      const readinessCard = $('jobReadinessCard');
-      const readinessCardIcon = $('jobReadinessCardIcon');
-      const readinessCardTitle = $('jobReadinessCardTitle');
-      const readinessCardSub = $('jobReadinessCardSub');
-      const readinessActions = $('jobReadinessActions');
-      const readinessSection = $('jobReadinessSection');
-      const createPoBtn = $('btnJobCreatePoFromBlockers');
-      const blockingSection = $('jobBlockingItemsSection');
-      const blockingList = $('jobBlockingItemsList');
+      const materialsReadinessBanner = $('jobMaterialsReadinessBanner');
+      const materialsReadinessIcon = $('jobMaterialsReadinessIcon');
+      const materialsReadinessText = $('jobMaterialsReadinessText');
+      const materialsReadinessSub = $('jobMaterialsReadinessSub');
       const nameInput = $('jobNameInput');
       const notesInput = $('jobNotesInput');
       const completionNotesInput = $('jobCompletionNotesInput');
@@ -37490,7 +38334,6 @@ function emptyStateHtml(){
       const approveSection = $('jobApprovalSection');
       const completeSection = $('jobCompletionSection');
       const voidSection = $('jobVoidSection');
-      const saveBtn = $('btnJobSave');
       const detailsCheck = $('jobTabDetailsCheck');
       const materialsBadge = $('jobTabMaterialsBadge');
       const executionBadge = $('jobTabExecutionBadge');
@@ -37557,130 +38400,35 @@ function emptyStateHtml(){
         statusPill.textContent = statusDisplayText;
         statusPill.className = `job-status-display job-status-badge--${status}`;
       }
-      const readinessReasonCodes = (!isCompleted && readiness && Array.isArray(readiness.reasons)) ? readiness.reasons : [];
-      const readinessReasonText = (!isCompleted && readiness)
-        ? formatJobReadinessReasons(readinessReasonCodes).join(' • ')
-        : '';
-      const readinessNoteParts = [];
-      if(hasShortfall){
-        readinessNoteParts.push(`Shortfall: ${formatQty(totals.totalShortfall)}`);
-      }
-      if(readinessReasonCodes.includes('allocation_incomplete')){
-        readinessNoteParts.push('Allocation incomplete');
-      }
-      const extraNotes = formatJobReadinessReasons(
-        readinessReasonCodes.filter(code => !['job_not_approved', 'shortfall_exists', 'allocation_incomplete'].includes(code))
-      ).join(' • ');
-      if(extraNotes) readinessNoteParts.push(extraNotes);
-      const readinessNoteText = readinessNoteParts.join(' • ') || readinessReasonText;
-      const readinessDetailReady = !!(readinessDetail && !readinessDetail.error && readinessDetail.ready_for_approval);
-      const readinessSummaryReady = !!(readiness && readiness.ready);
-      let readinessState = 'unknown';
-      if(!isCompleted){
-        if(hasShortfall){
-          readinessState = 'not-ready';
-        }else if(readinessDetail && !readinessDetail.error){
-          readinessState = readinessDetailReady ? 'ready' : 'not-ready';
-        }else if(readiness){
-          readinessState = readinessSummaryReady ? 'ready' : 'not-ready';
-        }
-      }
-      const readinessText = readinessState === 'unknown' ? 'Unknown' : (readinessState === 'ready' ? 'Ready' : 'Not Ready');
-      if(readinessBadge){
-        const showReadiness = !isCompleted && readinessState === 'ready';
-        readinessBadge.style.display = showReadiness ? '' : 'none';
-        if(showReadiness){
-          readinessBadge.textContent = readinessText.toUpperCase();
-          readinessBadge.className = 'job-readiness-badge job-readiness-badge--ready';
-          if(readinessNoteText){
-            readinessBadge.title = readinessNoteText;
-          }else{
-            readinessBadge.removeAttribute('title');
-          }
+      // Update materials readiness banner (Materials tab only)
+      if(materialsReadinessBanner && !isCompleted){
+        let bannerState = 'empty';
+        let bannerText = 'Add materials to determine job readiness.';
+        let bannerSub = '';
+        let bannerIcon = ICONS.info;
+        if(lines.length === 0){
+          bannerState = 'empty';
+          bannerText = 'Add materials to determine job readiness.';
+          bannerIcon = ICONS.info;
+        }else if(hasShortfall){
+          bannerState = 'shortage';
+          bannerText = 'Materials incomplete — job not ready.';
+          bannerSub = `Shortfall: ${formatQty(totals.totalShortfall)}`;
+          bannerIcon = ICONS.alertTriangle;
         }else{
-          readinessBadge.removeAttribute('title');
+          bannerState = 'ready';
+          bannerText = 'All required materials available — job ready.';
+          bannerIcon = ICONS.checkCircle;
         }
-      }
-      if(readinessSection) readinessSection.style.display = isCompleted ? 'none' : '';
-      if(readinessCard && !isCompleted){
-        const readinessJobPrefix = jobNumber ? `Job ${jobNumber}` : 'This job';
-        let cardState = 'unknown';
-        let titleText = 'Checking readiness…';
-        let subText = 'Calculating required inventory.';
-        let iconHtml = ICONS.info;
-        if(readinessState === 'ready'){
-          cardState = 'ready';
-          titleText = `${readinessJobPrefix} is ready for approval.`;
-          subText = 'All required inventory is available.';
-          iconHtml = ICONS.checkCircle;
-        }else if(readinessState === 'not-ready'){
-          cardState = 'not-ready';
-          titleText = `${readinessJobPrefix} is waiting on inventory.`;
-          subText = readinessNoteText || 'Approval is blocked by missing items.';
-          iconHtml = ICONS.alertTriangle;
-        }else if(readinessDetail && readinessDetail.error){
-          titleText = 'Readiness unavailable.';
-          subText = 'Unable to compute blocking items.';
-          iconHtml = ICONS.info;
-        }else{
-          titleText = 'Readiness pending.';
-          subText = 'Material availability not fully calculated yet.';
-          iconHtml = ICONS.info;
+        materialsReadinessBanner.className = `job-materials-readiness-banner job-materials-readiness-banner--${bannerState}`;
+        if(materialsReadinessIcon) materialsReadinessIcon.innerHTML = bannerIcon;
+        if(materialsReadinessText) materialsReadinessText.textContent = bannerText;
+        if(materialsReadinessSub){
+          materialsReadinessSub.textContent = bannerSub;
+          materialsReadinessSub.style.display = bannerSub ? '' : 'none';
         }
-        readinessCard.className = `job-readiness-card job-readiness-card--${cardState}`;
-        if(readinessCardIcon) readinessCardIcon.innerHTML = iconHtml;
-        if(readinessCardTitle) readinessCardTitle.textContent = titleText;
-        if(readinessCardSub) readinessCardSub.textContent = subText;
-      }
-      if(createPoBtn){
-        const canShow = !!(!isCompleted && readinessDetail && !readinessDetail.error && !readinessDetail.ready_for_approval && blockingItems.length && canOrdersCreate());
-        if(readinessActions) readinessActions.style.display = canShow ? 'flex' : 'none';
-        createPoBtn.style.display = canShow ? 'inline-flex' : 'none';
-        createPoBtn.disabled = !canShow || !!state._jobEditorBusy;
-      }
-      if(blockingSection && blockingList){
-        if(!isCompleted && readinessDetail && !readinessDetail.error && !readinessDetail.ready_for_approval && blockingItems.length){
-          const orderLines = orderState().lines || [];
-          const orderItemIds = new Set(orderLines.map(line => String(line && line.id ? line.id : '').trim()).filter(Boolean));
-          const orderQtyByItem = new Map();
-          orderLines.forEach(line=>{
-            const itemId = String(line && line.id ? line.id : '').trim();
-            if(!itemId) return;
-            orderQtyByItem.set(itemId, toInt(line && line.qty != null ? line.qty : 0, 0));
-          });
-          blockingList.innerHTML = blockingItems.map(item=>{
-            const itemId = String(item.itemId || '').trim();
-            const inv = itemId ? getInventoryById(itemId) : null;
-            const name = inv && inv.name ? String(inv.name || '').trim() : (itemId ? `Item ${shortId(itemId)}` : 'Item');
-            const requiredQty = formatQty(item.requiredQty);
-            const availableQty = formatQty(item.availableQty);
-            const shortfallVal = toInt(item.shortfallQty, 0);
-            const shortfallQty = formatQty(shortfallVal);
-            const incomingQtyVal = toInt(item.incoming_qty, 0);
-            const incomingQty = formatQty(incomingQtyVal);
-            const inCart = itemId && orderItemIds.has(itemId);
-            const orderQty = orderQtyByItem.get(itemId) || 0;
-            const willResolve = inCart && shortfallVal > 0 && orderQty >= shortfallVal;
-            const willBeAvailable = incomingQtyVal > 0 && shortfallVal > 0 && incomingQtyVal >= shortfallVal;
-            return (
-              `<div class="job-blocking-card">`+
-                `<div class="job-blocking-info">`+
-                  `<div class="job-blocking-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
-                  `<div class="job-blocking-meta">Required: ${escapeHtml(requiredQty)} • Available: ${escapeHtml(availableQty)}</div>`+
-                  `<div class="job-blocking-shortfall">Shortfall: ${escapeHtml(shortfallQty)}</div>`+
-                  `${incomingQtyVal > 0 ? `<div class="job-blocking-note">Incoming: ${escapeHtml(incomingQty)}</div>` : ''}`+
-                  `${willBeAvailable ? '<div class="job-blocking-note">Will be available when received.</div>' : ''}`+
-                  `${willResolve ? '<div class="job-blocking-note">Will be resolved when this order is received.</div>' : ''}`+
-                `</div>`+
-                `${inCart ? '<span class="job-blocking-badge">In current order</span>' : ''}`+
-              `</div>`
-            );
-          }).join('');
-          blockingSection.style.display = '';
-        }else{
-          blockingList.innerHTML = '';
-          blockingSection.style.display = 'none';
-        }
+      }else if(materialsReadinessBanner && isCompleted){
+        materialsReadinessBanner.style.display = 'none';
       }
       if(createdMeta){
         const created = job && job.created_at ? formatDateShort(job.created_at) : '';
@@ -37694,14 +38442,6 @@ function emptyStateHtml(){
       if(notesInput) notesInput.disabled = !(editable || isCompleted);
       if(completionNotesInput) completionNotesInput.disabled = !(editable || isCompleted);
       if(addItemBtn) addItemBtn.disabled = state._jobEditorBusy || !editable;
-      if(saveBtn){
-        // Job creation via Details tab is deprecated - use wizard only
-        // Only show Save button when editing an existing job
-        const hasJob = !!(job && job.id);
-        saveBtn.style.display = hasJob ? '' : 'none';
-        saveBtn.textContent = 'Save Job Details';
-        saveBtn.disabled = state._jobEditorBusy || !editable;
-      }
 
       const hasJob = !!(job && job.id);
       if(!hasJob){
@@ -38365,13 +39105,13 @@ function emptyStateHtml(){
       }
     }
     async function openAddToJobModal(itemId){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
       if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
       if(!requireOnline()) return;
       if(!requirePermission(PERMISSIONS.ITEMS_VIEW, 'Inventory access required')) return;
       const item = getInventoryById(itemId);
-      if(!item){ toast('Item not found'); return; }
+      if(!item){ toast('Item not found', 'error'); return; }
 
       // Get reserved quantity for this item
       const reservedMap = state._reservedByItemId || new Map();
@@ -38621,8 +39361,8 @@ function emptyStateHtml(){
       return { inventoryMap, reservedMap, incomingMap, jobAllocations, jobShortfalls };
     }
     async function openJobEditor(jobId, opts = {}){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
       if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
       if(!requirePermission(PERMISSIONS.ITEMS_VIEW, 'Inventory access required')) return;
 
@@ -38801,9 +39541,7 @@ function emptyStateHtml(){
       const notes = notesInput ? String(notesInput.value || '').trim() : '';
       if(!name){ setJobEditorMessage('Job name is required.'); return; }
       setJobEditorMessage('');
-      const btn = $('btnJobSave');
-      const prior = btn ? btn.textContent : '';
-      if(btn){ btn.disabled = true; btn.textContent = job.id ? 'Saving…' : 'Creating…'; }
+      setJobAutosaveStatus('saving');
       try{
         try{
           await refreshJobEditorInventory();
@@ -38842,7 +39580,7 @@ function emptyStateHtml(){
             editor.pendingBomLines = [];
             editor.bomLines = await sbFetchJobBom(job.id);
           }
-          toast('Job created');
+          toast('Job created', 'success');
           setJobBomMessage('');
         }else{
           const { error } = await SB.client
@@ -38856,12 +39594,12 @@ function emptyStateHtml(){
           editor.lastSavedName = name;
           editor.lastSavedNotes = notes;
           await refreshJobs();
-          toast('Job saved');
+          setJobAutosaveStatus('saved');
         }
       }catch(e){
         setJobEditorMessage(e && e.message ? e.message : 'Save failed');
+        setJobAutosaveStatus('error', 'Save failed');
       }finally{
-        if(btn){ btn.disabled = false; btn.textContent = prior || 'Save'; }
         renderJobEditor();
       }
     }
@@ -39094,7 +39832,8 @@ function emptyStateHtml(){
       editor.bomLines = await sbFetchJobBom(job.id);
       closeJobItemPicker();
       renderJobEditor();
-      toast('Item added to BOM');
+      toast('Item added to BOM', 'success');
+      scheduleMenuActionBadgeRefresh({ force: true });
       }catch(e){
         toast(e && e.message ? e.message : 'Failed to add item');
       }finally{
@@ -39119,7 +39858,8 @@ function emptyStateHtml(){
         if(error) throw error;
         editor.bomLines = await sbFetchJobBom(editor.job.id);
         renderJobEditor();
-        toast('BOM updated');
+        toast('BOM updated', 'success');
+        scheduleMenuActionBadgeRefresh({ force: true });
       }catch(e){
         setJobBomMessage(e && e.message ? e.message : 'Failed to update BOM');
       }
@@ -39137,6 +39877,7 @@ function emptyStateHtml(){
         if(error) throw error;
         toast('Material removed from job');
         await refreshJobs();
+        scheduleMenuActionBadgeRefresh({ force: true });
       }catch(e){
         toast(e && e.message ? e.message : 'Failed to remove material');
       }
@@ -39156,6 +39897,7 @@ function emptyStateHtml(){
         editor.bomLines = await sbFetchJobBom(editor.job.id);
         renderJobEditor();
         toast('BOM line removed');
+        scheduleMenuActionBadgeRefresh({ force: true });
       }catch(e){
         setJobBomMessage(e && e.message ? e.message : 'Failed to remove BOM line');
       }
@@ -39425,8 +40167,8 @@ function emptyStateHtml(){
       }
     }
     async function openTrashModal(){
-      if(!SB.ready){ toast('Supabase not configured'); return; }
-      if(!SB.session){ toast('Sign in required'); show('authModal', true); return; }
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
       if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
       if(!canAccessTrash()){ toast('Trash access requires delete or restore permission'); return; }
       show('trashModal', true);
@@ -39863,11 +40605,11 @@ function emptyStateHtml(){
 	    };
 	    if(menuOrder) menuOrder.addEventListener('click', openOrderFromMenu);
 	    if(menuQuickOrder) menuQuickOrder.addEventListener('click', openOrderFromMenu);
-	    const menuJobs = $('menuJobs');
-	    if(menuJobs) menuJobs.addEventListener('click', ()=>{
-	      toggleMenu(false);
-	      openJobsModal();
-	    });
+    const menuJobs = $('menuJobs');
+    if(menuJobs) menuJobs.addEventListener('click', ()=>{
+      toggleMenu(false);
+      openJobsModal();
+    });
     const menuReceive = $('menuReceive');
     if(menuReceive) menuReceive.addEventListener('click', ()=>{ toggleMenu(false); openReceiveManualModal(); });
     const menuHistory = $('menuHistory');
@@ -39890,6 +40632,45 @@ function emptyStateHtml(){
     if(btnJobsCreate) btnJobsCreate.addEventListener('click', ()=> openJobEditor(null));
     const btnJobsApproveReady = $('btnJobsApproveReady');
     if(btnJobsApproveReady) btnJobsApproveReady.addEventListener('click', openApproveReadyModal);
+
+    const wireMenuBadgeAction = (id, handler) => {
+      const el = $(id);
+      if(!el || el._wired) return;
+      el._wired = true;
+      el.addEventListener('click', (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        handler();
+      });
+    };
+    const openOrderHistoryWithStatus = (statuses) => {
+      toggleMenu(false);
+      void openOrderHistoryModal({
+        returnToOrder: false,
+        tab: 'orders',
+        statusFilter: Array.isArray(statuses) ? statuses : [],
+        searchFilter: ''
+      });
+    };
+
+    wireMenuBadgeAction('menuOrderDraftBadge', ()=> openOrderHistoryWithStatus(['draft']));
+    wireMenuBadgeAction('menuOrderSubmittedBadge', ()=> openOrderHistoryWithStatus(['submitted','partially_received']));
+    wireMenuBadgeAction('menuReceiveReceiptsBadge', ()=>{
+      toggleMenu(false);
+      openReceiveInboxModal();
+    });
+    wireMenuBadgeAction('menuReceivePendingBadge', ()=>{
+      toggleMenu(false);
+      openReceivePendingModal();
+    });
+    wireMenuBadgeAction('menuJobsDraftBadge', ()=>{
+      toggleMenu(false);
+      openJobsModal();
+    });
+    wireMenuBadgeAction('menuJobsReadyBadge', ()=>{
+      toggleMenu(false);
+      openApproveReadyModal();
+    });
     const jobsList = $('jobsList');
     if(jobsList) jobsList.addEventListener('click', async (e)=>{
       const viewBtn = e.target.closest('[data-job-view-id]');
@@ -39969,21 +40750,9 @@ function emptyStateHtml(){
     });
     const btnJobEditorClose = $('btnJobEditorClose');
     if(btnJobEditorClose) btnJobEditorClose.addEventListener('click', ()=> show('jobEditorModal', false));
-    const btnJobSave = $('btnJobSave');
-    if(btnJobSave) btnJobSave.addEventListener('click', saveJobDetails);
     // Job Item Picker event listeners
     const btnJobAddItem = $('btnJobAddItem');
     if(btnJobAddItem) btnJobAddItem.addEventListener('click', openJobItemPicker);
-    const btnJobCreatePo = $('btnJobCreatePoFromBlockers');
-    if(btnJobCreatePo) btnJobCreatePo.addEventListener('click', ()=>{
-      const editor = state._jobEditor;
-      const jobId = editor && editor.job ? editor.job.id : null;
-      const detail = editor ? editor.jobReadinessDetail : null;
-      const blockingItems = detail && Array.isArray(detail.blocking_items) ? detail.blocking_items : [];
-      if(!jobId || !blockingItems.length) return;
-      if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
-      void createOrderFromJobBlockers(jobId, blockingItems);
-    });
     const jobItemPickerSearch = $('jobItemPickerSearch');
     if(jobItemPickerSearch){
       jobItemPickerSearch.addEventListener('input', (e)=> renderJobItemPickerResults(e.target.value));
@@ -40390,9 +41159,9 @@ function emptyStateHtml(){
 		        const html = String(_reportEmailHtml || '').trim();
 		        if(!html){ toast('Nothing to copy'); return; }
 		        await navigator.clipboard.writeText(html);
-		        toast('Copied');
+		        toast('Copied', 'success');
 		      }catch(e){
-		        toast('Copy failed');
+		        toast('Copy failed', 'error');
 		      }
 		    });
 		    const btnReportEmailSend = $('btnReportEmailSend');
@@ -40409,7 +41178,7 @@ function emptyStateHtml(){
 		      btnReportEmailSend.textContent = 'Sending…';
 		      try{
 		        await sendInventoryReportEmailViaApi({ toEmail: to, subjectLine, html });
-		        toast('Report sent');
+		        toast('Report sent', 'success');
 		        closeReportEmailModal();
 		      }catch(e){
 		        const msg = (e && e.message) ? String(e.message) : 'Send failed';
@@ -40504,8 +41273,26 @@ function emptyStateHtml(){
     if(receiptParsedLines && !receiptParsedLines._wired){
       receiptParsedLines._wired = true;
       let searchDebounce = null;
+      // Helper to update rejection row visibility and stepper styling
+      function updateRejectionRowVisibility(idx){
+        const lines = Array.isArray(state._receiveOrder?.parsedLineItems) ? state._receiveOrder.parsedLineItems : [];
+        const line = lines[idx];
+        if(!line) return;
+        const qtyParsed = Number(line.qty || 0);
+        const qtyReceived = Number(line.qty_received ?? qtyParsed);
+        const hasMismatch = qtyReceived < qtyParsed;
+        const rejectionRow = document.querySelector(`[data-rejection-row="${idx}"]`);
+        const receivedStepper = document.querySelector(`[data-stepper-received="${idx}"]`);
+        if(rejectionRow){
+          rejectionRow.classList.toggle('is-visible', hasMismatch);
+        }
+        if(receivedStepper){
+          receivedStepper.classList.remove('qty-stepper--received', 'qty-stepper--mismatch');
+          receivedStepper.classList.add(hasMismatch ? 'qty-stepper--mismatch' : 'qty-stepper--received');
+        }
+      }
       receiptParsedLines.addEventListener('input', (e)=>{
-        // Handle parsed line field inputs (description, qty, unit_price)
+        // Handle parsed line field inputs (description, sku, qty, unit_price)
         const inp = e.target.closest('[data-receipt-line-field]');
         if(inp && state._receiveOrder){
           const idx = toInt(inp.getAttribute('data-receipt-line-index'), -1);
@@ -40516,9 +41303,15 @@ function emptyStateHtml(){
             if(line){
               if(field === 'description'){
                 line.description = String(inp.value || '');
+              }else if(field === 'sku'){
+                line.sku = String(inp.value || '');
               }else if(field === 'qty' || field === 'unit_price'){
                 line[field] = parseReceiptNumber(inp.value);
                 line.line_total = getParsedLineTotal(line);
+                // Update rejection visibility when parsed qty changes
+                if(field === 'qty'){
+                  updateRejectionRowVisibility(idx);
+                }
               }
               const row = inp.closest('.receipt-parsed-line');
               const totalEl = row ? row.querySelector('.receipt-parsed-total-value') : null;
@@ -40529,7 +41322,7 @@ function emptyStateHtml(){
             }
           }
         }
-        // Handle actuals field inputs (qty_received, qty_rejected, rejection_reason)
+        // Handle actuals field inputs (qty_received, rejection_reason)
         const actualsInp = e.target.closest('[data-parsed-line-field]');
         if(actualsInp && state._receiveOrder){
           const idx = toInt(actualsInp.getAttribute('data-parsed-line-index'), -1);
@@ -40538,8 +41331,9 @@ function emptyStateHtml(){
             const lines = Array.isArray(state._receiveOrder.parsedLineItems) ? state._receiveOrder.parsedLineItems : [];
             const line = lines[idx];
             if(line){
-              if(field === 'qty_received' || field === 'qty_rejected'){
+              if(field === 'qty_received'){
                 line[field] = toInt(actualsInp.value, 0);
+                updateRejectionRowVisibility(idx);
               }else if(field === 'rejection_reason'){
                 line[field] = String(actualsInp.value || '');
               }
@@ -40560,13 +41354,58 @@ function emptyStateHtml(){
         }
       });
       receiptParsedLines.addEventListener('click', (e)=>{
+        // Stepper button clicks
+        const stepperBtn = e.target.closest('[data-stepper-action]');
+        if(stepperBtn && state._receiveOrder){
+          const action = stepperBtn.getAttribute('data-stepper-action');
+          const field = stepperBtn.getAttribute('data-stepper-field');
+          const idx = toInt(stepperBtn.getAttribute('data-stepper-index'), -1);
+          if(idx >= 0 && (action === 'inc' || action === 'dec')){
+            const lines = Array.isArray(state._receiveOrder.parsedLineItems) ? state._receiveOrder.parsedLineItems : [];
+            const line = lines[idx];
+            if(line){
+              // Determine if it's a parsed field or actuals field
+              const isParsedField = field === 'qty' || field === 'unit_price';
+              let currentVal = 0;
+              if(isParsedField){
+                currentVal = Number(line[field] || 0);
+              }else if(field === 'qty_received'){
+                const qtyParsed = Number(line.qty || 0);
+                currentVal = Number(line.qty_received ?? qtyParsed);
+              }
+              const newVal = Math.max(0, action === 'inc' ? currentVal + 1 : currentVal - 1);
+              if(isParsedField){
+                line[field] = newVal;
+                line.line_total = getParsedLineTotal(line);
+                // Update display
+                const row = document.querySelector(`[data-receipt-line-index="${idx}"]`)?.closest('.receipt-parsed-line');
+                const totalEl = row ? row.querySelector('.receipt-parsed-total-value') : null;
+                if(totalEl){
+                  const lineTotal = getParsedLineTotal(line);
+                  totalEl.textContent = (lineTotal === null || typeof lineTotal === 'undefined') ? '—' : formatReceiptMoney(lineTotal);
+                }
+              }else{
+                line[field] = newVal;
+                syncParsedLineToReceiveLines(idx);
+              }
+              // Update input value
+              const stepper = stepperBtn.closest('.qty-stepper');
+              const input = stepper ? stepper.querySelector('input') : null;
+              if(input) input.value = String(newVal);
+              // Update rejection row visibility
+              updateRejectionRowVisibility(idx);
+            }
+          }
+          return;
+        }
         // Add new line
         const addBtn = e.target.closest('[data-receipt-line-add]');
         if(addBtn && state._receiveOrder){
           if(!Array.isArray(state._receiveOrder.parsedLineItems)) state._receiveOrder.parsedLineItems = [];
           state._receiveOrder.parsedLineItems.push({
             description: '',
-            qty: null,
+            sku: '',
+            qty: 1,
             unit_price: null,
             line_total: null,
           });
@@ -40591,6 +41430,24 @@ function emptyStateHtml(){
             unmatchParsedLine(idx);
           }
           return;
+        }
+      });
+      // Enter key handling - save and move to next field
+      receiptParsedLines.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' && !e.shiftKey){
+          const inp = e.target.closest('input, textarea');
+          if(inp && !inp.matches('textarea')){
+            e.preventDefault();
+            // Find next focusable input in the same item or next item
+            const allInputs = Array.from(receiptParsedLines.querySelectorAll('input:not([disabled]), textarea:not([disabled])'));
+            const currentIdx = allInputs.indexOf(inp);
+            if(currentIdx >= 0 && currentIdx < allInputs.length - 1){
+              allInputs[currentIdx + 1].focus();
+              allInputs[currentIdx + 1].select();
+            }else{
+              inp.blur();
+            }
+          }
         }
       });
       receiptParsedLines.addEventListener('focusin', (e)=>{
@@ -40651,6 +41508,33 @@ function emptyStateHtml(){
         `</div>`;
       }).join('');
       resultsWrap.style.display = '';
+    }
+    function getInventoryBySku(sku){
+      const normalized = String(sku || '').trim().toLowerCase();
+      if(!normalized) return null;
+      return state.items.find(x => x && String(x.sku || '').trim().toLowerCase() === normalized) || null;
+    }
+    function autoMatchParsedLinesBySku(){
+      if(!state._receiveOrder) return;
+      const lines = Array.isArray(state._receiveOrder.parsedLineItems) ? state._receiveOrder.parsedLineItems : [];
+      let matched = 0;
+      lines.forEach((line, idx) => {
+        // Skip if already matched
+        if(line.item_id) return;
+        // Try matching by SKU
+        const sku = String(line.sku || '').trim();
+        if(!sku) return;
+        const item = getInventoryBySku(sku);
+        if(item){
+          line.item_id = item.id;
+          if(typeof line.qty_received === 'undefined' || line.qty_received === null){
+            line.qty_received = toInt(line.qty, 0);
+          }
+          syncParsedLineToReceiveLines(idx);
+          matched++;
+        }
+      });
+      return matched;
     }
     function matchParsedLineToInventory(idx, itemId){
       if(!state._receiveOrder) return;
@@ -40724,10 +41608,6 @@ function emptyStateHtml(){
         existing.expected_qty = toInt(parsedLine.qty, 0);
       }
     }
-    const receiptsPill = $('receiptsPill');
-    if(receiptsPill) receiptsPill.addEventListener('click', ()=>{
-      openReceiveInboxModal();
-    });
     const receiptUpgradeBtn = document.querySelector('[data-receipt-upgrade]');
     if(receiptUpgradeBtn) receiptUpgradeBtn.addEventListener('click', ()=>{
       if(isEffectiveSuperUser()){
@@ -40910,7 +41790,7 @@ function emptyStateHtml(){
       setShippingAddressMessage('');
       try{
         await saveShippingAddress();
-        toast('Shipping address saved');
+        toast('Shipping address saved', 'success');
       }catch(e){
         setShippingAddressMessage(e && e.message ? e.message : 'Save failed');
       }
@@ -40939,7 +41819,7 @@ function emptyStateHtml(){
         if(!ok) return;
         try{
           await deleteShippingAddress(id);
-          toast('Shipping address deleted');
+          toast('Shipping address deleted', 'success');
         }catch(e){
           toast(e && e.message ? e.message : 'Delete failed');
         }
@@ -41001,7 +41881,7 @@ function emptyStateHtml(){
         setCompanyLocationsMessage('');
         try{
           await setDefaultCompanyLocation(id, type);
-          toast('Default updated');
+          toast('Default updated', 'success');
         }catch(err){
           setCompanyLocationsMessage(err && err.message ? err.message : 'Default update failed');
         }finally{
@@ -41118,9 +41998,12 @@ function emptyStateHtml(){
 	    const btnClearOrderHistoryFilter = $('btnClearOrderHistoryFilter');
 	    if(btnClearOrderHistoryFilter && orderHistoryFilter){
 	      btnClearOrderHistoryFilter.addEventListener('click', ()=>{
-	        if(!orderHistoryFilter.value) return;
+	        const hasText = !!orderHistoryFilter.value;
+	        const hasStatus = Array.isArray(state._orderHistoryStatusFilter) && state._orderHistoryStatusFilter.length > 0;
+	        if(!hasText && !hasStatus) return;
 	        orderHistoryFilter.value = '';
 	        state._orderHistoryFilter = '';
+	        state._orderHistoryStatusFilter = [];
 	        renderOrderHistoryFiltered();
 	        updateOrderHistoryFilterClearBtn();
 	        try{ orderHistoryFilter.focus(); }catch(e){}
@@ -41200,6 +42083,7 @@ function emptyStateHtml(){
 	          const internalPo = $('orderInternalPoNumber'); if(internalPo) internalPo.value = orderState().internalPoNumber || '';
 	        }catch(e){}
 	        show('orderModal', false);
+        scheduleMenuActionBadgeRefresh({ force: true });
 	      }catch(e){
 	        const msg = e && e.message ? e.message : 'Send failed';
 	        const fallback = await openConfirmModal('Send failed', `${msg}\n\nOpen your email app instead?`, { okText:'Open Email', cancelText:'Cancel' });
@@ -41705,7 +42589,7 @@ function emptyStateHtml(){
         await sbLoadSnapshot();
         $('addName').value=''; $('addDesc').value=''; $('addQty').value='1';
         show('addOneModal', false);
-        toast('Item added');
+        toast('Item added', 'success');
       }catch(e){
         toast(e.message || 'Cloud add failed');
       }
@@ -42180,9 +43064,9 @@ function emptyStateHtml(){
 	      if(!_msgCopyText) return;
 	      try{
 	        await navigator.clipboard.writeText(_msgCopyText);
-	        toast('Copied');
+	        toast('Copied', 'success');
 	      }catch(e){
-	        toast('Copy failed');
+	        toast('Copy failed', 'error');
 	      }
 	    });
 
@@ -42309,17 +43193,51 @@ function emptyStateHtml(){
 		      e.preventDefault();
 		      closeQtyEntryModal(null);
 		    });
-		    function toast(msg){
+		    function syncToastZoneVisibility(){
+		      const zone = $('headerToastZone');
+		      if(!zone) return;
+		      const toastEl = $('toast');
+		      const pill = $('orderPillContainer');
+		      const toastVisible = toastEl && toastEl.classList.contains('is-visible');
+		      const pillVisible = pill && pill.style.display !== 'none';
+		      const feedbackToast = zone.querySelector('.cart-feedback-toast');
+		      if(toastVisible || pillVisible || feedbackToast){
+		        zone.classList.add('is-visible');
+		      }else{
+		        zone.classList.remove('is-visible');
+		      }
+		    }
+		    const TOAST_ICONS = {
+		      success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+		      error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+		      warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+		      info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+		      default: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+		    };
+		    function toast(msg, type = 'default'){
 		      const t=$('toast');
 		      if(!t) return;
-		      t.textContent=msg;
-		      t.style.display='block';
-		      try{ updateInventoryStickyOffset(); }catch(e){}
+		      // Clear previous state
 		      clearTimeout(t._tmr);
+		      t.className = 'toast';
+		      t.classList.add('toast--' + type, 'is-visible');
+		      // Build toast content
+		      const icon = TOAST_ICONS[type] || TOAST_ICONS.default;
+		      t.innerHTML = `
+		        <span class="toast-icon">${icon}</span>
+		        <span class="toast-content"><span class="toast-message">${msg}</span></span>
+		        <span class="toast-progress"></span>
+		      `;
+		      syncToastZoneVisibility();
 		      t._tmr=setTimeout(()=> {
-		        t.style.display='none';
-		        try{ updateInventoryStickyOffset(); }catch(e){}
-		      }, 2000);
+		        t.style.animation = 'toastSlideOut 0.25s ease forwards';
+		        setTimeout(() => {
+		          t.classList.remove('is-visible');
+		          t.style.animation = '';
+		          t.innerHTML = '';
+		          syncToastZoneVisibility();
+		        }, 250);
+		      }, 2500);
 		    }
 
     // iOS keyboard-safe scroll height
