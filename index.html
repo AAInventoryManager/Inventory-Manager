@@ -646,6 +646,7 @@
                 table-layout:fixed;
               }
 				      #invTable thead{ display:table-header-group; }
+				      #invTable thead th{ top:0; } /* Sticky relative to tableWrap scroll container */
 				      #invTable tbody{ display:table-row-group; width:100%; }
 				      #invTable tbody tr[data-id]{
 			        position:relative;
@@ -7238,6 +7239,66 @@
       display:flex;
       flex-direction:column;
       overflow:hidden;
+    }
+    .job-modal .job-footer--icons{
+      flex-direction:column;
+      align-items:stretch;
+      gap:16px;
+      padding:16px 20px calc(16px + env(safe-area-inset-bottom));
+    }
+    .job-modal .job-footer--icons .footer-message{
+      text-align:center;
+      font-size:12px;
+    }
+    .job-modal .job-footer--icons .footer-actions{
+      display:flex;
+      justify-content:center;
+      gap:24px;
+    }
+    .job-modal .footer-icon-btn{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      background:transparent;
+      border:none;
+      padding:12px 16px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:all 0.15s ease;
+      min-width:72px;
+    }
+    .job-modal .footer-icon-btn svg{
+      width:24px;
+      height:24px;
+    }
+    .job-modal .footer-icon-label{
+      font-size:11px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+    }
+    .job-modal .footer-icon-btn--cancel{
+      color:var(--muted);
+    }
+    .job-modal .footer-icon-btn--cancel:hover{
+      background:rgba(255,255,255,0.05);
+      color:var(--fg);
+    }
+    .job-modal .footer-icon-btn--confirm{
+      color:var(--green);
+      background:var(--green-muted);
+    }
+    .job-modal .footer-icon-btn--confirm:hover{
+      background:var(--green);
+      color:#fff;
+    }
+    .job-modal .footer-icon-btn:disabled{
+      opacity:0.4;
+      cursor:not-allowed;
+    }
+    .job-modal .footer-icon-btn:disabled:hover{
+      background:transparent;
     }
     .job-status-bar{
       display:flex;
@@ -14319,13 +14380,24 @@
           </section>
         </div>
       </div>
-      <div class="modal-footer">
-        <div class="footer-left">
+      <div class="modal-footer job-footer job-footer--icons">
+        <div class="footer-message">
           <div id="jobEditorMsg" class="muted"></div>
         </div>
-        <div class="footer-right">
-          <button class="btn-secondary" id="btnJobEditorClose" type="button" data-modal-close="jobEditorModal">Cancel</button>
-          <button class="btn-primary" type="button" data-modal-close="jobEditorModal">Done</button>
+        <div class="footer-actions">
+          <button class="footer-icon-btn footer-icon-btn--cancel" id="btnJobEditorClose" type="button" data-modal-close="jobEditorModal" title="Cancel" aria-label="Cancel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span class="footer-icon-label">Cancel</span>
+          </button>
+          <button class="footer-icon-btn footer-icon-btn--confirm" id="btnJobEditorDone" type="button" data-modal-close="jobEditorModal" title="Done" aria-label="Done">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span class="footer-icon-label">Done</span>
+          </button>
         </div>
       </div>
     </div>
@@ -34797,10 +34869,10 @@ function emptyStateHtml(){
 	          : String(ro.receiptId || '').trim();
 	        if(!receiptId) throw new Error('Receipt not found.');
 	        const transitionToReceived = async () => {
-	          const { data, error } = await SB.client.rpc('transition_receipt_status', {
-	            p_receipt_id: receiptId,
-	            p_status: 'received'
-	          });
+          const { data, error } = await SB.client.rpc('transition_receipt_status', {
+            p_receipt_id: receiptId,
+            p_next_status: 'received'
+          });
 	          if(error) throw error;
 	          if(data && data.success === false){
 	            throw new Error(data.error || 'Failed to receive receipt');
@@ -34812,10 +34884,10 @@ function emptyStateHtml(){
 	        }catch(err){
 	          const msg = err && err.message ? String(err.message) : '';
 	          if(draftLike && canReceivingApprove()){
-	            const { data: pendData, error: pendErr } = await SB.client.rpc('transition_receipt_status', {
-	              p_receipt_id: receiptId,
-	              p_status: 'pending'
-	            });
+            const { data: pendData, error: pendErr } = await SB.client.rpc('transition_receipt_status', {
+              p_receipt_id: receiptId,
+              p_next_status: 'pending'
+            });
 	            if(pendErr) throw pendErr;
 	            if(pendData && pendData.success === false){
 	            throw new Error(pendData.error || 'Failed to submit receipt');
@@ -34873,11 +34945,11 @@ function emptyStateHtml(){
 	        btn.textContent = 'Voiding…';
 	      }
 	      try{
-	        const { data, error } = await SB.client.rpc('transition_receipt_status', {
-	          p_receipt_id: id,
-	          p_status: 'voided',
-	          p_void_reason: voidReason
-	        });
+        const { data, error } = await SB.client.rpc('transition_receipt_status', {
+          p_receipt_id: id,
+          p_next_status: 'voided',
+          p_reason: voidReason
+        });
 	        if(error) throw error;
 	        if(data && data.success === false){
 	          throw new Error(data.error || 'Failed to void receipt');
@@ -36368,11 +36440,9 @@ function emptyStateHtml(){
       const nameOk = !!(job && String(job.name || '').trim());
       const hasItems = getJobEditorLines(editor).length > 0;
       const isComplete = job && String(job.status || '') === 'completed';
-      const readinessDetail = editor ? editor.jobReadinessDetail : null;
-      const hasBlocking = !!(readinessDetail && Array.isArray(readinessDetail.blocking_items) && readinessDetail.blocking_items.length);
-      const jobShortfalls = editor && editor.jobShortfalls ? editor.jobShortfalls : null;
-      const hasShortfalls = !!(jobShortfalls && typeof jobShortfalls.size === 'number' && jobShortfalls.size > 0);
-      const materialsBlocked = !isComplete && (hasShortfalls || (!!(readinessDetail && !readinessDetail.error && !readinessDetail.ready_for_approval && hasBlocking)));
+      const totals = computeJobTotals(editor);
+      const hasShortfalls = !isComplete && totals.totalShortfall > 0;
+      const materialsBlocked = hasShortfalls;
       const active = getJobEditorTab();
       const steps = [
         { key:'details', complete: nameOk, label:'Details', index:1 },
@@ -37517,17 +37587,18 @@ function emptyStateHtml(){
       }
       const readinessText = readinessState === 'unknown' ? 'Unknown' : (readinessState === 'ready' ? 'Ready' : 'Not Ready');
       if(readinessBadge){
-        if(isCompleted){
-          readinessBadge.style.display = 'none';
-        }else{
-          readinessBadge.style.display = '';
-          readinessBadge.textContent = readinessState === 'unknown' ? 'UNKNOWN' : readinessText.toUpperCase();
-          readinessBadge.className = `job-readiness-badge job-readiness-badge--${readinessState}`;
+        const showReadiness = !isCompleted && readinessState === 'ready';
+        readinessBadge.style.display = showReadiness ? '' : 'none';
+        if(showReadiness){
+          readinessBadge.textContent = readinessText.toUpperCase();
+          readinessBadge.className = 'job-readiness-badge job-readiness-badge--ready';
           if(readinessNoteText){
             readinessBadge.title = readinessNoteText;
           }else{
             readinessBadge.removeAttribute('title');
           }
+        }else{
+          readinessBadge.removeAttribute('title');
         }
       }
       if(readinessSection) readinessSection.style.display = isCompleted ? 'none' : '';
