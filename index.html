@@ -37,6 +37,7 @@
     const defaultAnon = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudG1iYXhleWxnbHBvc3B0c3V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MTQ2NjEsImV4cCI6MjA3MjQ5MDY2MX0.vDTzhL0Q-iDZShWu2hcaYOavPLltY31OThXj-ohBjAc';
     window.SB_URL  = overrideUrl || window.SB_URL || defaultUrl;
     window.SB_ANON = overrideAnon || window.SB_ANON || defaultAnon;
+    window.INBOUND_RECEIPT_DOMAIN = 'inbound.inventorymanager.modulus-software.com';
   </script>
 
   <script>
@@ -33599,7 +33600,7 @@ function emptyStateHtml(){
           : '';
         const primary = (typeof window.INBOUND_RECEIPT_DOMAIN === 'string') ? window.INBOUND_RECEIPT_DOMAIN.trim() : '';
         const legacy = (typeof window.RECEIPT_FORWARD_DOMAIN === 'string') ? window.RECEIPT_FORWARD_DOMAIN.trim() : '';
-        return settingsDomain || settingsLegacy || primary || legacy || 'inbound.inventorymanager.app';
+        return settingsDomain || settingsLegacy || primary || legacy || 'inbound.inventorymanager.modulus-software.com';
       }
       function getReceiptForwardingAddress(){
         const slug = String((SB.company && (SB.company.slug || SB.company.company_slug)) || '').trim();
