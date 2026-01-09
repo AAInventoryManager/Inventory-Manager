@@ -3662,6 +3662,637 @@
       gap:6px;
       flex-shrink:0;
     }
+    /* Order history modal redesign */
+    #orderHistoryModal .modal{
+      max-width:720px;
+      width:min(720px, 95vw);
+      background:linear-gradient(145deg, rgba(18,22,30,0.98) 0%, rgba(12,16,22,0.99) 100%);
+      border:1px solid var(--border);
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow:0 25px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    #orderHistoryModal .modal-header{
+      padding:16px 20px;
+      border-bottom:1px solid var(--border);
+      background:rgba(12,16,22,0.9);
+    }
+    #orderHistoryModal .order-history-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    #orderHistoryModal .order-history-tabs{
+      display:flex;
+      padding:0 20px;
+      background:rgba(0,0,0,0.2);
+      border-bottom:1px solid var(--border);
+      gap:4px;
+    }
+    #orderHistoryModal .order-history-tab{
+      position:relative;
+      padding:14px 16px;
+      background:transparent;
+      border:none;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      transition:all 0.15s ease;
+      border-bottom:2px solid transparent;
+      margin-bottom:-1px;
+    }
+    #orderHistoryModal .order-history-tab:hover{
+      color:var(--fg);
+    }
+    #orderHistoryModal .order-history-tab.is-active{
+      color:var(--fg);
+      border-bottom-color:#22c55e;
+    }
+    #orderHistoryModal .order-history-tab-badge{
+      min-width:18px;
+      height:18px;
+      padding:0 6px;
+      border-radius:9px;
+      font-size:11px;
+      font-weight:700;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(34,197,94,0.15);
+      color:#22c55e;
+    }
+    #orderHistoryModal .order-history-tab-badge.is-amber{
+      background:rgba(245,158,11,0.15);
+      color:#f59e0b;
+    }
+    #orderHistoryModal .order-history-panels{
+      display:flex;
+      flex-direction:column;
+      flex:1;
+      overflow:hidden;
+    }
+    #orderHistoryModal .order-history-panel{
+      display:none;
+      flex-direction:column;
+      flex:1;
+      overflow:hidden;
+    }
+    #orderHistoryModal .order-history-panel.is-active{
+      display:flex;
+    }
+    #orderHistoryModal .order-history-toolbar{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:14px 20px;
+      border-bottom:1px solid var(--border);
+      background:rgba(0,0,0,0.15);
+      flex-wrap:wrap;
+    }
+    #orderHistoryModal .order-history-search-wrap{
+      flex:1;
+      position:relative;
+      min-width:200px;
+    }
+    #orderHistoryModal .order-history-search-input{
+      width:100%;
+      padding:10px 14px 10px 38px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.3);
+      color:var(--fg);
+      font-size:13px;
+      font-weight:500;
+      outline:none;
+      transition:all 0.2s ease;
+    }
+    #orderHistoryModal .order-history-search-input::placeholder{
+      color:var(--muted);
+      font-weight:400;
+    }
+    #orderHistoryModal .order-history-search-input:focus{
+      border-color:rgba(255,255,255,0.2);
+      background:rgba(0,0,0,0.4);
+    }
+    #orderHistoryModal .order-history-search-icon{
+      position:absolute;
+      left:12px;
+      top:50%;
+      transform:translateY(-50%);
+      color:var(--muted);
+      pointer-events:none;
+    }
+    #orderHistoryModal .order-history-search-icon svg{
+      width:16px;
+      height:16px;
+    }
+    #orderHistoryModal .order-history-clear-btn{
+      position:absolute;
+      right:8px;
+      top:50%;
+      transform:translateY(-50%);
+    }
+    #orderHistoryModal .order-history-toolbar-btn{
+      padding:10px 14px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      color:var(--fg);
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      transition:all 0.15s ease;
+      white-space:nowrap;
+    }
+    #orderHistoryModal .order-history-toolbar-btn:hover{
+      background:rgba(255,255,255,0.08);
+      border-color:rgba(255,255,255,0.15);
+    }
+    #orderHistoryModal .order-history-body{
+      flex:1;
+      overflow-y:auto;
+      padding:16px 20px;
+    }
+    #orderHistoryModal .po-card{
+      background:rgba(0,0,0,0.25);
+      border:1px solid var(--border);
+      border-radius:14px;
+      margin-bottom:10px;
+      overflow:hidden;
+      transition:all 0.15s ease;
+    }
+    #orderHistoryModal .po-card:hover{
+      border-color:rgba(255,255,255,0.12);
+    }
+    #orderHistoryModal .po-card.is-expanded{
+      border-color:rgba(34,197,94,0.3);
+      background:rgba(0,0,0,0.3);
+    }
+    #orderHistoryModal .po-card-header{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 16px;
+      cursor:pointer;
+      transition:background 0.15s ease;
+    }
+    #orderHistoryModal .po-card-header:hover{
+      background:rgba(255,255,255,0.02);
+    }
+    #orderHistoryModal .po-card-icon{
+      width:42px;
+      height:42px;
+      border-radius:10px;
+      background:rgba(34,197,94,0.15);
+      border:1px solid rgba(34,197,94,0.2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#22c55e;
+      flex-shrink:0;
+    }
+    #orderHistoryModal .po-card-icon svg{
+      width:20px;
+      height:20px;
+    }
+    #orderHistoryModal .po-card-info{
+      flex:1;
+      min-width:0;
+    }
+    #orderHistoryModal .po-card-title{
+      font-size:14px;
+      font-weight:700;
+      margin-bottom:3px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    #orderHistoryModal .po-card-id{
+      color:var(--fg);
+    }
+    #orderHistoryModal .po-card-vendor{
+      color:var(--muted);
+      font-weight:500;
+    }
+    #orderHistoryModal .po-card-meta{
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    #orderHistoryModal .po-card-meta-item{
+      display:flex;
+      align-items:center;
+      gap:4px;
+    }
+    #orderHistoryModal .po-card-meta-item svg{
+      width:12px;
+      height:12px;
+      opacity:0.6;
+    }
+    #orderHistoryModal .status-pill{
+      padding:4px 10px;
+      border-radius:8px;
+      font-size:10px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      flex-shrink:0;
+    }
+    #orderHistoryModal .status-pill--submitted{
+      background:rgba(59,130,246,0.15);
+      color:#60a5fa;
+    }
+    #orderHistoryModal .status-pill--partial{
+      background:rgba(245,158,11,0.15);
+      color:#f59e0b;
+    }
+    #orderHistoryModal .status-pill--received{
+      background:rgba(34,197,94,0.15);
+      color:#22c55e;
+    }
+    #orderHistoryModal .status-pill--draft{
+      background:rgba(148,163,184,0.12);
+      color:#94a3b8;
+    }
+    #orderHistoryModal .status-pill--closed{
+      background:rgba(239,68,68,0.15);
+      color:#f87171;
+    }
+    #orderHistoryModal .po-card-expand{
+      width:32px;
+      height:32px;
+      border-radius:8px;
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:all 0.15s ease;
+    }
+    #orderHistoryModal .po-card-expand svg{
+      width:18px;
+      height:18px;
+      transition:transform 0.2s ease;
+    }
+    #orderHistoryModal .po-card.is-expanded .po-card-expand svg{
+      transform:rotate(180deg);
+    }
+    #orderHistoryModal .po-card-body{
+      display:none;
+      padding:0 16px 16px;
+      border-top:1px solid var(--border);
+    }
+    #orderHistoryModal .po-card.is-expanded .po-card-body{
+      display:block;
+    }
+    #orderHistoryModal .po-quick-actions{
+      display:flex;
+      gap:8px;
+      padding:12px 0;
+      border-bottom:1px solid var(--border);
+      margin-bottom:12px;
+      flex-wrap:wrap;
+    }
+    #orderHistoryModal .po-action-btn{
+      flex:1 1 120px;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      color:var(--fg);
+      font-size:12px;
+      font-weight:600;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      transition:all 0.15s ease;
+    }
+    #orderHistoryModal .po-action-btn:hover{
+      background:rgba(255,255,255,0.08);
+      border-color:rgba(255,255,255,0.15);
+    }
+    #orderHistoryModal .po-action-btn svg{
+      width:16px;
+      height:16px;
+    }
+    #orderHistoryModal .po-action-btn--primary{
+      background:rgba(34,197,94,0.15);
+      border-color:rgba(34,197,94,0.3);
+      color:#4ade80;
+    }
+    #orderHistoryModal .po-action-btn--primary:hover{
+      background:rgba(34,197,94,0.25);
+      border-color:rgba(34,197,94,0.4);
+    }
+    #orderHistoryModal .po-action-btn[disabled]{
+      opacity:0.55;
+      cursor:not-allowed;
+    }
+    #orderHistoryModal .po-details{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:12px;
+      margin-bottom:14px;
+    }
+    #orderHistoryModal .po-detail{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      padding:10px 12px;
+      background:rgba(0,0,0,0.2);
+      border-radius:10px;
+    }
+    #orderHistoryModal .po-detail-icon{
+      width:28px;
+      height:28px;
+      border-radius:8px;
+      background:rgba(255,255,255,0.05);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      flex-shrink:0;
+    }
+    #orderHistoryModal .po-detail-icon svg{
+      width:14px;
+      height:14px;
+    }
+    #orderHistoryModal .po-detail-label{
+      font-size:10px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      margin-bottom:2px;
+    }
+    #orderHistoryModal .po-detail-value{
+      font-size:12px;
+      font-weight:500;
+      color:var(--fg);
+      line-height:1.3;
+    }
+    #orderHistoryModal .po-detail--full{
+      grid-column:1 / -1;
+    }
+    #orderHistoryModal .po-lines-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:8px;
+    }
+    #orderHistoryModal .po-lines-title{
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      color:var(--muted);
+    }
+    #orderHistoryModal .po-lines-count{
+      font-size:11px;
+      color:var(--muted);
+      background:rgba(255,255,255,0.05);
+      padding:2px 8px;
+      border-radius:6px;
+    }
+    #orderHistoryModal .po-lines-table{
+      background:rgba(0,0,0,0.2);
+      border:1px solid var(--border);
+      border-radius:10px;
+      overflow:hidden;
+    }
+    #orderHistoryModal .po-lines-empty{
+      font-size:12px;
+      color:var(--muted);
+      text-align:center;
+      padding:12px;
+      background:rgba(0,0,0,0.15);
+      border-radius:8px;
+    }
+    #orderHistoryModal .po-line-row{
+      display:grid;
+      grid-template-columns:1fr 80px 70px 70px;
+      gap:8px;
+      padding:10px 12px;
+      border-bottom:1px solid var(--border);
+      align-items:center;
+      font-size:13px;
+    }
+    #orderHistoryModal .po-line-row:last-child{
+      border-bottom:none;
+    }
+    #orderHistoryModal .po-line-row--header{
+      background:rgba(0,0,0,0.25);
+      font-size:10px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      color:var(--muted);
+      padding:8px 12px;
+    }
+    #orderHistoryModal .po-line-name{
+      font-weight:600;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    #orderHistoryModal .po-line-sku{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:1px;
+    }
+    #orderHistoryModal .po-line-value{
+      text-align:center;
+      font-weight:600;
+      font-variant-numeric:tabular-nums;
+    }
+    #orderHistoryModal .po-line-value--muted{ color:var(--muted); }
+    #orderHistoryModal .po-line-value--green{ color:#22c55e; }
+    #orderHistoryModal .po-line-value--amber{ color:#f59e0b; }
+    #orderHistoryModal .po-receipts-section{
+      margin-top:14px;
+      padding-top:14px;
+      border-top:1px solid var(--border);
+    }
+    #orderHistoryModal .po-receipts-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    #orderHistoryModal .po-receipts-title{
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    #orderHistoryModal .po-receipts-title svg{
+      width:14px;
+      height:14px;
+      color:#f59e0b;
+    }
+    #orderHistoryModal .no-receipts{
+      font-size:12px;
+      color:var(--muted);
+      text-align:center;
+      padding:12px;
+      background:rgba(0,0,0,0.15);
+      border-radius:8px;
+    }
+    #orderHistoryModal .receipt-card{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 16px;
+      background:rgba(0,0,0,0.25);
+      border:1px solid var(--border);
+      border-radius:14px;
+      margin-bottom:10px;
+      cursor:pointer;
+      transition:all 0.15s ease;
+    }
+    #orderHistoryModal .receipt-card:hover{
+      background:rgba(0,0,0,0.35);
+      border-color:rgba(255,255,255,0.12);
+    }
+    #orderHistoryModal .receipt-card-icon{
+      width:42px;
+      height:42px;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+    }
+    #orderHistoryModal .receipt-card-icon svg{
+      width:20px;
+      height:20px;
+    }
+    #orderHistoryModal .receipt-card-icon--scanned{
+      background:rgba(245,158,11,0.15);
+      border:1px solid rgba(245,158,11,0.2);
+      color:#f59e0b;
+    }
+    #orderHistoryModal .receipt-card-icon--manual{
+      background:rgba(6,182,212,0.15);
+      border:1px solid rgba(6,182,212,0.2);
+      color:#06b6d4;
+    }
+    #orderHistoryModal .receipt-card-icon--po{
+      background:rgba(34,197,94,0.15);
+      border:1px solid rgba(34,197,94,0.2);
+      color:#22c55e;
+    }
+    #orderHistoryModal .receipt-card-info{
+      flex:1;
+      min-width:0;
+    }
+    #orderHistoryModal .receipt-card-title{
+      font-size:14px;
+      font-weight:600;
+      margin-bottom:3px;
+    }
+    #orderHistoryModal .receipt-card-meta{
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    #orderHistoryModal .receipt-card-tag{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      padding:2px 8px;
+      border-radius:6px;
+      font-size:10px;
+      font-weight:700;
+      text-transform:uppercase;
+    }
+    #orderHistoryModal .receipt-card-tag--po{
+      background:rgba(34,197,94,0.15);
+      color:#4ade80;
+    }
+    #orderHistoryModal .receipt-card-tag--manual{
+      background:rgba(6,182,212,0.15);
+      color:#06b6d4;
+    }
+    #orderHistoryModal .receipt-card-tag--standalone{
+      background:rgba(148,163,184,0.12);
+      color:#94a3b8;
+    }
+    #orderHistoryModal .receipt-card-arrow{
+      color:var(--muted);
+      flex-shrink:0;
+    }
+    #orderHistoryModal .receipt-card-arrow svg{
+      width:18px;
+      height:18px;
+    }
+    #orderHistoryModal .order-history-empty{
+      text-align:center;
+      padding:50px 20px;
+      color:var(--muted);
+    }
+    #orderHistoryModal .order-history-empty-title{
+      font-size:15px;
+      font-weight:600;
+      margin-bottom:6px;
+      color:var(--fg);
+    }
+    #orderHistoryModal .order-history-empty-text{
+      font-size:13px;
+      color:var(--muted);
+    }
+    #orderHistoryModal .modal-footer{
+      padding:14px 20px;
+      border-top:1px solid var(--border);
+      background:rgba(12,16,22,0.95);
+      justify-content:flex-end;
+    }
+    @media (max-width: 600px){
+      #orderHistoryModal .modal{
+        max-width:100%;
+        border-radius:16px 16px 0 0;
+      }
+      #orderHistoryModal .po-details{
+        grid-template-columns:1fr;
+      }
+      #orderHistoryModal .po-line-row{
+        grid-template-columns:1fr 60px 50px 50px;
+        font-size:12px;
+      }
+      #orderHistoryModal .order-history-toolbar{
+        flex-wrap:wrap;
+      }
+      #orderHistoryModal .order-history-toolbar-btn span{
+        display:none;
+      }
+      #orderHistoryModal .po-quick-actions{
+        flex-wrap:wrap;
+      }
+      #orderHistoryModal .po-action-btn{
+        flex:1 1 calc(50% - 4px);
+      }
+    }
     /* Receive Order modal */
     #receiveOrderModal .box{
       max-width:1100px;
@@ -4587,6 +5218,701 @@
       padding:12px;
       font-size:12px;
       color:var(--muted);
+    }
+    #receiveOrderModal{
+      --green:#22c55e;
+      --green-muted:rgba(34,197,94,0.15);
+      --blue:#3b82f6;
+      --blue-muted:rgba(59,130,246,0.15);
+      --amber:#f59e0b;
+      --amber-muted:rgba(245,158,11,0.15);
+    }
+    #receiveOrderModal .modal{
+      max-width:600px;
+      background:linear-gradient(145deg, rgba(18,22,30,0.98) 0%, rgba(12,16,22,0.99) 100%);
+      border-radius:20px;
+      box-shadow:0 25px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    #receiveOrderModal .modal-header{
+      padding:16px 20px;
+      background:rgba(12,16,22,0.9);
+    }
+    #receiveOrderModal .modal-icon{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      border:1px solid rgba(34,197,94,0.3);
+      background:linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05));
+      color:#22c55e;
+      box-shadow:none;
+    }
+    #receiveOrderModal .modal-icon svg{ width:20px; height:20px; }
+    #receiveOrderModal .modal-title{
+      font-size:17px;
+      font-weight:700;
+      letter-spacing:-0.01em;
+    }
+    #receiveOrderModal .modal-subtitle{ display:none; }
+    #receiveOrderModal .modal-close{
+      width:36px;
+      height:36px;
+      border-radius:10px;
+    }
+    #receiveOrderModal .modal-body{ padding:0; }
+    #receiveOrderModal .receive-modal-body{ gap:0; }
+    #receiveOrderModal .receive-meta-bar{ display:none; }
+    #receiveOrderModal .receive-tabs-container{
+      padding:12px 20px;
+      background:rgba(0,0,0,0.2);
+      border-bottom:1px solid var(--border);
+    }
+    #receiveOrderModal .receive-tabs{
+      display:flex;
+      background:rgba(0,0,0,0.3);
+      border-radius:12px;
+      padding:4px;
+      gap:4px;
+      border:none;
+    }
+    #receiveOrderModal .receive-tab{
+      flex:1;
+      padding:10px 12px;
+      border-radius:10px;
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:600;
+      text-transform:none;
+      letter-spacing:0;
+    }
+    #receiveOrderModal .receive-tab:hover{
+      color:var(--fg);
+      background:rgba(255,255,255,0.03);
+    }
+    #receiveOrderModal .receive-tab.active{
+      background:rgba(255,255,255,0.08);
+      color:var(--fg);
+      border:none;
+    }
+    #receiveOrderModal .receive-tab-badge{
+      min-width:20px;
+      height:20px;
+      padding:0 6px;
+      border-radius:10px;
+      font-size:11px;
+      font-weight:700;
+      border:none;
+    }
+    #receiveOrderModal .receive-tab-badge--amber{
+      background:var(--amber-muted);
+      color:var(--amber);
+    }
+    #receiveOrderModal .receive-tab-badge--blue{
+      background:var(--blue-muted);
+      color:#60a5fa;
+    }
+    #receiveOrderModal .receive-tab-panels{ gap:0; }
+    #receiveOrderModal .receive-tab-body{ padding:0; }
+    #receiveOrderModal [data-receive-panel="quick"] .receive-tab-body,
+    #receiveOrderModal [data-receive-panel="po"] .receive-tab-body{
+      padding:16px 20px 20px;
+    }
+    #receiveOrderModal .receive-detail-panel{
+      padding:0;
+      gap:0;
+      border:none;
+      background:transparent;
+    }
+    #receiveOrderModal #receiveReceiptRaw,
+    #receiveOrderModal #receiveReceiptAttachments,
+    #receiveOrderModal #receiveLinesSection{
+      margin:0 20px 16px;
+    }
+    #receiveOrderModal .receive-scanned-list{ gap:0; }
+    #receiveOrderModal .receive-forward-hint{
+      margin:16px 20px 0;
+      padding:12px 14px;
+      border:1px solid rgba(59,130,246,0.2);
+      border-radius:10px;
+      background:var(--blue-muted);
+      color:#93c5fd;
+    }
+    #receiveOrderModal .receive-forward-hint strong{
+      color:#93c5fd;
+      font-weight:700;
+    }
+    #receiveOrderModal .receive-forward-hint .forward-address{
+      font-family:"SF Mono", Monaco, monospace;
+      font-size:11px;
+      background:rgba(0,0,0,0.3);
+      padding:2px 6px;
+      border-radius:4px;
+      color:#e2e8f0;
+    }
+    #receiveOrderModal .receive-forward-dismiss{
+      width:28px;
+      height:28px;
+      border-radius:8px;
+    }
+    #receiveOrderModal .receive-draft-inbox{
+      padding:16px 20px 16px;
+      border:none;
+      background:transparent;
+    }
+    #receiveOrderModal .receive-draft-inbox-header{
+      margin-bottom:10px;
+    }
+    #receiveOrderModal .receive-draft-inbox-title{
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      color:var(--muted);
+    }
+    #receiveOrderModal .receive-draft-inbox-subtitle{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+      max-width:520px;
+    }
+    #receiveOrderModal .receive-draft-inbox-count{
+      background:var(--amber-muted);
+      color:var(--amber);
+      border:none;
+    }
+    #receiveOrderModal .scanned-queue{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    #receiveOrderModal .queue-item{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 16px;
+      background:rgba(0,0,0,0.25);
+      border:1px solid var(--border);
+      border-radius:14px;
+      cursor:pointer;
+      transition:all 0.15s ease;
+    }
+    #receiveOrderModal .queue-item:hover{
+      background:rgba(0,0,0,0.35);
+      border-color:rgba(255,255,255,0.12);
+    }
+    #receiveOrderModal .queue-item.active{
+      background:rgba(245,158,11,0.08);
+      border-color:rgba(245,158,11,0.3);
+    }
+    #receiveOrderModal .queue-item-icon{
+      width:40px;
+      height:40px;
+      border-radius:10px;
+      background:var(--amber-muted);
+      border:1px solid rgba(245,158,11,0.2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--amber);
+      flex-shrink:0;
+    }
+    #receiveOrderModal .queue-item-icon svg{ width:18px; height:18px; }
+    #receiveOrderModal .queue-item-info{
+      flex:1;
+      min-width:0;
+    }
+    #receiveOrderModal .queue-item-title{
+      font-size:14px;
+      font-weight:600;
+      margin-bottom:2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    #receiveOrderModal .queue-item-meta{
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    #receiveOrderModal .queue-item-tag{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      padding:2px 8px;
+      border-radius:6px;
+      font-size:10px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.03em;
+    }
+    #receiveOrderModal .queue-item-tag--needs{
+      background:var(--blue-muted);
+      color:#60a5fa;
+    }
+    #receiveOrderModal .queue-item-tag--blocked{
+      background:var(--amber-muted);
+      color:var(--amber);
+    }
+    #receiveOrderModal .queue-item-tag--source{
+      background:rgba(255,255,255,0.06);
+      color:var(--muted);
+    }
+    #receiveOrderModal .queue-item-arrow{
+      color:var(--muted);
+      flex-shrink:0;
+    }
+    #receiveOrderModal .queue-item-arrow svg{ width:18px; height:18px; }
+    #receiveOrderModal .queue-empty{
+      text-align:center;
+      padding:50px 20px;
+    }
+    #receiveOrderModal .queue-empty-title{
+      font-size:15px;
+      font-weight:600;
+      margin-bottom:6px;
+    }
+    #receiveOrderModal .queue-empty-text{
+      font-size:13px;
+      color:var(--muted);
+    }
+    #receiveOrderModal .review-header{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 20px;
+      background:rgba(0,0,0,0.2);
+      border-bottom:1px solid var(--border);
+    }
+    #receiveOrderModal .review-back{
+      width:36px;
+      height:36px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      color:var(--muted);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:all 0.15s ease;
+      flex-shrink:0;
+    }
+    #receiveOrderModal .review-back:hover{
+      background:rgba(255,255,255,0.08);
+      color:var(--fg);
+    }
+    #receiveOrderModal .review-back svg{ width:18px; height:18px; }
+    #receiveOrderModal .review-title-wrap{
+      flex:1;
+      min-width:0;
+    }
+    #receiveOrderModal .review-vendor{
+      font-size:15px;
+      font-weight:700;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    #receiveOrderModal .review-meta{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:2px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    #receiveOrderModal .review-source-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      padding:2px 8px;
+      border-radius:6px;
+      font-size:10px;
+      font-weight:700;
+      text-transform:uppercase;
+      background:var(--amber-muted);
+      color:var(--amber);
+    }
+    #receiveOrderModal .review-total{
+      font-size:18px;
+      font-weight:700;
+      color:var(--green);
+      flex-shrink:0;
+    }
+    #receiveOrderModal .review-body{
+      padding:16px 20px;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+    #receiveOrderModal .receipt-summary{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:10px;
+    }
+    #receiveOrderModal .summary-field{
+      padding:12px;
+      background:rgba(0,0,0,0.25);
+      border:1px solid var(--border);
+      border-radius:12px;
+    }
+    #receiveOrderModal .summary-label{
+      font-size:10px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+    #receiveOrderModal .summary-value{
+      font-size:14px;
+      font-weight:600;
+      color:var(--fg);
+    }
+    #receiveOrderModal .summary-value--editable{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    #receiveOrderModal .summary-value--editable input{
+      flex:1;
+      background:transparent;
+      border:none;
+      color:var(--fg);
+      font-size:14px;
+      font-weight:600;
+      padding:0;
+      outline:none;
+      min-width:0;
+    }
+    #receiveOrderModal .summary-value--editable input,
+    #receiveOrderModal .parsed-item-name input,
+    #receiveOrderModal .parsed-item-qty input,
+    #receiveOrderModal .parsed-item-unit input{
+      min-height:0;
+      height:auto;
+    }
+    #receiveOrderModal .summary-value--editable svg{
+      width:12px;
+      height:12px;
+      color:var(--muted);
+      flex-shrink:0;
+    }
+    #receiveOrderModal .po-link-card{
+      padding:14px 16px;
+      background:linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02));
+      border:1px solid rgba(34,197,94,0.25);
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      transition:all 0.15s ease;
+    }
+    #receiveOrderModal .po-link-card--none{
+      background:rgba(0,0,0,0.2);
+      border-color:var(--border);
+    }
+    #receiveOrderModal .po-link-icon{
+      width:36px;
+      height:36px;
+      border-radius:10px;
+      background:var(--green-muted);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--green);
+      flex-shrink:0;
+    }
+    #receiveOrderModal .po-link-card--none .po-link-icon{
+      background:rgba(255,255,255,0.05);
+      color:var(--muted);
+    }
+    #receiveOrderModal .po-link-info{ flex:1; min-width:0; }
+    #receiveOrderModal .po-link-title{
+      font-size:13px;
+      font-weight:600;
+      color:#4ade80;
+      margin-bottom:2px;
+    }
+    #receiveOrderModal .po-link-card--none .po-link-title{
+      color:var(--fg);
+    }
+    #receiveOrderModal .po-link-desc{
+      font-size:11px;
+      color:var(--muted);
+    }
+    #receiveOrderModal .po-link-action{
+      padding:6px 12px;
+      border-radius:8px;
+      border:1px solid rgba(34,197,94,0.3);
+      background:rgba(34,197,94,0.1);
+      color:#4ade80;
+      font-size:12px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.15s ease;
+      white-space:nowrap;
+    }
+    #receiveOrderModal .po-link-action:hover{
+      background:rgba(34,197,94,0.2);
+    }
+    #receiveOrderModal .po-link-action[disabled]{
+      opacity:0.6;
+      cursor:not-allowed;
+    }
+    #receiveOrderModal .parsed-items-section .section-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    #receiveOrderModal .parsed-items-section .section-label{
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      color:var(--muted);
+    }
+    #receiveOrderModal .parsed-items-section .section-count{
+      font-size:11px;
+      color:var(--muted);
+      background:rgba(255,255,255,0.05);
+      padding:2px 8px;
+      border-radius:6px;
+    }
+    #receiveOrderModal .parsed-items{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    #receiveOrderModal .parsed-item{
+      background:rgba(0,0,0,0.25);
+      border:1px solid var(--border);
+      border-radius:12px;
+      overflow:hidden;
+      transition:all 0.15s ease;
+    }
+    #receiveOrderModal .parsed-item:hover{
+      border-color:rgba(255,255,255,0.12);
+    }
+    #receiveOrderModal .parsed-item-main{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:12px 14px;
+    }
+    #receiveOrderModal .parsed-item-status{
+      width:32px;
+      height:32px;
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+      background:rgba(255,255,255,0.06);
+      color:var(--muted);
+    }
+    #receiveOrderModal .parsed-item-status--matched{
+      background:var(--green-muted);
+      color:var(--green);
+    }
+    #receiveOrderModal .parsed-item-status--unmatched{
+      background:var(--amber-muted);
+      color:var(--amber);
+    }
+    #receiveOrderModal .parsed-item-status svg{ width:16px; height:16px; }
+    #receiveOrderModal .parsed-item-info{
+      flex:1;
+      min-width:0;
+    }
+    #receiveOrderModal .parsed-item-name{
+      font-size:13px;
+      font-weight:600;
+      margin-bottom:2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    #receiveOrderModal .parsed-item-name input{
+      width:100%;
+      background:transparent;
+      border:none;
+      color:var(--fg);
+      font-size:13px;
+      font-weight:600;
+      padding:0;
+      outline:none;
+    }
+    #receiveOrderModal .parsed-item-match{
+      font-size:11px;
+      color:var(--muted);
+    }
+    #receiveOrderModal .parsed-item-values{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-shrink:0;
+    }
+    #receiveOrderModal .parsed-item-qty{
+      text-align:center;
+    }
+    #receiveOrderModal .parsed-item-qty input{
+      width:40px;
+      background:transparent;
+      border:none;
+      color:var(--fg);
+      font-size:16px;
+      font-weight:700;
+      text-align:center;
+      padding:0;
+      outline:none;
+    }
+    #receiveOrderModal .parsed-item-qty-label{
+      font-size:9px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:0.03em;
+    }
+    #receiveOrderModal .parsed-item-price{
+      text-align:right;
+      min-width:70px;
+    }
+    #receiveOrderModal .parsed-item-unit input{
+      width:70px;
+      background:transparent;
+      border:none;
+      color:var(--muted);
+      font-size:12px;
+      text-align:right;
+      padding:0;
+      outline:none;
+    }
+    #receiveOrderModal .parsed-item-total{
+      font-size:14px;
+      font-weight:700;
+      color:var(--fg);
+    }
+    #receiveOrderModal .parsed-items-action{
+      margin-top:8px;
+      display:flex;
+      justify-content:flex-end;
+    }
+    #receiveOrderModal .parsed-empty{
+      padding:14px;
+      border-radius:10px;
+      border:1px dashed var(--border-subtle);
+      background:rgba(0,0,0,0.2);
+      font-size:12px;
+      color:var(--muted);
+    }
+    #receiveOrderModal .notes-toggle{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:rgba(0,0,0,0.15);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.15s ease;
+    }
+    #receiveOrderModal .notes-toggle:hover{
+      background:rgba(0,0,0,0.25);
+      color:var(--fg);
+    }
+    #receiveOrderModal .notes-toggle svg{ width:14px; height:14px; }
+    #receiveOrderModal .notes-toggle-arrow{
+      margin-left:auto;
+      transition:transform 0.2s ease;
+    }
+    #receiveOrderModal .notes-toggle[aria-expanded="true"] .notes-toggle-arrow{
+      transform:rotate(180deg);
+    }
+    #receiveOrderModal .notes-content{
+      margin-top:10px;
+      display:none;
+    }
+    #receiveOrderModal .notes-content.is-open{ display:block; }
+    #receiveOrderModal .notes-textarea{
+      width:100%;
+      padding:12px 14px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.3);
+      color:var(--fg);
+      font-size:13px;
+      font-family:inherit;
+      resize:vertical;
+      min-height:60px;
+      outline:none;
+      transition:all 0.2s ease;
+    }
+    #receiveOrderModal .notes-textarea::placeholder{ color:var(--muted); }
+    #receiveOrderModal .notes-textarea:focus{
+      border-color:rgba(125,211,252,0.4);
+      background:rgba(0,0,0,0.4);
+    }
+    #receiveOrderModal .info-banner{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      padding:12px 14px;
+      background:var(--blue-muted);
+      border:1px solid rgba(59,130,246,0.2);
+      border-radius:10px;
+      font-size:12px;
+      color:#93c5fd;
+    }
+    #receiveOrderModal .info-banner svg{
+      width:16px;
+      height:16px;
+      color:#60a5fa;
+      flex-shrink:0;
+      margin-top:1px;
+    }
+    #receiveOrderModal .receive-footer{
+      padding:14px 20px;
+      background:rgba(12,16,22,0.95);
+    }
+    #receiveOrderModal .btn-icon{
+      padding:10px 12px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    #receiveOrderModal .btn-icon svg{ width:16px; height:16px; }
+    @media (max-width: 520px){
+      #receiveOrderModal .modal{
+        max-width:100%;
+        border-radius:16px 16px 0 0;
+      }
+      #receiveOrderModal .receipt-summary{
+        grid-template-columns:1fr 1fr;
+      }
+      #receiveOrderModal .receipt-summary .summary-field:last-child{
+        grid-column:1 / -1;
+      }
+      #receiveOrderModal .parsed-item-values{
+        flex-direction:column;
+        align-items:flex-end;
+        gap:4px;
+      }
+      #receiveOrderModal .parsed-item-qty{
+        display:flex;
+        align-items:center;
+        gap:4px;
+      }
+      #receiveOrderModal .parsed-item-qty-label{ display:none; }
+      #receiveOrderModal .btn-icon span{ display:none; }
     }
 	    /* Qty picker wheel */
 	    .qty-picker-wheel-wrap{
@@ -12856,53 +14182,91 @@
             <div class="modal-title-wrap">
               <span class="modal-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M3 3v5h5"></path>
-                  <path d="M3 8a9 9 0 1 0 3-6.7L3 3"></path>
-                  <path d="M12 7v5l3 3"></path>
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  <path d="M9 14l2 2 4-4"></path>
                 </svg>
               </span>
               <div class="modal-title-text">
                 <h2 id="orderHistoryTitle" class="modal-title">Purchase Orders</h2>
-                <div class="modal-subtitle">View submitted orders and receipts.</div>
               </div>
             </div>
-            <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="orderHistoryModal" aria-label="Close">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+            <div class="order-history-actions">
+              <button class="icon-btn icon-btn--default" id="btnOrderHistoryDownload" type="button" title="Download CSV" aria-label="Download order history CSV">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </button>
+              <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="orderHistoryModal" aria-label="Close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="order-history-tabs" id="orderHistoryTabs" role="tablist" aria-label="Order history tabs">
+            <button class="order-history-tab is-active" type="button" data-order-history-tab="orders" role="tab" aria-selected="true">
+              Orders
+              <span id="orderHistoryOrdersBadge" class="order-history-tab-badge">0</span>
+            </button>
+            <button class="order-history-tab" type="button" data-order-history-tab="receipts" role="tab" aria-selected="false">
+              Receipts
+              <span id="orderHistoryReceiptsBadge" class="order-history-tab-badge is-amber">0</span>
             </button>
           </div>
-          <div class="modal-body">
-            <div class="form-section">
-              <div class="section-label">Purchase Orders</div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-                <button class="icon-btn icon-btn--default" id="btnOrderHistoryDownload" type="button" title="Download CSV" aria-label="Download order history CSV">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
+          <div class="order-history-panels">
+            <div class="order-history-panel is-active" data-order-history-panel="orders" role="tabpanel">
+              <div class="order-history-toolbar">
+                <div class="order-history-search-wrap">
+                  <span class="order-history-search-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </span>
+                  <input id="orderHistoryFilter" class="order-history-search-input" type="search" placeholder="Filter orders…" autocomplete="off" />
+                  <button class="icon-btn icon-btn--default clear-input-btn order-history-clear-btn" id="btnClearOrderHistoryFilter" type="button" aria-label="Clear history filter" title="Clear filter" style="display:none">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M18 6L6 18"></path>
+                      <path d="M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+                <button class="order-history-toolbar-btn" id="btnOrderHistoryRefresh" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+                    <path d="M21 3v5h-5"></path>
                   </svg>
-                </button>
-                <button class="btn-secondary" id="btnOrderHistoryRefresh" type="button">Refresh</button>
-              </div>
-              <label for="orderHistoryFilter" style="margin-top:10px;">Filter orders</label>
-              <div class="input-wrap" style="max-width:100%;">
-                <input id="orderHistoryFilter" type="text" placeholder="Filter purchase orders…" autocomplete="off" />
-                <button class="icon-btn icon-btn--default clear-input-btn" id="btnClearOrderHistoryFilter" type="button" aria-label="Clear history filter" title="Clear filter" style="display:none">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M18 6L6 18"></path>
-                    <path d="M6 6l12 12"></path>
-                  </svg>
+                  <span>Refresh</span>
                 </button>
               </div>
-              <div id="orderHistoryList" class="history-list" aria-live="polite"></div>
+              <div class="order-history-body">
+                <div id="orderHistoryList" class="history-list" aria-live="polite"></div>
+              </div>
+            </div>
+            <div class="order-history-panel" data-order-history-panel="receipts" role="tabpanel">
+              <div class="order-history-toolbar">
+                <div class="order-history-search-wrap">
+                  <span class="order-history-search-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </span>
+                  <input id="orderHistoryReceiptFilter" class="order-history-search-input" type="search" placeholder="Filter receipts…" autocomplete="off" />
+                </div>
+              </div>
+              <div class="order-history-body">
+                <div id="orderHistoryReceiptsList" aria-live="polite"></div>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
             <div class="footer-right">
-              <button class="btn-secondary" id="btnOrderHistoryClose" type="button" data-modal-close="orderHistoryModal">Cancel</button>
-              <button class="btn-primary" type="button" data-modal-close="orderHistoryModal">Done</button>
+              <button class="btn-secondary" id="btnOrderHistoryClose" type="button" data-modal-close="orderHistoryModal">Done</button>
             </div>
           </div>
 		    </div>
@@ -12917,7 +14281,8 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M21 16V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8"></path>
                   <path d="M3 10h18"></path>
-                  <path d="M8 14h8"></path>
+                  <path d="M12 14v4"></path>
+                  <path d="M9 17l3 3 3-3"></path>
                 </svg>
               </span>
               <div class="modal-title-text">
@@ -12942,13 +14307,15 @@
                 <div id="receiveReceiptId" class="receive-receipt-id"></div>
               </div>
             </div>
-            <div class="receive-tabs" id="receiveTabs" role="tablist" aria-label="Receive tabs">
-              <button class="receive-tab active" type="button" data-receive-tab="quick" role="tab" aria-selected="true">Quick Add</button>
-              <button class="receive-tab" type="button" data-receive-tab="scanned" role="tab" aria-selected="false">
-                Scanned
-                <span id="receiveTabScannedCount" class="receive-tab-badge" style="display:none;">0</span>
-              </button>
-              <button class="receive-tab" type="button" data-receive-tab="po" role="tab" aria-selected="false">PO Receipt</button>
+            <div class="receive-tabs-container">
+              <div class="receive-tabs" id="receiveTabs" role="tablist" aria-label="Receive tabs">
+                <button class="receive-tab active" type="button" data-receive-tab="quick" role="tab" aria-selected="true">Quick Add</button>
+                <button class="receive-tab" type="button" data-receive-tab="scanned" role="tab" aria-selected="false">
+                  Scanned
+                  <span id="receiveTabScannedCount" class="receive-tab-badge receive-tab-badge--amber" style="display:none;">0</span>
+                </button>
+                <button class="receive-tab" type="button" data-receive-tab="po" role="tab" aria-selected="false">PO Receipt</button>
+              </div>
             </div>
             <div class="receive-tab-panels">
               <div class="receive-tab-panel is-active" data-receive-panel="quick" role="tabpanel">
@@ -12997,42 +14364,96 @@
               </div>
             </div>
             <div class="receive-detail-panel" id="receiveDetailPanel">
-              <div class="receive-scanned-header" id="receiveScannedHeader" style="display:none;">
-                <button class="icon-btn icon-btn--default receive-scanned-back" type="button" id="btnReceiveScannedBack" aria-label="Back to receipts">
+              <div class="review-header" id="receiveScannedHeader" style="display:none;">
+                <button class="review-back" type="button" id="btnReceiveScannedBack" aria-label="Back to receipts">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polyline points="15 18 9 12 15 6"></polyline>
                   </svg>
                 </button>
-                <div class="receive-scanned-title">
-                  <div class="receive-scanned-title-main" id="receiveScannedTitleMain">Receipt review</div>
-                  <div class="receive-scanned-title-sub" id="receiveScannedTitleSub">Review before inventory is updated.</div>
+                <div class="review-title-wrap">
+                  <div class="review-vendor" id="receiveScannedTitleMain">Receipt review</div>
+                  <div class="review-meta">
+                    <span id="receiveScannedTitleSub">Review before inventory is updated.</span>
+                    <span id="receiveReceiptSourceBadge" class="review-source-badge" style="display:none;">Email</span>
+                  </div>
                 </div>
+                <div class="review-total" id="receiveScannedTotal"></div>
               </div>
-              <div class="receive-order-note">
-                <label for="receiveReceiptNotes">Receipt Notes</label>
-                <textarea id="receiveReceiptNotes" rows="2" placeholder="Optional notes for this receipt."></textarea>
-              </div>
-              <div class="form-section" id="receiptReviewSection" style="display:none;">
-                <div class="section-label">Receipt Review</div>
-                <div class="receipt-details-grid edit-grid-3">
-                  <div class="edit-field">
-                    <label for="receiveReceiptVendor">Vendor</label>
-                    <input id="receiveReceiptVendor" type="text" placeholder="Vendor name" />
+              <div class="review-body" id="receiptReviewSection" style="display:none;">
+                <div class="receipt-summary">
+                  <div class="summary-field">
+                    <div class="summary-label">Vendor</div>
+                    <div class="summary-value summary-value--editable">
+                      <input id="receiveReceiptVendor" type="text" placeholder="Vendor name" />
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                      </svg>
+                    </div>
                   </div>
-                  <div class="edit-field">
-                    <label for="receiveReceiptDate">Receipt date</label>
-                    <input id="receiveReceiptDate" type="date" />
+                  <div class="summary-field">
+                    <div class="summary-label">Date</div>
+                    <div class="summary-value summary-value--editable">
+                      <input id="receiveReceiptDate" type="date" />
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                      </svg>
+                    </div>
                   </div>
-                  <div class="edit-field">
-                    <label for="receiveReceiptTotal">Total</label>
-                    <input id="receiveReceiptTotal" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00" />
+                  <div class="summary-field">
+                    <div class="summary-label">Total</div>
+                    <div class="summary-value summary-value--editable">
+                      <input id="receiveReceiptTotal" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00" />
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                      </svg>
+                    </div>
                   </div>
                 </div>
-                <div class="receipt-details-meta">
-                  <span id="receiveReceiptSourceBadge" class="receipt-source-pill" style="display:none;">Email</span>
-                  <div class="receipt-details-note">Review before inventory is updated. Receipts are never received automatically.</div>
+                <div class="po-link-section">
+                  <div class="po-link-card po-link-card--none" id="receivePoLinkCard">
+                    <div class="po-link-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                      </svg>
+                    </div>
+                    <div class="po-link-info">
+                      <div class="po-link-title" id="receivePoLinkTitle">No PO linked</div>
+                      <div class="po-link-desc" id="receivePoLinkDesc">Link to a purchase order to auto-reconcile</div>
+                    </div>
+                    <button class="po-link-action" id="receivePoLinkAction" type="button" data-receipt-link-po>Link PO</button>
+                  </div>
                 </div>
-                <div class="receipt-parsed-lines" id="receiptParsedLines"></div>
+                <div class="parsed-items-section">
+                  <div class="section-header">
+                    <span class="section-label">Parsed Items</span>
+                    <span class="section-count" id="receiveParsedCount">0 items</span>
+                  </div>
+                  <div class="parsed-items" id="receiptParsedLines"></div>
+                </div>
+                <div class="notes-section">
+                  <button class="notes-toggle" type="button" id="receiveReceiptNotesToggle" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 20h9"></path>
+                      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                    </svg>
+                    Add notes
+                    <svg class="notes-toggle-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  <div class="notes-content" id="receiveReceiptNotesContent">
+                    <textarea class="notes-textarea" id="receiveReceiptNotes" rows="2" placeholder="Optional notes for this receipt..."></textarea>
+                  </div>
+                </div>
+                <div class="info-banner">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                  <span>Review before confirming. Inventory is only updated when you complete the receipt.</span>
+                </div>
               </div>
               <details id="receiveReceiptRaw" class="receive-raw" style="display:none;">
                 <summary>Receipt text (email)</summary>
@@ -13059,11 +14480,18 @@
                 <span class="muted">Upgrade to enable receipt-based receiving.</span>
                 <button class="btn-tertiary btn-sm" type="button" data-receipt-upgrade>Upgrade to Pro</button>
               </div>
-              <button class="btn-secondary" id="btnReceiveOrderSave" type="button">Save Draft</button>
+              <button class="btn-secondary btn-icon" id="btnReceiveOrderSave" type="button" title="Save Draft">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                <span>Save Draft</span>
+              </button>
             </div>
             <div class="footer-right">
               <button class="btn-secondary" id="btnReceiveOrderCancel" type="button" data-modal-close="receiveOrderModal">Cancel</button>
-              <button class="btn-primary" id="btnReceiveOrderComplete" type="button">Confirm &amp; Receive Inventory</button>
+              <button class="btn-primary" id="btnReceiveOrderComplete" type="button">Confirm &amp; Receive</button>
             </div>
           </div>
         </div>
@@ -14619,6 +16047,15 @@
       },
       _orderDraftQueue:[],
       _vendorsById:new Map(),
+      _orderHistoryRows:[],
+      _orderHistoryById:new Map(),
+      _orderHistoryFilter:'',
+      _orderHistoryTab:'orders',
+      _orderHistoryExpanded:new Set(),
+      _orderHistoryReceipts:[],
+      _orderHistoryReceiptsCount:0,
+      _orderHistoryReceiptsFilter:'',
+      _orderHistoryReceiptsLoaded:false,
       _orderHistoryLinesByPo:new Map(),
       _receiveOrder:null,
       _draftEmailReceipts:[],
@@ -21429,12 +22866,20 @@
       state._orderHistoryById = new Map();
       state._orderHistoryLinesByPo = new Map();
       state._orderHistoryFilter = '';
+      state._orderHistoryTab = 'orders';
+      state._orderHistoryExpanded = new Set();
+      state._orderHistoryReceipts = [];
+      state._orderHistoryReceiptsCount = 0;
+      state._orderHistoryReceiptsFilter = '';
+      state._orderHistoryReceiptsLoaded = false;
       state._draftEmailReceipts = [];
       state._draftEmailReceiptsCount = 0;
       state._draftEmailReceiptsLoaded = false;
       state._draftEmailReceiptsNotified = false;
 	      const orderHistoryFilter = $('orderHistoryFilter');
 	      if(orderHistoryFilter) orderHistoryFilter.value = '';
+	      const orderHistoryReceiptFilter = $('orderHistoryReceiptFilter');
+	      if(orderHistoryReceiptFilter) orderHistoryReceiptFilter.value = '';
 	      state._trashItems = [];
 	      state._trashFilter = '';
 	      const trashFilter = $('trashFilter');
@@ -30604,6 +32049,7 @@ function emptyStateHtml(){
 	          }
 	        }catch(e){}
 	        renderOrderHistoryFiltered();
+	        updateOrderHistoryTabBadges();
 	        toast('Order deleted');
 	        return true;
 	      }catch(err){
@@ -31591,41 +33037,54 @@ function emptyStateHtml(){
             `</div>`+
             `<div class="receive-draft-inbox-count">${escapeHtml(countLabel)}</div>`+
           `</div>`+
-          `<div class="receive-draft-inbox-list">`+
+          `<div class="scanned-queue">`+
             (drafts.length ? drafts.map(row => {
               const vendor = String(row.vendor_name || '').trim() || 'Unknown vendor';
               const companyName = String(row.company_name || row.company_slug || row.company_id || '').trim() || 'Unknown company';
               const dateText = row.receipt_date ? formatDateShort(row.receipt_date) : (row.created_at ? formatDateShort(row.created_at) : '');
               const totalText = formatReceiptMoney(row.total);
+              const totalLabel = totalText && totalText !== '—' ? `Total ${totalText}` : '';
               const status = String(row.status || '').trim().toLowerCase();
               const statusKey = status === 'blocked_by_plan' ? 'blocked_by_plan' : 'draft';
               const statusLabel = statusKey === 'blocked_by_plan' ? 'Upgrade required' : 'Needs review';
+              const statusClass = statusKey === 'blocked_by_plan' ? 'queue-item-tag--blocked' : 'queue-item-tag--needs';
               const sourceLabel = formatReceiptSourceLabel(row.receipt_source) || 'Email';
               const receiptId = String(row.id || '').trim();
               const companyId = String(row.company_id || '').trim();
-              const metaParts = [
-                companyName ? `<span class="receive-inbox-company">${escapeHtml(companyName)}</span>` : '',
-                dateText ? `<span>• ${escapeHtml(dateText)}</span>` : '',
-                `<span>• Total ${escapeHtml(totalText)}</span>`
-              ].filter(Boolean).join(' ');
+              const isActive = ro && String(ro.receiptId || '').trim() === receiptId;
               return (
-                `<div class="receive-inbox-card" data-receipt-review-id="${escapeHtmlAttr(receiptId)}" data-receipt-company-id="${escapeHtmlAttr(companyId)}">`+
-                  `<div class="card-row">`+
-                    `<div class="card-info">`+
-                      `<div class="card-info-top">`+
-                        `<div class="receive-inbox-vendor">${escapeHtml(vendor)}</div>`+
-                        `<span class="receive-inbox-status" data-status="${escapeHtmlAttr(statusKey)}">${escapeHtml(statusLabel)}</span>`+
-                        `<span class="receive-inbox-source">${escapeHtml(sourceLabel)}</span>`+
-                      `</div>`+
-                      `<div class="card-info-bottom receive-inbox-meta">${metaParts}</div>`+
-                    `</div>`+
-                    `<div class="card-actions">`+
-                      `<button class="btn-primary btn-sm" type="button" data-receipt-review-id="${escapeHtmlAttr(receiptId)}" data-receipt-company-id="${escapeHtmlAttr(companyId)}">Review &amp; Receive</button>`+
+                `<div class="queue-item${isActive ? ' active' : ''}" data-receipt-review-id="${escapeHtmlAttr(receiptId)}" data-receipt-company-id="${escapeHtmlAttr(companyId)}">`+
+                  `<div class="queue-item-icon">`+
+                    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+                      `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>`+
+                      `<polyline points="14 2 14 8 20 8"></polyline>`+
+                      `<line x1="16" y1="13" x2="8" y2="13"></line>`+
+                      `<line x1="16" y1="17" x2="8" y2="17"></line>`+
+                    `</svg>`+
+                  `</div>`+
+                  `<div class="queue-item-info">`+
+                    `<div class="queue-item-title">${escapeHtml(vendor)}</div>`+
+                    `<div class="queue-item-meta">`+
+                      `${companyName ? `<span>${escapeHtml(companyName)}</span>` : ''}`+
+                      `${dateText ? `<span>${escapeHtml(dateText)}</span>` : ''}`+
+                      `${totalLabel ? `<span>${escapeHtml(totalLabel)}</span>` : ''}`+
+                      `<span class="queue-item-tag ${statusClass}">${escapeHtml(statusLabel)}</span>`+
+                      `${sourceLabel ? `<span class="queue-item-tag queue-item-tag--source">${escapeHtml(sourceLabel)}</span>` : ''}`+
                     `</div>`+
                   `</div>`+
+                  `<span class="queue-item-arrow">`+
+                    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+                      `<polyline points="9 18 15 12 9 6"></polyline>`+
+                    `</svg>`+
+                  `</span>`+
                 `</div>`
               );
-            }).join('') : `<div class="receive-draft-inbox-empty">No receipts waiting for review.</div>`) +
+            }).join('') : (
+              `<div class="queue-empty">`+
+                `<div class="queue-empty-title">No receipts waiting</div>`+
+                `<div class="queue-empty-text">Forward receipts to create drafts for review.</div>`+
+              `</div>`
+            )) +
           `</div>`;
       }
       async function loadDraftEmailReceipts(){
@@ -31903,6 +33362,11 @@ function emptyStateHtml(){
       const totalEl = $('receiveReceiptTotal');
       const sourceBadge = $('receiveReceiptSourceBadge');
       const parsedLinesWrap = $('receiptParsedLines');
+      const parsedCount = $('receiveParsedCount');
+      const poLinkCard = $('receivePoLinkCard');
+      const poLinkTitle = $('receivePoLinkTitle');
+      const poLinkDesc = $('receivePoLinkDesc');
+      const poLinkAction = $('receivePoLinkAction');
       const planUpgrade = $('receivePlanUpgrade');
       const rawWrap = $('receiveReceiptRaw');
       const rawTextEl = $('receiveReceiptRawText');
@@ -31917,6 +33381,7 @@ function emptyStateHtml(){
       const scannedHeader = $('receiveScannedHeader');
       const scannedTitleMain = $('receiveScannedTitleMain');
       const scannedTitleSub = $('receiveScannedTitleSub');
+      const scannedTotal = $('receiveScannedTotal');
       const poEmpty = $('receivePoEmpty');
       const poList = $('receivePoList');
       const linesSection = linesWrap ? linesWrap.closest('.form-section') : null;
@@ -31945,7 +33410,22 @@ function emptyStateHtml(){
         if(dateEl){ dateEl.value = ''; dateEl.disabled = true; }
         if(totalEl){ totalEl.value = ''; totalEl.disabled = true; }
         if(sourceBadge){ sourceBadge.style.display = 'none'; sourceBadge.textContent = ''; }
+        if(scannedTotal){
+          scannedTotal.textContent = '';
+          scannedTotal.style.display = 'none';
+        }
         if(parsedLinesWrap) parsedLinesWrap.innerHTML = '';
+        if(parsedCount) parsedCount.textContent = '0 items';
+        if(poLinkCard && poLinkTitle && poLinkDesc){
+          poLinkCard.classList.add('po-link-card--none');
+          poLinkTitle.textContent = 'No PO linked';
+          poLinkDesc.textContent = 'Link to a purchase order to auto-reconcile';
+          if(poLinkAction){
+            poLinkAction.textContent = 'Link PO';
+            poLinkAction.disabled = true;
+            poLinkAction.setAttribute('aria-disabled', 'true');
+          }
+        }
         if(planUpgrade) planUpgrade.style.display = 'none';
         if(rawWrap && rawTextEl){
           rawWrap.style.display = 'none';
@@ -32001,7 +33481,7 @@ function emptyStateHtml(){
       if(notesEl){
         notesEl.value = String(ro.receiptNotes || '');
         notesEl.disabled = !isEditable || isInboxMode;
-        const notesWrap = notesEl.closest('.receive-order-note');
+        const notesWrap = notesEl.closest('.notes-section');
         if(notesWrap) notesWrap.style.display = isInboxMode ? 'none' : '';
       }
       if(rawWrap && rawTextEl){
@@ -32079,8 +33559,10 @@ function emptyStateHtml(){
         String(ro.receiptDate || '').trim() ||
         String(ro.receiptTotal || '').trim()
       );
-      if(reviewSection) reviewSection.style.display = (!isInboxMode && hasReceiptDetails) ? '' : 'none';
-      const allowDetailsEdit = !isInboxMode && isEditable;
+      const showReviewSection = !isInboxMode && (activeTab === 'scanned' || activeTab === 'quick')
+        && (hasReceiptDetails || isEditable || !!ro.receiptId);
+      if(reviewSection) reviewSection.style.display = showReviewSection ? '' : 'none';
+      const allowDetailsEdit = !isInboxMode && isEditable && showReviewSection;
       if(vendorEl){
         vendorEl.value = String(ro.receiptVendor || '');
         vendorEl.disabled = !allowDetailsEdit;
@@ -32103,50 +33585,82 @@ function emptyStateHtml(){
           sourceBadge.style.display = 'none';
         }
       }
-      if(parsedLinesWrap){
-        if(!hasReceiptDetails){
-          parsedLinesWrap.innerHTML = '';
+      if(poLinkCard && poLinkTitle && poLinkDesc){
+        if(isOrderMode && ro.po){
+          const poNumber = String(ro.po.po_number || '').trim() || shortId(ro.po.id || '');
+          const vendor = String(ro.po.vendor_name || (ro.po.vendor && ro.po.vendor.name) || ro.po.vendor_id || '').trim();
+          poLinkCard.classList.remove('po-link-card--none');
+          poLinkTitle.textContent = poNumber ? `Linked to ${poNumber}` : 'Linked purchase order';
+          poLinkDesc.textContent = vendor || 'Purchase order linked';
+          if(poLinkAction){
+            poLinkAction.textContent = 'View PO';
+            poLinkAction.disabled = false;
+            poLinkAction.setAttribute('aria-disabled', 'false');
+          }
         }else{
-          const parsedLines = Array.isArray(ro.parsedLineItems) ? ro.parsedLineItems : [];
-          const linesHtml = parsedLines.length
-            ? parsedLines.map((line, idx) => {
-                const desc = String(line && line.description ? line.description : '');
-                const qtyVal = formatReceiptInputValue(line && line.qty);
-                const unitVal = formatReceiptInputValue(line && line.unit_price);
-                const lineTotal = getParsedLineTotal(line);
-                const totalText = (lineTotal === null || typeof lineTotal === 'undefined')
-                  ? '—'
-                  : formatReceiptMoney(lineTotal);
-                const disabled = !allowDetailsEdit;
-                return (
-                  `<div class="receipt-parsed-line" data-receipt-line-index="${idx}">`+
-                    `<div class="receipt-parsed-grid">`+
-                      `<div class="receipt-parsed-field">`+
-                        `<label>Description</label>`+
-                        `<input type="text" value="${escapeHtmlAttr(desc)}" data-receipt-line-field="description" data-receipt-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
+          poLinkCard.classList.add('po-link-card--none');
+          poLinkTitle.textContent = 'No PO linked';
+          poLinkDesc.textContent = 'Link to a purchase order to auto-reconcile';
+          if(poLinkAction){
+            poLinkAction.textContent = 'Link PO';
+            poLinkAction.disabled = true;
+            poLinkAction.setAttribute('aria-disabled', 'true');
+          }
+        }
+      }
+      if(parsedLinesWrap){
+        const parsedLines = Array.isArray(ro.parsedLineItems) ? ro.parsedLineItems : [];
+        if(parsedCount){
+          const countLabel = parsedLines.length === 1 ? '1 item' : `${parsedLines.length} items`;
+          parsedCount.textContent = countLabel;
+        }
+        const linesHtml = parsedLines.length
+          ? parsedLines.map((line, idx) => {
+              const desc = String(line && line.description ? line.description : '');
+              const qtyVal = formatReceiptInputValue(line && line.qty);
+              const unitVal = formatReceiptInputValue(line && line.unit_price);
+              const lineTotal = getParsedLineTotal(line);
+              const totalText = (lineTotal === null || typeof lineTotal === 'undefined')
+                ? '—'
+                : formatReceiptMoney(lineTotal);
+              const disabled = !allowDetailsEdit;
+              return (
+                `<div class="parsed-item receipt-parsed-line" data-receipt-line-index="${idx}">`+
+                  `<div class="parsed-item-main">`+
+                    `<div class="parsed-item-status parsed-item-status--unmatched">`+
+                      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+                        `<circle cx="12" cy="12" r="10"></circle>`+
+                        `<line x1="12" y1="8" x2="12" y2="12"></line>`+
+                        `<line x1="12" y1="16" x2="12.01" y2="16"></line>`+
+                      `</svg>`+
+                    `</div>`+
+                    `<div class="parsed-item-info">`+
+                      `<div class="parsed-item-name">`+
+                        `<input type="text" value="${escapeHtmlAttr(desc)}" data-receipt-line-field="description" data-receipt-line-index="${idx}" placeholder="Item description"${disabled ? ' disabled' : ''}>`+
                       `</div>`+
-                      `<div class="receipt-parsed-field">`+
-                        `<label>Qty</label>`+
+                      `<div class="parsed-item-match">Needs inventory match</div>`+
+                    `</div>`+
+                    `<div class="parsed-item-values">`+
+                      `<div class="parsed-item-qty">`+
                         `<input type="number" inputmode="numeric" step="1" min="0" value="${escapeHtmlAttr(qtyVal)}" data-receipt-line-field="qty" data-receipt-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
+                        `<div class="parsed-item-qty-label">Qty</div>`+
                       `</div>`+
-                      `<div class="receipt-parsed-field">`+
-                        `<label>Unit</label>`+
-                        `<input type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtmlAttr(unitVal)}" data-receipt-line-field="unit_price" data-receipt-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
-                      `</div>`+
-                      `<div class="receipt-parsed-total">`+
-                        `<label>Total</label>`+
-                        `<div class="receipt-parsed-total-value">${escapeHtml(totalText)}</div>`+
+                      `<div class="parsed-item-price">`+
+                        `<div class="parsed-item-unit">`+
+                          `<input type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtmlAttr(unitVal)}" data-receipt-line-field="unit_price" data-receipt-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
+                        `</div>`+
+                        `<div class="parsed-item-total receipt-parsed-total-value">${escapeHtml(totalText)}</div>`+
                       `</div>`+
                     `</div>`+
-                  `</div>`
-                );
-              }).join('')
-            : `<div class="muted">No parsed line items yet.</div>`;
-          const addAction = allowDetailsEdit
-            ? `<div class="receipt-parsed-actions"><button class="btn-tertiary btn-sm" type="button" data-receipt-line-add>Add line item</button></div>`
-            : '';
-          parsedLinesWrap.innerHTML = `<div class="receipt-parsed-title">Parsed line items</div>` + linesHtml + addAction;
-        }
+                  `</div>`+
+                `</div>`
+              );
+            }).join('')
+          : `<div class="parsed-empty">No parsed items yet.</div>`;
+        const addAction = allowDetailsEdit
+          ? `<div class="parsed-items-action"><button class="btn-tertiary btn-sm" type="button" data-receipt-line-add>Add line item</button></div>`
+          : '';
+        parsedLinesWrap.innerHTML = linesHtml + addAction;
       }
 
       const isQuickTab = activeTab === 'quick';
@@ -32160,15 +33674,26 @@ function emptyStateHtml(){
         if(isScannedTab && !isInboxMode){
           const vendor = String(ro.receiptVendor || '').trim() || 'Receipt review';
           const dateText = ro.receiptDate ? formatDateShort(ro.receiptDate) : '';
-          const totalNum = parseReceiptNumber(ro.receiptTotal);
-          const totalText = totalNum !== null ? formatReceiptMoney(totalNum) : '';
-          const sourceLabel = formatReceiptSourceLabel(ro.receiptSource);
-          const meta = [dateText, totalText, sourceLabel].filter(Boolean).join(' • ');
           scannedTitleMain.textContent = vendor;
-          scannedTitleSub.textContent = meta || 'Review before inventory is updated.';
+          scannedTitleSub.textContent = dateText || 'Review before inventory is updated.';
         }else{
           scannedTitleMain.textContent = 'Receipt review';
           scannedTitleSub.textContent = 'Review before inventory is updated.';
+        }
+      }
+      if(scannedTotal){
+        if(isScannedTab && !isInboxMode){
+          const totalNum = parseReceiptNumber(ro.receiptTotal);
+          if(totalNum !== null && typeof totalNum !== 'undefined'){
+            scannedTotal.textContent = formatReceiptMoney(totalNum);
+            scannedTotal.style.display = '';
+          }else{
+            scannedTotal.textContent = '';
+            scannedTotal.style.display = 'none';
+          }
+        }else{
+          scannedTotal.textContent = '';
+          scannedTotal.style.display = 'none';
         }
       }
 
@@ -32634,23 +34159,38 @@ function emptyStateHtml(){
 	        toast('Receipt is locked');
 	        return;
 	      }
-	      if(!canReceivingEdit()){
-	        toast('Receipt edit permission required');
-	        return;
-	      }
-	      const btn = $('btnReceiveOrderSave');
-	      const prior = btn ? btn.textContent : '';
-	      if(btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
+      if(!canReceivingEdit()){
+        toast('Receipt edit permission required');
+        return;
+      }
+      const btn = $('btnReceiveOrderSave');
+      const labelEl = btn ? btn.querySelector('span') : null;
+      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
+      if(btn){
+        btn.disabled = true;
+        if(labelEl){
+          labelEl.textContent = 'Saving...';
+        }else{
+          btn.textContent = 'Saving...';
+        }
+      }
 	      try{
 	        await saveReceiptLines(ro, { requireLine:false });
 	        toast('Draft saved');
 	        setReceiveOrderMessage('Draft saved.');
 	      }catch(e){
 	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to save draft');
-	      }finally{
-	        if(btn){ btn.disabled = false; btn.textContent = prior || 'Save Draft'; }
-	      }
-	    }
+      }finally{
+        if(btn){
+          btn.disabled = false;
+          if(labelEl){
+            labelEl.textContent = prior || 'Save Draft';
+          }else{
+            btn.textContent = prior || 'Save Draft';
+          }
+        }
+      }
+    }
 	    async function handleCompleteReceipt(){
 	      const ro = state._receiveOrder;
 	      if(!ro) return;
@@ -33097,130 +34637,245 @@ function emptyStateHtml(){
 	      }
 	    }
 
+	    function orderHistoryStatusClass(receiveState){
+	      const stateKey = String(receiveState || '').trim().toLowerCase();
+	      if(stateKey === 'partially_received') return 'status-pill--partial';
+	      if(stateKey === 'fully_received') return 'status-pill--received';
+	      if(stateKey === 'submitted') return 'status-pill--submitted';
+	      if(stateKey === 'draft') return 'status-pill--draft';
+	      if(stateKey === 'cancelled' || stateKey === 'closed' || stateKey === 'voided') return 'status-pill--closed';
+	      return 'status-pill--draft';
+	    }
+	    function orderHistoryStatusLabel(receiveState, orderRow, totals){
+	      const stateKey = String(receiveState || '').trim().toLowerCase();
+	      if(stateKey === 'partially_received') return 'Partial';
+	      if(stateKey === 'fully_received') return 'Received';
+	      if(stateKey === 'submitted') return 'Submitted';
+	      if(stateKey === 'draft') return 'Draft';
+	      if(stateKey === 'cancelled') return 'Cancelled';
+	      if(stateKey === 'closed') return 'Closed';
+	      if(stateKey === 'voided') return 'Voided';
+	      return formatPurchaseOrderStatusLabel(orderRow, totals) || '';
+	    }
+	    function formatOrderHistoryId(orderRow){
+	      const raw = String(orderRow && (orderRow.po_number || orderRow.company_po_number || orderRow.internal_po_number || orderRow.internalPoNumber) || '').trim();
+	      if(raw){
+	        const lower = raw.toLowerCase();
+	        if(lower.startsWith('po')) return raw;
+	        return `PO-${raw}`;
+	      }
+	      const fallback = String(orderRow && orderRow.id ? orderRow.id : '').trim();
+	      return fallback ? `PO-${shortId(fallback)}` : 'PO';
+	    }
 	    function renderOrderHistoryList(list, opts = {}){
 	      const wrap = $('orderHistoryList');
 	      if(!wrap) return;
-	      wrap.innerHTML = '';
 	      const rows = Array.isArray(list) ? list : [];
 	      if(!rows.length){
-	        const empty = document.createElement('div');
-	        empty.className = 'order-empty';
-	        empty.textContent = (opts && typeof opts.emptyText === 'string' && opts.emptyText.trim())
-	          ? opts.emptyText
+	        const emptyText = (opts && typeof opts.emptyText === 'string' && opts.emptyText.trim())
+	          ? opts.emptyText.trim()
 	          : 'No orders yet.';
-	        wrap.appendChild(empty);
+	        const subText = emptyText.toLowerCase().includes('matching')
+	          ? 'Try adjusting your filters.'
+	          : 'Orders you send will appear here.';
+	        wrap.innerHTML =
+	          `<div class="order-history-empty">`+
+	            `<div class="order-history-empty-title">${escapeHtml(emptyText)}</div>`+
+	            `<div class="order-history-empty-text">${escapeHtml(subText)}</div>`+
+	          `</div>`;
 	        return;
 	      }
-      for(const o of rows){
-        const det = document.createElement('details');
-        det.className = 'history-item';
-        det.dataset.orderId = String(o.id || '');
+	      const expanded = state._orderHistoryExpanded || new Set();
+	      const lineMap = state._orderHistoryLinesByPo || new Map();
+	      const calendarIcon =
+	        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+	          '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>'+
+	          '<line x1="16" y1="2" x2="16" y2="6"></line>'+
+	          '<line x1="8" y1="2" x2="8" y2="6"></line>'+
+	          '<line x1="3" y1="10" x2="21" y2="10"></line>'+
+	        '</svg>';
+	      const linkIcon =
+	        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+	          '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>'+
+	          '<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>'+
+	        '</svg>';
+	      const mailIcon =
+	        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+	          '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>'+
+	          '<polyline points="22,6 12,13 2,6"></polyline>'+
+	        '</svg>';
+	      const locationIcon =
+	        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+	          '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>'+
+	          '<circle cx="12" cy="10" r="3"></circle>'+
+	        '</svg>';
+	      const notesIcon =
+	        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+	          '<line x1="17" y1="10" x2="3" y2="10"></line>'+
+	          '<line x1="21" y1="6" x2="3" y2="6"></line>'+
+	          '<line x1="21" y1="14" x2="3" y2="14"></line>'+
+	          '<line x1="17" y1="18" x2="3" y2="18"></line>'+
+	        '</svg>';
+	      const receiveIcon = ICONS.package;
+	      const resendIcon = mailIcon;
+	      const editIcon = ICONS.pencil;
+	      const chevronIcon = ICONS.chevronDown;
 
-	        const subject = escapeHtml(orderSubjectFromRow(o));
-        const orderDate = formatDateShort(o.order_date || o.created_at || '');
-        const expectedDate = formatDateShort(o.expected_date || '');
-        const receivedDate = formatDateShort(o.received_date || '');
-        const orderId = String(o.id || '');
-        const lineMap = state._orderHistoryLinesByPo || new Map();
-        const totals = getPurchaseOrderLineTotalsById(orderId, lineMap);
-        applyPurchaseOrderLineTotals(o, totals);
-        const receiveState = getPurchaseOrderReceiveState(o, totals);
-        const statusLabel = formatPurchaseOrderStatusLabel(o, totals);
-        const supplier = String(o.vendor_name || (o.vendor && o.vendor.name) || o.vendor_id || '').trim();
-        const sentToText = formatOrderSentToLabel(o, supplier);
-        const shipToHtml = formatOrderShipToHtml(o);
-        const notes = String(o.notes||'').trim();
-        const relatedJobs = Array.isArray(o.related_job_numbers)
-          ? o.related_job_numbers.map(n => String(n || '').trim()).filter(Boolean)
-          : [];
-        const relatedJobsHtml = relatedJobs.map(n => escapeHtml(n)).join('<br>');
+	      wrap.innerHTML = rows.map(o => {
+	        const orderId = String(o && o.id ? o.id : '').trim();
+	        if(!orderId) return '';
+	        const items = normalizePurchaseOrderLines(lineMap.get(orderId) || []);
+	        const itemCountLabel = `${items.length} item${items.length === 1 ? '' : 's'}`;
+	        const orderDate = formatDateShort(o.order_date || o.created_at || '');
+	        const relatedJobs = Array.isArray(o.related_job_numbers)
+	          ? o.related_job_numbers.map(n => String(n || '').trim()).filter(Boolean)
+	          : [];
+	        const jobLabel = relatedJobs.length > 1
+	          ? `${relatedJobs[0]} +${relatedJobs.length - 1}`
+	          : (relatedJobs[0] || '');
 
-        const receiptMeta = orderNonEmpty(statusLabel);
-        const canPermission = canReceiveOrders();
-        const remainingTotal = totals.remaining;
-        const isReceived = receiveState === 'fully_received';
-        const canReceipt = canPermission &&
-          receiveState !== 'draft' &&
-          receiveState !== 'cancelled' &&
-          receiveState !== 'closed' &&
-          receiveState !== 'voided' &&
-          remainingTotal > 0;
-        det.classList.toggle('order-received', isReceived);
-        const receiveBtnTitle = !canPermission
-          ? 'Receiving not allowed'
-          : (receiveState === 'draft'
-            ? 'Draft orders cannot be received'
-            : (remainingTotal <= 0 ? 'All items received' : 'Receive Order'));
-        const receiveBtnClass = 'btn-tertiary btn-with-icon btn-sm';
-        const receiveBtnIcon =
-          `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
-            `<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>`+
-            `<path d="M3.27 6.96 12 12.01l8.73-5.05"></path>`+
-            `<path d="M12 22.08V12"></path>`+
-            `<polyline class="recv-check" points="9 11 12 14 16 10"></polyline>`+
-          `</svg>`;
-        const receiptBtn =
-          `<button class="${receiveBtnClass}" data-receive-order-id="${escapeHtml(orderId)}" aria-disabled="${canReceipt ? 'false' : 'true'}" aria-label="${escapeHtml(receiveBtnTitle)}" title="${escapeHtml(receiveBtnTitle)}"${canReceipt ? '' : ' disabled'}>`+
-            receiveBtnIcon+
-            `<span>Receive Order</span>`+
-          `</button>`;
-        
-        const items = normalizePurchaseOrderLines(lineMap.get(orderId) || []);
-        const itemsTable = items.length ? (
-          `<table class="history-table">`+
-            `<thead>`+
-              `<tr>`+
-                `<th>Item</th>`+
-                `<th>SKU</th>`+
-                `<th style="text-align:right">Ordered</th>`+
-                `<th style="text-align:right">Received</th>`+
-                `<th style="text-align:right">Remaining</th>`+
-              `</tr>`+
-            `</thead>`+
-            `<tbody>`+
-              items.map(it =>
-                `<tr>`+
-                  `<td>${escapeHtml(it.item_name || '(Unnamed item)')}</td>`+
-                  `<td>${escapeHtml(it.item_sku)}</td>`+
-                  `<td class="qty">${formatQty(it.quantity_ordered)}</td>`+
-                  `<td class="qty">${formatQty(it.quantity_received)}</td>`+
-                  `<td class="qty">${formatQty(it.quantity_ordered - it.quantity_received)}</td>`+
-                `</tr>`
-              ).join('')+
-            `</tbody>`+
-          `</table>`
-        ) : `<div class="order-empty" style="margin-top:10px;">(No line items)</div>`;
+	        const metaParts = [];
+	        if(orderDate){
+	          metaParts.push(`<span class="po-card-meta-item">${calendarIcon}${escapeHtml(orderDate)}</span>`);
+	        }
+	        if(itemCountLabel){
+	          metaParts.push(`<span class="po-card-meta-item">${escapeHtml(itemCountLabel)}</span>`);
+	        }
+	        if(jobLabel){
+	          metaParts.push(`<span class="po-card-meta-item">${linkIcon}${escapeHtml(jobLabel)}</span>`);
+	        }
 
-        det.innerHTML =
-          `<summary>`+
-            `<div class="history-header">`+
-              `<div class="history-title">${subject}</div>`+
-              `<div class="history-actions">`+
-                receiptBtn+
-              `</div>`+
-            `</div>`+
-            `<div class="history-meta">${orderDate ? escapeHtml(orderDate) : ''}${receiptMeta ? ` • ${escapeHtml(receiptMeta)}` : ''}</div>`+
-            `<span class="history-caret" aria-hidden="true">`+
-              `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">`+
-                `<polyline points="6 9 12 15 18 9"></polyline>`+
-              `</svg>`+
-            `</span>`+
-          `</summary>`+
-          `<div class="history-body">`+
-            `<div class="history-kv">`+
-              (sentToText ? `<div><span class="muted">Sent to:</span> ${escapeHtml(sentToText)}</div>` : '')+
-              (shipToHtml ? `<div><span class="muted">Ship To:</span> ${shipToHtml}</div>` : '')+
-              (statusLabel ? `<div><span class="muted">Status:</span> ${escapeHtml(statusLabel)}</div>` : '')+
-              (relatedJobs.length ? `<div><span class="muted">Related job${relatedJobs.length > 1 ? 's' : ''}:</span> ${relatedJobsHtml}</div>` : '')+
-              (expectedDate ? `<div><span class="muted">Expected:</span> ${escapeHtml(expectedDate)}</div>` : '')+
-              (receivedDate ? `<div><span class="muted">Received:</span> ${escapeHtml(receivedDate)}</div>` : '')+
-              (notes ? `<div><span class="muted">Notes:</span> ${escapeHtml(notes)}</div>` : '')+
-            `</div>`+
-            itemsTable +
-          `</div>`;
+	        const totals = getPurchaseOrderLineTotalsById(orderId, lineMap);
+	        applyPurchaseOrderLineTotals(o, totals);
+	        const receiveState = getPurchaseOrderReceiveState(o, totals);
+	        const statusLabel = orderHistoryStatusLabel(receiveState, o, totals);
+	        const statusClass = orderHistoryStatusClass(receiveState);
 
-	        wrap.appendChild(det);
-	      }
+	        const vendor = String(o.vendor_name || (o.vendor && o.vendor.name) || o.vendor_id || '').trim() || 'Unknown vendor';
+	        const sentToText = formatOrderSentToLabel(o, vendor);
+	        const shipToHtml = formatOrderShipToHtml(o);
+	        const notes = String(o.notes || '').trim();
+
+	        const canPermission = canReceiveOrders();
+	        const remainingTotal = totals.remaining;
+	        const canReceipt = canPermission &&
+	          receiveState !== 'draft' &&
+	          receiveState !== 'cancelled' &&
+	          receiveState !== 'closed' &&
+	          receiveState !== 'voided' &&
+	          remainingTotal > 0;
+	        const receiveBtnTitle = !canPermission
+	          ? 'Receiving not allowed'
+	          : (receiveState === 'draft'
+	            ? 'Draft orders cannot be received'
+	            : (remainingTotal <= 0 ? 'All items received' : 'Receive Order'));
+
+	        const linesHtml = items.length ? (
+	          `<div class="po-lines-table">`+
+	            `<div class="po-line-row po-line-row--header">`+
+	              `<span>Item</span>`+
+	              `<span style="text-align:center">Ordered</span>`+
+	              `<span style="text-align:center">Received</span>`+
+	              `<span style="text-align:center">Remaining</span>`+
+	            `</div>`+
+	            items.map(line => {
+	              const ordered = toQty(line.quantity_ordered, 0);
+	              const received = toQty(line.quantity_received, 0);
+	              const remaining = Math.max(0, ordered - received);
+	              return (
+	                `<div class="po-line-row">`+
+	                  `<div class="po-line-item">`+
+	                    `<div class="po-line-name" title="${escapeHtmlAttr(line.item_name || '(Unnamed item)')}">${escapeHtml(line.item_name || '(Unnamed item)')}</div>`+
+	                    `<div class="po-line-sku">${escapeHtml(line.item_sku || '')}</div>`+
+	                  `</div>`+
+	                  `<span class="po-line-value">${escapeHtml(formatQty(ordered))}</span>`+
+	                  `<span class="po-line-value po-line-value--muted">${escapeHtml(formatQty(received))}</span>`+
+	                  `<span class="po-line-value po-line-value--amber">${escapeHtml(formatQty(remaining))}</span>`+
+	                `</div>`
+	              );
+	            }).join('')+
+	          `</div>`
+	        ) : `<div class="po-lines-empty">No line items yet.</div>`;
+
+	        const detailsSent = sentToText ? escapeHtml(sentToText) : '<span class="muted">Not set</span>';
+	        const detailsShip = shipToHtml ? shipToHtml : '<span class="muted">Not set</span>';
+	        const detailsNotes = notes ? escapeHtml(notes) : '<span class="muted">No notes</span>';
+
+	        return (
+	          `<div class="po-card${expanded.has(orderId) ? ' is-expanded' : ''}" data-order-history-card="${escapeHtmlAttr(orderId)}">`+
+	            `<div class="po-card-header" data-order-history-toggle="${escapeHtmlAttr(orderId)}">`+
+	              `<div class="po-card-icon">${ICONS.package}</div>`+
+	              `<div class="po-card-info">`+
+	                `<div class="po-card-title">`+
+	                  `<span class="po-card-id">${escapeHtml(formatOrderHistoryId(o))}</span>`+
+	                  `<span class="po-card-vendor">• ${escapeHtml(vendor)}</span>`+
+	                `</div>`+
+	                `<div class="po-card-meta">${metaParts.join('')}</div>`+
+	              `</div>`+
+	              (statusLabel ? `<span class="status-pill ${escapeHtmlAttr(statusClass)}">${escapeHtml(statusLabel)}</span>` : '')+
+	              `<button class="po-card-expand" type="button" data-order-history-toggle="${escapeHtmlAttr(orderId)}" aria-label="Toggle order details">`+
+	                chevronIcon+
+	              `</button>`+
+	            `</div>`+
+	            `<div class="po-card-body">`+
+	              `<div class="po-quick-actions">`+
+	                `<button class="po-action-btn po-action-btn--primary" type="button" data-receive-order-id="${escapeHtmlAttr(orderId)}" title="${escapeHtmlAttr(receiveBtnTitle)}"${canReceipt ? '' : ' disabled'}>`+
+	                  receiveIcon+
+	                  `<span>Receive</span>`+
+	                `</button>`+
+	                `<button class="po-action-btn" type="button" disabled title="Resend coming soon">`+
+	                  resendIcon+
+	                  `<span>Resend</span>`+
+	                `</button>`+
+	                `<button class="po-action-btn" type="button" disabled title="Edit coming soon">`+
+	                  editIcon+
+	                  `<span>Edit</span>`+
+	                `</button>`+
+	              `</div>`+
+	              `<div class="po-details">`+
+	                `<div class="po-detail">`+
+	                  `<div class="po-detail-icon">${mailIcon}</div>`+
+	                  `<div class="po-detail-content">`+
+	                    `<div class="po-detail-label">Sent to</div>`+
+	                    `<div class="po-detail-value">${detailsSent}</div>`+
+	                  `</div>`+
+	                `</div>`+
+	                `<div class="po-detail">`+
+	                  `<div class="po-detail-icon">${locationIcon}</div>`+
+	                  `<div class="po-detail-content">`+
+	                    `<div class="po-detail-label">Ship to</div>`+
+	                    `<div class="po-detail-value">${detailsShip}</div>`+
+	                  `</div>`+
+	                `</div>`+
+	                `<div class="po-detail po-detail--full">`+
+	                  `<div class="po-detail-icon">${notesIcon}</div>`+
+	                  `<div class="po-detail-content">`+
+	                    `<div class="po-detail-label">Notes</div>`+
+	                    `<div class="po-detail-value">${detailsNotes}</div>`+
+	                  `</div>`+
+	                `</div>`+
+	              `</div>`+
+	              `<div class="po-lines-header">`+
+	                `<span class="po-lines-title">Line Items</span>`+
+	                `<span class="po-lines-count">${escapeHtml(itemCountLabel)}</span>`+
+	              `</div>`+
+	              linesHtml+
+	              `<div class="po-receipts-section">`+
+	                `<div class="po-receipts-header">`+
+	                  `<span class="po-receipts-title">`+
+	                    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+	                      `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>`+
+	                      `<polyline points="14 2 14 8 20 8"></polyline>`+
+	                    `</svg>`+
+	                    `Linked Receipts`+
+	                  `</span>`+
+	                `</div>`+
+	                `<div class="no-receipts">No receipts linked to this order yet</div>`+
+	              `</div>`+
+	            `</div>`+
+	          `</div>`
+	        );
+	      }).join('');
 	    }
 	    function orderHistorySearchText(orderRow){
 	      const o = orderRow || {};
@@ -33232,6 +34887,8 @@ function emptyStateHtml(){
 	      const notes = String(o.notes || '').trim();
 	      const id = String(o.id || '').trim();
 	      const poNumber = String(o.po_number || '').trim();
+	      const companyPo = String(o.company_po_number || '').trim();
+	      const internalPo = String(o.internal_po_number || o.internalPoNumber || '').trim();
 	      const status = String(o.status || '').trim();
 	      const vendor = String(o.vendor_name || (o.vendor && o.vendor.name) || o.vendor_id || '').trim();
 	      const recipientEmail = String(o.recipient_email || o.recipientEmail || '').trim();
@@ -33240,7 +34897,7 @@ function emptyStateHtml(){
 	      const lineMap = state._orderHistoryLinesByPo || new Map();
 	      const items = normalizePurchaseOrderLines(lineMap.get(id) || []);
 	      const itemText = items.map(it => `${it.item_name} ${it.item_sku} ${formatQty(it.quantity_ordered)}`).join(' ');
-	      return `${id} ${poNumber} ${status} ${orderDate} ${expectedDate} ${receivedDate} ${createdAt} ${subject} ${vendor} ${recipientEmail} ${shipToText} ${notes} ${jobs} ${itemText}`.toLowerCase();
+	      return `${id} ${poNumber} ${companyPo} ${internalPo} ${status} ${orderDate} ${expectedDate} ${receivedDate} ${createdAt} ${subject} ${vendor} ${recipientEmail} ${shipToText} ${notes} ${jobs} ${itemText}`.toLowerCase();
 	    }
 	    function renderOrderHistoryFiltered(){
 	      const rows = Array.isArray(state._orderHistoryRows) ? state._orderHistoryRows : [];
@@ -33255,6 +34912,232 @@ function emptyStateHtml(){
 	        return tokens.every(t => hay.includes(t));
 	      });
 	      renderOrderHistoryList(out, { emptyText: 'No matching orders.' });
+	    }
+	    const ORDER_HISTORY_TABS = ['orders', 'receipts'];
+	    function getOrderHistoryActiveTab(){
+	      const tab = String(state._orderHistoryTab || '').trim();
+	      return ORDER_HISTORY_TABS.includes(tab) ? tab : 'orders';
+	    }
+	    function applyOrderHistoryTabState(tab){
+	      const root = $('orderHistoryModal');
+	      if(!root) return;
+	      root.querySelectorAll('[data-order-history-tab]').forEach(btn=>{
+	        const key = String(btn.dataset.orderHistoryTab || '').trim();
+	        const active = key === tab;
+	        btn.classList.toggle('is-active', active);
+	        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+	      });
+	      root.querySelectorAll('[data-order-history-panel]').forEach(panel=>{
+	        const key = String(panel.dataset.orderHistoryPanel || '').trim();
+	        panel.classList.toggle('is-active', key === tab);
+	      });
+	    }
+	    function updateOrderHistoryTabBadges(){
+	      const ordersBadge = $('orderHistoryOrdersBadge');
+	      const ordersCount = Array.isArray(state._orderHistoryRows) ? state._orderHistoryRows.length : 0;
+	      if(ordersBadge) ordersBadge.textContent = String(ordersCount);
+	      const receiptsBadge = $('orderHistoryReceiptsBadge');
+	      const receiptsCount = Number.isFinite(state._orderHistoryReceiptsCount)
+	        ? state._orderHistoryReceiptsCount
+	        : (Array.isArray(state._orderHistoryReceipts) ? state._orderHistoryReceipts.length : 0);
+	      if(receiptsBadge) receiptsBadge.textContent = String(receiptsCount);
+	    }
+	    async function handleOrderHistoryTabClick(tab){
+	      const next = String(tab || '').trim();
+	      if(!next) return;
+	      const current = getOrderHistoryActiveTab();
+	      if(next === current) return;
+	      state._orderHistoryTab = next;
+	      applyOrderHistoryTabState(next);
+	      if(next === 'receipts'){
+	        if(!state._orderHistoryReceiptsLoaded){
+	          await refreshOrderHistoryReceipts();
+	        }else{
+	          renderOrderHistoryReceiptsFiltered();
+	        }
+	      }
+	    }
+	    function orderHistoryReceiptSearchText(receiptRow){
+	      const r = receiptRow || {};
+	      const id = String(r.id || r.receipt_id || '').trim();
+	      const vendor = String(r.vendor_name || '').trim();
+	      const company = String(r.company_name || r.company_slug || '').trim();
+	      const status = String(r.status || '').trim();
+	      const source = String(r.receipt_source || '').trim();
+	      const date = String(r.receipt_date || '').trim();
+	      const total = (r.total !== undefined && r.total !== null) ? String(r.total) : '';
+	      return `${id} ${vendor} ${company} ${status} ${source} ${date} ${total}`.toLowerCase();
+	    }
+	    function renderOrderHistoryReceiptsList(list, opts = {}){
+	      const wrap = $('orderHistoryReceiptsList');
+	      if(!wrap) return;
+	      const rows = Array.isArray(list) ? list : [];
+	      if(!rows.length){
+	        const emptyText = (opts && typeof opts.emptyText === 'string' && opts.emptyText.trim())
+	          ? opts.emptyText.trim()
+	          : 'No receipts yet.';
+	        const subText = emptyText.toLowerCase().includes('matching')
+	          ? 'Try adjusting your filters.'
+	          : 'Receipts will appear here once received.';
+	        wrap.innerHTML =
+	          `<div class="order-history-empty">`+
+	            `<div class="order-history-empty-title">${escapeHtml(emptyText)}</div>`+
+	            `<div class="order-history-empty-text">${escapeHtml(subText)}</div>`+
+	          `</div>`;
+	        return;
+	      }
+	      const scannedIcon =
+	        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+	          '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>'+
+	          '<polyline points="14 2 14 8 20 8"></polyline>'+
+	          '<line x1="16" y1="13" x2="8" y2="13"></line>'+
+	          '<line x1="16" y1="17" x2="8" y2="17"></line>'+
+	        '</svg>';
+	      const manualIcon = ICONS.pencil;
+	      const poIcon =
+	        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+	          '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>'+
+	          '<rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>'+
+	          '<path d="M9 14l2 2 4-4"></path>'+
+	        '</svg>';
+	      const arrowIcon = ICONS.chevronRight;
+	      const showCompany = isEffectiveSuperUser();
+
+	      wrap.innerHTML = rows.map(r => {
+	        const id = String(r.id || r.receipt_id || '').trim();
+	        if(!id) return '';
+	        const companyId = String(r.company_id || '').trim();
+	        const vendor = String(r.vendor_name || '').trim() || 'Unknown vendor';
+	        const companyLabel = String(r.company_name || r.company_slug || r.company_id || '').trim();
+	        const dateText = r.receipt_date ? formatDateShort(r.receipt_date) : (r.created_at ? formatDateShort(r.created_at) : '');
+	        const totalText = formatReceiptMoney(r.total);
+	        const sourceLabel = formatReceiptSourceLabel(r.receipt_source) || 'Receipt';
+	        const source = String(r.receipt_source || '').toLowerCase();
+
+	        let iconClass = 'receipt-card-icon--scanned';
+	        let iconSvg = scannedIcon;
+	        let tagClass = 'receipt-card-tag--standalone';
+	        let tagLabel = sourceLabel || 'Scanned';
+	        if(source.includes('manual') || source.includes('quick')){
+	          iconClass = 'receipt-card-icon--manual';
+	          iconSvg = manualIcon;
+	          tagClass = 'receipt-card-tag--manual';
+	          tagLabel = 'Quick Add';
+	        }else if(source.includes('po') || source.includes('order')){
+	          iconClass = 'receipt-card-icon--po';
+	          iconSvg = poIcon;
+	          tagClass = 'receipt-card-tag--po';
+	          tagLabel = 'PO Receipt';
+	        }else if(source.includes('email') || source.includes('pdf') || source.includes('image')){
+	          iconClass = 'receipt-card-icon--scanned';
+	          iconSvg = scannedIcon;
+	          tagClass = 'receipt-card-tag--standalone';
+	          tagLabel = sourceLabel || 'Scanned';
+	        }
+
+	        const metaParts = [];
+	        if(showCompany && companyLabel){
+	          metaParts.push(`<span>${escapeHtml(companyLabel)}</span>`);
+	        }
+	        if(dateText){
+	          metaParts.push(`<span>${escapeHtml(dateText)}</span>`);
+	        }
+	        if(totalText){
+	          metaParts.push(`<span>Total ${escapeHtml(totalText)}</span>`);
+	        }
+	        if(tagLabel){
+	          metaParts.push(`<span class="receipt-card-tag ${escapeHtmlAttr(tagClass)}">${escapeHtml(tagLabel)}</span>`);
+	        }
+
+	        return (
+	          `<div class="receipt-card" data-receipt-review-id="${escapeHtmlAttr(id)}" data-receipt-company-id="${escapeHtmlAttr(companyId)}">`+
+	            `<div class="receipt-card-icon ${escapeHtmlAttr(iconClass)}">${iconSvg}</div>`+
+	            `<div class="receipt-card-info">`+
+	              `<div class="receipt-card-title">${escapeHtml(vendor)}</div>`+
+	              `<div class="receipt-card-meta">${metaParts.join('')}</div>`+
+	            `</div>`+
+	            `<span class="receipt-card-arrow">${arrowIcon}</span>`+
+	          `</div>`
+	        );
+	      }).join('');
+	    }
+	    function renderOrderHistoryReceiptsFiltered(){
+	      const rows = Array.isArray(state._orderHistoryReceipts) ? state._orderHistoryReceipts : [];
+	      const raw = String(state._orderHistoryReceiptsFilter || '').trim().toLowerCase();
+	      if(!raw){
+	        renderOrderHistoryReceiptsList(rows, { emptyText: 'No receipts yet.' });
+	        return;
+	      }
+	      const tokens = raw.split(/\s+/g).filter(Boolean);
+	      const out = rows.filter(r => {
+	        const hay = orderHistoryReceiptSearchText(r);
+	        return tokens.every(t => hay.includes(t));
+	      });
+	      renderOrderHistoryReceiptsList(out, { emptyText: 'No matching receipts.' });
+	    }
+	    async function sbFetchOrderHistoryReceipts(limit = 60){
+	      if(!SB.ready) throw new Error('Supabase not configured');
+	      if(!SB.session) throw new Error('Sign in required');
+	      if(!SB.authorized) throw new Error('Not authorized');
+	      const query = SB.client
+	        .from('receipts_with_company')
+	        .select('receipt_id,company_id,company_name,company_slug,vendor_name,receipt_date,total,receipt_source,status,created_at', { count: 'exact' })
+	        .order('created_at', { ascending: false })
+	        .limit(limit);
+	      if(!isEffectiveSuperUser()){
+	        if(!SB.companyId) return { rows: [], count: 0 };
+	        query.eq('company_id', SB.companyId);
+	      }
+	      const { data, error, count } = await query;
+	      if(error) throw error;
+	      const rows = Array.isArray(data)
+	        ? data.map(row => ({
+	            id: row.receipt_id,
+	            receipt_id: row.receipt_id,
+	            company_id: row.company_id,
+	            company_name: row.company_name,
+	            company_slug: row.company_slug,
+	            vendor_name: row.vendor_name,
+	            receipt_date: row.receipt_date,
+	            total: row.total,
+	            receipt_source: row.receipt_source,
+	            status: row.status,
+	            created_at: row.created_at,
+	          }))
+	        : [];
+	      return { rows, count: Number.isFinite(count) ? count : rows.length };
+	    }
+	    async function refreshOrderHistoryReceipts(){
+	      const wrap = $('orderHistoryReceiptsList');
+	      if(wrap){
+	        wrap.innerHTML =
+	          `<div class="order-history-empty">`+
+	            `<div class="order-history-empty-title">Loading receipts…</div>`+
+	            `<div class="order-history-empty-text">Fetching latest receipts.</div>`+
+	          `</div>`;
+	      }
+	      try{
+	        const result = await sbFetchOrderHistoryReceipts(60);
+	        const rows = result && Array.isArray(result.rows) ? result.rows : [];
+	        state._orderHistoryReceipts = rows;
+	        state._orderHistoryReceiptsCount = Number.isFinite(result && result.count) ? result.count : rows.length;
+	        state._orderHistoryReceiptsLoaded = true;
+	        renderOrderHistoryReceiptsFiltered();
+	      }catch(e){
+	        state._orderHistoryReceipts = [];
+	        state._orderHistoryReceiptsCount = 0;
+	        state._orderHistoryReceiptsLoaded = true;
+	        const msg = e && e.message ? e.message : 'Failed to load receipts';
+	        if(wrap){
+	          wrap.innerHTML =
+	            `<div class="order-history-empty">`+
+	              `<div class="order-history-empty-title">${escapeHtml(msg)}</div>`+
+	              `<div class="order-history-empty-text">Try again in a moment.</div>`+
+	            `</div>`;
+	        }
+	      }finally{
+	        updateOrderHistoryTabBadges();
+	      }
 	    }
 		    let _orderSuggestTimer = null;
 		    function renderOrderEmailSuggestions(list){
@@ -33406,7 +35289,13 @@ function emptyStateHtml(){
     let _orderHistoryReturnToOrder = false;
 	    async function refreshOrderHistory(){
 	      const wrap = $('orderHistoryList');
-	      if(wrap) wrap.innerHTML = `<div class="muted">Loading…</div>`;
+	      if(wrap){
+	        wrap.innerHTML =
+	          `<div class="order-history-empty">`+
+	            `<div class="order-history-empty-title">Loading orders…</div>`+
+	            `<div class="order-history-empty-text">Fetching latest orders.</div>`+
+	          `</div>`;
+	      }
 	      const btn = $('btnOrderHistoryRefresh');
 	      const prior = btn ? btn.textContent : '';
 	      if(btn){ btn.disabled = true; btn.textContent = 'Loading…'; }
@@ -33429,8 +35318,15 @@ function emptyStateHtml(){
 	        state._orderHistoryRows = [];
           state._orderHistoryLinesByPo = new Map();
 	        const msg = e && e.message ? e.message : 'Failed to load history';
-	        if(wrap) wrap.innerHTML = `<div class="order-empty">${escapeHtml(msg)}</div>`;
+	        if(wrap){
+	          wrap.innerHTML =
+	            `<div class="order-history-empty">`+
+	              `<div class="order-history-empty-title">${escapeHtml(msg)}</div>`+
+	              `<div class="order-history-empty-text">Try again in a moment.</div>`+
+	            `</div>`;
+	        }
 	      }finally{
+	        updateOrderHistoryTabBadges();
 	        if(btn){ btn.disabled = false; btn.textContent = prior || 'Refresh'; }
 	      }
 	    }
@@ -33443,9 +35339,15 @@ function emptyStateHtml(){
       _orderHistoryReturnToOrder = returnToOrder;
 	      if(returnToOrder) show('orderModal', false);
 	      show('orderHistoryModal', true);
+	      const activeTab = getOrderHistoryActiveTab();
+	      applyOrderHistoryTabState(activeTab);
 	      const f = $('orderHistoryFilter'); if(f) f.value = state._orderHistoryFilter || '';
+	      const rf = $('orderHistoryReceiptFilter'); if(rf) rf.value = state._orderHistoryReceiptsFilter || '';
 	      try{ updateOrderHistoryFilterClearBtn(); }catch(e){}
 	      await refreshOrderHistory();
+	      if(activeTab === 'receipts'){
+	        await refreshOrderHistoryReceipts();
+	      }
 	    }
     function closeOrderHistoryModal(){
       show('orderHistoryModal', false);
@@ -37882,17 +39784,47 @@ function emptyStateHtml(){
     if(receiveReceiptNotes) receiveReceiptNotes.addEventListener('input', ()=>{
       if(state._receiveOrder) state._receiveOrder.receiptNotes = String(receiveReceiptNotes.value || '');
     });
+    const receiveScannedTitleMain = $('receiveScannedTitleMain');
+    const receiveScannedTitleSub = $('receiveScannedTitleSub');
+    const receiveScannedTotal = $('receiveScannedTotal');
+    const receiveReceiptNotesToggle = $('receiveReceiptNotesToggle');
+    const receiveReceiptNotesContent = $('receiveReceiptNotesContent');
+    if(receiveReceiptNotesToggle && receiveReceiptNotesContent && !receiveReceiptNotesToggle._wired){
+      receiveReceiptNotesToggle._wired = true;
+      receiveReceiptNotesToggle.addEventListener('click', ()=>{
+        const expanded = receiveReceiptNotesToggle.getAttribute('aria-expanded') === 'true';
+        receiveReceiptNotesToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+        receiveReceiptNotesContent.classList.toggle('is-open', !expanded);
+      });
+    }
     const receiveReceiptVendor = $('receiveReceiptVendor');
     if(receiveReceiptVendor) receiveReceiptVendor.addEventListener('input', ()=>{
       if(state._receiveOrder) state._receiveOrder.receiptVendor = String(receiveReceiptVendor.value || '');
+      if(receiveScannedTitleMain && state._receiveOrder && state._receiveOrder.tab === 'scanned' && state._receiveOrder.mode !== 'inbox'){
+        receiveScannedTitleMain.textContent = String(receiveReceiptVendor.value || '').trim() || 'Receipt review';
+      }
     });
     const receiveReceiptDate = $('receiveReceiptDate');
     if(receiveReceiptDate) receiveReceiptDate.addEventListener('input', ()=>{
       if(state._receiveOrder) state._receiveOrder.receiptDate = String(receiveReceiptDate.value || '');
+      if(receiveScannedTitleSub && state._receiveOrder && state._receiveOrder.tab === 'scanned' && state._receiveOrder.mode !== 'inbox'){
+        const dateVal = String(receiveReceiptDate.value || '').trim();
+        receiveScannedTitleSub.textContent = dateVal ? formatDateShort(dateVal) : 'Review before inventory is updated.';
+      }
     });
     const receiveReceiptTotal = $('receiveReceiptTotal');
     if(receiveReceiptTotal) receiveReceiptTotal.addEventListener('input', ()=>{
       if(state._receiveOrder) state._receiveOrder.receiptTotal = String(receiveReceiptTotal.value || '');
+      if(receiveScannedTotal && state._receiveOrder && state._receiveOrder.tab === 'scanned' && state._receiveOrder.mode !== 'inbox'){
+        const totalNum = parseReceiptNumber(receiveReceiptTotal.value);
+        if(totalNum !== null && typeof totalNum !== 'undefined'){
+          receiveScannedTotal.textContent = formatReceiptMoney(totalNum);
+          receiveScannedTotal.style.display = '';
+        }else{
+          receiveScannedTotal.textContent = '';
+          receiveScannedTotal.style.display = 'none';
+        }
+      }
     });
     const receiptParsedLines = $('receiptParsedLines');
     if(receiptParsedLines && !receiptParsedLines._wired){
@@ -37969,6 +39901,14 @@ function emptyStateHtml(){
         btnReceiveScannedBack._wired = true;
         btnReceiveScannedBack.addEventListener('click', ()=>{
           openReceiveInboxModal();
+        });
+      }
+      const receivePoLinkAction = $('receivePoLinkAction');
+      if(receivePoLinkAction && !receivePoLinkAction._wired){
+        receivePoLinkAction._wired = true;
+        receivePoLinkAction.addEventListener('click', ()=>{
+          if(receivePoLinkAction.disabled) return;
+          void handleReceiveTabClick('po');
         });
       }
       const receivePoList = $('receivePoList');
@@ -38254,6 +40194,28 @@ function emptyStateHtml(){
 	          state._orderHistoryFilter = '';
 	          renderOrderHistoryFiltered();
 	          updateOrderHistoryFilterClearBtn();
+	        }
+	      });
+	    }
+	    const orderHistoryTabs = $('orderHistoryTabs');
+	    if(orderHistoryTabs) orderHistoryTabs.addEventListener('click', (e)=>{
+	      const btn = e.target.closest('[data-order-history-tab]');
+	      if(!btn) return;
+	      const tab = btn.getAttribute('data-order-history-tab');
+	      void handleOrderHistoryTabClick(tab);
+	    });
+	    const orderHistoryReceiptFilter = $('orderHistoryReceiptFilter');
+	    if(orderHistoryReceiptFilter){
+	      orderHistoryReceiptFilter.addEventListener('input', ()=>{
+	        state._orderHistoryReceiptsFilter = orderHistoryReceiptFilter.value || '';
+	        renderOrderHistoryReceiptsFiltered();
+	      });
+	      orderHistoryReceiptFilter.addEventListener('keydown', (e)=>{
+	        if(e.key==='Escape' && orderHistoryReceiptFilter.value){
+	          e.preventDefault();
+	          orderHistoryReceiptFilter.value = '';
+	          state._orderHistoryReceiptsFilter = '';
+	          renderOrderHistoryReceiptsFiltered();
 	        }
 	      });
 	    }
@@ -38610,6 +40572,31 @@ function emptyStateHtml(){
         if(!id) return;
         void forwardOrderFromHistory(id);
       }
+      const toggle = e.target.closest('[data-order-history-toggle]');
+      if(toggle){
+        const id = String(toggle.getAttribute('data-order-history-toggle') || '').trim();
+        if(!id) return;
+        const expanded = state._orderHistoryExpanded || new Set();
+        const isExpanded = expanded.has(id);
+        if(isExpanded){
+          expanded.delete(id);
+        }else{
+          expanded.add(id);
+        }
+        state._orderHistoryExpanded = expanded;
+        const card = toggle.closest('.po-card');
+        if(card) card.classList.toggle('is-expanded', !isExpanded);
+        return;
+      }
+    });
+    const orderHistoryReceiptsList = $('orderHistoryReceiptsList');
+    if(orderHistoryReceiptsList) orderHistoryReceiptsList.addEventListener('click', (e)=>{
+      const card = e.target.closest('[data-receipt-review-id]');
+      if(!card) return;
+      const id = String(card.getAttribute('data-receipt-review-id') || '').trim();
+      if(!id) return;
+      const companyId = String(card.getAttribute('data-receipt-company-id') || '').trim();
+      void openReceiveDraftReceipt(id, companyId);
     });
 
 	    const orderLinesBody = $('orderLinesBody');
