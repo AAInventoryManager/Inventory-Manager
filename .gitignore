@@ -13,3 +13,4 @@ test-results/
 dist/
 supabase/.temp/
 supabase/.branches/
+tests/setup/.user-id-cache.json

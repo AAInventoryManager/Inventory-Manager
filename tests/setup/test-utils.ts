@@ -1,7 +1,22 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { existsSync, readFileSync } from 'fs';
+import { join } from 'path';
 import './load-test-env';
 import { TEST_USERS } from '../fixtures/users';
 import { TEST_COMPANIES } from '../fixtures/companies';
+
+// Cache file for user IDs to avoid auth API calls during test setup
+export const USER_ID_CACHE_PATH = join(__dirname, '.user-id-cache.json');
+
+// Load user ID cache if it exists
+let userIdCache: Record<string, string> = {};
+try {
+  if (existsSync(USER_ID_CACHE_PATH)) {
+    userIdCache = JSON.parse(readFileSync(USER_ID_CACHE_PATH, 'utf-8'));
+  }
+} catch {
+  // Ignore cache errors
+}
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -135,6 +150,11 @@ export async function getUserIdByEmail(email: string): Promise<string> {
 }
 
 export async function getAuthUserIdByEmail(email: string): Promise<string> {
+  // Check cache first to avoid auth API calls for known test users
+  if (userIdCache[email]) {
+    return userIdCache[email];
+  }
+
   // Paginated lookup to handle large user lists with retry for transient errors
   const maxAttempts = AUTH_THROTTLE_MS > 0 ? 5 : 3;
   let lastError: { message?: string; status?: number; code?: string } | null = null;
@@ -155,7 +175,11 @@ export async function getAuthUserIdByEmail(email: string): Promise<string> {
         throw error;
       }
       const user = data.users.find(u => u.email === email);
-      if (user) return user.id;
+      if (user) {
+        // Cache the result for future lookups
+        userIdCache[email] = user.id;
+        return user.id;
+      }
       if (!data.users.length || data.users.length < 1000) {
         // Reached end without finding user
         throw new Error(`Auth user not found for email: ${email}`);

@@ -1,4 +1,6 @@
-import { adminClient, TEST_USERS, TEST_COMPANIES, TEST_PASSWORD, getAuthUserIdByEmail } from './test-utils';
+import { writeFileSync } from 'fs';
+import { join } from 'path';
+import { adminClient, TEST_USERS, TEST_COMPANIES, TEST_PASSWORD, getAuthUserIdByEmail, USER_ID_CACHE_PATH } from './test-utils';
 import { TEST_INVENTORY_ITEMS } from '../fixtures/inventory';
 
 interface TestUserDef {
@@ -152,4 +154,7 @@ export default async function globalSetup() {
         { onConflict: 'company_id,sku' }
       );
   }
+
+  // Write user IDs cache for tests to avoid auth API calls
+  writeFileSync(USER_ID_CACHE_PATH, JSON.stringify(userIds, null, 2));
 }
