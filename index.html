@@ -33046,9 +33046,19 @@ function emptyStateHtml(){
 	      };
 	    }
       function getReceiptForwardingDomain(){
+        const rawSettings = SB.company && (SB.company.settings || SB.company.company_settings);
+        const companySettings = (rawSettings && typeof rawSettings === 'object' && !Array.isArray(rawSettings))
+          ? rawSettings
+          : null;
+        const settingsDomain = (companySettings && typeof companySettings.receipt_forward_domain === 'string')
+          ? companySettings.receipt_forward_domain.trim()
+          : '';
+        const settingsLegacy = (companySettings && typeof companySettings.receipt_forwarding_domain === 'string')
+          ? companySettings.receipt_forwarding_domain.trim()
+          : '';
         const primary = (typeof window.INBOUND_RECEIPT_DOMAIN === 'string') ? window.INBOUND_RECEIPT_DOMAIN.trim() : '';
         const legacy = (typeof window.RECEIPT_FORWARD_DOMAIN === 'string') ? window.RECEIPT_FORWARD_DOMAIN.trim() : '';
-        return primary || legacy || 'inbound.inventorymanager.app';
+        return settingsDomain || settingsLegacy || primary || legacy || 'inbound.inventorymanager.app';
       }
       function getReceiptForwardingAddress(){
         const slug = String((SB.company && (SB.company.slug || SB.company.company_slug)) || '').trim();
