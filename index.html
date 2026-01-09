@@ -9898,16 +9898,34 @@
       opacity:1;
       overflow-y:auto;
     }
-    /* Layout tab opens as overlay so users can see impact on cards below */
+    /* Layout tab opens as modal overlay */
     .inv-tab-content[data-inv-tab-content="layout"]{
-      position:absolute;
-      left:12px;
-      right:12px;
-      z-index:25;
-      box-shadow:0 12px 40px rgba(0,0,0,0.5);
+      position:fixed;
+      top:50%;
+      left:50%;
+      transform:translate(-50%, -50%);
+      width:calc(100% - 32px);
+      max-width:400px;
+      z-index:1001;
+      box-shadow:0 16px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+      background:rgba(15,20,30,0.98);
+      border-radius:16px;
     }
     .inv-tab-content[data-inv-tab-content="layout"].is-active{
-      max-height:calc(100vh - 280px);
+      max-height:calc(100vh - 120px);
+    }
+    /* Backdrop overlay for layout modal */
+    .inv-layout-backdrop{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.7);
+      backdrop-filter:blur(4px);
+      -webkit-backdrop-filter:blur(4px);
+      z-index:1000;
+    }
+    .inv-layout-backdrop.is-active{
+      display:block;
     }
 
     /* Layout tab sections */
@@ -13759,6 +13777,9 @@
 	            <button class="inv-filter-pill" type="button" data-filter="out_of_stock" aria-pressed="false">Out of Stock</button>
 	          </div>
 	        </div>
+
+	        <!-- Layout Tab Backdrop -->
+	        <div class="inv-layout-backdrop" id="invLayoutBackdrop"></div>
 
 	        <!-- Layout Tab Content -->
 	        <div class="inv-tab-content" data-inv-tab-content="layout" role="tabpanel">
@@ -27266,6 +27287,8 @@ function emptyStateHtml(){
       const tabs = document.querySelectorAll('.inv-header-tab[data-inv-tab]');
       const contents = document.querySelectorAll('.inv-tab-content[data-inv-tab-content]');
 
+      const layoutBackdrop = $('invLayoutBackdrop');
+
       function closeActiveTab(){
         if(!activeTab) return;
         const tabBtn = document.querySelector(`.inv-header-tab[data-inv-tab="${activeTab}"]`);
@@ -27273,6 +27296,7 @@ function emptyStateHtml(){
         if(tabBtn) tabBtn.classList.remove('is-active');
         if(tabContent) tabContent.classList.remove('is-active');
         tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+        if(layoutBackdrop) layoutBackdrop.classList.remove('is-active');
         activeTab = null;
       }
 
@@ -27298,6 +27322,11 @@ function emptyStateHtml(){
           tabBtn.setAttribute('aria-selected', 'true');
         }
         if(tabContent) tabContent.classList.add('is-active');
+        // Show backdrop for layout tab
+        if(layoutBackdrop){
+          if(tabName === 'layout') layoutBackdrop.classList.add('is-active');
+          else layoutBackdrop.classList.remove('is-active');
+        }
         activeTab = tabName;
       }
 
@@ -27308,6 +27337,11 @@ function emptyStateHtml(){
           if(tabName) toggleTab(tabName);
         });
       });
+
+      // Backdrop click closes layout tab
+      if(layoutBackdrop){
+        layoutBackdrop.addEventListener('click', ()=> closeActiveTab());
+      }
 
       document.addEventListener('click', (e)=>{
         if(!activeTab) return;
