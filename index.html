@@ -5184,6 +5184,185 @@
       color:#cbd5f5;
       font-size:11px;
     }
+    /* ============================================
+       PO Header Card - Order Summary
+       ============================================ */
+    .po-header-card{
+      background:linear-gradient(145deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02));
+      border:1px solid rgba(34,197,94,0.2);
+      border-radius:12px;
+      padding:14px 16px;
+      margin-bottom:10px;
+    }
+    .po-header-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .po-header-main{
+      flex:1;
+      min-width:0;
+    }
+    .po-number{
+      font-size:18px;
+      font-weight:800;
+      color:#fff;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .po-number-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      padding:3px 8px;
+      background:rgba(34,197,94,0.15);
+      border:1px solid rgba(34,197,94,0.3);
+      border-radius:6px;
+      font-size:10px;
+      font-weight:700;
+      color:#22c55e;
+      text-transform:uppercase;
+      letter-spacing:0.03em;
+    }
+    .po-number-badge svg{ width:10px; height:10px; }
+    .po-vendor{
+      font-size:14px;
+      color:#94a3b8;
+      margin-top:4px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .po-vendor svg{ width:14px; height:14px; stroke:#64748b; flex-shrink:0; }
+    .po-vendor-name{
+      color:#e2e8f0;
+      font-weight:600;
+    }
+    .po-status-badge{
+      padding:4px 10px;
+      border-radius:8px;
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.03em;
+      flex-shrink:0;
+    }
+    .po-status-badge--partial{
+      background:rgba(245,158,11,0.15);
+      border:1px solid rgba(245,158,11,0.3);
+      color:#f59e0b;
+    }
+    .po-status-badge--open{
+      background:rgba(59,130,246,0.15);
+      border:1px solid rgba(59,130,246,0.3);
+      color:#60a5fa;
+    }
+    .po-status-badge--received{
+      background:rgba(34,197,94,0.15);
+      border:1px solid rgba(34,197,94,0.3);
+      color:#22c55e;
+    }
+    .po-details-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:16px;
+      padding-top:10px;
+      border-top:1px solid rgba(255,255,255,0.06);
+    }
+    .po-detail{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-size:12px;
+      color:#64748b;
+    }
+    .po-detail svg{
+      width:14px;
+      height:14px;
+      stroke:#64748b;
+      flex-shrink:0;
+    }
+    .po-detail-value{
+      color:#94a3b8;
+    }
+    .po-detail-value a{
+      color:#60a5fa;
+      text-decoration:none;
+    }
+    .po-detail-value a:hover{
+      text-decoration:underline;
+    }
+    /* Lead Time Card */
+    .lead-time-card{
+      margin-top:10px;
+      background:linear-gradient(145deg, rgba(59,130,246,0.08), rgba(59,130,246,0.02));
+      border:1px solid rgba(59,130,246,0.2);
+      border-radius:10px;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .lead-time-info{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .lead-time-icon{
+      width:36px;
+      height:36px;
+      border-radius:8px;
+      background:rgba(59,130,246,0.15);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .lead-time-icon svg{
+      width:18px;
+      height:18px;
+      stroke:#60a5fa;
+    }
+    .lead-time-label{
+      font-size:11px;
+      color:#64748b;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      font-weight:700;
+    }
+    .lead-time-sublabel{
+      font-size:11px;
+      color:#64748b;
+      margin-top:2px;
+    }
+    .lead-time-value{
+      text-align:right;
+    }
+    .lead-time-days{
+      font-size:24px;
+      font-weight:800;
+      color:#60a5fa;
+      font-variant-numeric:tabular-nums;
+      line-height:1;
+    }
+    .lead-time-days-label{
+      font-size:11px;
+      color:#64748b;
+      text-transform:uppercase;
+      letter-spacing:0.03em;
+    }
+    .lead-time-pending{
+      font-size:13px;
+      color:#94a3b8;
+      font-style:italic;
+    }
+    /* ============================================
+       Receive Lines - Redesigned Cards
+       ============================================ */
     .receive-lines{
       margin-top:12px;
       display:flex;
@@ -5191,100 +5370,278 @@
       gap:10px;
     }
     .receive-line{
-      border:1px solid var(--border);
-      background:#0b0f14;
+      background:linear-gradient(145deg, rgba(26,31,38,0.9), rgba(18,22,28,0.95));
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
       border-radius:12px;
-      padding:10px;
+      border:1px solid rgba(255,255,255,0.08);
+      box-shadow:0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
+      overflow:hidden;
     }
     .receive-line.disabled{
-      opacity:.6;
+      opacity:0.55;
+      pointer-events:none;
     }
     .receive-line-header{
       display:flex;
+      align-items:center;
       justify-content:space-between;
-      align-items:flex-start;
-      gap:10px;
-      flex-wrap:wrap;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,0.05);
+      gap:12px;
     }
     .receive-line-info{
-      min-width:0;
       flex:1;
+      min-width:0;
     }
     .receive-line-title{
-      font-weight:800;
+      font-weight:700;
       font-size:14px;
+      color:#fff;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
     .receive-line-sku{
-      color:var(--muted);
       font-size:12px;
+      color:#64748b;
       margin-top:2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .receive-line-remaining{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      background:rgba(245,158,11,0.1);
+      border:1px solid rgba(245,158,11,0.25);
+      border-radius:8px;
+      flex-shrink:0;
+    }
+    .receive-line-remaining-label{
+      font-size:10px;
+      color:#94a3b8;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.02em;
+    }
+    .receive-line-remaining-value{
+      font-size:16px;
+      font-weight:800;
+      color:#f59e0b;
+      font-variant-numeric:tabular-nums;
     }
     .receive-line-stats{
       display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      font-size:12px;
-      color:var(--muted);
+      gap:0;
+      background:rgba(0,0,0,0.15);
+    }
+    .receive-line-stat{
+      flex:1;
+      padding:8px 6px;
+      text-align:center;
+      border-right:1px solid rgba(255,255,255,0.05);
+    }
+    .receive-line-stat:last-child{
+      border-right:none;
+    }
+    .receive-line-stat-value{
+      font-size:13px;
+      font-weight:700;
+      color:#e2e8f0;
+      font-variant-numeric:tabular-nums;
+    }
+    .receive-line-stat-label{
+      font-size:9px;
+      color:#64748b;
+      text-transform:uppercase;
+      letter-spacing:0.3px;
+      margin-top:1px;
     }
     .receive-line-inputs{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
-      gap:8px;
-      margin-top:8px;
+      padding:12px 14px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
     }
-    .receive-line-inputs label{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:700;
-      letter-spacing:.04em;
-      text-transform:uppercase;
-    }
-    .receive-line-inputs input,
-    .receive-line-inputs textarea{
-      width:100%;
-    }
-    .receive-line-inputs textarea{
-      min-height:60px;
-      resize:vertical;
-      padding:8px 10px;
-      background:rgba(15,23,42,0.6);
-      border:1px solid var(--border);
-      color:var(--text);
-      border-radius:8px;
-      font-size:13px;
-    }
-    .receive-line-actions{
+    .receive-line-stepper-row{
       display:flex;
       align-items:center;
-      gap:8px;
+      gap:12px;
+    }
+    .receive-line-stepper-row label{
+      font-size:11px;
+      font-weight:700;
+      color:#64748b;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      min-width:70px;
+    }
+    .receive-line-stepper-row .qty-stepper{
+      flex:1;
+      max-width:160px;
+    }
+    .receive-line-stepper-row .qty-stepper--received{
+      border-color:rgba(34,197,94,0.3);
+      background:rgba(34,197,94,0.05);
+    }
+    .receive-line-stepper-row .qty-stepper--received .qty-stepper-btn:hover{
+      background:rgba(34,197,94,0.15);
+    }
+    .receive-line-stepper-row .qty-stepper--received .qty-stepper-input{
+      color:#22c55e;
+    }
+    .receive-line-receive-all{
+      padding:0 14px;
+      height:44px;
+      border-radius:10px;
+      border:1px solid rgba(34,197,94,0.4);
+      background:linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.08));
+      color:#22c55e;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+      white-space:nowrap;
+      transition:all 0.15s ease;
+      flex-shrink:0;
+    }
+    .receive-line-receive-all:hover{
+      background:linear-gradient(135deg, rgba(34,197,94,0.3), rgba(34,197,94,0.12));
+      border-color:rgba(34,197,94,0.5);
+    }
+    .receive-line-receive-all:active{
+      transform:scale(0.97);
+    }
+    .receive-line-receive-all:disabled{
+      opacity:0.4;
+      cursor:not-allowed;
+    }
+    .receive-line-reason-row{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .receive-line-reason-row label{
+      font-size:11px;
+      font-weight:700;
+      color:#64748b;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      min-width:70px;
+    }
+    .receive-line-reason-input{
+      flex:1;
+      padding:10px 12px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.1);
+      background:rgba(0,0,0,0.2);
+      color:#fff;
+      font-size:13px;
+      outline:none;
+      transition:all 0.15s;
+    }
+    .receive-line-reason-input:focus{
+      border-color:rgba(255,255,255,0.2);
+      background:rgba(0,0,0,0.3);
+    }
+    .receive-line-reason-input::placeholder{
+      color:#4a5568;
+    }
+    .receive-line-reason-input:disabled{
+      opacity:0.4;
+      cursor:not-allowed;
     }
     .receive-line-warning{
       display:none;
-      margin-top:6px;
+      padding:8px 14px;
       font-size:12px;
       color:#f59e0b;
-      font-weight:700;
-    }
-    .receive-line.over{
-      border-color:rgba(245,158,11,0.5);
-      box-shadow:0 0 0 1px rgba(245,158,11,0.25);
+      font-weight:600;
+      background:rgba(245,158,11,0.08);
+      border-top:1px solid rgba(245,158,11,0.15);
     }
     .receive-line.over .receive-line-warning{
       display:block;
     }
+    .receive-line.over{
+      border-color:rgba(245,158,11,0.4);
+      box-shadow:0 0 0 1px rgba(245,158,11,0.2), 0 4px 20px rgba(0,0,0,0.3);
+    }
     .receive-line-note{
-      margin-top:6px;
+      padding:8px 14px;
+      margin:0;
       font-size:12px;
-      color:var(--muted);
+      color:#94a3b8;
+      background:rgba(0,0,0,0.1);
+      border-top:1px solid rgba(255,255,255,0.04);
     }
     .receive-order-warning{
       margin-top:8px;
       color:#f59e0b;
       font-size:12px;
       font-weight:700;
+    }
+    @media (max-width:480px){
+      .po-header-top{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .po-status-badge{
+        align-self:flex-start;
+      }
+      .po-details-row{
+        flex-direction:column;
+        gap:8px;
+      }
+      .lead-time-card{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+      }
+      .lead-time-value{
+        text-align:left;
+        display:flex;
+        align-items:baseline;
+        gap:6px;
+      }
+      .receive-line-header{
+        flex-wrap:wrap;
+      }
+      .receive-line-remaining{
+        order:-1;
+        width:auto;
+      }
+      .receive-line-stat{
+        padding:6px 4px;
+      }
+      .receive-line-stat-value{
+        font-size:12px;
+      }
+      .receive-line-stat-label{
+        font-size:8px;
+      }
+      .receive-line-stepper-row{
+        flex-wrap:wrap;
+      }
+      .receive-line-stepper-row label{
+        width:100%;
+        margin-bottom:4px;
+      }
+      .receive-line-stepper-row .qty-stepper{
+        max-width:none;
+      }
+      .receive-line-receive-all{
+        flex:0;
+      }
+      .receive-line-reason-row{
+        flex-wrap:wrap;
+      }
+      .receive-line-reason-row label{
+        width:100%;
+        margin-bottom:4px;
+      }
     }
     .receive-receipts{
       margin-top:12px;
@@ -33326,16 +33683,34 @@ function emptyStateHtml(){
 	          selector = `[data-receive-line-key="${CSS.escape(key)}"]`;
 	        }
 	      }catch(e){}
-	      const row = document.querySelector(selector);
+	      const row = document.querySelector(`.receive-line${selector}`);
 	      if(!row) return;
 	      const warningEl = row.querySelector('[data-receive-line-warning]');
 	      const overBy = receiveLineOverBy(line);
 	      if(overBy > 0){
 	        row.classList.add('over');
-	        if(warningEl) warningEl.textContent = `Over by ${formatQty(overBy)}`;
+	        if(warningEl) warningEl.textContent = `⚠ Over by ${formatQty(overBy)}`;
 	      }else{
 	        row.classList.remove('over');
 	        if(warningEl) warningEl.textContent = '';
+	      }
+	      // Update stepper dec button disabled states
+	      const receivedVal = toInt(line.qty_received, 0);
+	      const rejectedVal = toInt(line.qty_rejected, 0);
+	      const receivedDecBtn = row.querySelector(`[data-receive-stepper="dec"][data-receive-field="received"]`);
+	      const rejectedDecBtn = row.querySelector(`[data-receive-stepper="dec"][data-receive-field="rejected"]`);
+	      if(receivedDecBtn) receivedDecBtn.disabled = receivedVal <= 0 || row.classList.contains('disabled');
+	      if(rejectedDecBtn) rejectedDecBtn.disabled = rejectedVal <= 0 || row.classList.contains('disabled');
+	      // Update reason input disabled state
+	      const reasonInput = row.querySelector('.receive-line-reason-input');
+	      if(reasonInput){
+	        const shouldDisable = rejectedVal === 0 || row.classList.contains('disabled');
+	        reasonInput.disabled = shouldDisable;
+	        if(shouldDisable && reasonInput.value){
+	          reasonInput.value = '';
+	          // Also update the line data
+	          if(line) line.rejection_reason = '';
+	        }
 	      }
 	    }
 	    function getReceiveOrderLineByKey(key){
@@ -34852,6 +35227,9 @@ function emptyStateHtml(){
 	        const po = ro.po || {};
 	        const poNumber = String(po.po_number || '').trim();
 	        const supplier = String(po.vendor_name || (po.vendor && po.vendor.name) || po.vendor_id || '').trim() || 'Unknown';
+	        const vendorEmail = String(po.vendor_email || (po.vendor && po.vendor.email) || '').trim();
+	        const sentAt = po.sent_at || po.created_at || null;
+	        const poSent = !!po.sent_at;
 	        const totals = computeReceiveTotals(ro.lines || []);
 	        const poTotals = {
 	          ordered: totals.ordered,
@@ -34860,33 +35238,93 @@ function emptyStateHtml(){
 	          hasLines: Array.isArray(ro.lines) && ro.lines.length > 0
 	        };
 	        const statusLabel = formatPurchaseOrderStatusLabel(po, poTotals);
+	        const statusClass = statusLabel.toLowerCase().includes('partial') ? 'partial' 
+	          : statusLabel.toLowerCase().includes('received') ? 'received' : 'open';
+
+	        // Format sent date/time
+	        let sentDateHtml = '';
+	        if(sentAt){
+	          try{
+	            const sentDate = new Date(sentAt);
+	            const dateStr = sentDate.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+	            const timeStr = sentDate.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+	            sentDateHtml = `${dateStr} at ${timeStr}`;
+	          }catch(e){ sentDateHtml = String(sentAt); }
+	        }
+
+	        // Calculate lead time (days from PO sent/created to now)
+	        let leadTimeDays = null;
+	        if(sentAt){
+	          try{
+	            const sentDate = new Date(sentAt);
+	            const now = new Date();
+	            const diffTime = Math.abs(now - sentDate);
+	            leadTimeDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+	          }catch(e){}
+	        }
 
 	        meta.innerHTML =
-	          `<div class="receive-order-card">`+
-	            `<div class="label">Purchase Order</div>`+
-	            `<div class="value">${escapeHtml(poNumber || String(po.id || '').trim() || '—')}</div>`+
-	          `</div>`+
-	          `<div class="receive-order-card">`+
-	            `<div class="label">Supplier</div>`+
-	            `<div class="value">${escapeHtml(supplier)}</div>`+
-	          `</div>`+
-	          `<div class="receive-order-card">`+
-	            `<div class="label">Status</div>`+
-	            `<div class="value">${escapeHtml(statusLabel || '—')}</div>`+
+	          `<div class="po-header-card">`+
+	            `<div class="po-header-top">`+
+	              `<div class="po-header-main">`+
+	                `<div class="po-number">`+
+	                  `${escapeHtml(poNumber || String(po.id || '').trim() || '—')}`+
+	                  (poSent ? `<span class="po-number-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>Sent</span>` : '')+
+	                `</div>`+
+	                `<div class="po-vendor">`+
+	                  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`+
+	                  `<span class="po-vendor-name">${escapeHtml(supplier)}</span>`+
+	                `</div>`+
+	              `</div>`+
+	              `<span class="po-status-badge po-status-badge--${statusClass}">${escapeHtml(statusLabel || '—')}</span>`+
+	            `</div>`+
+	            `<div class="po-details-row">`+
+	              (vendorEmail ? 
+	                `<div class="po-detail">`+
+	                  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`+
+	                  `<span>Sent to:</span>`+
+	                  `<span class="po-detail-value"><a href="mailto:${escapeHtmlAttr(vendorEmail)}">${escapeHtml(vendorEmail)}</a></span>`+
+	                `</div>` : '')+
+	              (sentDateHtml ? 
+	                `<div class="po-detail">`+
+	                  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`+
+	                  `<span>Order placed:</span>`+
+	                  `<span class="po-detail-value">${escapeHtml(sentDateHtml)}</span>`+
+	                `</div>` : '')+
+	            `</div>`+
 	          `</div>`;
+
 	        summary.innerHTML =
-	          `<div class="receive-order-card">`+
-	            `<div class="label">Expected Qty</div>`+
-	            `<div class="value">${formatQty(totals.ordered)}</div>`+
+	          `<div class="receive-summary">`+
+	            `<div class="receive-order-card">`+
+	              `<div class="label">Expected Qty</div>`+
+	              `<div class="value">${formatQty(totals.ordered)}</div>`+
+	            `</div>`+
+	            `<div class="receive-order-card">`+
+	              `<div class="label">Prev Received</div>`+
+	              `<div class="value" style="color:#22c55e;">${formatQty(totals.received)}</div>`+
+	            `</div>`+
+	            `<div class="receive-order-card">`+
+	              `<div class="label">Remaining</div>`+
+	              `<div class="value" style="color:#f59e0b;">${formatQty(totals.remaining)}</div>`+
+	            `</div>`+
 	          `</div>`+
-	          `<div class="receive-order-card">`+
-	            `<div class="label">Previously Received</div>`+
-	            `<div class="value">${formatQty(totals.received)}</div>`+
-	          `</div>`+
-	          `<div class="receive-order-card">`+
-	            `<div class="label">Remaining Qty</div>`+
-	            `<div class="value">${formatQty(totals.remaining)}</div>`+
-	          `</div>`;
+	          (leadTimeDays !== null ? 
+	            `<div class="lead-time-card">`+
+	              `<div class="lead-time-info">`+
+	                `<div class="lead-time-icon">`+
+	                  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`+
+	                `</div>`+
+	                `<div>`+
+	                  `<div class="lead-time-label">Order to Inventory</div>`+
+	                  `<div class="lead-time-sublabel">Days from PO sent → received into system</div>`+
+	                `</div>`+
+	              `</div>`+
+	              `<div class="lead-time-value">`+
+	                `<div class="lead-time-days">${leadTimeDays}</div>`+
+	                `<div class="lead-time-days-label">days</div>`+
+	              `</div>`+
+	            `</div>` : '');
 	      }else{
 	        meta.innerHTML = '';
 	        summary.innerHTML = '';
@@ -34902,30 +35340,24 @@ function emptyStateHtml(){
 	        linesWrap.innerHTML = ro.lines.map(line => {
 	          const name = line.item_name || '(Unnamed item)';
 	          const sku = line.item_sku || '';
+	          const remainingNum = (line.remaining_qty === null || typeof line.remaining_qty === 'undefined') ? 0 : toInt(line.remaining_qty, 0);
 	          const remaining = (line.remaining_qty === null || typeof line.remaining_qty === 'undefined')
 	            ? '—'
 	            : formatQty(line.remaining_qty);
 	          const disabled = line.disabled || !isEditable;
-	          const receivedVal = formatQty(line.qty_received);
-	          const rejectedVal = formatQty(line.qty_rejected);
+	          const disabledAttr = disabled ? ' disabled' : '';
+	          const receivedVal = toInt(line.qty_received, 0);
+	          const rejectedVal = toInt(line.qty_rejected, 0);
 	          const reasonVal = String(line.rejection_reason || '').trim();
+	          const reasonDisabled = rejectedVal === 0;
 	          const invItem = line.item_id ? getInventoryById(line.item_id) : null;
 	          const onHand = invItem ? toInt(invItem.qty, 0) : null;
 	          const incomingEntry = line.item_id ? incomingMap.get(line.item_id) : null;
 	          const incomingQty = incomingEntry ? incomingEntry.qty : 0;
-	          const incomingOrders = incomingEntry ? incomingEntry.orders.size : 0;
 	          const onHandText = (onHand === null || typeof onHand === 'undefined') ? '—' : formatQty(onHand);
-	          const incomingText = incomingQty > 0
-	            ? `${formatQty(incomingQty)} (${incomingOrders} open order${incomingOrders === 1 ? '' : 's'})`
-	            : '—';
-	          const stats = [];
-	          if(isOrderMode){
-	            stats.push(`<div>Expected: ${formatQty(line.expected_qty)}</div>`);
-	            stats.push(`<div>Previously received: ${formatQty(line.prev_received)}</div>`);
-	            stats.push(`<div>Remaining: ${remaining}</div>`);
-	          }
-	          stats.push(`<div>On Hand: ${onHandText}</div>`);
-	          stats.push(`<div>Incoming (Not Yet Received): ${incomingText}</div>`);
+	          const incomingText = incomingQty > 0 ? formatQty(incomingQty) : '—';
+	          const stepperMinusSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
+	          const stepperPlusSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
 	          return (
 	            `<div class="receive-line${disabled ? ' disabled' : ''}" data-receive-line-key="${escapeHtmlAttr(line.key)}">`+
 	              `<div class="receive-line-header">`+
@@ -34933,25 +35365,54 @@ function emptyStateHtml(){
 	                  `<div class="receive-line-title" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
 	                  (sku ? `<div class="receive-line-sku">SKU: ${escapeHtml(sku)}</div>` : '')+
 	                `</div>`+
+	                `<div class="receive-line-remaining">`+
+	                  `<span class="receive-line-remaining-label">Rem</span>`+
+	                  `<span class="receive-line-remaining-value">${remaining}</span>`+
+	                `</div>`+
+	              `</div>`+
+	              (isOrderMode ? 
 	                `<div class="receive-line-stats">`+
-	                  stats.join('')+
-	                `</div>`+
-	              `</div>`+
+	                  `<div class="receive-line-stat">`+
+	                    `<div class="receive-line-stat-value">${formatQty(line.expected_qty)}</div>`+
+	                    `<div class="receive-line-stat-label">Expected</div>`+
+	                  `</div>`+
+	                  `<div class="receive-line-stat">`+
+	                    `<div class="receive-line-stat-value">${formatQty(line.prev_received)}</div>`+
+	                    `<div class="receive-line-stat-label">Prev</div>`+
+	                  `</div>`+
+	                  `<div class="receive-line-stat">`+
+	                    `<div class="receive-line-stat-value">${onHandText}</div>`+
+	                    `<div class="receive-line-stat-label">On Hand</div>`+
+	                  `</div>`+
+	                  `<div class="receive-line-stat">`+
+	                    `<div class="receive-line-stat-value">${incomingText}</div>`+
+	                    `<div class="receive-line-stat-label">Incoming</div>`+
+	                  `</div>`+
+	                `</div>` : '')+
 	              `<div class="receive-line-inputs">`+
-	                `<div>`+
-	                  `<label>Qty Received</label>`+
-	                  `<input type="number" inputmode="numeric" step="1" min="0" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="received" value="${escapeHtmlAttr(receivedVal)}"${disabled ? ' disabled' : ''}>`+
+	                `<div class="receive-line-stepper-row">`+
+	                  `<label>Received</label>`+
+	                  `<div class="qty-stepper qty-stepper--received">`+
+	                    `<button type="button" class="qty-stepper-btn" data-receive-stepper="dec" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="received"${disabledAttr}${receivedVal <= 0 ? ' disabled' : ''}>${stepperMinusSvg}</button>`+
+	                    `<input type="number" class="qty-stepper-input" inputmode="numeric" step="1" min="0" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="received" value="${receivedVal}"${disabledAttr}>`+
+	                    `<button type="button" class="qty-stepper-btn" data-receive-stepper="inc" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="received"${disabledAttr}>${stepperPlusSvg}</button>`+
+	                  `</div>`+
+	                  (remainingNum > 0 ? `<button type="button" class="receive-line-receive-all" data-receive-all="${remainingNum}" data-receive-line-key="${escapeHtmlAttr(line.key)}"${disabledAttr}>All</button>` : '')+
 	                `</div>`+
-	                `<div>`+
-	                  `<label>Qty Rejected</label>`+
-	                  `<input type="number" inputmode="numeric" step="1" min="0" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="rejected" value="${escapeHtmlAttr(rejectedVal)}"${disabled ? ' disabled' : ''}>`+
+	                `<div class="receive-line-stepper-row">`+
+	                  `<label>Rejected</label>`+
+	                  `<div class="qty-stepper">`+
+	                    `<button type="button" class="qty-stepper-btn" data-receive-stepper="dec" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="rejected"${disabledAttr}${rejectedVal <= 0 ? ' disabled' : ''}>${stepperMinusSvg}</button>`+
+	                    `<input type="number" class="qty-stepper-input" inputmode="numeric" step="1" min="0" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="rejected" value="${rejectedVal}"${disabledAttr}>`+
+	                    `<button type="button" class="qty-stepper-btn" data-receive-stepper="inc" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="rejected"${disabledAttr}>${stepperPlusSvg}</button>`+
+	                  `</div>`+
 	                `</div>`+
-	                `<div>`+
-	                  `<label>Rejection Reason</label>`+
-	                  `<textarea data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="reason" placeholder="Required if rejected qty > 0."${disabled ? ' disabled' : ''}>${escapeHtml(reasonVal)}</textarea>`+
+	                `<div class="receive-line-reason-row">`+
+	                  `<label>Reason</label>`+
+	                  `<input type="text" class="receive-line-reason-input" data-receive-line-key="${escapeHtmlAttr(line.key)}" data-receive-field="reason" placeholder="Required if rejected qty > 0" value="${escapeHtmlAttr(reasonVal)}"${disabledAttr}${reasonDisabled ? ' disabled' : ''}>`+
 	                `</div>`+
 	              `</div>`+
-	              `<div class="receive-line-warning" data-receive-line-warning></div>`+
+	              `<div class="receive-line-warning" data-receive-line-warning>⚠ Receiving more than remaining quantity</div>`+
 	              (line.disabled ? `<div class="receive-line-note">Item mapping missing. This line cannot be received.</div>` : '')+
 	            `</div>`
 	          );
@@ -41674,6 +42135,41 @@ function emptyStateHtml(){
 	        const inp = e.target.closest('[data-receive-line-key]');
 	        if(!inp) return;
 	        updateReceiveLineFromInput(inp, { format:true, showError:true });
+	      });
+	      // Stepper button handlers
+	      receiveOrderLines.addEventListener('click', (e)=>{
+	        // Handle stepper inc/dec buttons
+	        const stepperBtn = e.target.closest('[data-receive-stepper]');
+	        if(stepperBtn && !stepperBtn.disabled){
+	          const action = stepperBtn.dataset.receiveStepper;
+	          const lineKey = stepperBtn.dataset.receiveLineKey;
+	          const field = stepperBtn.dataset.receiveField;
+	          if(!lineKey || !field) return;
+	          const input = receiveOrderLines.querySelector(`input.qty-stepper-input[data-receive-line-key="${lineKey}"][data-receive-field="${field}"]`);
+	          if(!input || input.disabled) return;
+	          let currentVal = toInt(input.value, 0);
+	          if(action === 'inc'){
+	            currentVal++;
+	          }else if(action === 'dec' && currentVal > 0){
+	            currentVal--;
+	          }
+	          input.value = currentVal;
+	          input.dispatchEvent(new Event('input', { bubbles:true }));
+	          input.dispatchEvent(new Event('change', { bubbles:true }));
+	          return;
+	        }
+	        // Handle "Receive All" button
+	        const receiveAllBtn = e.target.closest('[data-receive-all]');
+	        if(receiveAllBtn && !receiveAllBtn.disabled){
+	          const lineKey = receiveAllBtn.dataset.receiveLineKey;
+	          const remaining = toInt(receiveAllBtn.dataset.receiveAll, 0);
+	          if(!lineKey) return;
+	          const input = receiveOrderLines.querySelector(`input.qty-stepper-input[data-receive-line-key="${lineKey}"][data-receive-field="received"]`);
+	          if(!input || input.disabled) return;
+	          input.value = remaining;
+	          input.dispatchEvent(new Event('input', { bubbles:true }));
+	          input.dispatchEvent(new Event('change', { bubbles:true }));
+	        }
 	      });
 	    }
 	    const receiveManualSearch = $('receiveManualSearch');
