@@ -33353,7 +33353,7 @@ function emptyStateHtml(){
 	    function formatPurchaseOrderStatusLabel(orderRow, totals){
 	      const state = getPurchaseOrderReceiveState(orderRow, totals);
 	      if(state === 'draft') return 'Draft';
-	      if(state === 'submitted') return 'Submitted';
+	      if(state === 'submitted') return 'Sent to Vendor';
 	      if(state === 'partially_received') return 'Partially Received';
 	      if(state === 'fully_received') return 'Fully Received';
 	      if(state === 'cancelled') return 'Cancelled';
