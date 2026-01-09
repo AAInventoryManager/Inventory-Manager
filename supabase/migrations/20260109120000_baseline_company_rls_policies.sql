@@ -62,38 +62,8 @@ WITH CHECK (
   auth.uid() = '0d138ecc-fdca-47aa-af9f-712e091db791'
 );
 
--- Inventory items.
-DROP POLICY IF EXISTS "inventory_items_company_read" ON public.inventory_items;
-CREATE POLICY "inventory_items_company_read"
-ON public.inventory_items
-FOR SELECT
-USING (
-  company_id IN (SELECT public.get_user_company_ids())
-);
-
-DROP POLICY IF EXISTS "inventory_items_company_insert" ON public.inventory_items;
-CREATE POLICY "inventory_items_company_insert"
-ON public.inventory_items
-FOR INSERT
-WITH CHECK (
-  company_id IN (SELECT public.get_user_company_ids())
-);
-
-DROP POLICY IF EXISTS "inventory_items_company_update" ON public.inventory_items;
-CREATE POLICY "inventory_items_company_update"
-ON public.inventory_items
-FOR UPDATE
-USING (
-  company_id IN (SELECT public.get_user_company_ids())
-);
-
-DROP POLICY IF EXISTS "inventory_items_company_delete" ON public.inventory_items;
-CREATE POLICY "inventory_items_company_delete"
-ON public.inventory_items
-FOR DELETE
-USING (
-  company_id IN (SELECT public.get_user_company_ids())
-);
+-- Inventory items: preserve permission-based policies from 010_phase1_inventory_enforcement.
+-- Do NOT overwrite these policies - they require check_permission() for proper role enforcement.
 
 -- Incoming inventory.
 DROP POLICY IF EXISTS "incoming_inventory_company_read" ON public.incoming_inventory;

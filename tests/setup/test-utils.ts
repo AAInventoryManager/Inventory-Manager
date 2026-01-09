@@ -136,17 +136,20 @@ export async function getUserIdByEmail(email: string): Promise<string> {
 
 export async function getAuthUserIdByEmail(email: string): Promise<string> {
   // Paginated lookup to handle large user lists with retry for transient errors
-  const maxAttempts = 3;
+  const maxAttempts = AUTH_THROTTLE_MS > 0 ? 5 : 3;
   let lastError: { message?: string; status?: number; code?: string } | null = null;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     let page = 1;
     while (page <= 10) {
-      const { data, error } = await adminClient.auth.admin.listUsers({ page, perPage: 1000 });
+      const { data, error } = await withAuthThrottle(() =>
+        adminClient.auth.admin.listUsers({ page, perPage: 1000 })
+      );
       if (error) {
         lastError = error;
         if (isRetryableAuthError(error) && attempt < maxAttempts) {
-          await sleep(1000 * attempt);
+          // Exponential backoff: 2s, 4s, 8s, 16s
+          await sleep(2000 * Math.pow(2, attempt - 1));
           break; // Break inner loop to retry from page 1
         }
         throw error;
