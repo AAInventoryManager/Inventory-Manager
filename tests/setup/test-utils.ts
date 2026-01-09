@@ -1,10 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
+import './load-test-env';
 import { TEST_USERS } from '../fixtures/users';
 import { TEST_COMPANIES } from '../fixtures/companies';
-
-const envPath = process.env.ENV_PATH || (process.env.CI ? '.env.test.ci' : '.env.test');
-dotenv.config({ path: envPath });
 
 function requireEnv(name: string): string {
   const value = process.env[name];

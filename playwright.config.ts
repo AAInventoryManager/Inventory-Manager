@@ -1,8 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import dotenv from 'dotenv';
-
-const envPath = process.env.CI ? '.env.test.ci' : '.env.test';
-dotenv.config({ path: envPath });
+import './tests/setup/load-test-env';
 
 export default defineConfig({
   testDir: './tests/e2e',

@@ -4534,6 +4534,74 @@
       gap:8px;
       flex-wrap:wrap;
     }
+    #receiveOrderModal .receive-footer--icons{
+      flex-direction:column;
+      align-items:stretch;
+      gap:16px;
+      padding:16px 20px;
+    }
+    #receiveOrderModal .receive-footer--icons .footer-message{
+      text-align:center;
+      font-size:12px;
+    }
+    #receiveOrderModal .receive-footer--icons .footer-actions{
+      display:flex;
+      justify-content:center;
+      gap:24px;
+    }
+    #receiveOrderModal .footer-icon-btn{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      background:transparent;
+      border:none;
+      padding:12px 16px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:all 0.15s ease;
+      min-width:72px;
+    }
+    #receiveOrderModal .footer-icon-btn svg{
+      width:24px;
+      height:24px;
+    }
+    #receiveOrderModal .footer-icon-label{
+      font-size:11px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+    }
+    #receiveOrderModal .footer-icon-btn--cancel{
+      color:var(--muted);
+    }
+    #receiveOrderModal .footer-icon-btn--cancel:hover{
+      background:rgba(255,255,255,0.05);
+      color:var(--fg);
+    }
+    #receiveOrderModal .footer-icon-btn--save{
+      color:var(--blue);
+      background:var(--blue-muted);
+    }
+    #receiveOrderModal .footer-icon-btn--save:hover{
+      background:var(--blue);
+      color:#fff;
+    }
+    #receiveOrderModal .footer-icon-btn--confirm{
+      color:var(--green);
+      background:var(--green-muted);
+    }
+    #receiveOrderModal .footer-icon-btn--confirm:hover{
+      background:var(--green);
+      color:#fff;
+    }
+    #receiveOrderModal .footer-icon-btn:disabled{
+      opacity:0.4;
+      cursor:not-allowed;
+    }
+    #receiveOrderModal .footer-icon-btn:disabled:hover{
+      background:transparent;
+    }
     .receive-mode-bar{
       display:flex;
       align-items:center;
@@ -5219,6 +5287,35 @@
       font-size:12px;
       color:var(--muted);
     }
+    #receiveOrderModal .form-section .input-wrap{
+      max-width:100%;
+    }
+    #receiveOrderModal .form-section .input-wrap input{
+      width:100%;
+      background:rgba(0,0,0,0.3);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:12px 14px;
+      font-size:14px;
+      color:var(--fg);
+      transition:border-color 0.15s ease;
+    }
+    #receiveOrderModal .form-section .input-wrap input:focus{
+      outline:none;
+      border-color:var(--primary);
+    }
+    #receiveOrderModal .form-section .input-wrap input::placeholder{
+      color:var(--muted);
+    }
+    #receiveOrderModal .form-section label{
+      display:block;
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
     #receiveOrderModal{
       --green:#22c55e;
       --green-muted:rgba(34,197,94,0.15);
@@ -5603,6 +5700,35 @@
       color:var(--muted);
       flex-shrink:0;
     }
+    #receiveOrderModal .summary-value--date{
+      position:relative;
+      cursor:pointer;
+    }
+    #receiveOrderModal .summary-value--date input[type="date"]{
+      cursor:pointer;
+      color-scheme:dark;
+    }
+    #receiveOrderModal .summary-value--date input[type="date"]::-webkit-calendar-picker-indicator{
+      cursor:pointer;
+      filter:invert(1) brightness(0.7);
+      opacity:0;
+      position:absolute;
+      left:0;
+      right:0;
+      top:0;
+      bottom:0;
+      width:100%;
+      height:100%;
+    }
+    #receiveOrderModal .summary-value--date .date-icon{
+      width:14px;
+      height:14px;
+      color:var(--primary);
+      pointer-events:none;
+    }
+    #receiveOrderModal .summary-value--date:hover .date-icon{
+      color:var(--fg);
+    }
     #receiveOrderModal .po-link-card{
       padding:14px 16px;
       background:linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02));
@@ -5810,6 +5936,149 @@
       font-size:12px;
       color:var(--muted);
     }
+    #receiveOrderModal .parsed-item-actuals{
+      display:flex;
+      gap:12px;
+      padding:10px 14px;
+      background:rgba(0,0,0,0.15);
+      border-top:1px solid var(--border-subtle);
+    }
+    #receiveOrderModal .parsed-item-actuals-field{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      flex:1;
+    }
+    #receiveOrderModal .parsed-item-actuals-field label{
+      font-size:10px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      color:var(--muted);
+    }
+    #receiveOrderModal .parsed-item-actuals-field input,
+    #receiveOrderModal .parsed-item-actuals-field textarea{
+      background:rgba(255,255,255,0.06);
+      border:1px solid var(--border);
+      border-radius:6px;
+      padding:8px 10px;
+      font-size:13px;
+      color:var(--fg);
+    }
+    #receiveOrderModal .parsed-item-actuals-field input:focus,
+    #receiveOrderModal .parsed-item-actuals-field textarea:focus{
+      outline:none;
+      border-color:var(--primary);
+    }
+    #receiveOrderModal .parsed-item-actuals-field textarea{
+      min-height:40px;
+      resize:vertical;
+    }
+    #receiveOrderModal .parsed-item-match-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      background:rgba(0,0,0,0.15);
+      border-top:1px solid var(--border-subtle);
+    }
+    #receiveOrderModal .parsed-item-match-row .btn-match{
+      background:var(--primary-muted);
+      color:var(--primary);
+      border:none;
+      border-radius:6px;
+      padding:6px 12px;
+      font-size:12px;
+      font-weight:600;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    #receiveOrderModal .parsed-item-match-row .btn-match:hover{
+      background:var(--primary);
+      color:#fff;
+    }
+    #receiveOrderModal .parsed-item-match-row .btn-match svg{ width:14px; height:14px; }
+    #receiveOrderModal .parsed-item-matched-info{
+      flex:1;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      min-width:0;
+    }
+    #receiveOrderModal .parsed-item-matched-name{
+      font-size:12px;
+      font-weight:600;
+      color:var(--green);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    #receiveOrderModal .parsed-item-matched-sku{
+      font-size:11px;
+      color:var(--muted);
+      flex-shrink:0;
+    }
+    #receiveOrderModal .parsed-item-match-row .btn-unmatch{
+      background:transparent;
+      border:1px solid var(--border);
+      border-radius:6px;
+      padding:4px 8px;
+      font-size:11px;
+      color:var(--muted);
+      cursor:pointer;
+    }
+    #receiveOrderModal .parsed-item-match-row .btn-unmatch:hover{
+      border-color:var(--red);
+      color:var(--red);
+    }
+    #receiveOrderModal .parsed-item-search{
+      position:relative;
+      flex:1;
+    }
+    #receiveOrderModal .parsed-item-search input{
+      width:100%;
+      background:rgba(255,255,255,0.06);
+      border:1px solid var(--border);
+      border-radius:6px;
+      padding:8px 10px;
+      font-size:12px;
+      color:var(--fg);
+    }
+    #receiveOrderModal .parsed-item-search input:focus{ outline:none; border-color:var(--primary); }
+    #receiveOrderModal .parsed-item-search-results{
+      position:absolute;
+      top:100%;
+      left:0;
+      right:0;
+      background:var(--bg-elevated);
+      border:1px solid var(--border);
+      border-radius:8px;
+      margin-top:4px;
+      max-height:180px;
+      overflow-y:auto;
+      z-index:100;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3);
+    }
+    #receiveOrderModal .parsed-item-search-result{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 12px;
+      cursor:pointer;
+      border-bottom:1px solid var(--border-subtle);
+    }
+    #receiveOrderModal .parsed-item-search-result:last-child{ border-bottom:none; }
+    #receiveOrderModal .parsed-item-search-result:hover{ background:rgba(255,255,255,0.04); }
+    #receiveOrderModal .parsed-item-search-result-name{
+      font-size:13px;
+      font-weight:500;
+    }
+    #receiveOrderModal .parsed-item-search-result-meta{
+      font-size:11px;
+      color:var(--muted);
+    }
     #receiveOrderModal .notes-toggle{
       display:flex;
       align-items:center;
@@ -5913,6 +6182,16 @@
       }
       #receiveOrderModal .parsed-item-qty-label{ display:none; }
       #receiveOrderModal .btn-icon span{ display:none; }
+      #receiveOrderModal .parsed-item-actuals{
+        flex-direction:column;
+        gap:8px;
+      }
+      #receiveOrderModal .parsed-item-match-row{
+        flex-wrap:wrap;
+      }
+      #receiveOrderModal .parsed-item-search{
+        width:100%;
+      }
     }
 	    /* Qty picker wheel */
 	    .qty-picker-wheel-wrap{
@@ -14392,10 +14671,13 @@
                   </div>
                   <div class="summary-field">
                     <div class="summary-label">Date</div>
-                    <div class="summary-value summary-value--editable">
+                    <div class="summary-value summary-value--editable summary-value--date">
                       <input id="receiveReceiptDate" type="date" />
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                      <svg class="date-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
                       </svg>
                     </div>
                   </div>
@@ -14424,7 +14706,7 @@
                     <button class="po-link-action" id="receivePoLinkAction" type="button" data-receipt-link-po>Link PO</button>
                   </div>
                 </div>
-                <div class="parsed-items-section">
+                <div class="parsed-items-section" id="receiveParsedSection">
                   <div class="section-header">
                     <span class="section-label">Parsed Items</span>
                     <span class="section-count" id="receiveParsedCount">0 items</span>
@@ -14473,25 +14755,36 @@
               </div>
             </div>
           </div>
-          <div class="modal-footer receive-footer">
-            <div class="footer-left">
+          <div class="modal-footer receive-footer receive-footer--icons">
+            <div class="footer-message">
               <div id="receiveOrderMsg" class="muted"></div>
               <div class="receive-plan-upgrade" id="receivePlanUpgrade" style="display:none;">
                 <span class="muted">Upgrade to enable receipt-based receiving.</span>
                 <button class="btn-tertiary btn-sm" type="button" data-receipt-upgrade>Upgrade to Pro</button>
               </div>
-              <button class="btn-secondary btn-icon" id="btnReceiveOrderSave" type="button" title="Save Draft">
+            </div>
+            <div class="footer-actions">
+              <button class="footer-icon-btn footer-icon-btn--cancel" id="btnReceiveOrderCancel" type="button" data-modal-close="receiveOrderModal" title="Cancel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                <span class="footer-icon-label">Cancel</span>
+              </button>
+              <button class="footer-icon-btn footer-icon-btn--save" id="btnReceiveOrderSave" type="button" title="Save Draft">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                   <polyline points="17 21 17 13 7 13 7 21"></polyline>
                   <polyline points="7 3 7 8 15 8"></polyline>
                 </svg>
-                <span>Save Draft</span>
+                <span class="footer-icon-label">Save</span>
               </button>
-            </div>
-            <div class="footer-right">
-              <button class="btn-secondary" id="btnReceiveOrderCancel" type="button" data-modal-close="receiveOrderModal">Cancel</button>
-              <button class="btn-primary" id="btnReceiveOrderComplete" type="button">Confirm &amp; Receive</button>
+              <button class="footer-icon-btn footer-icon-btn--confirm" id="btnReceiveOrderComplete" type="button" title="Confirm &amp; Receive">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span class="footer-icon-label">Receive</span>
+              </button>
             </div>
           </div>
         </div>
@@ -33363,6 +33656,7 @@ function emptyStateHtml(){
       const sourceBadge = $('receiveReceiptSourceBadge');
       const parsedLinesWrap = $('receiptParsedLines');
       const parsedCount = $('receiveParsedCount');
+      const parsedSection = $('receiveParsedSection');
       const poLinkCard = $('receivePoLinkCard');
       const poLinkTitle = $('receivePoLinkTitle');
       const poLinkDesc = $('receivePoLinkDesc');
@@ -33500,7 +33794,9 @@ function emptyStateHtml(){
         }
       }
       if(attachmentsWrap && attachmentsList && attachmentsGate){
-        const showAttachments = !isInboxMode && !!ro.receiptId;
+        const attachments = Array.isArray(ro.attachments) ? ro.attachments.filter(att => att && att.id) : [];
+        const hasAttachments = attachments.length > 0;
+        const showAttachments = !isInboxMode && !!ro.receiptId && (hasAttachments || ro.attachmentsLoading);
         if(!showAttachments){
           attachmentsWrap.style.display = 'none';
           attachmentsList.innerHTML = '';
@@ -33517,35 +33813,30 @@ function emptyStateHtml(){
             }else if(ro.attachmentsError){
               attachmentsList.innerHTML = `<div class="receive-attachments-empty">${escapeHtml(ro.attachmentsError)}</div>`;
             }else{
-              const attachments = Array.isArray(ro.attachments) ? ro.attachments.filter(att => att && att.id) : [];
-              if(!attachments.length){
-                attachmentsList.innerHTML = `<div class="receive-attachments-empty">No attachments stored.</div>`;
-              }else{
-                const allowDelete = canManageReceiptAttachments();
-                attachmentsList.innerHTML = attachments.map(att => {
-                  const id = String(att.id || '').trim();
-                  const name = String(att.file_name || 'Attachment').trim() || 'Attachment';
-                  const contentType = String(att.content_type || '').trim();
-                  const typeLabel = formatReceiptAttachmentType(contentType);
-                  const sizeLabel = formatReceiptAttachmentSize(att.byte_size);
-                  const metaText = [typeLabel, sizeLabel].filter(Boolean).join(' • ');
-                  const deleteBtn = allowDelete
-                    ? `<button class="btn-tertiary btn-sm btn-danger" type="button" data-receipt-attachment-delete="${escapeHtmlAttr(id)}">Delete</button>`
-                    : '';
-                  return (
-                    `<div class="receive-attachment-item" data-receipt-attachment-id="${escapeHtmlAttr(id)}">`+
-                      `<div class="receive-attachment-info">`+
-                        `<div class="receive-attachment-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
-                        `<div class="receive-attachment-meta">${escapeHtml(metaText || 'File')}</div>`+
-                      `</div>`+
-                      `<div class="receive-attachment-actions">`+
-                        `<button class="btn-tertiary btn-sm" type="button" data-receipt-attachment-download="${escapeHtmlAttr(id)}">Download</button>`+
-                        `${deleteBtn}`+
-                      `</div>`+
-                    `</div>`
-                  );
-                }).join('');
-              }
+              const allowDelete = canManageReceiptAttachments();
+              attachmentsList.innerHTML = attachments.map(att => {
+                const id = String(att.id || '').trim();
+                const name = String(att.file_name || 'Attachment').trim() || 'Attachment';
+                const contentType = String(att.content_type || '').trim();
+                const typeLabel = formatReceiptAttachmentType(contentType);
+                const sizeLabel = formatReceiptAttachmentSize(att.byte_size);
+                const metaText = [typeLabel, sizeLabel].filter(Boolean).join(' • ');
+                const deleteBtn = allowDelete
+                  ? `<button class="btn-tertiary btn-sm btn-danger" type="button" data-receipt-attachment-delete="${escapeHtmlAttr(id)}">Delete</button>`
+                  : '';
+                return (
+                  `<div class="receive-attachment-item" data-receipt-attachment-id="${escapeHtmlAttr(id)}">`+
+                    `<div class="receive-attachment-info">`+
+                      `<div class="receive-attachment-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
+                      `<div class="receive-attachment-meta">${escapeHtml(metaText || 'File')}</div>`+
+                    `</div>`+
+                    `<div class="receive-attachment-actions">`+
+                      `<button class="btn-tertiary btn-sm" type="button" data-receipt-attachment-download="${escapeHtmlAttr(id)}">Download</button>`+
+                      `${deleteBtn}`+
+                    `</div>`+
+                  `</div>`
+                );
+              }).join('');
             }
           }
         }
@@ -33610,9 +33901,17 @@ function emptyStateHtml(){
       }
       if(parsedLinesWrap){
         const parsedLines = Array.isArray(ro.parsedLineItems) ? ro.parsedLineItems : [];
+        // Hide section if not a parsed receipt (no items and never had any)
+        const hasParsedItems = parsedLines.length > 0;
+        const isFromParsing = ro.receiptSource === 'email' || ro.receiptSource === 'scan' || ro.receiptSource === 'upload' || hasParsedItems;
+        if(parsedSection){
+          parsedSection.style.display = isFromParsing ? '' : 'none';
+        }
         if(parsedCount){
+          const matchedCount = parsedLines.filter(l => l && l.item_id).length;
           const countLabel = parsedLines.length === 1 ? '1 item' : `${parsedLines.length} items`;
-          parsedCount.textContent = countLabel;
+          const matchLabel = matchedCount > 0 ? ` (${matchedCount} matched)` : '';
+          parsedCount.textContent = countLabel + matchLabel;
         }
         const linesHtml = parsedLines.length
           ? parsedLines.map((line, idx) => {
@@ -33624,26 +33923,64 @@ function emptyStateHtml(){
                 ? '—'
                 : formatReceiptMoney(lineTotal);
               const disabled = !allowDetailsEdit;
+              const itemId = line && line.item_id ? String(line.item_id).trim() : '';
+              const isMatched = !!itemId;
+              const matchedItem = isMatched ? getInventoryById(itemId) : null;
+              const matchedName = matchedItem ? String(matchedItem.name || '').trim() : '';
+              const matchedSku = matchedItem ? String(matchedItem.sku || '').trim() : '';
+              const qtyReceived = line && typeof line.qty_received !== 'undefined' ? formatQty(line.qty_received) : qtyVal;
+              const qtyRejected = line && typeof line.qty_rejected !== 'undefined' ? formatQty(line.qty_rejected) : '0';
+              const rejectionReason = line && line.rejection_reason ? String(line.rejection_reason).trim() : '';
+              const statusClass = isMatched ? 'parsed-item-status--matched' : 'parsed-item-status--unmatched';
+              const statusIcon = isMatched
+                ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>`
+                : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+              const matchRow = isMatched
+                ? `<div class="parsed-item-match-row">`+
+                    `<div class="parsed-item-matched-info">`+
+                      `<span class="parsed-item-matched-name" title="${escapeHtmlAttr(matchedName)}">${escapeHtml(matchedName || 'Matched item')}</span>`+
+                      (matchedSku ? `<span class="parsed-item-matched-sku">SKU: ${escapeHtml(matchedSku)}</span>` : '')+
+                    `</div>`+
+                    (allowDetailsEdit ? `<button class="btn-unmatch" type="button" data-parsed-line-unmatch="${idx}">Unmatch</button>` : '')+
+                  `</div>`
+                : `<div class="parsed-item-match-row">`+
+                    `<div class="parsed-item-search" data-parsed-line-search="${idx}">`+
+                      `<input type="text" placeholder="Search inventory to match..." data-parsed-line-search-input="${idx}"${disabled ? ' disabled' : ''}>`+
+                      `<div class="parsed-item-search-results" data-parsed-line-results="${idx}" style="display:none;"></div>`+
+                    `</div>`+
+                  `</div>`;
+              const actualsRow = isMatched
+                ? `<div class="parsed-item-actuals">`+
+                    `<div class="parsed-item-actuals-field">`+
+                      `<label>Qty Received</label>`+
+                      `<input type="number" inputmode="numeric" step="1" min="0" value="${escapeHtmlAttr(qtyReceived)}" data-parsed-line-field="qty_received" data-parsed-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
+                    `</div>`+
+                    `<div class="parsed-item-actuals-field">`+
+                      `<label>Qty Rejected</label>`+
+                      `<input type="number" inputmode="numeric" step="1" min="0" value="${escapeHtmlAttr(qtyRejected)}" data-parsed-line-field="qty_rejected" data-parsed-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
+                    `</div>`+
+                    `<div class="parsed-item-actuals-field">`+
+                      `<label>Rejection Reason</label>`+
+                      `<textarea placeholder="Required if qty rejected > 0" data-parsed-line-field="rejection_reason" data-parsed-line-index="${idx}"${disabled ? ' disabled' : ''}>${escapeHtml(rejectionReason)}</textarea>`+
+                    `</div>`+
+                  `</div>`
+                : '';
               return (
-                `<div class="parsed-item receipt-parsed-line" data-receipt-line-index="${idx}">`+
+                `<div class="parsed-item receipt-parsed-line${isMatched ? ' is-matched' : ''}" data-receipt-line-index="${idx}">`+
                   `<div class="parsed-item-main">`+
-                    `<div class="parsed-item-status parsed-item-status--unmatched">`+
-                      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
-                        `<circle cx="12" cy="12" r="10"></circle>`+
-                        `<line x1="12" y1="8" x2="12" y2="12"></line>`+
-                        `<line x1="12" y1="16" x2="12.01" y2="16"></line>`+
-                      `</svg>`+
+                    `<div class="parsed-item-status ${statusClass}">`+
+                      statusIcon+
                     `</div>`+
                     `<div class="parsed-item-info">`+
                       `<div class="parsed-item-name">`+
                         `<input type="text" value="${escapeHtmlAttr(desc)}" data-receipt-line-field="description" data-receipt-line-index="${idx}" placeholder="Item description"${disabled ? ' disabled' : ''}>`+
                       `</div>`+
-                      `<div class="parsed-item-match">Needs inventory match</div>`+
+                      `<div class="parsed-item-match">${isMatched ? 'Matched to inventory' : 'Needs inventory match'}</div>`+
                     `</div>`+
                     `<div class="parsed-item-values">`+
                       `<div class="parsed-item-qty">`+
                         `<input type="number" inputmode="numeric" step="1" min="0" value="${escapeHtmlAttr(qtyVal)}" data-receipt-line-field="qty" data-receipt-line-index="${idx}"${disabled ? ' disabled' : ''}>`+
-                        `<div class="parsed-item-qty-label">Qty</div>`+
+                        `<div class="parsed-item-qty-label">Parsed</div>`+
                       `</div>`+
                       `<div class="parsed-item-price">`+
                         `<div class="parsed-item-unit">`+
@@ -33653,6 +33990,8 @@ function emptyStateHtml(){
                       `</div>`+
                     `</div>`+
                   `</div>`+
+                  matchRow+
+                  actualsRow+
                 `</div>`
               );
             }).join('')
@@ -34092,6 +34431,7 @@ function emptyStateHtml(){
 	        if(!shouldPersist) continue;
 	        if(hasLineId){
 	          const { data, error } = await SB.client.rpc('update_receipt_line', {
+	            p_receipt_id: receiptId,
 	            p_line_id: line.receipt_line_id,
 	            p_received_qty: qtyReceived,
 	            p_rejected_qty: qtyRejected,
@@ -39813,56 +40153,252 @@ function emptyStateHtml(){
       }
     });
     const receiveReceiptTotal = $('receiveReceiptTotal');
-    if(receiveReceiptTotal) receiveReceiptTotal.addEventListener('input', ()=>{
-      if(state._receiveOrder) state._receiveOrder.receiptTotal = String(receiveReceiptTotal.value || '');
-      if(receiveScannedTotal && state._receiveOrder && state._receiveOrder.tab === 'scanned' && state._receiveOrder.mode !== 'inbox'){
-        const totalNum = parseReceiptNumber(receiveReceiptTotal.value);
-        if(totalNum !== null && typeof totalNum !== 'undefined'){
-          receiveScannedTotal.textContent = formatReceiptMoney(totalNum);
-          receiveScannedTotal.style.display = '';
-        }else{
-          receiveScannedTotal.textContent = '';
-          receiveScannedTotal.style.display = 'none';
+    if(receiveReceiptTotal){
+      receiveReceiptTotal.addEventListener('input', ()=>{
+        if(state._receiveOrder) state._receiveOrder.receiptTotal = String(receiveReceiptTotal.value || '');
+        if(receiveScannedTotal && state._receiveOrder && state._receiveOrder.tab === 'scanned' && state._receiveOrder.mode !== 'inbox'){
+          const totalNum = parseReceiptNumber(receiveReceiptTotal.value);
+          if(totalNum !== null && typeof totalNum !== 'undefined'){
+            receiveScannedTotal.textContent = formatReceiptMoney(totalNum);
+            receiveScannedTotal.style.display = '';
+          }else{
+            receiveScannedTotal.textContent = '';
+            receiveScannedTotal.style.display = 'none';
+          }
         }
-      }
-    });
+      });
+      receiveReceiptTotal.addEventListener('blur', ()=>{
+        const val = receiveReceiptTotal.value;
+        const num = parseReceiptNumber(val);
+        if(num !== null && typeof num !== 'undefined'){
+          receiveReceiptTotal.value = formatReceiptMoney(num);
+          if(state._receiveOrder) state._receiveOrder.receiptTotal = receiveReceiptTotal.value;
+        }
+      });
+    }
     const receiptParsedLines = $('receiptParsedLines');
     if(receiptParsedLines && !receiptParsedLines._wired){
       receiptParsedLines._wired = true;
+      let searchDebounce = null;
       receiptParsedLines.addEventListener('input', (e)=>{
+        // Handle parsed line field inputs (description, qty, unit_price)
         const inp = e.target.closest('[data-receipt-line-field]');
-        if(!inp || !state._receiveOrder) return;
-        const idx = toInt(inp.getAttribute('data-receipt-line-index'), -1);
-        if(idx < 0) return;
-        const field = String(inp.getAttribute('data-receipt-line-field') || '').trim();
-        const lines = Array.isArray(state._receiveOrder.parsedLineItems) ? state._receiveOrder.parsedLineItems : [];
-        const line = lines[idx];
-        if(!line) return;
-        if(field === 'description'){
-          line.description = String(inp.value || '');
-        }else if(field === 'qty' || field === 'unit_price'){
-          line[field] = parseReceiptNumber(inp.value);
-          line.line_total = getParsedLineTotal(line);
+        if(inp && state._receiveOrder){
+          const idx = toInt(inp.getAttribute('data-receipt-line-index'), -1);
+          if(idx >= 0){
+            const field = String(inp.getAttribute('data-receipt-line-field') || '').trim();
+            const lines = Array.isArray(state._receiveOrder.parsedLineItems) ? state._receiveOrder.parsedLineItems : [];
+            const line = lines[idx];
+            if(line){
+              if(field === 'description'){
+                line.description = String(inp.value || '');
+              }else if(field === 'qty' || field === 'unit_price'){
+                line[field] = parseReceiptNumber(inp.value);
+                line.line_total = getParsedLineTotal(line);
+              }
+              const row = inp.closest('.receipt-parsed-line');
+              const totalEl = row ? row.querySelector('.receipt-parsed-total-value') : null;
+              if(totalEl){
+                const lineTotal = getParsedLineTotal(line);
+                totalEl.textContent = (lineTotal === null || typeof lineTotal === 'undefined') ? '—' : formatReceiptMoney(lineTotal);
+              }
+            }
+          }
         }
-        const row = inp.closest('.receipt-parsed-line');
-        const totalEl = row ? row.querySelector('.receipt-parsed-total-value') : null;
-        if(totalEl){
-          const lineTotal = getParsedLineTotal(line);
-          totalEl.textContent = (lineTotal === null || typeof lineTotal === 'undefined') ? '—' : formatReceiptMoney(lineTotal);
+        // Handle actuals field inputs (qty_received, qty_rejected, rejection_reason)
+        const actualsInp = e.target.closest('[data-parsed-line-field]');
+        if(actualsInp && state._receiveOrder){
+          const idx = toInt(actualsInp.getAttribute('data-parsed-line-index'), -1);
+          if(idx >= 0){
+            const field = String(actualsInp.getAttribute('data-parsed-line-field') || '').trim();
+            const lines = Array.isArray(state._receiveOrder.parsedLineItems) ? state._receiveOrder.parsedLineItems : [];
+            const line = lines[idx];
+            if(line){
+              if(field === 'qty_received' || field === 'qty_rejected'){
+                line[field] = toInt(actualsInp.value, 0);
+              }else if(field === 'rejection_reason'){
+                line[field] = String(actualsInp.value || '');
+              }
+              syncParsedLineToReceiveLines(idx);
+            }
+          }
+        }
+        // Handle inventory search input
+        const searchInp = e.target.closest('[data-parsed-line-search-input]');
+        if(searchInp && state._receiveOrder){
+          const idx = toInt(searchInp.getAttribute('data-parsed-line-search-input'), -1);
+          if(idx >= 0){
+            clearTimeout(searchDebounce);
+            searchDebounce = setTimeout(()=>{
+              renderParsedLineSearchResults(idx, String(searchInp.value || '').trim());
+            }, 150);
+          }
         }
       });
       receiptParsedLines.addEventListener('click', (e)=>{
-        const btn = e.target.closest('[data-receipt-line-add]');
-        if(!btn || !state._receiveOrder) return;
-        if(!Array.isArray(state._receiveOrder.parsedLineItems)) state._receiveOrder.parsedLineItems = [];
-        state._receiveOrder.parsedLineItems.push({
-          description: '',
-          qty: null,
-          unit_price: null,
-          line_total: null,
-        });
-        renderReceiveOrderModal();
+        // Add new line
+        const addBtn = e.target.closest('[data-receipt-line-add]');
+        if(addBtn && state._receiveOrder){
+          if(!Array.isArray(state._receiveOrder.parsedLineItems)) state._receiveOrder.parsedLineItems = [];
+          state._receiveOrder.parsedLineItems.push({
+            description: '',
+            qty: null,
+            unit_price: null,
+            line_total: null,
+          });
+          renderReceiveOrderModal();
+          return;
+        }
+        // Match to inventory (click on search result)
+        const resultBtn = e.target.closest('[data-parsed-line-match-item]');
+        if(resultBtn && state._receiveOrder){
+          const idx = toInt(resultBtn.getAttribute('data-parsed-line-idx'), -1);
+          const itemId = String(resultBtn.getAttribute('data-parsed-line-match-item') || '').trim();
+          if(idx >= 0 && itemId){
+            matchParsedLineToInventory(idx, itemId);
+          }
+          return;
+        }
+        // Unmatch
+        const unmatchBtn = e.target.closest('[data-parsed-line-unmatch]');
+        if(unmatchBtn && state._receiveOrder){
+          const idx = toInt(unmatchBtn.getAttribute('data-parsed-line-unmatch'), -1);
+          if(idx >= 0){
+            unmatchParsedLine(idx);
+          }
+          return;
+        }
       });
+      receiptParsedLines.addEventListener('focusin', (e)=>{
+        const searchInp = e.target.closest('[data-parsed-line-search-input]');
+        if(searchInp){
+          const idx = toInt(searchInp.getAttribute('data-parsed-line-search-input'), -1);
+          if(idx >= 0){
+            renderParsedLineSearchResults(idx, String(searchInp.value || '').trim());
+          }
+        }
+      });
+      receiptParsedLines.addEventListener('focusout', (e)=>{
+        const searchInp = e.target.closest('[data-parsed-line-search-input]');
+        if(searchInp){
+          const idx = toInt(searchInp.getAttribute('data-parsed-line-search-input'), -1);
+          const resultsWrap = document.querySelector(`[data-parsed-line-results="${idx}"]`);
+          // Delay hiding so click events can fire
+          setTimeout(()=>{
+            if(resultsWrap && !resultsWrap.contains(document.activeElement)){
+              resultsWrap.style.display = 'none';
+            }
+          }, 200);
+        }
+      });
+    }
+    function renderParsedLineSearchResults(idx, term){
+      const resultsWrap = document.querySelector(`[data-parsed-line-results="${idx}"]`);
+      if(!resultsWrap) return;
+      if(!term){
+        resultsWrap.innerHTML = '';
+        resultsWrap.style.display = 'none';
+        return;
+      }
+      const items = Array.isArray(state.items) ? state.items : [];
+      const termLower = term.toLowerCase();
+      const matches = items.filter(it => {
+        const name = String(it && it.name ? it.name : '').toLowerCase();
+        const sku = String(it && it.sku ? it.sku : '').toLowerCase();
+        const desc = String(it && it.desc ? it.desc : '').toLowerCase();
+        return name.includes(termLower) || sku.includes(termLower) || desc.includes(termLower);
+      }).slice(0, 8);
+      if(!matches.length){
+        resultsWrap.innerHTML = `<div class="parsed-item-search-result" style="color:var(--muted);cursor:default;">No matches</div>`;
+        resultsWrap.style.display = '';
+        return;
+      }
+      resultsWrap.innerHTML = matches.map(it => {
+        const id = String(it.id || '');
+        const name = String(it.name || '').trim() || '(Unnamed)';
+        const sku = String(it.sku || '').trim();
+        const onHand = formatQty(toInt(it.qty, 0));
+        const meta = [sku ? `SKU: ${sku}` : '', `On Hand: ${onHand}`].filter(Boolean).join(' • ');
+        return `<div class="parsed-item-search-result" data-parsed-line-match-item="${escapeHtmlAttr(id)}" data-parsed-line-idx="${idx}">`+
+          `<div>`+
+            `<div class="parsed-item-search-result-name">${escapeHtml(name)}</div>`+
+            `<div class="parsed-item-search-result-meta">${escapeHtml(meta)}</div>`+
+          `</div>`+
+        `</div>`;
+      }).join('');
+      resultsWrap.style.display = '';
+    }
+    function matchParsedLineToInventory(idx, itemId){
+      if(!state._receiveOrder) return;
+      const lines = Array.isArray(state._receiveOrder.parsedLineItems) ? state._receiveOrder.parsedLineItems : [];
+      const line = lines[idx];
+      if(!line) return;
+      const item = getInventoryById(itemId);
+      if(!item) return;
+      line.item_id = itemId;
+      // Default qty_received to parsed qty if not set
+      if(typeof line.qty_received === 'undefined'){
+        line.qty_received = toInt(line.qty, 0);
+      }
+      if(typeof line.qty_rejected === 'undefined'){
+        line.qty_rejected = 0;
+      }
+      syncParsedLineToReceiveLines(idx);
+      renderReceiveOrderModal();
+    }
+    function unmatchParsedLine(idx){
+      if(!state._receiveOrder) return;
+      const lines = Array.isArray(state._receiveOrder.parsedLineItems) ? state._receiveOrder.parsedLineItems : [];
+      const line = lines[idx];
+      if(!line) return;
+      const oldItemId = line.item_id;
+      delete line.item_id;
+      delete line.qty_received;
+      delete line.qty_rejected;
+      delete line.rejection_reason;
+      // Remove from ro.lines if present
+      if(oldItemId && Array.isArray(state._receiveOrder.lines)){
+        state._receiveOrder.lines = state._receiveOrder.lines.filter(l =>
+          !(l.key && l.key.startsWith(`parsed-${idx}-`))
+        );
+      }
+      renderReceiveOrderModal();
+    }
+    function syncParsedLineToReceiveLines(idx){
+      if(!state._receiveOrder) return;
+      const parsedLines = Array.isArray(state._receiveOrder.parsedLineItems) ? state._receiveOrder.parsedLineItems : [];
+      const parsedLine = parsedLines[idx];
+      if(!parsedLine || !parsedLine.item_id) return;
+      if(!Array.isArray(state._receiveOrder.lines)) state._receiveOrder.lines = [];
+      const key = `parsed-${idx}-${parsedLine.item_id}`;
+      let existing = state._receiveOrder.lines.find(l => l.key === key);
+      const item = getInventoryById(parsedLine.item_id);
+      if(!existing){
+        existing = {
+          key: key,
+          item_id: parsedLine.item_id,
+          item_name: item ? String(item.name || '').trim() : '',
+          item_sku: item ? String(item.sku || '').trim() : '',
+          ordered_qty: 0,
+          expected_qty: toInt(parsedLine.qty, 0),
+          prev_received: 0,
+          remaining_qty: null,
+          qty_received: toInt(parsedLine.qty_received, 0),
+          qty_rejected: toInt(parsedLine.qty_rejected, 0),
+          rejection_reason: String(parsedLine.rejection_reason || '').trim(),
+          receipt_line_id: '',
+          po_line_id: '',
+          unit_cost: parsedLine.unit_price !== null ? parsedLine.unit_price : null,
+          disabled: false
+        };
+        state._receiveOrder.lines.push(existing);
+      }else{
+        existing.qty_received = toInt(parsedLine.qty_received, 0);
+        existing.qty_rejected = toInt(parsedLine.qty_rejected, 0);
+        existing.rejection_reason = String(parsedLine.rejection_reason || '').trim();
+        existing.unit_cost = parsedLine.unit_price !== null ? parsedLine.unit_price : null;
+        existing.expected_qty = toInt(parsedLine.qty, 0);
+      }
     }
     const receiptsPill = $('receiptsPill');
     if(receiptsPill) receiptsPill.addEventListener('click', ()=>{

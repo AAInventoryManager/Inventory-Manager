@@ -1,9 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-
-// Load environment variables
-import dotenv from 'dotenv';
-const envPath = process.env.CI ? '.env.test.ci' : '.env.test';
-dotenv.config({ path: envPath });
+import '../setup/load-test-env';
 
 // Test credentials from fixtures - use SUPER user who has super_user privileges
 const TEST_EMAIL = 'super@test.local';
