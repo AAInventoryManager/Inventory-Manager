@@ -46,9 +46,14 @@ async function withAuthThrottle<T>(fn: () => Promise<T>): Promise<T> {
   return authQueue;
 }
 
-function isRateLimitError(error: { message?: string; status?: number } | null): boolean {
+function isRetryableAuthError(error: { message?: string; status?: number; code?: string } | null): boolean {
   if (!error) return false;
+  // 429 is explicit rate limit
   if (error.status === 429) return true;
+  // 500 errors can happen when Supabase is overloaded
+  if (error.status === 500) return true;
+  // Check error codes that indicate temporary failures
+  if (error.code === 'unexpected_failure') return true;
   const message = String(error.message || '').toLowerCase();
   return message.includes('rate limit');
 }
@@ -89,10 +94,10 @@ export async function createAuthenticatedClient(email: string, password: string)
     data = result.data;
     if (!result.error) break;
     lastError = result.error;
-    if (!isRateLimitError(result.error) || attempt === maxAttempts) {
+    if (!isRetryableAuthError(result.error) || attempt === maxAttempts) {
       break;
     }
-    await sleep(500 * attempt);
+    await sleep(1000 * attempt);
   }
   if (lastError) throw new Error(`Failed to authenticate ${email}: ${lastError.message}`);
   if (!data?.session) throw new Error(`No session returned for ${email}`);
@@ -133,15 +138,35 @@ export async function getUserIdByEmail(email: string): Promise<string> {
 }
 
 export async function getAuthUserIdByEmail(email: string): Promise<string> {
-  // Paginated lookup to handle large user lists
-  let page = 1;
-  while (page <= 10) {
-    const { data, error } = await adminClient.auth.admin.listUsers({ page, perPage: 1000 });
-    if (error) throw error;
-    const user = data.users.find(u => u.email === email);
-    if (user) return user.id;
-    if (!data.users.length || data.users.length < 1000) break;
-    page++;
+  // Paginated lookup to handle large user lists with retry for transient errors
+  const maxAttempts = 3;
+  let lastError: { message?: string; status?: number; code?: string } | null = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    let page = 1;
+    while (page <= 10) {
+      const { data, error } = await adminClient.auth.admin.listUsers({ page, perPage: 1000 });
+      if (error) {
+        lastError = error;
+        if (isRetryableAuthError(error) && attempt < maxAttempts) {
+          await sleep(1000 * attempt);
+          break; // Break inner loop to retry from page 1
+        }
+        throw error;
+      }
+      const user = data.users.find(u => u.email === email);
+      if (user) return user.id;
+      if (!data.users.length || data.users.length < 1000) {
+        // Reached end without finding user
+        throw new Error(`Auth user not found for email: ${email}`);
+      }
+      page++;
+    }
+    // If we broke out of inner loop due to retryable error, continue outer loop
+    if (lastError && isRetryableAuthError(lastError) && attempt < maxAttempts) {
+      continue;
+    }
+    break;
   }
   throw new Error(`Auth user not found for email: ${email}`);
 }

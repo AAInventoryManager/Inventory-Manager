@@ -72,8 +72,22 @@ export default async function globalSetup() {
           page++;
         }
 
+        // If still not found, user is in an inconsistent state - try generateLink to find them
         if (!userId) {
-          throw new Error(`User ${user.email} allegedly exists but not found in auth after paginated search`);
+          // generateLink requires user to exist, so we can use it to discover ghost users
+          const { data: linkData } = await adminClient.auth.admin.generateLink({
+            type: 'recovery',
+            email: user.email
+          });
+
+          if (linkData?.user?.id) {
+            // Found the ghost user via generateLink - just use them directly
+            userId = linkData.user.id;
+          }
+
+          if (!userId) {
+            throw new Error(`User ${user.email} in unrecoverable inconsistent state`);
+          }
         }
       } else if (error) {
         throw new Error(`Failed to create user ${user.email}: ${error.message}`);
