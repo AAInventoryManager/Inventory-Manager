@@ -3589,10 +3589,6 @@
       gap:8px;
     }
     .order-wizard-btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
       padding:10px 20px;
       border-radius:10px;
       font-size:14px;
@@ -4388,6 +4384,325 @@
         flex:1 1 calc(50% - 4px);
       }
     }
+    /* Receive History modal */
+    #receiveHistoryModal .modal{
+      max-width:720px;
+      width:min(720px, 95vw);
+      background:linear-gradient(145deg, rgba(18,22,30,0.98) 0%, rgba(12,16,22,0.99) 100%);
+      border:1px solid var(--border);
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow:0 25px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    #receiveHistoryModal .modal-header{
+      padding:16px 20px;
+      border-bottom:1px solid var(--border);
+      background:rgba(12,16,22,0.9);
+    }
+    #receiveHistoryModal .receive-history-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    #receiveHistoryModal .receive-history-toolbar{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:14px 20px;
+      border-bottom:1px solid var(--border);
+      background:rgba(0,0,0,0.15);
+      flex-wrap:wrap;
+    }
+    #receiveHistoryModal .receive-history-search-wrap{
+      flex:1;
+      position:relative;
+      min-width:200px;
+    }
+    #receiveHistoryModal .receive-history-search-input{
+      width:100%;
+      padding:10px 14px 10px 38px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.3);
+      color:var(--fg);
+      font-size:13px;
+      font-weight:500;
+      outline:none;
+      transition:all 0.2s ease;
+    }
+    #receiveHistoryModal .receive-history-search-input::placeholder{
+      color:var(--muted);
+      font-weight:400;
+    }
+    #receiveHistoryModal .receive-history-search-input:focus{
+      border-color:rgba(255,255,255,0.2);
+      background:rgba(0,0,0,0.4);
+    }
+    #receiveHistoryModal .receive-history-search-icon{
+      position:absolute;
+      left:12px;
+      top:50%;
+      transform:translateY(-50%);
+      color:var(--muted);
+      pointer-events:none;
+    }
+    #receiveHistoryModal .receive-history-search-icon svg{
+      width:16px;
+      height:16px;
+    }
+    #receiveHistoryModal .receive-history-toolbar-btn{
+      padding:10px 14px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      color:var(--fg);
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      transition:all 0.15s ease;
+      white-space:nowrap;
+    }
+    #receiveHistoryModal .receive-history-toolbar-btn:hover{
+      background:rgba(255,255,255,0.08);
+      border-color:rgba(255,255,255,0.15);
+    }
+    #receiveHistoryModal .receive-history-toolbar-btn:disabled{
+      opacity:0.5;
+      cursor:not-allowed;
+    }
+    #receiveHistoryModal .receive-history-toolbar-btn svg{
+      width:16px;
+      height:16px;
+    }
+    #receiveHistoryModal .receive-history-body{
+      flex:1;
+      overflow-y:auto;
+      padding:16px 20px;
+      max-height:calc(70vh - 200px);
+    }
+    #receiveHistoryModal .receive-history-stats{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:10px;
+      margin-bottom:16px;
+    }
+    #receiveHistoryModal .receive-history-stat{
+      background:rgba(0,0,0,0.2);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:12px;
+      text-align:center;
+    }
+    #receiveHistoryModal .receive-history-stat-value{
+      font-size:20px;
+      font-weight:800;
+      color:#fff;
+      font-variant-numeric:tabular-nums;
+    }
+    #receiveHistoryModal .receive-history-stat-label{
+      font-size:11px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      margin-top:4px;
+    }
+    #receiveHistoryModal .receipt-card{
+      background:rgba(0,0,0,0.25);
+      border:1px solid var(--border);
+      border-radius:14px;
+      margin-bottom:10px;
+      overflow:hidden;
+      transition:all 0.15s ease;
+    }
+    #receiveHistoryModal .receipt-card:hover{
+      border-color:rgba(255,255,255,0.12);
+    }
+    #receiveHistoryModal .receipt-card.is-expanded{
+      border-color:rgba(34,197,94,0.3);
+      background:rgba(0,0,0,0.3);
+    }
+    #receiveHistoryModal .receipt-card-header{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 16px;
+      cursor:pointer;
+      transition:background 0.15s ease;
+    }
+    #receiveHistoryModal .receipt-card-header:hover{
+      background:rgba(255,255,255,0.02);
+    }
+    #receiveHistoryModal .receipt-card-icon{
+      width:42px;
+      height:42px;
+      border-radius:10px;
+      background:rgba(34,197,94,0.15);
+      border:1px solid rgba(34,197,94,0.2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#22c55e;
+      flex-shrink:0;
+    }
+    #receiveHistoryModal .receipt-card-icon svg{
+      width:20px;
+      height:20px;
+    }
+    #receiveHistoryModal .receipt-card-icon--voided{
+      background:rgba(239,68,68,0.15);
+      border-color:rgba(239,68,68,0.2);
+      color:#ef4444;
+    }
+    #receiveHistoryModal .receipt-card-icon--pending{
+      background:rgba(245,158,11,0.15);
+      border-color:rgba(245,158,11,0.2);
+      color:#f59e0b;
+    }
+    #receiveHistoryModal .receipt-card-info{
+      flex:1;
+      min-width:0;
+    }
+    #receiveHistoryModal .receipt-card-title{
+      font-weight:700;
+      font-size:14px;
+      color:#fff;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    #receiveHistoryModal .receipt-card-meta{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:2px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:4px 12px;
+    }
+    #receiveHistoryModal .receipt-card-stats{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-shrink:0;
+    }
+    #receiveHistoryModal .receipt-card-stat{
+      text-align:center;
+    }
+    #receiveHistoryModal .receipt-card-stat-value{
+      font-size:16px;
+      font-weight:800;
+      color:#22c55e;
+      font-variant-numeric:tabular-nums;
+    }
+    #receiveHistoryModal .receipt-card-stat-value--amber{
+      color:#f59e0b;
+    }
+    #receiveHistoryModal .receipt-card-stat-label{
+      font-size:9px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+    }
+    #receiveHistoryModal .receipt-card-chevron{
+      color:var(--muted);
+      transition:transform 0.2s ease;
+      flex-shrink:0;
+    }
+    #receiveHistoryModal .receipt-card-chevron svg{
+      width:18px;
+      height:18px;
+    }
+    #receiveHistoryModal .receipt-card.is-expanded .receipt-card-chevron{
+      transform:rotate(180deg);
+    }
+    #receiveHistoryModal .receipt-card-details{
+      display:none;
+      padding:0 16px 16px;
+      border-top:1px solid var(--border);
+    }
+    #receiveHistoryModal .receipt-card.is-expanded .receipt-card-details{
+      display:block;
+    }
+    #receiveHistoryModal .receipt-lines{
+      margin-top:12px;
+    }
+    #receiveHistoryModal .receipt-line-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      background:rgba(0,0,0,0.2);
+      border-radius:8px;
+      margin-bottom:6px;
+    }
+    #receiveHistoryModal .receipt-line-name{
+      flex:1;
+      font-size:13px;
+      font-weight:600;
+      min-width:0;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    #receiveHistoryModal .receipt-line-qty{
+      font-size:13px;
+      font-weight:700;
+      color:#22c55e;
+      font-variant-numeric:tabular-nums;
+    }
+    #receiveHistoryModal .receipt-line-qty--rejected{
+      color:#ef4444;
+    }
+    #receiveHistoryModal .receive-history-empty{
+      text-align:center;
+      padding:40px 20px;
+    }
+    #receiveHistoryModal .receive-history-empty-icon{
+      width:48px;
+      height:48px;
+      margin:0 auto 12px;
+      color:var(--muted);
+      opacity:0.5;
+    }
+    #receiveHistoryModal .receive-history-empty-title{
+      font-size:15px;
+      font-weight:700;
+      color:var(--fg);
+      margin-bottom:4px;
+    }
+    #receiveHistoryModal .receive-history-empty-text{
+      font-size:13px;
+      color:var(--muted);
+    }
+    #receiveHistoryModal .modal-footer{
+      padding:14px 20px;
+      border-top:1px solid var(--border);
+      background:rgba(0,0,0,0.15);
+    }
+    @media (max-width:600px){
+      #receiveHistoryModal .receive-history-stats{
+        grid-template-columns:repeat(3, 1fr);
+        gap:6px;
+      }
+      #receiveHistoryModal .receive-history-stat{
+        padding:10px 8px;
+      }
+      #receiveHistoryModal .receive-history-stat-value{
+        font-size:16px;
+      }
+      #receiveHistoryModal .receipt-card-stats{
+        display:none;
+      }
+      #receiveHistoryModal .receive-history-toolbar{
+        flex-direction:column;
+        gap:8px;
+      }
+      #receiveHistoryModal .receive-history-toolbar-btn span{
+        display:none;
+      }
+    }
     /* Receive Order modal */
     #receiveOrderModal .box{
       max-width:1100px;
@@ -4638,31 +4953,6 @@
     #receiveOrderModal .receive-footer--icons .footer-message{
       text-align:center;
       font-size:12px;
-      transition:all 0.2s ease;
-    }
-    #receiveOrderModal .receive-footer--icons .footer-message.is-error{
-      background:rgba(239,68,68,0.15);
-      color:#f87171;
-      font-size:14px;
-      font-weight:600;
-      padding:12px 16px;
-      border-radius:10px;
-      border:1px solid rgba(239,68,68,0.3);
-      animation:shake 0.4s ease;
-    }
-    @keyframes shake{
-      0%,100%{transform:translateX(0)}
-      20%,60%{transform:translateX(-6px)}
-      40%,80%{transform:translateX(6px)}
-    }
-    #receiveOrderModal .receive-footer--icons .footer-message.is-success{
-      background:rgba(34,197,94,0.15);
-      color:#4ade80;
-      font-size:14px;
-      font-weight:600;
-      padding:12px 16px;
-      border-radius:10px;
-      border:1px solid rgba(34,197,94,0.3);
     }
     #receiveOrderModal .receive-footer--icons .footer-actions{
       display:flex;
@@ -6310,9 +6600,6 @@
       color:var(--muted);
     }
     #receiveOrderModal .po-link-action{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
       padding:6px 12px;
       border-radius:8px;
       border:1px solid rgba(34,197,94,0.3);
@@ -6323,10 +6610,6 @@
       cursor:pointer;
       transition:all 0.15s ease;
       white-space:nowrap;
-    }
-    #receiveOrderModal .po-link-action svg{
-      width:14px;
-      height:14px;
     }
     #receiveOrderModal .po-link-action:hover{
       background:rgba(34,197,94,0.2);
@@ -9934,34 +10217,16 @@
       opacity:1;
       overflow-y:auto;
     }
-    /* Layout tab opens as modal overlay */
+    /* Layout tab opens as overlay so users can see impact on cards below */
     .inv-tab-content[data-inv-tab-content="layout"]{
-      position:fixed;
-      top:50%;
-      left:50%;
-      transform:translate(-50%, -50%);
-      width:calc(100% - 32px);
-      max-width:400px;
-      z-index:1001;
-      box-shadow:0 16px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
-      background:rgba(15,20,30,0.98);
-      border-radius:16px;
+      position:absolute;
+      left:12px;
+      right:12px;
+      z-index:25;
+      box-shadow:0 12px 40px rgba(0,0,0,0.5);
     }
     .inv-tab-content[data-inv-tab-content="layout"].is-active{
-      max-height:calc(100vh - 120px);
-    }
-    /* Backdrop overlay for layout modal */
-    .inv-layout-backdrop{
-      display:none;
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.7);
-      backdrop-filter:blur(4px);
-      -webkit-backdrop-filter:blur(4px);
-      z-index:1000;
-    }
-    .inv-layout-backdrop.is-active{
-      display:block;
+      max-height:calc(100vh - 280px);
     }
 
     /* Layout tab sections */
@@ -10222,6 +10487,15 @@
       padding:10px 12px;
       transition:all 0.2s ease;
       cursor:pointer;
+      position:relative;
+    }
+    .inv-card.is-selected{
+      border-color:rgba(96,165,250,0.6);
+      outline:2px solid rgba(96,165,250,0.35);
+      outline-offset:-2px;
+    }
+    .inv-card.is-selected:hover{
+      border-color:rgba(96,165,250,0.7);
     }
     .inv-card.order-selected{
       background:
@@ -10930,6 +11204,57 @@
       color:#93c5fd;
       background:rgba(147,197,253,0.18);
       border-color:rgba(147,197,253,0.35);
+    }
+    /* Menu Groups & Sub-items */
+    .menu-group{
+      display:flex;
+      flex-direction:column;
+    }
+    .menu-group + .menu-group{
+      margin-top:4px;
+      padding-top:4px;
+      border-top:1px solid rgba(255,255,255,0.04);
+    }
+    .menu-item--sub{
+      padding-left:44px;
+      position:relative;
+      font-size:13px;
+      color:#94a3b8;
+    }
+    .menu-item--sub::before{
+      content:'';
+      position:absolute;
+      left:22px;
+      top:50%;
+      width:12px;
+      height:1px;
+      background:rgba(255,255,255,0.15);
+    }
+    .menu-item--sub::after{
+      content:'';
+      position:absolute;
+      left:22px;
+      top:0;
+      width:1px;
+      height:50%;
+      background:rgba(255,255,255,0.15);
+    }
+    .menu-item--sub:last-child::after{
+      height:calc(50% + 1px);
+    }
+    .menu-group .menu-item--sub:not(:last-child)::after{
+      height:100%;
+    }
+    .menu-item--sub .menu-icon-svg{
+      width:14px;
+      height:14px;
+      color:#64748b;
+    }
+    .menu-item--sub:hover{
+      color:#e2e8f0;
+    }
+    .menu-item--sub:hover .menu-icon-svg{
+      color:#94a3b8;
     }
     .menu-divider{
       height:1px;
@@ -13438,7 +13763,7 @@
           </div>
           <div class="menu-tabs" id="menuTabList" role="tablist" aria-label="Menu sections">
             <button class="menu-tab is-active" role="tab" id="menuTabInventory" data-tab="inventory" aria-selected="true" aria-controls="menuPanelInventory" tabindex="0">Data</button>
-            <button class="menu-tab" role="tab" id="menuTabOrders" data-tab="orders" aria-selected="false" aria-controls="menuPanelOrders" tabindex="-1">Orders</button>
+            <button class="menu-tab" role="tab" id="menuTabOrders" data-tab="orders" aria-selected="false" aria-controls="menuPanelOrders" tabindex="-1">Workflow</button>
             <button class="menu-tab" role="tab" id="menuTabReports" data-tab="reports" aria-selected="false" aria-controls="menuPanelReports" tabindex="-1">Reports</button>
           </div>
           <div class="menu-tab-panels" id="menuTabPanels">
@@ -13484,67 +13809,80 @@
               </button>
             </div>
             <div class="menu-tab-panel" role="tabpanel" id="menuPanelOrders" data-panel="orders" aria-labelledby="menuTabOrders" tabindex="0">
-              <button class="menu-item" id="menuOrder" type="button">
-                <svg class="menu-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <circle cx="9" cy="21" r="1"></circle>
-                  <circle cx="20" cy="21" r="1"></circle>
-                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                </svg>
-                <span>Orders</span>
-                <span class="menu-item-badges" id="menuOrderBadges" style="display:none;">
-                  <span class="menu-item-badge menu-item-badge--accent" id="menuOrderDraftBadge" data-menu-badge="orders-draft" title="View draft orders" style="display:none;">
-                    <span class="menu-item-badge-label">Draft</span>
-                    <span class="menu-item-badge-value">0</span>
+              <div class="menu-group">
+                <button class="menu-item" id="menuOrder" type="button">
+                  <svg class="menu-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                  </svg>
+                  <span>Orders</span>
+                  <span class="menu-item-badges" id="menuOrderBadges" style="display:none;">
+                    <span class="menu-item-badge menu-item-badge--accent" id="menuOrderDraftBadge" data-menu-badge="orders-draft" title="View draft orders" style="display:none;">
+                      <span class="menu-item-badge-label">Draft</span>
+                      <span class="menu-item-badge-value">0</span>
+                    </span>
+                    <span class="menu-item-badge menu-item-badge--muted" id="menuOrderSubmittedBadge" data-menu-badge="orders-submitted" title="View submitted orders" style="display:none;">
+                      <span class="menu-item-badge-label">Submitted</span>
+                      <span class="menu-item-badge-value">0</span>
+                    </span>
                   </span>
-                  <span class="menu-item-badge menu-item-badge--muted" id="menuOrderSubmittedBadge" data-menu-badge="orders-submitted" title="View submitted orders" style="display:none;">
-                    <span class="menu-item-badge-label">Submitted</span>
-                    <span class="menu-item-badge-value">0</span>
+                </button>
+                <button class="menu-item menu-item--sub" id="menuHistory" type="button">
+                  <svg class="menu-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span>Order History</span>
+                </button>
+              </div>
+              <div class="menu-group">
+                <button class="menu-item" id="menuReceive" type="button">
+                  <svg class="menu-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <path d="M3.27 6.96 12 12.01l8.73-5.05"></path>
+                    <path d="M12 22.08V12"></path>
+                    <polyline points="9 11 12 14 16 10"></polyline>
+                  </svg>
+                  <span>Receive Inventory</span>
+                  <span class="menu-item-badges" id="menuReceiveBadges" style="display:none;">
+                    <span class="menu-item-badge menu-item-badge--accent" id="menuReceiveReceiptsBadge" data-menu-badge="receive-receipts" title="Review receipts" style="display:none;">
+                      <span class="menu-item-badge-label">Receipts</span>
+                      <span class="menu-item-badge-value">0</span>
+                    </span>
+                    <span class="menu-item-badge menu-item-badge--info" id="menuReceivePendingBadge" data-menu-badge="receive-pending" title="Receive pending orders" style="display:none;">
+                      <span class="menu-item-badge-label">Pending</span>
+                      <span class="menu-item-badge-value">0</span>
+                    </span>
                   </span>
-                </span>
-              </button>
-              <button class="menu-item" id="menuReceive" type="button">
-                <svg class="menu-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                  <path d="M3.27 6.96 12 12.01l8.73-5.05"></path>
-                  <path d="M12 22.08V12"></path>
-                  <polyline points="9 11 12 14 16 10"></polyline>
-                </svg>
-                <span>Receive Inventory</span>
-                <span class="menu-item-badges" id="menuReceiveBadges" style="display:none;">
-                  <span class="menu-item-badge menu-item-badge--accent" id="menuReceiveReceiptsBadge" data-menu-badge="receive-receipts" title="Review receipts" style="display:none;">
-                    <span class="menu-item-badge-label">Receipts</span>
-                    <span class="menu-item-badge-value">0</span>
+                </button>
+                <button class="menu-item menu-item--sub" id="menuReceiveHistory" type="button">
+                  <svg class="menu-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span>Receive History</span>
+                </button>
+              </div>
+              <div class="menu-group">
+                <button class="menu-item" id="menuJobs" type="button">
+                  <svg class="menu-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
+                  </svg>
+                  <span>Jobs</span>
+                  <span class="menu-item-badges" id="menuJobsBadges" style="display:none;">
+                    <span class="menu-item-badge menu-item-badge--warning" id="menuJobsDraftBadge" data-menu-badge="jobs-draft" title="Review draft jobs" style="display:none;">
+                      <span class="menu-item-badge-label">Draft</span>
+                      <span class="menu-item-badge-value">0</span>
+                    </span>
+                    <span class="menu-item-badge menu-item-badge--success" id="menuJobsReadyBadge" data-menu-badge="jobs-ready" title="Approve ready jobs" style="display:none;">
+                      <span class="menu-item-badge-label">Ready</span>
+                      <span class="menu-item-badge-value">0</span>
+                    </span>
                   </span>
-                  <span class="menu-item-badge menu-item-badge--info" id="menuReceivePendingBadge" data-menu-badge="receive-pending" title="Receive pending orders" style="display:none;">
-                    <span class="menu-item-badge-label">Pending</span>
-                    <span class="menu-item-badge-value">0</span>
-                  </span>
-                </span>
-              </button>
-              <button class="menu-item" id="menuJobs" type="button">
-                <svg class="menu-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                  <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
-                </svg>
-                <span>Jobs</span>
-                <span class="menu-item-badges" id="menuJobsBadges" style="display:none;">
-                  <span class="menu-item-badge menu-item-badge--warning" id="menuJobsDraftBadge" data-menu-badge="jobs-draft" title="Review draft jobs" style="display:none;">
-                    <span class="menu-item-badge-label">Draft</span>
-                    <span class="menu-item-badge-value">0</span>
-                  </span>
-                  <span class="menu-item-badge menu-item-badge--success" id="menuJobsReadyBadge" data-menu-badge="jobs-ready" title="Approve ready jobs" style="display:none;">
-                    <span class="menu-item-badge-label">Ready</span>
-                    <span class="menu-item-badge-value">0</span>
-                  </span>
-                </span>
-              </button>
-              <button class="menu-item" id="menuHistory" type="button">
-                <svg class="menu-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                <span>Order History</span>
-              </button>
+                </button>
+              </div>
             </div>
             <div class="menu-tab-panel" role="tabpanel" id="menuPanelReports" data-panel="reports" aria-labelledby="menuTabReports" tabindex="0">
               <button class="menu-item" id="menuMetrics" type="button">
@@ -13813,9 +14151,6 @@
 	            <button class="inv-filter-pill" type="button" data-filter="out_of_stock" aria-pressed="false">Out of Stock</button>
 	          </div>
 	        </div>
-
-	        <!-- Layout Tab Backdrop -->
-	        <div class="inv-layout-backdrop" id="invLayoutBackdrop"></div>
 
 	        <!-- Layout Tab Content -->
 	        <div class="inv-tab-content" data-inv-tab-content="layout" role="tabpanel">
@@ -14544,13 +14879,7 @@
             </div>
             <div class="order-shipping-header">
               <div class="section-title">Ship To</div>
-              <button class="btn-secondary btn-with-icon order-shipping-manage" id="btnOrderShippingManage" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                  <circle cx="12" cy="10" r="3"></circle>
-                </svg>
-                <span class="btn-label">Locations</span>
-              </button>
+              <button class="btn-secondary order-shipping-manage" id="btnOrderShippingManage" type="button">Locations</button>
             </div>
             <select id="orderShippingAddress" class="form-input order-shipping-select" aria-hidden="true" tabindex="-1"></select>
             <div id="orderShippingOptions" class="order-shipping-options" role="listbox" aria-label="Shipping locations"></div>
@@ -14625,12 +14954,7 @@
         <!-- Wizard Footer -->
         <div class="order-wizard-footer">
           <div class="order-wizard-footer-left">
-            <button class="order-wizard-btn order-wizard-btn-prev btn-with-icon" id="btnOrderWizPrev" type="button" style="display:none;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-              <span class="btn-label">Back</span>
-            </button>
+            <button class="order-wizard-btn order-wizard-btn-prev" id="btnOrderWizPrev" type="button" style="display:none;">Back</button>
             <button class="btn-ghost" id="btnOrderCopy" type="button" style="display:none;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -14647,25 +14971,9 @@
             </button>
           </div>
           <div class="order-wizard-footer-right">
-            <button class="btn-secondary btn-with-icon" id="btnOrderCancel" type="button" data-modal-close="orderModal">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-              <span class="btn-label">Cancel</span>
-            </button>
-            <button class="order-wizard-btn order-wizard-btn-next btn-with-icon" id="btnOrderWizNext" type="button">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="m9 18 6-6-6-6"></path>
-              </svg>
-              <span class="btn-label">Next</span>
-            </button>
-            <button class="order-wizard-btn order-wizard-btn-submit btn-with-icon" id="btnOrderSubmit" type="button" style="display:none;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M20 6 9 17l-5-5"></path>
-              </svg>
-              <span class="btn-label">Submit Order</span>
-            </button>
+            <button class="btn-secondary" id="btnOrderCancel" type="button" data-modal-close="orderModal">Cancel</button>
+            <button class="order-wizard-btn order-wizard-btn-next" id="btnOrderWizNext" type="button">Next</button>
+            <button class="order-wizard-btn order-wizard-btn-submit" id="btnOrderSubmit" type="button" style="display:none;">Submit Order</button>
           </div>
         </div>
       </div>
@@ -14944,52 +15252,35 @@
           </svg>
         </button>
       </div>
-        <div class="modal-toolbar">
-          <span class="modal-toolbar-label">Job List</span>
-          <div class="modal-toolbar-actions">
-            <button class="btn-primary btn-with-icon" id="btnJobsCreate" type="button">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              <span>New Job</span>
-            </button>
-            <button class="btn-secondary btn-with-icon" id="btnJobsApproveReady" type="button">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="16 9 11 14 8 11"></polyline>
-              </svg>
-              <span>Approve-ready jobs</span>
-              <span class="btn-count" id="btnJobsApproveReadyCount" style="display:none;">0</span>
-            </button>
-            <button class="btn-secondary btn-with-icon" id="btnJobsRefresh" type="button">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
-                <path d="M21 3v5h-5"></path>
-              </svg>
-              <span class="btn-label">Refresh</span>
-            </button>
-          </div>
+      <div class="modal-toolbar">
+        <span class="modal-toolbar-label">Job List</span>
+        <div class="modal-toolbar-actions">
+          <button class="btn-primary btn-with-icon" id="btnJobsCreate" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>New Job</span>
+          </button>
+          <button class="btn-secondary btn-with-icon" id="btnJobsApproveReady" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="16 9 11 14 8 11"></polyline>
+            </svg>
+            <span>Approve-ready jobs</span>
+            <span class="btn-count" id="btnJobsApproveReadyCount" style="display:none;">0</span>
+          </button>
+          <button class="btn-secondary" id="btnJobsRefresh" type="button">Refresh</button>
         </div>
+      </div>
       <div class="modal-content">
         <div id="jobsList" aria-live="polite"></div>
         <div id="jobsMsg" class="muted"></div>
       </div>
       <div class="modal-footer">
         <div class="footer-right">
-          <button class="btn-secondary btn-with-icon" id="btnJobsClose" type="button" data-modal-close="jobsModal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-            <span class="btn-label">Cancel</span>
-          </button>
-          <button class="btn-primary btn-with-icon" type="button" data-modal-close="jobsModal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M20 6 9 17l-5-5"></path>
-            </svg>
-            <span class="btn-label">Done</span>
-          </button>
+          <button class="btn-secondary" id="btnJobsClose" type="button" data-modal-close="jobsModal">Cancel</button>
+          <button class="btn-primary" type="button" data-modal-close="jobsModal">Done</button>
         </div>
       </div>
     </div>
@@ -15025,13 +15316,7 @@
       </div>
       <div class="modal-footer">
         <div class="footer-right">
-          <button class="btn-secondary btn-with-icon" id="btnApproveReadyClose" type="button" data-modal-close="approveReadyModal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-            <span class="btn-label">Close</span>
-          </button>
+          <button class="btn-secondary" id="btnApproveReadyClose" type="button" data-modal-close="approveReadyModal">Close</button>
         </div>
       </div>
     </div>
@@ -15188,13 +15473,7 @@
                 </div>
                 <div id="jobApprovalWarnings" class="job-shortfall-info-list" style="display:none;"></div>
               </div>
-              <button class="btn-secondary btn-with-icon job-approve-btn" id="btnJobApprove" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <path d="m9 12 2 2 4-4"></path>
-                </svg>
-                <span class="btn-label">Approve Job</span>
-              </button>
+              <button class="btn-secondary job-approve-btn" id="btnJobApprove" type="button">Approve Job</button>
             </div>
             <div id="jobCompletionSection">
               <div class="job-progress-card" id="jobCompletionProgressCard">
@@ -15209,12 +15488,7 @@
               </div>
               <div id="jobActualsTable"></div>
               <div id="jobCompleteMsg" class="muted" style="margin-top:8px;"></div>
-              <button class="btn-secondary btn-with-icon job-complete-btn" id="btnJobComplete" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M20 6 9 17l-5-5"></path>
-                </svg>
-                <span class="btn-label">Mark Job Complete</span>
-              </button>
+              <button class="btn-secondary job-complete-btn" id="btnJobComplete" type="button">Mark Job Complete</button>
             </div>
             <div id="jobCompletedState" class="job-completed-card" style="display:none;">
               <div class="job-completed-title">Job Completed</div>
@@ -15238,13 +15512,7 @@
               <div id="jobCompletionOrdersContent"></div>
             </div>
             <div id="jobReopenSection" class="job-reopen-section" style="display:none;">
-              <button class="btn-secondary btn-with-icon job-reopen-btn" id="btnJobReopen" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
-                  <path d="M21 3v5h-5"></path>
-                </svg>
-                <span class="btn-label">Reopen job</span>
-              </button>
+              <button class="btn-secondary job-reopen-btn" id="btnJobReopen" type="button">Reopen job</button>
             </div>
             <div id="jobVoidedState" class="job-voided-card" style="display:none;">
               <div class="job-voided-title">Job Voided</div>
@@ -15253,16 +15521,7 @@
             <div id="jobVoidSection" class="job-danger-zone">
               <span class="job-danger-zone-title">Void</span>
               <p class="job-danger-zone-desc">Voiding releases reservations and reverses consumption if needed.</p>
-              <button class="btn-secondary btn-danger btn-with-icon job-void-btn" id="btnJobVoid" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
-                  <path d="M10 11v6"></path>
-                  <path d="M14 11v6"></path>
-                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-                </svg>
-                <span class="btn-label">Void Job</span>
-              </button>
+              <button class="btn-secondary btn-danger job-void-btn" id="btnJobVoid" type="button">Void Job</button>
             </div>
           </section>
         </div>
@@ -15470,20 +15729,8 @@
       </div>
       <div class="modal-footer">
         <div class="footer-right">
-          <button class="btn-secondary btn-with-icon" id="btnJobItemPickerCancel" type="button" data-modal-close="jobItemPickerModal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-            <span class="btn-label">Cancel</span>
-          </button>
-          <button class="btn-primary btn-with-icon" id="btnJobItemPickerAdd" type="button" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <span class="btn-label">Add to BOM</span>
-          </button>
+          <button class="btn-secondary" id="btnJobItemPickerCancel" type="button" data-modal-close="jobItemPickerModal">Cancel</button>
+          <button class="btn-primary" id="btnJobItemPickerAdd" type="button" disabled>Add to BOM</button>
         </div>
       </div>
     </div>
@@ -15580,16 +15827,75 @@
           </div>
           <div class="modal-footer">
             <div class="footer-right">
-              <button class="btn-secondary btn-with-icon" id="btnOrderHistoryClose" type="button" data-modal-close="orderHistoryModal">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M20 6 9 17l-5-5"></path>
-                </svg>
-                <span class="btn-label">Done</span>
-              </button>
+              <button class="btn-secondary" id="btnOrderHistoryClose" type="button" data-modal-close="orderHistoryModal">Done</button>
             </div>
           </div>
 		    </div>
 		  </div>
+
+      <!-- Receive History -->
+      <div id="receiveHistoryModal" class="modal-backdrop" aria-hidden="true">
+        <div class="modal modal--lg" role="dialog" aria-modal="true" aria-labelledby="receiveHistoryTitle">
+          <div class="modal-header">
+            <div class="modal-title-wrap">
+              <span class="modal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                  <path d="M3.27 6.96 12 12.01l8.73-5.05"></path>
+                  <path d="M12 22.08V12"></path>
+                  <polyline points="9 11 12 14 16 10"></polyline>
+                </svg>
+              </span>
+              <div class="modal-title-text">
+                <h2 id="receiveHistoryTitle" class="modal-title">Receive History</h2>
+                <div class="modal-subtitle">All inventory receipts</div>
+              </div>
+            </div>
+            <div class="receive-history-actions">
+              <button class="icon-btn icon-btn--default" id="btnReceiveHistoryDownload" type="button" title="Download CSV" aria-label="Download receive history CSV">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </button>
+              <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="receiveHistoryModal" aria-label="Close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="receive-history-toolbar">
+            <div class="receive-history-search-wrap">
+              <span class="receive-history-search-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </span>
+              <input id="receiveHistoryFilter" class="receive-history-search-input" type="search" placeholder="Filter receipts…" autocomplete="off" />
+            </div>
+            <button class="receive-history-toolbar-btn" id="btnReceiveHistoryRefresh" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+                <path d="M21 3v5h-5"></path>
+              </svg>
+              <span>Refresh</span>
+            </button>
+          </div>
+          <div class="receive-history-body">
+            <div id="receiveHistoryStats" class="receive-history-stats"></div>
+            <div id="receiveHistoryList" aria-live="polite"></div>
+          </div>
+          <div class="modal-footer">
+            <div class="footer-right">
+              <button class="btn-secondary" type="button" data-modal-close="receiveHistoryModal">Done</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Receive order -->
       <div id="receiveOrderModal" class="modal-backdrop" aria-hidden="true">
@@ -15743,13 +16049,7 @@
                       <div class="po-link-title" id="receivePoLinkTitle">No PO linked</div>
                       <div class="po-link-desc" id="receivePoLinkDesc">Link to a purchase order to auto-reconcile</div>
                     </div>
-                    <button class="po-link-action" id="receivePoLinkAction" type="button" data-receipt-link-po>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                      </svg>
-                      <span class="btn-label">Link PO</span>
-                    </button>
+                    <button class="po-link-action" id="receivePoLinkAction" type="button" data-receipt-link-po>Link PO</button>
                   </div>
                 </div>
                 <div class="parsed-items-section" id="receiveParsedSection">
@@ -15806,12 +16106,7 @@
               <div id="receiveOrderMsg" class="muted"></div>
               <div class="receive-plan-upgrade" id="receivePlanUpgrade" style="display:none;">
                 <span class="muted">Upgrade to enable receipt-based receiving.</span>
-                <button class="btn-tertiary btn-sm btn-with-icon" type="button" data-receipt-upgrade>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="m9 18 6-6-6-6"></path>
-                  </svg>
-                  <span class="btn-label">Upgrade to Pro</span>
-                </button>
+                <button class="btn-tertiary btn-sm" type="button" data-receipt-upgrade>Upgrade to Pro</button>
               </div>
             </div>
             <div class="footer-actions">
@@ -25008,6 +25303,40 @@
     });
 
     // Manage Users sub-modal handlers
+    let _manageUsersSelectionAnchorId = '';
+    function getManageUsersRowIdsInView(){
+      const results = $('manageCompanyUsersResults');
+      if(!results) return [];
+      return Array.from(results.querySelectorAll('tr[data-user-row]'))
+        .map(row => String(row.getAttribute('data-user-row') || '').trim())
+        .filter(Boolean);
+    }
+    function applyManageUsersRangeSelection(anchorId, targetId, checked){
+      const ids = getManageUsersRowIdsInView();
+      if(!ids.length) return false;
+      const anchor = String(anchorId || '').trim();
+      const target = String(targetId || '').trim();
+      const startIndex = ids.indexOf(anchor);
+      const endIndex = ids.indexOf(target);
+      if(startIndex < 0 || endIndex < 0) return false;
+      const start = Math.min(startIndex, endIndex);
+      const end = Math.max(startIndex, endIndex);
+      const selected = state._manageUsersSelected || new Set();
+      const results = $('manageCompanyUsersResults');
+      for(let i = start; i <= end; i++){
+        const id = ids[i];
+        if(checked) selected.add(id);
+        else selected.delete(id);
+        if(results){
+          const row = results.querySelector(`[data-user-row="${CSS.escape(id)}"]`);
+          if(row) row.classList.toggle('is-selected', checked);
+          const cb = results.querySelector(`[data-manage-user-check="${CSS.escape(id)}"]`);
+          if(cb) cb.checked = checked;
+        }
+      }
+      state._manageUsersSelected = selected;
+      return true;
+    }
     const btnDeleteSelectedUsers = $('btnDeleteSelectedUsers');
     if(btnDeleteSelectedUsers) btnDeleteSelectedUsers.addEventListener('click', ()=>{
       void deleteSelectedUsers();
@@ -25021,6 +25350,8 @@
         state._manageUsersSelected.clear();
       }
       renderManageUsersTable();
+      const ids = getManageUsersRowIdsInView();
+      _manageUsersSelectionAnchorId = manageUsersSelectAll.checked ? (ids[ids.length - 1] || '') : '';
     });
     const manageUsersResults = $('manageCompanyUsersResults');
     if(manageUsersResults) manageUsersResults.addEventListener('change', (e)=>{
@@ -25028,18 +25359,67 @@
       if(!cb) return;
       const id = String(cb.getAttribute('data-manage-user-check') || '').trim();
       if(!id) return;
-      if(cb.checked){
-        state._manageUsersSelected.add(id);
+      const checked = cb.checked;
+      if(e.shiftKey && _manageUsersSelectionAnchorId){
+        const applied = applyManageUsersRangeSelection(_manageUsersSelectionAnchorId, id, checked);
+        if(!applied){
+          if(checked){
+            state._manageUsersSelected.add(id);
+          }else{
+            state._manageUsersSelected.delete(id);
+          }
+          const row = manageUsersResults.querySelector(`[data-user-row="${CSS.escape(id)}"]`);
+          if(row) row.classList.toggle('is-selected', checked);
+        }
       }else{
-        state._manageUsersSelected.delete(id);
+        if(checked){
+          state._manageUsersSelected.add(id);
+        }else{
+          state._manageUsersSelected.delete(id);
+        }
+        const row = manageUsersResults.querySelector(`[data-user-row="${CSS.escape(id)}"]`);
+        if(row) row.classList.toggle('is-selected', checked);
       }
-      const row = manageUsersResults.querySelector(`[data-user-row="${id}"]`);
-      if(row) row.classList.toggle('is-selected', cb.checked);
+      _manageUsersSelectionAnchorId = id;
       updateManageUsersSelectAll();
       updateManageUsersDeleteBtn();
     });
 
     // Manage Inventory sub-modal handlers
+    let _manageInventorySelectionAnchorId = '';
+    function getManageInventoryRowIdsInView(){
+      const results = $('manageCompanyInventoryResults');
+      if(!results) return [];
+      return Array.from(results.querySelectorAll('tr[data-inv-row]'))
+        .map(row => String(row.getAttribute('data-inv-row') || '').trim())
+        .filter(Boolean);
+    }
+    function applyManageInventoryRangeSelection(anchorId, targetId, checked){
+      const ids = getManageInventoryRowIdsInView();
+      if(!ids.length) return false;
+      const anchor = String(anchorId || '').trim();
+      const target = String(targetId || '').trim();
+      const startIndex = ids.indexOf(anchor);
+      const endIndex = ids.indexOf(target);
+      if(startIndex < 0 || endIndex < 0) return false;
+      const start = Math.min(startIndex, endIndex);
+      const end = Math.max(startIndex, endIndex);
+      const selected = state._manageInventorySelected || new Set();
+      const results = $('manageCompanyInventoryResults');
+      for(let i = start; i <= end; i++){
+        const id = ids[i];
+        if(checked) selected.add(id);
+        else selected.delete(id);
+        if(results){
+          const row = results.querySelector(`[data-inv-row="${CSS.escape(id)}"]`);
+          if(row) row.classList.toggle('is-selected', checked);
+          const cb = results.querySelector(`[data-manage-inv-check="${CSS.escape(id)}"]`);
+          if(cb) cb.checked = checked;
+        }
+      }
+      state._manageInventorySelected = selected;
+      return true;
+    }
     const btnDeleteSelectedInventory = $('btnDeleteSelectedInventory');
     if(btnDeleteSelectedInventory) btnDeleteSelectedInventory.addEventListener('click', ()=>{
       void deleteSelectedInventory();
@@ -25054,6 +25434,8 @@
         filteredIds.forEach(id => state._manageInventorySelected.delete(id));
       }
       renderManageInventoryTable();
+      const ids = getManageInventoryRowIdsInView();
+      _manageInventorySelectionAnchorId = manageInventorySelectAll.checked ? (ids[ids.length - 1] || '') : '';
     });
     const manageInventorySearch = $('manageInventorySearch');
     if(manageInventorySearch) manageInventorySearch.addEventListener('input', ()=>{
@@ -25066,13 +25448,28 @@
       if(!cb) return;
       const id = String(cb.getAttribute('data-manage-inv-check') || '').trim();
       if(!id) return;
-      if(cb.checked){
-        state._manageInventorySelected.add(id);
+      const checked = cb.checked;
+      if(e.shiftKey && _manageInventorySelectionAnchorId){
+        const applied = applyManageInventoryRangeSelection(_manageInventorySelectionAnchorId, id, checked);
+        if(!applied){
+          if(checked){
+            state._manageInventorySelected.add(id);
+          }else{
+            state._manageInventorySelected.delete(id);
+          }
+          const row = manageInventoryResults.querySelector(`[data-inv-row="${CSS.escape(id)}"]`);
+          if(row) row.classList.toggle('is-selected', checked);
+        }
       }else{
-        state._manageInventorySelected.delete(id);
+        if(checked){
+          state._manageInventorySelected.add(id);
+        }else{
+          state._manageInventorySelected.delete(id);
+        }
+        const row = manageInventoryResults.querySelector(`[data-inv-row="${CSS.escape(id)}"]`);
+        if(row) row.classList.toggle('is-selected', checked);
       }
-      const row = manageInventoryResults.querySelector(`[data-inv-row="${id}"]`);
-      if(row) row.classList.toggle('is-selected', cb.checked);
+      _manageInventorySelectionAnchorId = id;
       updateManageInventorySelectAll();
       updateManageInventoryDeleteBtn();
     });
@@ -26473,6 +26870,87 @@ function adjustTitleSize(){
 		    m.checked = (checked.length === all.length && all.length > 0);
 		    m.indeterminate = (checked.length > 0 && checked.length < all.length);
 		  }
+		  syncInventorySelectionUI();
+		}
+		let _inventorySelectionAnchorId = '';
+		function getInventoryRowIdsInView(){
+		  const tbody = tbodyEl();
+		  if(!tbody) return [];
+		  return Array.from(tbody.querySelectorAll('tr[data-id]'))
+		    .map(tr => String(tr.dataset.id || '').trim())
+		    .filter(Boolean);
+		}
+		function getInventoryCheckboxById(id){
+		  const itemId = String(id || '').trim();
+		  if(!itemId) return null;
+		  return document.querySelector(`.rowChk[data-id="${CSS.escape(itemId)}"]`);
+		}
+		function setInventoryCheckboxChecked(id, checked){
+		  const cb = getInventoryCheckboxById(id);
+		  if(!cb || cb.disabled) return false;
+		  cb.checked = checked;
+		  return true;
+		}
+		function applyInventoryRangeSelection(anchorId, targetId, checked){
+		  const ids = getInventoryRowIdsInView();
+		  if(!ids.length) return false;
+		  const anchor = String(anchorId || '').trim();
+		  const target = String(targetId || '').trim();
+		  const startIndex = ids.indexOf(anchor);
+		  const endIndex = ids.indexOf(target);
+		  if(startIndex < 0 || endIndex < 0) return false;
+		  const start = Math.min(startIndex, endIndex);
+		  const end = Math.max(startIndex, endIndex);
+		  for(let i = start; i <= end; i++){
+		    setInventoryCheckboxChecked(ids[i], checked);
+		  }
+		  return true;
+		}
+		function syncInventoryCardSelection(){
+		  const selected = new Set(getSelectedRowIds());
+		  document.querySelectorAll('.inv-card[data-item-id]').forEach(card => {
+		    const id = String(card.getAttribute('data-item-id') || '').trim();
+		    if(!id) return;
+		    card.classList.toggle('is-selected', selected.has(id));
+		  });
+		}
+		function syncInventorySelectionUI(){
+		  const all = document.querySelectorAll('.rowChk');
+		  const checked = document.querySelectorAll('.rowChk:checked');
+		  const m = $('chkAll');
+		  if(m){
+		    m.checked = (checked.length === all.length && all.length > 0);
+		    m.indeterminate = (checked.length > 0 && checked.length < all.length);
+		  }
+		  try{ updateSelectionBar(); }catch(ex){}
+		  syncInventoryCardSelection();
+		}
+		function handleInventoryCheckboxClick(cb, e){
+		  if(!cb) return;
+		  const id = String(cb.dataset.id || '').trim();
+		  if(!id || cb.disabled) return;
+		  const isShift = !!(e && e.shiftKey);
+		  if(isShift && _inventorySelectionAnchorId){
+		    applyInventoryRangeSelection(_inventorySelectionAnchorId, id, cb.checked);
+		  }
+		  _inventorySelectionAnchorId = id;
+		  syncInventorySelectionUI();
+		}
+		function handleInventoryRowSelection(id, e){
+		  const itemId = String(id || '').trim();
+		  if(!itemId) return;
+		  const cb = getInventoryCheckboxById(itemId);
+		  if(!cb || cb.disabled) return;
+		  const isShift = !!(e && e.shiftKey);
+		  const nextChecked = !cb.checked;
+		  if(isShift && _inventorySelectionAnchorId){
+		    const applied = applyInventoryRangeSelection(_inventorySelectionAnchorId, itemId, nextChecked);
+		    if(!applied) cb.checked = nextChecked;
+		  }else{
+		    cb.checked = nextChecked;
+		  }
+		  _inventorySelectionAnchorId = itemId;
+		  syncInventorySelectionUI();
 		}
 		function normalizeDescValue(value){
 		  return String(value || '').replace(/[\r\n]+/g,' ').trim();
@@ -27279,6 +27757,7 @@ function emptyStateHtml(){
         : buildInventoryIncomingMap();
       state._incomingByItemId = incomingMap;
       items = sortItems(items);
+      const selectedIds = new Set(getSelectedRowIds());
 
       // Define field types for card layout
       const TEXT_FIELDS = new Set(['description', 'sku', 'location']);
@@ -27360,8 +27839,9 @@ function emptyStateHtml(){
             ? '<span class="inv-status-badge inv-status-badge--out">Out</span>'
             : '';
 
+        const isSelected = selectedIds.has(String(item.id || ''));
         return `
-          <div class="inv-card${inOrder ? ' order-selected' : ''}" role="listitem" data-item-id="${id}">
+          <div class="inv-card${inOrder ? ' order-selected' : ''}${isSelected ? ' is-selected' : ''}" role="listitem" data-item-id="${id}">
             <div class="inv-card-header">
               ${showStatus ? `<span class="inv-led ${ledClass}"></span>` : ''}
               <h3 class="inv-card-title">${name}</h3>
@@ -27427,8 +27907,6 @@ function emptyStateHtml(){
       const tabs = document.querySelectorAll('.inv-header-tab[data-inv-tab]');
       const contents = document.querySelectorAll('.inv-tab-content[data-inv-tab-content]');
 
-      const layoutBackdrop = $('invLayoutBackdrop');
-
       function closeActiveTab(){
         if(!activeTab) return;
         const tabBtn = document.querySelector(`.inv-header-tab[data-inv-tab="${activeTab}"]`);
@@ -27436,7 +27914,6 @@ function emptyStateHtml(){
         if(tabBtn) tabBtn.classList.remove('is-active');
         if(tabContent) tabContent.classList.remove('is-active');
         tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
-        if(layoutBackdrop) layoutBackdrop.classList.remove('is-active');
         activeTab = null;
       }
 
@@ -27462,11 +27939,6 @@ function emptyStateHtml(){
           tabBtn.setAttribute('aria-selected', 'true');
         }
         if(tabContent) tabContent.classList.add('is-active');
-        // Show backdrop for layout tab
-        if(layoutBackdrop){
-          if(tabName === 'layout') layoutBackdrop.classList.add('is-active');
-          else layoutBackdrop.classList.remove('is-active');
-        }
         activeTab = tabName;
       }
 
@@ -27477,11 +27949,6 @@ function emptyStateHtml(){
           if(tabName) toggleTab(tabName);
         });
       });
-
-      // Backdrop click closes layout tab
-      if(layoutBackdrop){
-        layoutBackdrop.addEventListener('click', ()=> closeActiveTab());
-      }
 
       document.addEventListener('click', (e)=>{
         if(!activeTab) return;
@@ -27599,6 +28066,12 @@ function emptyStateHtml(){
       // Card grid click handlers
       if(cardGrid){
         cardGrid.addEventListener('click', (e) => {
+          const card = e.target.closest('.inv-card');
+          if(card && (e.shiftKey || e.metaKey || e.ctrlKey)){
+            const id = String(card.getAttribute('data-item-id') || '').trim();
+            if(id) handleInventoryRowSelection(id, e);
+            return;
+          }
           const editBtn = e.target.closest('[data-card-edit]');
           if(editBtn){
             const id = String(editBtn.getAttribute('data-card-edit') || '').trim();
@@ -27616,11 +28089,21 @@ function emptyStateHtml(){
             const id = String(orderBtn.getAttribute('data-card-order') || '').trim();
             if(!id) return;
             if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
+            const selectedIds = getSelectedRowIds();
+            if(selectedIds.length > 1 && selectedIds.includes(id)){
+              let added = 0;
+              for(const selId of selectedIds){
+                const item = getInventoryById(selId);
+                if(item && upsertOrderLineFromItem(item, 1)) added++;
+              }
+              if(added) toast(`Added ${added} selected item(s)`);
+              else toast('Selected items already in cart');
+              return;
+            }
             toggleOrderLineForItemId(id);
             return;
           }
           // Card tap - use row tap preference
-          const card = e.target.closest('.inv-card');
           if(card){
             const id = String(card.getAttribute('data-item-id') || '').trim();
             if(id) handleInventoryRowTap(id);
@@ -27676,7 +28159,12 @@ function emptyStateHtml(){
         cb.checked = false;
       });
       const chkAll = $('chkAll');
-      if(chkAll) chkAll.checked = false;
+      if(chkAll){
+        chkAll.checked = false;
+        chkAll.indeterminate = false;
+      }
+      _inventorySelectionAnchorId = '';
+      syncInventorySelectionUI();
     }
 
     function updateSelectionBar(){
@@ -28142,6 +28630,7 @@ function emptyStateHtml(){
     }
     function closeEditItemModal(){
       _editItemCtx = null;
+      _editItemSnapshot = null;
       setEditItemMessage('');
       show('editItemModal', false);
     }
@@ -28210,6 +28699,30 @@ function emptyStateHtml(){
 	      }catch(e){}
 	      renderEditItemLocationOptions(selectedLocationId);
 	    }
+
+	    // Edit item snapshot for unsaved changes detection
+	    let _editItemSnapshot = null;
+
+	    function captureEditItemSnapshot() {
+	      return {
+	        name: ($('editItemName')?.value || ''),
+	        sku: ($('editItemSku')?.value || ''),
+	        desc: ($('editItemDesc')?.value || ''),
+	        uom: ($('editItemUom')?.value || ''),
+	        location: ($('editItemLocation')?.value || ''),
+	        category: ($('editItemCategory')?.value || ''),
+	        lowStockQty: ($('editLowStockQty')?.value || ''),
+	        reorderQty: ($('editItemReorderQty')?.value || ''),
+	        reorderEnabled: ($('editReorderEnabled')?.checked || false),
+	      };
+	    }
+
+	    function hasEditItemChanges() {
+	      if (!_editItemSnapshot) return false;
+	      const current = captureEditItemSnapshot();
+	      return Object.keys(_editItemSnapshot).some(k => _editItemSnapshot[k] !== current[k]);
+	    }
+
 	    function openEditItemModal(id){
 	      if(!requirePermission(PERMISSIONS.ITEMS_EDIT, 'Read-only access')) return;
 	      const it = state.items.find(x=> x.id===id); if(!it) return;
@@ -28252,6 +28765,7 @@ function emptyStateHtml(){
 	      switchEditItemTab('details');
 
 	      setEditItemMessage('');
+	      _editItemSnapshot = captureEditItemSnapshot();
 	      show('editItemModal', true);
 	      setTimeout(()=>{
 	        const inp = $('editItemName');
@@ -28788,6 +29302,12 @@ function emptyStateHtml(){
         if(e.target.closest('button, input, textarea, select, a, .actions-wrap')) return;
         const id = String(tr.dataset.id || '').trim();
         if(!id) return;
+        if(e.shiftKey || e.metaKey || e.ctrlKey){
+          e.preventDefault();
+          e.stopPropagation();
+          handleInventoryRowSelection(id, e);
+          return;
+        }
         handleInventoryRowTap(id);
       });
 		    }
@@ -33493,7 +34013,7 @@ function emptyStateHtml(){
 	    function formatPurchaseOrderStatusLabel(orderRow, totals){
 	      const state = getPurchaseOrderReceiveState(orderRow, totals);
 	      if(state === 'draft') return 'Draft';
-	      if(state === 'submitted') return 'Sent to Vendor';
+	      if(state === 'submitted') return 'Submitted';
 	      if(state === 'partially_received') return 'Partially Received';
 	      if(state === 'fully_received') return 'Fully Received';
 	      if(state === 'cancelled') return 'Cancelled';
@@ -33825,12 +34345,9 @@ function emptyStateHtml(){
 	      );
 	    }
 
-	    function setReceiveOrderMessage(msg, type){
+	    function setReceiveOrderMessage(msg){
 	      const el = $('receiveOrderMsg'); if(!el) return;
 	      el.textContent = String(msg || '');
-	      el.classList.remove('is-error', 'is-success');
-	      if(type === 'error') el.classList.add('is-error');
-	      else if(type === 'success') el.classList.add('is-success');
 	    }
 	    function setReceiveOrderWarning(msg){
 	      const el = $('receiveOrderWarning'); if(!el) return;
@@ -34306,37 +34823,14 @@ function emptyStateHtml(){
         if(sbUrl) return `${sbUrl}/functions/v1/api`;
         return '/functions/v1/api';
       }
-      async function getReceiptsApiToken(){
-        if(SB.session && SB.session.access_token) return String(SB.session.access_token);
-        if(!SB.client || !SB.client.auth || !SB.client.auth.getSession) return '';
-        try{
-          const { data } = await SB.client.auth.getSession();
-          return data && data.session && data.session.access_token ? String(data.session.access_token) : '';
-        }catch(e){
-          return '';
-        }
-      }
-      function buildReceiptsApiHeaders(apiUrl, token){
+      function buildReceiptsApiHeaders(apiUrl){
         const headers = {};
         const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
         const sbKey = (typeof window.SB_ANON === 'string') ? window.SB_ANON.trim() : '';
-        if(token){
-          headers.Authorization = `Bearer ${token}`;
-        }
-        const companyId = SB.companyId ? String(SB.companyId).trim() : '';
-        if(companyId){
-          headers['X-Company-Id'] = companyId;
-        }
         if(sbUrl && apiUrl.startsWith(sbUrl) && sbKey){
-          let sameOrigin = true;
-          try{
-            const origin = window.location && window.location.origin ? window.location.origin : '';
-            sameOrigin = origin ? (new URL(apiUrl, origin).origin === origin) : true;
-          }catch(e){
-            sameOrigin = false;
-          }
-          if(sameOrigin){
-            headers.apikey = sbKey;
+          headers.apikey = sbKey;
+          if(SB.session && SB.session.access_token){
+            headers.Authorization = `Bearer ${SB.session.access_token}`;
           }
         }
         return headers;
@@ -34346,8 +34840,7 @@ function emptyStateHtml(){
         const id = String(receiptId || '').trim();
         if(!id) return [];
         const apiUrl = getReceiptsApiUrl();
-        const token = await getReceiptsApiToken();
-        const headers = buildReceiptsApiHeaders(apiUrl, token);
+        const headers = buildReceiptsApiHeaders(apiUrl);
         const res = await fetch(`${apiUrl}/v1/receipts/${id}/attachments`, { headers });
         const payload = await res.json().catch(() => ({}));
         if(!res.ok){
@@ -34362,8 +34855,7 @@ function emptyStateHtml(){
         const aid = String(attachmentId || '').trim();
         if(!rid || !aid) throw new Error('Attachment required');
         const apiUrl = getReceiptsApiUrl();
-        const token = await getReceiptsApiToken();
-        const headers = buildReceiptsApiHeaders(apiUrl, token);
+        const headers = buildReceiptsApiHeaders(apiUrl);
         const res = await fetch(`${apiUrl}/v1/receipts/${rid}/attachments/${aid}/download`, { headers });
         const payload = await res.json().catch(() => ({}));
         if(!res.ok){
@@ -34380,8 +34872,7 @@ function emptyStateHtml(){
         const aid = String(attachmentId || '').trim();
         if(!rid || !aid) throw new Error('Attachment required');
         const apiUrl = getReceiptsApiUrl();
-        const token = await getReceiptsApiToken();
-        const headers = buildReceiptsApiHeaders(apiUrl, token);
+        const headers = buildReceiptsApiHeaders(apiUrl);
         const res = await fetch(`${apiUrl}/v1/receipts/${rid}/attachments/${aid}`, {
           method: 'DELETE',
           headers,
@@ -34552,16 +35043,7 @@ function emptyStateHtml(){
                 `<span>Select all</span>`+
               `</label>`+
               `<span class="receive-draft-batch-count" id="receiveDraftSelectedCount">0 selected</span>`+
-              `<button class="btn-tertiary btn-sm btn-danger btn-with-icon" id="btnReceiveDraftDelete" type="button" disabled>`+
-                `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
-                  `<polyline points="3 6 5 6 21 6"></polyline>`+
-                  `<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>`+
-                  `<path d="M10 11v6"></path>`+
-                  `<path d="M14 11v6"></path>`+
-                  `<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>`+
-                `</svg>`+
-                `<span class="btn-label">Delete selected</span>`+
-              `</button>`+
+              `<button class="btn-tertiary btn-sm btn-danger" id="btnReceiveDraftDelete" type="button" disabled>Delete selected</button>`+
             `</div>`+
           `</div>`+
           `<div class="scanned-queue">`+
@@ -34920,7 +35402,7 @@ function emptyStateHtml(){
         }catch(e){
           state._receiveOrder.loading = false;
           renderReceiveOrderModal();
-          setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt', 'error');
+          setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt');
         }
       }
       function renderReceiveForwardingHint(){
@@ -35137,16 +35619,7 @@ function emptyStateHtml(){
                 const sizeLabel = formatReceiptAttachmentSize(att.byte_size);
                 const metaText = [typeLabel, sizeLabel].filter(Boolean).join(' • ');
                 const deleteBtn = allowDelete
-                  ? `<button class="btn-tertiary btn-sm btn-danger btn-with-icon" type="button" data-receipt-attachment-delete="${escapeHtmlAttr(id)}">`+
-                      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
-                        `<polyline points="3 6 5 6 21 6"></polyline>`+
-                        `<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>`+
-                        `<path d="M10 11v6"></path>`+
-                        `<path d="M14 11v6"></path>`+
-                        `<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>`+
-                      `</svg>`+
-                      `<span class="btn-label">Delete</span>`+
-                    `</button>`
+                  ? `<button class="btn-tertiary btn-sm btn-danger" type="button" data-receipt-attachment-delete="${escapeHtmlAttr(id)}">Delete</button>`
                   : '';
                 return (
                   `<div class="receive-attachment-item" data-receipt-attachment-id="${escapeHtmlAttr(id)}">`+
@@ -35155,14 +35628,7 @@ function emptyStateHtml(){
                       `<div class="receive-attachment-meta">${escapeHtml(metaText || 'File')}</div>`+
                     `</div>`+
                     `<div class="receive-attachment-actions">`+
-                      `<button class="btn-tertiary btn-sm btn-with-icon" type="button" data-receipt-attachment-download="${escapeHtmlAttr(id)}">`+
-                        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
-                          `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>`+
-                          `<polyline points="7 10 12 15 17 10"></polyline>`+
-                          `<line x1="12" y1="15" x2="12" y2="3"></line>`+
-                        `</svg>`+
-                        `<span class="btn-label">Download</span>`+
-                      `</button>`+
+                      `<button class="btn-tertiary btn-sm" type="button" data-receipt-attachment-download="${escapeHtmlAttr(id)}">Download</button>`+
                       `${deleteBtn}`+
                     `</div>`+
                   `</div>`
@@ -35345,15 +35811,7 @@ function emptyStateHtml(){
             }).join('')
           : `<div class="parsed-empty">No parsed items yet.</div>`;
         const addAction = allowDetailsEdit
-          ? `<div class="parsed-items-action">`+
-              `<button class="btn-tertiary btn-sm btn-with-icon" type="button" data-receipt-line-add>`+
-                `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
-                  `<line x1="12" y1="5" x2="12" y2="19"></line>`+
-                  `<line x1="5" y1="12" x2="19" y2="12"></line>`+
-                `</svg>`+
-                `<span class="btn-label">Add line item</span>`+
-              `</button>`+
-            `</div>`
+          ? `<div class="parsed-items-action"><button class="btn-tertiary btn-sm" type="button" data-receipt-line-add>Add line item</button></div>`
           : '';
         parsedLinesWrap.innerHTML = linesHtml + addAction;
       }
@@ -35697,19 +36155,12 @@ function emptyStateHtml(){
 	                    }).join('') : `<div class="muted">No lines.</div>`) +
 	                  `</div>`+
 	                  (canVoid
-                    ? `<div class="receive-void-row">`+
-                        `<input type="text" placeholder="Void reason (min 10 chars)" data-void-receipt-reason="${escapeHtmlAttr(receiptId)}">`+
-                        `<button class="btn-tertiary btn-sm btn-danger btn-with-icon" type="button" data-void-receipt-id="${escapeHtmlAttr(receiptId)}">`+
-                          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
-                            `<circle cx="12" cy="12" r="10"></circle>`+
-                            `<path d="m15 9-6 6"></path>`+
-                            `<path d="m9 9 6 6"></path>`+
-                          `</svg>`+
-                          `<span class="btn-label">Void</span>`+
-                        `</button>`+
-                      `</div>`
-                    : ''
-                  )+
+	                    ? `<div class="receive-void-row">`+
+	                        `<input type="text" placeholder="Void reason (min 10 chars)" data-void-receipt-reason="${escapeHtmlAttr(receiptId)}">`+
+	                        `<button class="btn-tertiary btn-sm btn-danger" type="button" data-void-receipt-id="${escapeHtmlAttr(receiptId)}">Void</button>`+
+	                      `</div>`
+	                    : ''
+	                  )+
 	                `</div>`
 	              );
 	            }).join('');
@@ -35723,7 +36174,7 @@ function emptyStateHtml(){
       }else if(receiptStatus === 'pending'){
         setReceiveOrderMessage('Receipt is pending approval.');
       }else if(receiptStatus === 'received'){
-        setReceiveOrderMessage('Receipt received. Inventory updated.', 'success');
+        setReceiveOrderMessage('Receipt received. Inventory updated on confirmation.');
       }else if(receiptStatus === 'voided'){
         setReceiveOrderMessage('Receipt voided. Inventory unchanged.');
       }else if(receiptStatus === 'blocked_by_plan'){
@@ -35966,10 +36417,10 @@ function emptyStateHtml(){
       try{
         await saveReceiptLines(ro, { requireLine:false });
         toast('Draft saved', 'success');
-        setReceiveOrderMessage('Draft saved.', 'success');
+        setReceiveOrderMessage('Draft saved.');
         scheduleMenuActionBadgeRefresh({ force: true });
       }catch(e){
-        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to save draft', 'error');
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to save draft');
       }finally{
         if(btn){
           btn.disabled = false;
@@ -36002,16 +36453,8 @@ function emptyStateHtml(){
 	      if(!ok) return;
 
 	      const btn = $('btnReceiveOrderComplete');
-	      const labelEl = btn ? btn.querySelector('.footer-icon-label') : null;
-	      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
-	      if(btn){
-	        btn.disabled = true;
-	        if(labelEl){
-	          labelEl.textContent = 'Completing…';
-	        }else{
-	          btn.textContent = 'Completing…';
-	        }
-	      }
+	      const prior = btn ? btn.textContent : '';
+	      if(btn){ btn.disabled = true; btn.textContent = 'Completing…'; }
 	      try{
 	        const receiptId = draftLike
 	          ? await saveReceiptLines(ro, { requireLine:true })
@@ -36048,7 +36491,7 @@ function emptyStateHtml(){
 	        }
 	        ro.receiptStatus = 'received';
 	        toast('Receipt received');
-	        setReceiveOrderMessage('Receipt received. Inventory updated.', 'success');
+	        setReceiveOrderMessage('Receipt received. Inventory updated on confirmation.');
 	        await refreshInventoryAfterReceipt(ro);
 	        if(ro.mode === 'order'){
 	          await refreshReceiveOrderModal(ro.po && ro.po.id ? ro.po.id : ro.poId);
@@ -36057,16 +36500,9 @@ function emptyStateHtml(){
 	        }
         scheduleMenuActionBadgeRefresh({ force: true });
 	      }catch(e){
-	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to receive receipt', 'error');
+	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to receive receipt');
 	      }finally{
-	        if(btn){
-	          btn.disabled = false;
-	          if(labelEl){
-	            labelEl.textContent = prior || 'Receive';
-	          }else{
-	            btn.textContent = prior || 'Receive Receipt';
-	          }
-	        }
+	        if(btn){ btn.disabled = false; btn.textContent = prior || 'Receive Receipt'; }
 	      }
 	    }
 	    async function handleVoidReceipt(receiptId, btnEl){
@@ -36096,15 +36532,10 @@ function emptyStateHtml(){
 	      );
 	      if(!ok) return;
 	      const btn = btnEl || null;
-	      const labelEl = btn ? btn.querySelector('.btn-label') : null;
-	      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
+	      const prior = btn ? btn.textContent : '';
 	      if(btn){
 	        btn.disabled = true;
-	        if(labelEl){
-	          labelEl.textContent = 'Voiding…';
-	        }else{
-	          btn.textContent = 'Voiding…';
-	        }
+	        btn.textContent = 'Voiding…';
 	      }
 	      try{
         const { data, error } = await SB.client.rpc('transition_receipt_status', {
@@ -36134,11 +36565,7 @@ function emptyStateHtml(){
 	      }finally{
 	        if(btn && btn.isConnected){
 	          btn.disabled = false;
-	          if(labelEl){
-	            labelEl.textContent = prior || 'Void';
-	          }else{
-	            btn.textContent = prior || 'Void';
-	          }
+	          btn.textContent = prior || 'Void';
 	        }
 	      }
 	    }
@@ -36195,7 +36622,7 @@ function emptyStateHtml(){
         await ensureDraftReceiptId(state._receiveOrder);
         await refreshReceiveOrderModal(id);
       }catch(e){
-        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt data', 'error');
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt data');
         renderReceiveOrderModal();
 	      }
 	    }
@@ -36243,7 +36670,7 @@ function emptyStateHtml(){
         await ensureIncomingOrdersLoaded();
         await loadDraftEmailReceipts();
       }catch(e){
-        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipts', 'error');
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipts');
       }finally{
         if(state._receiveOrder) state._receiveOrder.loading = false;
 	        renderReceiveOrderModal();
@@ -36293,7 +36720,7 @@ function emptyStateHtml(){
         await ensureIncomingOrdersLoaded();
         await loadDraftEmailReceipts();
       }catch(e){
-        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load pending orders', 'error');
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load pending orders');
       }finally{
         if(state._receiveOrder) state._receiveOrder.loading = false;
         renderReceiveOrderModal();
@@ -36350,7 +36777,7 @@ function emptyStateHtml(){
         state._receiveOrder.loading = false;
         renderReceiveOrderModal();
       }catch(e){
-        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to create receipt', 'error');
+        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to create receipt');
 	        state._receiveOrder.loading = false;
 	        renderReceiveOrderModal();
 	      }
@@ -37273,6 +37700,203 @@ function emptyStateHtml(){
         show('orderModal', true);
         renderOrderPreview();
       }
+    }
+
+    /* ============================================
+       Receive History Modal
+       ============================================ */
+    let _receiveHistoryData = [];
+    let _receiveHistoryFilter = '';
+
+    async function openReceiveHistoryModal(){
+      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
+      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
+      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
+      if(!canReceivingView()){ toast('Receiving access required'); return; }
+      show('receiveHistoryModal', true);
+      const f = $('receiveHistoryFilter'); if(f) f.value = _receiveHistoryFilter || '';
+      await refreshReceiveHistory();
+    }
+
+    function closeReceiveHistoryModal(){
+      show('receiveHistoryModal', false);
+    }
+
+    async function refreshReceiveHistory(){
+      const listEl = $('receiveHistoryList');
+      const statsEl = $('receiveHistoryStats');
+      if(listEl) listEl.innerHTML = `<div class="muted">Loading receipts…</div>`;
+      if(statsEl) statsEl.innerHTML = '';
+      try{
+        if(!SB.companyId) throw new Error('Company not selected');
+        const { data, error } = await SB.client
+          .from('receipts')
+          .select('id, receipt_number, status, received_at, voided_at, created_at, purchase_order_id, receipt_lines(id, item_id, received_qty, rejected_qty, rejection_reason)')
+          .eq('company_id', SB.companyId)
+          .order('created_at', { ascending: false })
+          .limit(200);
+        if(error) throw error;
+        _receiveHistoryData = Array.isArray(data) ? data : [];
+        renderReceiveHistoryList();
+      }catch(err){
+        console.error('refreshReceiveHistory error:', err);
+        if(listEl) listEl.innerHTML = `<div class="receive-history-empty"><div class="receive-history-empty-title">Error loading receipts</div><div class="receive-history-empty-text">${escapeHtml(err.message || 'Unknown error')}</div></div>`;
+      }
+    }
+
+    function renderReceiveHistoryList(){
+      const listEl = $('receiveHistoryList');
+      const statsEl = $('receiveHistoryStats');
+      if(!listEl) return;
+      const filter = String(_receiveHistoryFilter || '').trim().toLowerCase();
+      let receipts = _receiveHistoryData;
+      if(filter){
+        receipts = receipts.filter(r => {
+          const num = String(r.receipt_number || '').toLowerCase();
+          const status = String(r.status || '').toLowerCase();
+          return num.includes(filter) || status.includes(filter);
+        });
+      }
+      // Stats
+      const totalReceipts = receipts.length;
+      const receivedReceipts = receipts.filter(r => normalizeReceiptStatus(r.status) === 'received').length;
+      const voidedReceipts = receipts.filter(r => normalizeReceiptStatus(r.status) === 'voided').length;
+      const totalQtyReceived = receipts.reduce((sum, r) => {
+        const lines = Array.isArray(r.receipt_lines) ? r.receipt_lines : [];
+        return sum + lines.reduce((s, l) => s + toInt(l.received_qty, 0), 0);
+      }, 0);
+      if(statsEl){
+        statsEl.innerHTML = `
+          <div class="receive-history-stat">
+            <div class="receive-history-stat-value">${totalReceipts}</div>
+            <div class="receive-history-stat-label">Total Receipts</div>
+          </div>
+          <div class="receive-history-stat">
+            <div class="receive-history-stat-value" style="color:#22c55e;">${formatQty(totalQtyReceived)}</div>
+            <div class="receive-history-stat-label">Items Received</div>
+          </div>
+          <div class="receive-history-stat">
+            <div class="receive-history-stat-value" style="color:#ef4444;">${voidedReceipts}</div>
+            <div class="receive-history-stat-label">Voided</div>
+          </div>
+        `;
+      }
+      if(!receipts.length){
+        listEl.innerHTML = `
+          <div class="receive-history-empty">
+            <div class="receive-history-empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <path d="M3.27 6.96 12 12.01l8.73-5.05"></path>
+                <path d="M12 22.08V12"></path>
+              </svg>
+            </div>
+            <div class="receive-history-empty-title">${filter ? 'No matching receipts' : 'No receipts yet'}</div>
+            <div class="receive-history-empty-text">${filter ? 'Try a different search term.' : 'Receipts will appear here after you receive inventory.'}</div>
+          </div>
+        `;
+        return;
+      }
+      listEl.innerHTML = receipts.map(r => {
+        const id = String(r.id || '').trim();
+        const num = r.receipt_number || shortId(id) || id.slice(0,8);
+        const status = normalizeReceiptStatus(r.status);
+        const statusLabel = formatReceiptStatusLabel(r.status);
+        const when = r.received_at || r.voided_at || r.created_at;
+        const dateStr = when ? formatEasternDateTime(when) : '—';
+        const lines = Array.isArray(r.receipt_lines) ? r.receipt_lines : [];
+        const totalReceived = lines.reduce((s, l) => s + toInt(l.received_qty, 0), 0);
+        const totalRejected = lines.reduce((s, l) => s + toInt(l.rejected_qty, 0), 0);
+        const iconClass = status === 'voided' ? 'receipt-card-icon--voided' : (status === 'pending' ? 'receipt-card-icon--pending' : '');
+        return `
+          <div class="receipt-card" data-receipt-id="${escapeHtmlAttr(id)}">
+            <div class="receipt-card-header" data-toggle-receipt="${escapeHtmlAttr(id)}">
+              <div class="receipt-card-icon ${iconClass}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                  ${status === 'received' ? '<polyline points="9 11 12 14 16 10"></polyline>' : ''}
+                  ${status === 'voided' ? '<line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line>' : ''}
+                </svg>
+              </div>
+              <div class="receipt-card-info">
+                <div class="receipt-card-title">
+                  ${escapeHtml(num)}
+                  <span class="po-status po-status--${status === 'received' ? 'received' : (status === 'voided' ? 'cancelled' : 'draft')}">${escapeHtml(statusLabel)}</span>
+                </div>
+                <div class="receipt-card-meta">
+                  <span>${escapeHtml(dateStr)}</span>
+                  <span>${lines.length} line${lines.length === 1 ? '' : 's'}</span>
+                </div>
+              </div>
+              <div class="receipt-card-stats">
+                <div class="receipt-card-stat">
+                  <div class="receipt-card-stat-value">${formatQty(totalReceived)}</div>
+                  <div class="receipt-card-stat-label">Received</div>
+                </div>
+                ${totalRejected > 0 ? `
+                <div class="receipt-card-stat">
+                  <div class="receipt-card-stat-value receipt-card-stat-value--amber">${formatQty(totalRejected)}</div>
+                  <div class="receipt-card-stat-label">Rejected</div>
+                </div>
+                ` : ''}
+              </div>
+              <div class="receipt-card-chevron">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+            </div>
+            <div class="receipt-card-details">
+              <div class="receipt-lines">
+                ${lines.length ? lines.map(line => {
+                  const item = line.item_id ? getInventoryById(line.item_id) : null;
+                  const name = item ? (item.name || item.sku || 'Item') : '(Unknown item)';
+                  return `
+                    <div class="receipt-line-row">
+                      <div class="receipt-line-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>
+                      <div class="receipt-line-qty">+${formatQty(line.received_qty || 0)}</div>
+                      ${toInt(line.rejected_qty, 0) > 0 ? `<div class="receipt-line-qty receipt-line-qty--rejected">-${formatQty(line.rejected_qty)}</div>` : ''}
+                    </div>
+                  `;
+                }).join('') : '<div class="muted">No lines</div>'}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleReceiveHistoryCardToggle(id){
+      const card = document.querySelector(`.receipt-card[data-receipt-id="${CSS.escape(id)}"]`);
+      if(card) card.classList.toggle('is-expanded');
+    }
+
+    function downloadReceiveHistoryCsv(){
+      if(!_receiveHistoryData.length){ toast('No receipts to download'); return; }
+      const rows = [['Receipt Number', 'Status', 'Date', 'Items Received', 'Items Rejected', 'Line Count']];
+      _receiveHistoryData.forEach(r => {
+        const lines = Array.isArray(r.receipt_lines) ? r.receipt_lines : [];
+        const totalReceived = lines.reduce((s, l) => s + toInt(l.received_qty, 0), 0);
+        const totalRejected = lines.reduce((s, l) => s + toInt(l.rejected_qty, 0), 0);
+        const when = r.received_at || r.voided_at || r.created_at;
+        rows.push([
+          r.receipt_number || shortId(r.id) || r.id,
+          formatReceiptStatusLabel(r.status),
+          when ? new Date(when).toISOString() : '',
+          totalReceived,
+          totalRejected,
+          lines.length
+        ]);
+      });
+      const csvContent = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csvContent], { type:'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `receive-history-${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast('CSV downloaded');
     }
 
     function jobStatusLabel(status){
@@ -39182,13 +39806,7 @@ function emptyStateHtml(){
         const btn = $('btnJobApprove');
         if(btn){
           const hasShortfall = totals.totalShortfall > 0;
-          const label = hasShortfall ? 'Approve Job & Reserve Stock' : 'Approve Job';
-          const labelEl = btn.querySelector('.btn-label');
-          if(labelEl){
-            labelEl.textContent = label;
-          }else{
-            btn.textContent = label;
-          }
+          btn.textContent = hasShortfall ? 'Approve Job & Reserve Stock' : 'Approve Job';
           btn.disabled = !(job && job.id && canApproveJob(status) && canAdmin) || hasShortfall;
           btn.title = hasShortfall ? 'Resolve all shortfalls before approving' : '';
         }
@@ -40639,17 +41257,8 @@ function emptyStateHtml(){
     }
     async function approveJob(jobId, opts = {}){
       const btn = opts.button || document.querySelector(`[data-job-approve-id="${CSS.escape(jobId)}"]`) || $('btnJobApprove');
-      const labelEl = btn ? btn.querySelector('.btn-label') : null;
-      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
-      const isIconOnly = !!(btn && !labelEl && !String(prior || '').trim() && btn.querySelector('svg'));
-      if(btn){
-        btn.disabled = true;
-        if(labelEl){
-          labelEl.textContent = 'Approving…';
-        }else if(!isIconOnly){
-          btn.textContent = 'Approving…';
-        }
-      }
+      const prior = btn ? btn.textContent : '';
+      if(btn){ btn.disabled = true; btn.textContent = 'Approving…'; }
       renderApprovalShortages([]);
       let latestShortages = [];
       try{
@@ -40752,28 +41361,13 @@ function emptyStateHtml(){
         }
         toast(msg);
       }finally{
-        if(btn){
-          btn.disabled = false;
-          if(labelEl){
-            labelEl.textContent = prior || 'Approve';
-          }else if(!isIconOnly){
-            btn.textContent = prior || 'Approve';
-          }
-        }
+        if(btn){ btn.disabled = false; btn.textContent = prior || 'Approve'; }
       }
     }
     async function completeJob(jobId){
       const btn = $('btnJobComplete');
-      const labelEl = btn ? btn.querySelector('.btn-label') : null;
-      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
-      if(btn){
-        btn.disabled = true;
-        if(labelEl){
-          labelEl.textContent = 'Completing…';
-        }else{
-          btn.textContent = 'Completing…';
-        }
-      }
+      const prior = btn ? btn.textContent : '';
+      if(btn){ btn.disabled = true; btn.textContent = 'Completing…'; }
       setJobCompleteMessage('');
       try{
         const actuals = collectJobActuals();
@@ -40789,14 +41383,7 @@ function emptyStateHtml(){
       }catch(e){
         setJobCompleteMessage(e && e.message ? e.message : 'Completion failed');
       }finally{
-        if(btn){
-          btn.disabled = false;
-          if(labelEl){
-            labelEl.textContent = prior || 'Complete Job';
-          }else{
-            btn.textContent = prior || 'Complete Job';
-          }
-        }
+        if(btn){ btn.disabled = false; btn.textContent = prior || 'Complete Job'; }
       }
     }
     async function reopenJob(jobId){
@@ -40818,16 +41405,8 @@ function emptyStateHtml(){
       );
       if(!ok) return;
       const btn = $('btnJobReopen');
-      const labelEl = btn ? btn.querySelector('.btn-label') : null;
-      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
-      if(btn){
-        btn.disabled = true;
-        if(labelEl){
-          labelEl.textContent = 'Reopening…';
-        }else{
-          btn.textContent = 'Reopening…';
-        }
-      }
+      const prior = btn ? btn.textContent : '';
+      if(btn){ btn.disabled = true; btn.textContent = 'Reopening…'; }
       try{
         const { error } = await SB.client
           .from('jobs')
@@ -40845,30 +41424,14 @@ function emptyStateHtml(){
       }catch(e){
         toast(e && e.message ? e.message : 'Reopen failed');
       }finally{
-        if(btn){
-          btn.disabled = false;
-          if(labelEl){
-            labelEl.textContent = prior || 'Reopen job';
-          }else{
-            btn.textContent = prior || 'Reopen job';
-          }
-        }
+        if(btn){ btn.disabled = false; btn.textContent = prior || 'Reopen job'; }
       }
     }
     async function voidJob(jobId){
       if(!(await openConfirmModal('Void job?', 'This will release reservations and reverse consumption if needed.', { okText:'Void Job', cancelText:'Cancel' }))) return;
       const btn = document.querySelector(`[data-job-void-id="${CSS.escape(jobId)}"]`) || $('btnJobVoid');
-      const labelEl = btn ? btn.querySelector('.btn-label') : null;
-      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
-      const isIconOnly = !!(btn && !labelEl && !String(prior || '').trim() && btn.querySelector('svg'));
-      if(btn){
-        btn.disabled = true;
-        if(labelEl){
-          labelEl.textContent = 'Voiding…';
-        }else if(!isIconOnly){
-          btn.textContent = 'Voiding…';
-        }
-      }
+      const prior = btn ? btn.textContent : '';
+      if(btn){ btn.disabled = true; btn.textContent = 'Voiding…'; }
       try{
         const { error } = await SB.client.rpc('void_job', { p_job_id: jobId });
         if(error) throw error;
@@ -40881,14 +41444,7 @@ function emptyStateHtml(){
       }catch(e){
         toast(e && e.message ? e.message : 'Void failed');
       }finally{
-        if(btn){
-          btn.disabled = false;
-          if(labelEl){
-            labelEl.textContent = prior || 'Void';
-          }else if(!isIconOnly){
-            btn.textContent = prior || 'Void';
-          }
-        }
+        if(btn){ btn.disabled = false; btn.textContent = prior || 'Void'; }
       }
     }
     function setTrashMessage(msg){
@@ -41411,6 +41967,30 @@ function emptyStateHtml(){
     if(menuReceive) menuReceive.addEventListener('click', ()=>{ toggleMenu(false); openReceiveManualModal(); });
     const menuHistory = $('menuHistory');
     if(menuHistory) menuHistory.addEventListener('click', ()=>{ toggleMenu(false); openOrderHistoryModal({ returnToOrder: false }); });
+    const menuReceiveHistory = $('menuReceiveHistory');
+    if(menuReceiveHistory) menuReceiveHistory.addEventListener('click', ()=>{ toggleMenu(false); openReceiveHistoryModal(); });
+    // Receive History modal event handlers
+    const receiveHistoryFilter = $('receiveHistoryFilter');
+    if(receiveHistoryFilter){
+      receiveHistoryFilter.addEventListener('input', ()=>{
+        _receiveHistoryFilter = receiveHistoryFilter.value || '';
+        renderReceiveHistoryList();
+      });
+    }
+    const btnReceiveHistoryRefresh = $('btnReceiveHistoryRefresh');
+    if(btnReceiveHistoryRefresh) btnReceiveHistoryRefresh.addEventListener('click', refreshReceiveHistory);
+    const btnReceiveHistoryDownload = $('btnReceiveHistoryDownload');
+    if(btnReceiveHistoryDownload) btnReceiveHistoryDownload.addEventListener('click', downloadReceiveHistoryCsv);
+    const receiveHistoryList = $('receiveHistoryList');
+    if(receiveHistoryList){
+      receiveHistoryList.addEventListener('click', (e)=>{
+        const toggle = e.target.closest('[data-toggle-receipt]');
+        if(toggle){
+          const id = toggle.dataset.toggleReceipt;
+          if(id) handleReceiveHistoryCardToggle(id);
+        }
+      });
+    }
     const menuTrash = $('menuTrash');
     if(menuTrash) menuTrash.addEventListener('click', ()=>{ toggleMenu(false); openTrashModal(); });
     const menuAudit = $('menuAudit');
@@ -42544,6 +43124,34 @@ function emptyStateHtml(){
 	      if(!id) return;
 	      void addManualReceiveLine(id);
 	    });
+    let _receiveDraftSelectionAnchorId = '';
+    function getReceiveDraftSelectableIdsInView(){
+      const inbox = $('receiveDraftInbox');
+      if(!inbox) return [];
+      return Array.from(inbox.querySelectorAll('input[data-receipt-select]'))
+        .filter(input => !input.disabled)
+        .map(input => String(input.getAttribute('data-receipt-select') || '').trim())
+        .filter(Boolean);
+    }
+    function applyReceiveDraftRangeSelection(anchorId, targetId, checked){
+      const ids = getReceiveDraftSelectableIdsInView();
+      if(!ids.length) return false;
+      const anchor = String(anchorId || '').trim();
+      const target = String(targetId || '').trim();
+      const startIndex = ids.indexOf(anchor);
+      const endIndex = ids.indexOf(target);
+      if(startIndex < 0 || endIndex < 0) return false;
+      const start = Math.min(startIndex, endIndex);
+      const end = Math.max(startIndex, endIndex);
+      const selected = state._receiveDraftSelected || new Set();
+      for(let i = start; i <= end; i++){
+        const id = ids[i];
+        if(checked) selected.add(id);
+        else selected.delete(id);
+      }
+      state._receiveDraftSelected = selected;
+      return true;
+    }
     const receiveDraftInbox = $('receiveDraftInbox');
     if(receiveDraftInbox){
       receiveDraftInbox.addEventListener('change', (e)=>{
@@ -42565,13 +43173,22 @@ function emptyStateHtml(){
             });
           }
           state._receiveDraftSelected = selected;
+          const ids = getReceiveDraftSelectableIdsInView();
+          _receiveDraftSelectionAnchorId = selectAll.checked ? (ids[ids.length - 1] || '') : '';
           renderReceiveDraftInbox();
           return;
         }
         const input = e.target && e.target.closest ? e.target.closest('input[data-receipt-select]') : null;
         if(!input) return;
         const id = input.getAttribute('data-receipt-select');
-        setReceiveDraftSelected(id, input.checked);
+        const checked = input.checked;
+        if(e.shiftKey && _receiveDraftSelectionAnchorId){
+          const applied = applyReceiveDraftRangeSelection(_receiveDraftSelectionAnchorId, id, checked);
+          if(!applied) setReceiveDraftSelected(id, checked);
+        }else{
+          setReceiveDraftSelected(id, checked);
+        }
+        _receiveDraftSelectionAnchorId = String(id || '').trim();
         renderReceiveDraftInbox();
       });
       receiveDraftInbox.addEventListener('click', (e)=>{
@@ -42889,16 +43506,8 @@ function emptyStateHtml(){
       if(!requirePermission(PERMISSIONS.ORDERS_CREATE, 'Order creation not allowed')) return;
 
       const btn = $('btnOrderSubmit');
-      const labelEl = btn ? btn.querySelector('.btn-label') : null;
-      const priorText = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
-      if(btn){
-        btn.disabled = true;
-        if(labelEl){
-          labelEl.textContent = 'Submitting…';
-        }else{
-          btn.textContent = 'Submitting…';
-        }
-      }
+      const priorText = btn ? btn.textContent : '';
+      if(btn){ btn.disabled = true; btn.textContent = 'Submitting…'; }
 
 	      try{
 	        const sendRes = await sendOrderViaApi();
@@ -42929,14 +43538,8 @@ function emptyStateHtml(){
 	        const fallback = await openConfirmModal('Send failed', `${msg}\n\nOpen your email app instead?`, { okText:'Open Email', cancelText:'Cancel' });
 	        if(fallback){ window.location.href = url; }
 	        else { toast(msg); }
-      }finally{
-        if(btn){
-          if(labelEl){
-            labelEl.textContent = priorText || 'Submit Order';
-          }else{
-            btn.textContent = priorText || 'Submit Order';
-          }
-        }
+	      }finally{
+	        if(btn){ btn.textContent = priorText || 'Submit Order'; }
         renderOrderPreview();
       }
     });
@@ -43516,22 +44119,24 @@ function emptyStateHtml(){
       openAddToJobModal(id);
     });
 
+    document.addEventListener('click', (e)=>{
+      const cb = e.target && e.target.closest ? e.target.closest('.rowChk') : null;
+      if(!cb) return;
+      handleInventoryCheckboxClick(cb, e);
+    });
+
     // Master checkbox + indeterminate state
     document.addEventListener('change', (e)=>{
       if(e.target && e.target.id==='chkAll'){
         const on = e.target.checked;
         document.querySelectorAll('.rowChk').forEach(cb=> cb.checked=on);
-        try{ updateSelectionBar(); }catch(ex){}
+        _inventorySelectionAnchorId = on ? (getInventoryRowIdsInView().slice(-1)[0] || '') : '';
+        syncInventorySelectionUI();
       }
       if(e.target && e.target.classList && e.target.classList.contains('rowChk')){
-        const all = document.querySelectorAll('.rowChk');
-        const checked = document.querySelectorAll('.rowChk:checked');
-        const m = $('chkAll');
-        if(m){
-          m.checked = (checked.length===all.length && all.length>0);
-          m.indeterminate = (checked.length>0 && checked.length<all.length);
-        }
-        try{ updateSelectionBar(); }catch(ex){}
+        const id = String(e.target.dataset.id || '').trim();
+        if(id) _inventorySelectionAnchorId = id;
+        syncInventorySelectionUI();
       }
     });
 
@@ -45134,10 +45739,23 @@ function emptyStateHtml(){
 	      });
 	
 	      // Close modals when clicking outside (on backdrop)
-	      document.addEventListener('click', (e)=>{
+	      document.addEventListener('click', async (e)=>{
 	        const modalBackdrop = e.target.closest('.modal-backdrop');
 	        if(modalBackdrop && e.target === modalBackdrop){
-	          if(modalBackdrop.id === 'editItemModal') return;
+	          // Special handling for editItemModal - confirm if changes exist
+	          if(modalBackdrop.id === 'editItemModal'){
+	            if(hasEditItemChanges()){
+	              const discard = await openConfirmModal(
+	                'Discard changes?',
+	                'You have unsaved changes. Discard them?',
+	                { okText: 'Discard', cancelText: 'Keep Editing', okClass: 'btn-danger' }
+	              );
+	              if(!discard) return;
+	            }
+	            _editItemSnapshot = null;
+	            show('editItemModal', false);
+	            return;
+	          }
 	          show(modalBackdrop.id, false);
         }
       });
