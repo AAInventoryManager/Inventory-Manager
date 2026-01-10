@@ -32,6 +32,7 @@ const defaultConfig: CorsConfig = {
     'Content-Type',
     'Idempotency-Key',
     'X-Request-Id',
+    'X-Company-Id',
   ],
   exposedHeaders: [
     'X-RateLimit-Limit',

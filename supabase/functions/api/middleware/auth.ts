@@ -4,6 +4,7 @@
 
 import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
 import { AuthenticationError } from '../utils/errors.ts';
+import { isValidUUID } from '../utils/validate.ts';
 
 export interface AuthContext {
   user: {
@@ -14,6 +15,14 @@ export interface AuthContext {
   };
   supabase: SupabaseClient;
   token: string;
+}
+
+async function fetchUserCompanyIds(supabase: SupabaseClient): Promise<string[]> {
+  const { data, error } = await supabase.rpc('get_user_company_ids');
+  if (error) {
+    throw new AuthenticationError('Failed to verify company membership');
+  }
+  return Array.isArray(data) ? data.map((id) => String(id || '').trim()).filter(Boolean) : [];
 }
 
 /**
@@ -65,9 +74,28 @@ export async function authenticate(request: Request): Promise<AuthContext> {
     throw new AuthenticationError('Invalid or expired JWT token');
   }
 
-  // Extract company_id from app_metadata
-  const companyId = user.app_metadata?.company_id;
-  
+  // Resolve company_id from app_metadata or request header
+  let companyId = user.app_metadata?.company_id ? String(user.app_metadata.company_id).trim() : '';
+  const headerCompanyId = (request.headers.get('X-Company-Id') || '').trim();
+
+  if (!companyId) {
+    if (headerCompanyId) {
+      if (!isValidUUID(headerCompanyId)) {
+        throw new AuthenticationError('Invalid company ID');
+      }
+      const companyIds = await fetchUserCompanyIds(supabase);
+      if (!companyIds.includes(headerCompanyId)) {
+        throw new AuthenticationError('User is not associated with a company');
+      }
+      companyId = headerCompanyId;
+    } else {
+      const companyIds = await fetchUserCompanyIds(supabase);
+      if (companyIds.length === 1) {
+        companyId = companyIds[0];
+      }
+    }
+  }
+
   if (!companyId) {
     throw new AuthenticationError('User is not associated with a company');
   }

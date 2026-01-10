@@ -34306,14 +34306,37 @@ function emptyStateHtml(){
         if(sbUrl) return `${sbUrl}/functions/v1/api`;
         return '/functions/v1/api';
       }
-      function buildReceiptsApiHeaders(apiUrl){
+      async function getReceiptsApiToken(){
+        if(SB.session && SB.session.access_token) return String(SB.session.access_token);
+        if(!SB.client || !SB.client.auth || !SB.client.auth.getSession) return '';
+        try{
+          const { data } = await SB.client.auth.getSession();
+          return data && data.session && data.session.access_token ? String(data.session.access_token) : '';
+        }catch(e){
+          return '';
+        }
+      }
+      function buildReceiptsApiHeaders(apiUrl, token){
         const headers = {};
         const sbUrl = (typeof window.SB_URL === 'string') ? window.SB_URL.trim() : '';
         const sbKey = (typeof window.SB_ANON === 'string') ? window.SB_ANON.trim() : '';
+        if(token){
+          headers.Authorization = `Bearer ${token}`;
+        }
+        const companyId = SB.companyId ? String(SB.companyId).trim() : '';
+        if(companyId){
+          headers['X-Company-Id'] = companyId;
+        }
         if(sbUrl && apiUrl.startsWith(sbUrl) && sbKey){
-          headers.apikey = sbKey;
-          if(SB.session && SB.session.access_token){
-            headers.Authorization = `Bearer ${SB.session.access_token}`;
+          let sameOrigin = true;
+          try{
+            const origin = window.location && window.location.origin ? window.location.origin : '';
+            sameOrigin = origin ? (new URL(apiUrl, origin).origin === origin) : true;
+          }catch(e){
+            sameOrigin = false;
+          }
+          if(sameOrigin){
+            headers.apikey = sbKey;
           }
         }
         return headers;
@@ -34323,7 +34346,8 @@ function emptyStateHtml(){
         const id = String(receiptId || '').trim();
         if(!id) return [];
         const apiUrl = getReceiptsApiUrl();
-        const headers = buildReceiptsApiHeaders(apiUrl);
+        const token = await getReceiptsApiToken();
+        const headers = buildReceiptsApiHeaders(apiUrl, token);
         const res = await fetch(`${apiUrl}/v1/receipts/${id}/attachments`, { headers });
         const payload = await res.json().catch(() => ({}));
         if(!res.ok){
@@ -34338,7 +34362,8 @@ function emptyStateHtml(){
         const aid = String(attachmentId || '').trim();
         if(!rid || !aid) throw new Error('Attachment required');
         const apiUrl = getReceiptsApiUrl();
-        const headers = buildReceiptsApiHeaders(apiUrl);
+        const token = await getReceiptsApiToken();
+        const headers = buildReceiptsApiHeaders(apiUrl, token);
         const res = await fetch(`${apiUrl}/v1/receipts/${rid}/attachments/${aid}/download`, { headers });
         const payload = await res.json().catch(() => ({}));
         if(!res.ok){
@@ -34355,7 +34380,8 @@ function emptyStateHtml(){
         const aid = String(attachmentId || '').trim();
         if(!rid || !aid) throw new Error('Attachment required');
         const apiUrl = getReceiptsApiUrl();
-        const headers = buildReceiptsApiHeaders(apiUrl);
+        const token = await getReceiptsApiToken();
+        const headers = buildReceiptsApiHeaders(apiUrl, token);
         const res = await fetch(`${apiUrl}/v1/receipts/${rid}/attachments/${aid}`, {
           method: 'DELETE',
           headers,
