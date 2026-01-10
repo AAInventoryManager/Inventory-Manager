@@ -1757,19 +1757,12 @@
     #editItemModal .edit-footer{
       display:flex;
       align-items:center;
-      justify-content:space-between;
+      justify-content:center;
+      gap:32px;
       padding:16px 20px calc(16px + env(safe-area-inset-bottom));
       border-top:1px solid rgba(255,255,255,0.06);
       background:rgba(0,0,0,0.15);
       flex-shrink:0;
-    }
-    #editItemModal .edit-footer-right{
-      display:flex;
-      gap:12px;
-    }
-    #editItemModal .edit-autosave-status{
-      flex:1;
-      justify-content:center;
     }
     #editItemModal #editItemMsg{
       padding:0 20px 12px;
@@ -1777,38 +1770,50 @@
       color:var(--muted);
     }
 
-    /* Edit modal autosave status */
-    #editItemModal .edit-autosave-status{
-      font-size:12px;
-      color:var(--muted);
+    /* Edit modal autosave pill (header) */
+    #editItemModal .edit-autosave-pill{
       display:flex;
       align-items:center;
       gap:6px;
+      padding:6px 12px;
+      border-radius:20px;
+      font-size:12px;
+      font-weight:600;
       opacity:0;
-      transition:opacity 0.2s ease;
+      transform:scale(0.9);
+      transition:all 0.2s ease;
+      pointer-events:none;
     }
-    #editItemModal .edit-autosave-status.visible{
+    #editItemModal .edit-autosave-pill.visible{
       opacity:1;
+      transform:scale(1);
     }
-    #editItemModal .edit-autosave-status.saving{
+    #editItemModal .edit-autosave-pill.saving{
+      background:rgba(255,255,255,0.08);
       color:var(--muted);
     }
-    #editItemModal .edit-autosave-status.saved{
+    #editItemModal .edit-autosave-pill.saved{
+      background:rgba(34,197,94,0.15);
       color:#4ade80;
     }
-    #editItemModal .edit-autosave-status.error{
+    #editItemModal .edit-autosave-pill.error{
+      background:rgba(239,68,68,0.15);
       color:#f87171;
     }
-    #editItemModal .edit-autosave-status svg{
+    #editItemModal .edit-autosave-pill .autosave-icon{
       width:14px;
       height:14px;
+      display:none;
     }
-    #editItemModal .edit-autosave-status .autosave-spinner{
+    #editItemModal .edit-autosave-pill.saving .autosave-icon--saving{
+      display:block;
       animation:autosave-spin 1s linear infinite;
     }
-    #editItemModal .edit-autosave-status.saved .autosave-spinner,
-    #editItemModal .edit-autosave-status.error .autosave-spinner{
-      display:none;
+    #editItemModal .edit-autosave-pill.saved .autosave-icon--saved{
+      display:block;
+    }
+    #editItemModal .edit-autosave-pill.error .autosave-icon--error{
+      display:block;
     }
     @keyframes autosave-spin{
       from{ transform:rotate(0deg); }
@@ -1911,24 +1916,11 @@
       }
       #editItemModal .edit-footer{
         padding:14px 16px calc(14px + env(safe-area-inset-bottom));
-        flex-wrap:wrap;
-        gap:10px;
+        gap:20px;
       }
-      #editItemModal .footer-icon-btn--delete{
-        order:3;
-        width:100%;
-        margin-top:4px;
-      }
-      #editItemModal .edit-autosave-status{
-        order:2;
-        width:100%;
-        justify-content:center;
-        padding:4px 0;
-      }
-      #editItemModal .edit-footer-right{
-        order:1;
-        width:100%;
-        justify-content:space-between;
+      #editItemModal .footer-icon-btn{
+        min-width:60px;
+        padding:8px 12px;
       }
     }
     @media (max-width: 360px){
@@ -14515,6 +14507,20 @@
             <p id="editItemSubtitle" class="edit-header-sub">No SKU · Unassigned</p>
           </div>
         </div>
+        <div class="edit-autosave-pill" id="editAutosaveStatus" aria-live="polite">
+          <svg class="autosave-icon autosave-icon--saving" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4"></circle>
+          </svg>
+          <svg class="autosave-icon autosave-icon--saved" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <svg class="autosave-icon autosave-icon--error" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+          <span class="autosave-text">Saving...</span>
+        </div>
         <button class="icon-btn icon-btn--default modal-close" type="button" data-modal-close="editItemModal" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -14658,27 +14664,19 @@
           </svg>
           <span>Delete</span>
         </button>
-        <div class="edit-autosave-status" id="editAutosaveStatus">
-          <svg class="autosave-spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4" stroke-dashoffset="0"></circle>
+        <button class="footer-icon-btn footer-icon-btn--cancel" id="btnEditItemCancel" type="button" data-modal-close="editItemModal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
-          <span class="autosave-text">Saving...</span>
-        </div>
-        <div class="edit-footer-right">
-          <button class="footer-icon-btn footer-icon-btn--cancel" id="btnEditItemCancel" type="button" data-modal-close="editItemModal">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-            <span>Cancel</span>
-          </button>
-          <button class="footer-icon-btn footer-icon-btn--done" id="btnEditItemDone" type="button">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <span>Done</span>
-          </button>
-        </div>
+          <span>Cancel</span>
+        </button>
+        <button class="footer-icon-btn footer-icon-btn--done" id="btnEditItemDone" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Done</span>
+        </button>
       </div>
     </div>
   </div>
@@ -17826,6 +17824,7 @@
       _orderDraftJobAllocationsByItemId:new Map(),
       _companyLocations:[],
       _companyLocationById:new Map(),
+      _companyLocationsLoaded:false,
       _companyLocationEditing:null,
       _companyLocationsContext:null,
 	      _trashItems:[],
