@@ -1,5 +1,8 @@
 BEGIN;
 
+-- Drop old function signature from 20260109150000_fix_po_lines_table_reference.sql to avoid overload conflicts
+DROP FUNCTION IF EXISTS public.add_receipt_line(UUID, UUID, UUID, INTEGER, INTEGER, INTEGER, TEXT);
+
 CREATE OR REPLACE FUNCTION public.add_receipt_line(
     p_receipt_id UUID,
     p_item_id UUID,
