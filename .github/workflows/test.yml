@@ -57,7 +57,7 @@ jobs:
           fi
           supabase login --token "$SUPABASE_ACCESS_TOKEN"
           supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" --yes
-          supabase db push --yes
+          supabase db push --yes --include-all
           # Force PostgREST schema reload via API
           curl -s -X POST \
             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
