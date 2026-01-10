@@ -3589,6 +3589,10 @@
       gap:8px;
     }
     .order-wizard-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
       padding:10px 20px;
       border-radius:10px;
       font-size:14px;
@@ -6306,6 +6310,9 @@
       color:var(--muted);
     }
     #receiveOrderModal .po-link-action{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
       padding:6px 12px;
       border-radius:8px;
       border:1px solid rgba(34,197,94,0.3);
@@ -6316,6 +6323,10 @@
       cursor:pointer;
       transition:all 0.15s ease;
       white-space:nowrap;
+    }
+    #receiveOrderModal .po-link-action svg{
+      width:14px;
+      height:14px;
     }
     #receiveOrderModal .po-link-action:hover{
       background:rgba(34,197,94,0.2);
@@ -14533,7 +14544,13 @@
             </div>
             <div class="order-shipping-header">
               <div class="section-title">Ship To</div>
-              <button class="btn-secondary order-shipping-manage" id="btnOrderShippingManage" type="button">Locations</button>
+              <button class="btn-secondary btn-with-icon order-shipping-manage" id="btnOrderShippingManage" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span class="btn-label">Locations</span>
+              </button>
             </div>
             <select id="orderShippingAddress" class="form-input order-shipping-select" aria-hidden="true" tabindex="-1"></select>
             <div id="orderShippingOptions" class="order-shipping-options" role="listbox" aria-label="Shipping locations"></div>
@@ -14608,7 +14625,12 @@
         <!-- Wizard Footer -->
         <div class="order-wizard-footer">
           <div class="order-wizard-footer-left">
-            <button class="order-wizard-btn order-wizard-btn-prev" id="btnOrderWizPrev" type="button" style="display:none;">Back</button>
+            <button class="order-wizard-btn order-wizard-btn-prev btn-with-icon" id="btnOrderWizPrev" type="button" style="display:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+              <span class="btn-label">Back</span>
+            </button>
             <button class="btn-ghost" id="btnOrderCopy" type="button" style="display:none;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -14625,9 +14647,25 @@
             </button>
           </div>
           <div class="order-wizard-footer-right">
-            <button class="btn-secondary" id="btnOrderCancel" type="button" data-modal-close="orderModal">Cancel</button>
-            <button class="order-wizard-btn order-wizard-btn-next" id="btnOrderWizNext" type="button">Next</button>
-            <button class="order-wizard-btn order-wizard-btn-submit" id="btnOrderSubmit" type="button" style="display:none;">Submit Order</button>
+            <button class="btn-secondary btn-with-icon" id="btnOrderCancel" type="button" data-modal-close="orderModal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              <span class="btn-label">Cancel</span>
+            </button>
+            <button class="order-wizard-btn order-wizard-btn-next btn-with-icon" id="btnOrderWizNext" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m9 18 6-6-6-6"></path>
+              </svg>
+              <span class="btn-label">Next</span>
+            </button>
+            <button class="order-wizard-btn order-wizard-btn-submit btn-with-icon" id="btnOrderSubmit" type="button" style="display:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 6 9 17l-5-5"></path>
+              </svg>
+              <span class="btn-label">Submit Order</span>
+            </button>
           </div>
         </div>
       </div>
@@ -14906,35 +14944,52 @@
           </svg>
         </button>
       </div>
-      <div class="modal-toolbar">
-        <span class="modal-toolbar-label">Job List</span>
-        <div class="modal-toolbar-actions">
-          <button class="btn-primary btn-with-icon" id="btnJobsCreate" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <span>New Job</span>
-          </button>
-          <button class="btn-secondary btn-with-icon" id="btnJobsApproveReady" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="16 9 11 14 8 11"></polyline>
-            </svg>
-            <span>Approve-ready jobs</span>
-            <span class="btn-count" id="btnJobsApproveReadyCount" style="display:none;">0</span>
-          </button>
-          <button class="btn-secondary" id="btnJobsRefresh" type="button">Refresh</button>
+        <div class="modal-toolbar">
+          <span class="modal-toolbar-label">Job List</span>
+          <div class="modal-toolbar-actions">
+            <button class="btn-primary btn-with-icon" id="btnJobsCreate" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>New Job</span>
+            </button>
+            <button class="btn-secondary btn-with-icon" id="btnJobsApproveReady" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="16 9 11 14 8 11"></polyline>
+              </svg>
+              <span>Approve-ready jobs</span>
+              <span class="btn-count" id="btnJobsApproveReadyCount" style="display:none;">0</span>
+            </button>
+            <button class="btn-secondary btn-with-icon" id="btnJobsRefresh" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+                <path d="M21 3v5h-5"></path>
+              </svg>
+              <span class="btn-label">Refresh</span>
+            </button>
+          </div>
         </div>
-      </div>
       <div class="modal-content">
         <div id="jobsList" aria-live="polite"></div>
         <div id="jobsMsg" class="muted"></div>
       </div>
       <div class="modal-footer">
         <div class="footer-right">
-          <button class="btn-secondary" id="btnJobsClose" type="button" data-modal-close="jobsModal">Cancel</button>
-          <button class="btn-primary" type="button" data-modal-close="jobsModal">Done</button>
+          <button class="btn-secondary btn-with-icon" id="btnJobsClose" type="button" data-modal-close="jobsModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span class="btn-label">Cancel</span>
+          </button>
+          <button class="btn-primary btn-with-icon" type="button" data-modal-close="jobsModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+            <span class="btn-label">Done</span>
+          </button>
         </div>
       </div>
     </div>
@@ -14970,7 +15025,13 @@
       </div>
       <div class="modal-footer">
         <div class="footer-right">
-          <button class="btn-secondary" id="btnApproveReadyClose" type="button" data-modal-close="approveReadyModal">Close</button>
+          <button class="btn-secondary btn-with-icon" id="btnApproveReadyClose" type="button" data-modal-close="approveReadyModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span class="btn-label">Close</span>
+          </button>
         </div>
       </div>
     </div>
@@ -15127,7 +15188,13 @@
                 </div>
                 <div id="jobApprovalWarnings" class="job-shortfall-info-list" style="display:none;"></div>
               </div>
-              <button class="btn-secondary job-approve-btn" id="btnJobApprove" type="button">Approve Job</button>
+              <button class="btn-secondary btn-with-icon job-approve-btn" id="btnJobApprove" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="m9 12 2 2 4-4"></path>
+                </svg>
+                <span class="btn-label">Approve Job</span>
+              </button>
             </div>
             <div id="jobCompletionSection">
               <div class="job-progress-card" id="jobCompletionProgressCard">
@@ -15142,7 +15209,12 @@
               </div>
               <div id="jobActualsTable"></div>
               <div id="jobCompleteMsg" class="muted" style="margin-top:8px;"></div>
-              <button class="btn-secondary job-complete-btn" id="btnJobComplete" type="button">Mark Job Complete</button>
+              <button class="btn-secondary btn-with-icon job-complete-btn" id="btnJobComplete" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 6 9 17l-5-5"></path>
+                </svg>
+                <span class="btn-label">Mark Job Complete</span>
+              </button>
             </div>
             <div id="jobCompletedState" class="job-completed-card" style="display:none;">
               <div class="job-completed-title">Job Completed</div>
@@ -15166,7 +15238,13 @@
               <div id="jobCompletionOrdersContent"></div>
             </div>
             <div id="jobReopenSection" class="job-reopen-section" style="display:none;">
-              <button class="btn-secondary job-reopen-btn" id="btnJobReopen" type="button">Reopen job</button>
+              <button class="btn-secondary btn-with-icon job-reopen-btn" id="btnJobReopen" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+                  <path d="M21 3v5h-5"></path>
+                </svg>
+                <span class="btn-label">Reopen job</span>
+              </button>
             </div>
             <div id="jobVoidedState" class="job-voided-card" style="display:none;">
               <div class="job-voided-title">Job Voided</div>
@@ -15175,7 +15253,16 @@
             <div id="jobVoidSection" class="job-danger-zone">
               <span class="job-danger-zone-title">Void</span>
               <p class="job-danger-zone-desc">Voiding releases reservations and reverses consumption if needed.</p>
-              <button class="btn-secondary btn-danger job-void-btn" id="btnJobVoid" type="button">Void Job</button>
+              <button class="btn-secondary btn-danger btn-with-icon job-void-btn" id="btnJobVoid" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                  <path d="M10 11v6"></path>
+                  <path d="M14 11v6"></path>
+                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                </svg>
+                <span class="btn-label">Void Job</span>
+              </button>
             </div>
           </section>
         </div>
@@ -15383,8 +15470,20 @@
       </div>
       <div class="modal-footer">
         <div class="footer-right">
-          <button class="btn-secondary" id="btnJobItemPickerCancel" type="button" data-modal-close="jobItemPickerModal">Cancel</button>
-          <button class="btn-primary" id="btnJobItemPickerAdd" type="button" disabled>Add to BOM</button>
+          <button class="btn-secondary btn-with-icon" id="btnJobItemPickerCancel" type="button" data-modal-close="jobItemPickerModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span class="btn-label">Cancel</span>
+          </button>
+          <button class="btn-primary btn-with-icon" id="btnJobItemPickerAdd" type="button" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span class="btn-label">Add to BOM</span>
+          </button>
         </div>
       </div>
     </div>
@@ -15481,7 +15580,12 @@
           </div>
           <div class="modal-footer">
             <div class="footer-right">
-              <button class="btn-secondary" id="btnOrderHistoryClose" type="button" data-modal-close="orderHistoryModal">Done</button>
+              <button class="btn-secondary btn-with-icon" id="btnOrderHistoryClose" type="button" data-modal-close="orderHistoryModal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 6 9 17l-5-5"></path>
+                </svg>
+                <span class="btn-label">Done</span>
+              </button>
             </div>
           </div>
 		    </div>
@@ -15639,7 +15743,13 @@
                       <div class="po-link-title" id="receivePoLinkTitle">No PO linked</div>
                       <div class="po-link-desc" id="receivePoLinkDesc">Link to a purchase order to auto-reconcile</div>
                     </div>
-                    <button class="po-link-action" id="receivePoLinkAction" type="button" data-receipt-link-po>Link PO</button>
+                    <button class="po-link-action" id="receivePoLinkAction" type="button" data-receipt-link-po>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                      </svg>
+                      <span class="btn-label">Link PO</span>
+                    </button>
                   </div>
                 </div>
                 <div class="parsed-items-section" id="receiveParsedSection">
@@ -15696,7 +15806,12 @@
               <div id="receiveOrderMsg" class="muted"></div>
               <div class="receive-plan-upgrade" id="receivePlanUpgrade" style="display:none;">
                 <span class="muted">Upgrade to enable receipt-based receiving.</span>
-                <button class="btn-tertiary btn-sm" type="button" data-receipt-upgrade>Upgrade to Pro</button>
+                <button class="btn-tertiary btn-sm btn-with-icon" type="button" data-receipt-upgrade>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m9 18 6-6-6-6"></path>
+                  </svg>
+                  <span class="btn-label">Upgrade to Pro</span>
+                </button>
               </div>
             </div>
             <div class="footer-actions">
@@ -34411,7 +34526,16 @@ function emptyStateHtml(){
                 `<span>Select all</span>`+
               `</label>`+
               `<span class="receive-draft-batch-count" id="receiveDraftSelectedCount">0 selected</span>`+
-              `<button class="btn-tertiary btn-sm btn-danger" id="btnReceiveDraftDelete" type="button" disabled>Delete selected</button>`+
+              `<button class="btn-tertiary btn-sm btn-danger btn-with-icon" id="btnReceiveDraftDelete" type="button" disabled>`+
+                `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+                  `<polyline points="3 6 5 6 21 6"></polyline>`+
+                  `<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>`+
+                  `<path d="M10 11v6"></path>`+
+                  `<path d="M14 11v6"></path>`+
+                  `<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>`+
+                `</svg>`+
+                `<span class="btn-label">Delete selected</span>`+
+              `</button>`+
             `</div>`+
           `</div>`+
           `<div class="scanned-queue">`+
@@ -34987,7 +35111,16 @@ function emptyStateHtml(){
                 const sizeLabel = formatReceiptAttachmentSize(att.byte_size);
                 const metaText = [typeLabel, sizeLabel].filter(Boolean).join(' • ');
                 const deleteBtn = allowDelete
-                  ? `<button class="btn-tertiary btn-sm btn-danger" type="button" data-receipt-attachment-delete="${escapeHtmlAttr(id)}">Delete</button>`
+                  ? `<button class="btn-tertiary btn-sm btn-danger btn-with-icon" type="button" data-receipt-attachment-delete="${escapeHtmlAttr(id)}">`+
+                      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+                        `<polyline points="3 6 5 6 21 6"></polyline>`+
+                        `<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>`+
+                        `<path d="M10 11v6"></path>`+
+                        `<path d="M14 11v6"></path>`+
+                        `<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>`+
+                      `</svg>`+
+                      `<span class="btn-label">Delete</span>`+
+                    `</button>`
                   : '';
                 return (
                   `<div class="receive-attachment-item" data-receipt-attachment-id="${escapeHtmlAttr(id)}">`+
@@ -34996,7 +35129,14 @@ function emptyStateHtml(){
                       `<div class="receive-attachment-meta">${escapeHtml(metaText || 'File')}</div>`+
                     `</div>`+
                     `<div class="receive-attachment-actions">`+
-                      `<button class="btn-tertiary btn-sm" type="button" data-receipt-attachment-download="${escapeHtmlAttr(id)}">Download</button>`+
+                      `<button class="btn-tertiary btn-sm btn-with-icon" type="button" data-receipt-attachment-download="${escapeHtmlAttr(id)}">`+
+                        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+                          `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>`+
+                          `<polyline points="7 10 12 15 17 10"></polyline>`+
+                          `<line x1="12" y1="15" x2="12" y2="3"></line>`+
+                        `</svg>`+
+                        `<span class="btn-label">Download</span>`+
+                      `</button>`+
                       `${deleteBtn}`+
                     `</div>`+
                   `</div>`
@@ -35179,7 +35319,15 @@ function emptyStateHtml(){
             }).join('')
           : `<div class="parsed-empty">No parsed items yet.</div>`;
         const addAction = allowDetailsEdit
-          ? `<div class="parsed-items-action"><button class="btn-tertiary btn-sm" type="button" data-receipt-line-add>Add line item</button></div>`
+          ? `<div class="parsed-items-action">`+
+              `<button class="btn-tertiary btn-sm btn-with-icon" type="button" data-receipt-line-add>`+
+                `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+                  `<line x1="12" y1="5" x2="12" y2="19"></line>`+
+                  `<line x1="5" y1="12" x2="19" y2="12"></line>`+
+                `</svg>`+
+                `<span class="btn-label">Add line item</span>`+
+              `</button>`+
+            `</div>`
           : '';
         parsedLinesWrap.innerHTML = linesHtml + addAction;
       }
@@ -35523,12 +35671,19 @@ function emptyStateHtml(){
 	                    }).join('') : `<div class="muted">No lines.</div>`) +
 	                  `</div>`+
 	                  (canVoid
-	                    ? `<div class="receive-void-row">`+
-	                        `<input type="text" placeholder="Void reason (min 10 chars)" data-void-receipt-reason="${escapeHtmlAttr(receiptId)}">`+
-	                        `<button class="btn-tertiary btn-sm btn-danger" type="button" data-void-receipt-id="${escapeHtmlAttr(receiptId)}">Void</button>`+
-	                      `</div>`
-	                    : ''
-	                  )+
+                    ? `<div class="receive-void-row">`+
+                        `<input type="text" placeholder="Void reason (min 10 chars)" data-void-receipt-reason="${escapeHtmlAttr(receiptId)}">`+
+                        `<button class="btn-tertiary btn-sm btn-danger btn-with-icon" type="button" data-void-receipt-id="${escapeHtmlAttr(receiptId)}">`+
+                          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+                            `<circle cx="12" cy="12" r="10"></circle>`+
+                            `<path d="m15 9-6 6"></path>`+
+                            `<path d="m9 9 6 6"></path>`+
+                          `</svg>`+
+                          `<span class="btn-label">Void</span>`+
+                        `</button>`+
+                      `</div>`
+                    : ''
+                  )+
 	                `</div>`
 	              );
 	            }).join('');
@@ -35821,8 +35976,16 @@ function emptyStateHtml(){
 	      if(!ok) return;
 
 	      const btn = $('btnReceiveOrderComplete');
-	      const prior = btn ? btn.textContent : '';
-	      if(btn){ btn.disabled = true; btn.textContent = 'Completing…'; }
+	      const labelEl = btn ? btn.querySelector('.footer-icon-label') : null;
+	      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
+	      if(btn){
+	        btn.disabled = true;
+	        if(labelEl){
+	          labelEl.textContent = 'Completing…';
+	        }else{
+	          btn.textContent = 'Completing…';
+	        }
+	      }
 	      try{
 	        const receiptId = draftLike
 	          ? await saveReceiptLines(ro, { requireLine:true })
@@ -35870,7 +36033,14 @@ function emptyStateHtml(){
 	      }catch(e){
 	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to receive receipt', 'error');
 	      }finally{
-	        if(btn){ btn.disabled = false; btn.textContent = prior || 'Receive Receipt'; }
+	        if(btn){
+	          btn.disabled = false;
+	          if(labelEl){
+	            labelEl.textContent = prior || 'Receive';
+	          }else{
+	            btn.textContent = prior || 'Receive Receipt';
+	          }
+	        }
 	      }
 	    }
 	    async function handleVoidReceipt(receiptId, btnEl){
@@ -35900,10 +36070,15 @@ function emptyStateHtml(){
 	      );
 	      if(!ok) return;
 	      const btn = btnEl || null;
-	      const prior = btn ? btn.textContent : '';
+	      const labelEl = btn ? btn.querySelector('.btn-label') : null;
+	      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
 	      if(btn){
 	        btn.disabled = true;
-	        btn.textContent = 'Voiding…';
+	        if(labelEl){
+	          labelEl.textContent = 'Voiding…';
+	        }else{
+	          btn.textContent = 'Voiding…';
+	        }
 	      }
 	      try{
         const { data, error } = await SB.client.rpc('transition_receipt_status', {
@@ -35933,7 +36108,11 @@ function emptyStateHtml(){
 	      }finally{
 	        if(btn && btn.isConnected){
 	          btn.disabled = false;
-	          btn.textContent = prior || 'Void';
+	          if(labelEl){
+	            labelEl.textContent = prior || 'Void';
+	          }else{
+	            btn.textContent = prior || 'Void';
+	          }
 	        }
 	      }
 	    }
@@ -38977,7 +39156,13 @@ function emptyStateHtml(){
         const btn = $('btnJobApprove');
         if(btn){
           const hasShortfall = totals.totalShortfall > 0;
-          btn.textContent = hasShortfall ? 'Approve Job & Reserve Stock' : 'Approve Job';
+          const label = hasShortfall ? 'Approve Job & Reserve Stock' : 'Approve Job';
+          const labelEl = btn.querySelector('.btn-label');
+          if(labelEl){
+            labelEl.textContent = label;
+          }else{
+            btn.textContent = label;
+          }
           btn.disabled = !(job && job.id && canApproveJob(status) && canAdmin) || hasShortfall;
           btn.title = hasShortfall ? 'Resolve all shortfalls before approving' : '';
         }
@@ -40428,8 +40613,17 @@ function emptyStateHtml(){
     }
     async function approveJob(jobId, opts = {}){
       const btn = opts.button || document.querySelector(`[data-job-approve-id="${CSS.escape(jobId)}"]`) || $('btnJobApprove');
-      const prior = btn ? btn.textContent : '';
-      if(btn){ btn.disabled = true; btn.textContent = 'Approving…'; }
+      const labelEl = btn ? btn.querySelector('.btn-label') : null;
+      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
+      const isIconOnly = !!(btn && !labelEl && !String(prior || '').trim() && btn.querySelector('svg'));
+      if(btn){
+        btn.disabled = true;
+        if(labelEl){
+          labelEl.textContent = 'Approving…';
+        }else if(!isIconOnly){
+          btn.textContent = 'Approving…';
+        }
+      }
       renderApprovalShortages([]);
       let latestShortages = [];
       try{
@@ -40532,13 +40726,28 @@ function emptyStateHtml(){
         }
         toast(msg);
       }finally{
-        if(btn){ btn.disabled = false; btn.textContent = prior || 'Approve'; }
+        if(btn){
+          btn.disabled = false;
+          if(labelEl){
+            labelEl.textContent = prior || 'Approve';
+          }else if(!isIconOnly){
+            btn.textContent = prior || 'Approve';
+          }
+        }
       }
     }
     async function completeJob(jobId){
       const btn = $('btnJobComplete');
-      const prior = btn ? btn.textContent : '';
-      if(btn){ btn.disabled = true; btn.textContent = 'Completing…'; }
+      const labelEl = btn ? btn.querySelector('.btn-label') : null;
+      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
+      if(btn){
+        btn.disabled = true;
+        if(labelEl){
+          labelEl.textContent = 'Completing…';
+        }else{
+          btn.textContent = 'Completing…';
+        }
+      }
       setJobCompleteMessage('');
       try{
         const actuals = collectJobActuals();
@@ -40554,7 +40763,14 @@ function emptyStateHtml(){
       }catch(e){
         setJobCompleteMessage(e && e.message ? e.message : 'Completion failed');
       }finally{
-        if(btn){ btn.disabled = false; btn.textContent = prior || 'Complete Job'; }
+        if(btn){
+          btn.disabled = false;
+          if(labelEl){
+            labelEl.textContent = prior || 'Complete Job';
+          }else{
+            btn.textContent = prior || 'Complete Job';
+          }
+        }
       }
     }
     async function reopenJob(jobId){
@@ -40576,8 +40792,16 @@ function emptyStateHtml(){
       );
       if(!ok) return;
       const btn = $('btnJobReopen');
-      const prior = btn ? btn.textContent : '';
-      if(btn){ btn.disabled = true; btn.textContent = 'Reopening…'; }
+      const labelEl = btn ? btn.querySelector('.btn-label') : null;
+      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
+      if(btn){
+        btn.disabled = true;
+        if(labelEl){
+          labelEl.textContent = 'Reopening…';
+        }else{
+          btn.textContent = 'Reopening…';
+        }
+      }
       try{
         const { error } = await SB.client
           .from('jobs')
@@ -40595,14 +40819,30 @@ function emptyStateHtml(){
       }catch(e){
         toast(e && e.message ? e.message : 'Reopen failed');
       }finally{
-        if(btn){ btn.disabled = false; btn.textContent = prior || 'Reopen job'; }
+        if(btn){
+          btn.disabled = false;
+          if(labelEl){
+            labelEl.textContent = prior || 'Reopen job';
+          }else{
+            btn.textContent = prior || 'Reopen job';
+          }
+        }
       }
     }
     async function voidJob(jobId){
       if(!(await openConfirmModal('Void job?', 'This will release reservations and reverse consumption if needed.', { okText:'Void Job', cancelText:'Cancel' }))) return;
       const btn = document.querySelector(`[data-job-void-id="${CSS.escape(jobId)}"]`) || $('btnJobVoid');
-      const prior = btn ? btn.textContent : '';
-      if(btn){ btn.disabled = true; btn.textContent = 'Voiding…'; }
+      const labelEl = btn ? btn.querySelector('.btn-label') : null;
+      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
+      const isIconOnly = !!(btn && !labelEl && !String(prior || '').trim() && btn.querySelector('svg'));
+      if(btn){
+        btn.disabled = true;
+        if(labelEl){
+          labelEl.textContent = 'Voiding…';
+        }else if(!isIconOnly){
+          btn.textContent = 'Voiding…';
+        }
+      }
       try{
         const { error } = await SB.client.rpc('void_job', { p_job_id: jobId });
         if(error) throw error;
@@ -40615,7 +40855,14 @@ function emptyStateHtml(){
       }catch(e){
         toast(e && e.message ? e.message : 'Void failed');
       }finally{
-        if(btn){ btn.disabled = false; btn.textContent = prior || 'Void'; }
+        if(btn){
+          btn.disabled = false;
+          if(labelEl){
+            labelEl.textContent = prior || 'Void';
+          }else if(!isIconOnly){
+            btn.textContent = prior || 'Void';
+          }
+        }
       }
     }
     function setTrashMessage(msg){
@@ -42616,8 +42863,16 @@ function emptyStateHtml(){
       if(!requirePermission(PERMISSIONS.ORDERS_CREATE, 'Order creation not allowed')) return;
 
       const btn = $('btnOrderSubmit');
-      const priorText = btn ? btn.textContent : '';
-      if(btn){ btn.disabled = true; btn.textContent = 'Submitting…'; }
+      const labelEl = btn ? btn.querySelector('.btn-label') : null;
+      const priorText = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
+      if(btn){
+        btn.disabled = true;
+        if(labelEl){
+          labelEl.textContent = 'Submitting…';
+        }else{
+          btn.textContent = 'Submitting…';
+        }
+      }
 
 	      try{
 	        const sendRes = await sendOrderViaApi();
@@ -42648,8 +42903,14 @@ function emptyStateHtml(){
 	        const fallback = await openConfirmModal('Send failed', `${msg}\n\nOpen your email app instead?`, { okText:'Open Email', cancelText:'Cancel' });
 	        if(fallback){ window.location.href = url; }
 	        else { toast(msg); }
-	      }finally{
-	        if(btn){ btn.textContent = priorText || 'Submit Order'; }
+      }finally{
+        if(btn){
+          if(labelEl){
+            labelEl.textContent = priorText || 'Submit Order';
+          }else{
+            btn.textContent = priorText || 'Submit Order';
+          }
+        }
         renderOrderPreview();
       }
     });
