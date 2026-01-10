@@ -2649,6 +2649,24 @@
       text-overflow:ellipsis;
       min-width:0;
     }
+    .order-cart-item-details{
+      display:flex;
+      flex-wrap:wrap;
+      gap:2px 8px;
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.3;
+    }
+    .order-cart-item-details span{
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:140px;
+    }
+    .order-cart-item-details .order-cart-item-cost{
+      color:#22c55e;
+      max-width:none;
+    }
     .order-cart-item-toggle{
       width:28px;
       height:28px;
@@ -2874,26 +2892,31 @@
     .order-cart-item-stepper .qty-stepper{
       display:flex;
       align-items:center;
-      gap:2px;
+      gap:0;
       background:rgba(0,0,0,0.3);
       border-radius:8px;
       padding:2px;
-      height:auto !important;
+      height:40px !important;
     }
     .order-cart-item-stepper .qty-stepper-btn{
-      width:32px !important;
-      height:32px !important;
+      width:36px !important;
+      height:36px !important;
       border:none;
       background:transparent;
       color:var(--muted);
       border-radius:6px;
+      font-size:18px;
     }
     .order-cart-item-stepper .qty-stepper-input{
-      height:32px !important;
-      font-size:15px !important;
-      min-width:40px !important;
-      background:rgba(255,255,255,0.05);
-      border-radius:6px;
+      width:2.5rem !important;
+      min-width:2.5rem !important;
+      max-width:2.5rem !important;
+      height:36px !important;
+      font-size:16px !important;
+      background:transparent;
+      border:none;
+      text-align:center;
+      padding:0;
     }
     .order-cart-item-remove{
       flex-shrink:0;
@@ -2919,9 +2942,14 @@
       border:1px solid rgba(59,130,246,0.2);
       border-radius:12px;
       display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:auto;
+    }
+    .order-cart-summary-row{
+      display:flex;
       align-items:center;
       justify-content:space-between;
-      margin-top:auto;
     }
     .order-cart-summary-label{
       font-size:14px;
@@ -2931,6 +2959,9 @@
       font-size:18px;
       font-weight:800;
       color:#60a5fa;
+    }
+    .order-cart-summary-total{
+      color:#22c55e;
     }
     .order-impact-card{
       margin-top:12px;
@@ -3641,110 +3672,82 @@
     .order-wizard-footer{
       display:flex;
       align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:14px 20px;
+      justify-content:center;
+      gap:32px;
+      padding:16px 20px calc(16px + env(safe-area-inset-bottom));
       background:rgba(13,19,27,0.8);
       border-top:1px solid rgba(255,255,255,0.06);
       flex-shrink:0;
     }
-    .order-wizard-footer-left{
+    .order-wizard-footer-btn{
       display:flex;
+      flex-direction:column;
       align-items:center;
-      gap:8px;
-    }
-    .order-wizard-footer-right{
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    .order-wizard-btn{
-      padding:10px 20px;
-      border-radius:10px;
-      font-size:14px;
+      gap:6px;
+      background:transparent;
+      border:none;
+      color:var(--muted);
+      font-size:12px;
       font-weight:600;
       cursor:pointer;
-      transition:all 0.15s;
-      border:none;
+      padding:8px 16px;
+      border-radius:12px;
+      transition:all 0.15s ease;
+      min-width:70px;
     }
-    .order-wizard-btn-prev{
-      background:transparent;
-      border:1px solid rgba(255,255,255,0.15);
-      color:#cbd5e1;
+    .order-wizard-footer-btn svg{
+      width:24px;
+      height:24px;
+      stroke-width:2;
     }
-    .order-wizard-btn-prev:hover{
+    .order-wizard-footer-btn--back{
+      color:var(--muted);
+    }
+    .order-wizard-footer-btn--back:hover{
       background:rgba(255,255,255,0.05);
-      border-color:rgba(255,255,255,0.25);
+      color:var(--fg);
     }
-    .order-wizard-btn-next{
-      background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      color:#fff;
+    .order-wizard-footer-btn--cancel{
+      color:var(--muted);
     }
-    .order-wizard-btn-next:hover{
-      background:linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    .order-wizard-footer-btn--cancel:hover{
+      background:rgba(255,255,255,0.05);
+      color:var(--fg);
     }
-    .order-wizard-btn-next:disabled{
-      opacity:0.5;
+    .order-wizard-footer-btn--next{
+      color:#60a5fa;
+      background:rgba(59,130,246,0.1);
+      border:1px solid rgba(59,130,246,0.2);
+    }
+    .order-wizard-footer-btn--next:hover{
+      background:rgba(59,130,246,0.2);
+      border-color:rgba(59,130,246,0.3);
+    }
+    .order-wizard-footer-btn--next:disabled{
+      opacity:0.4;
       cursor:not-allowed;
     }
-    .order-wizard-btn-submit{
-      background:linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-      color:#fff;
+    .order-wizard-footer-btn--submit{
+      color:#4ade80;
+      background:rgba(34,197,94,0.1);
+      border:1px solid rgba(34,197,94,0.2);
     }
-    .order-wizard-btn-submit:hover{
-      background:linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+    .order-wizard-footer-btn--submit:hover{
+      background:rgba(34,197,94,0.2);
+      border-color:rgba(34,197,94,0.3);
     }
-    .order-wizard-btn-submit:disabled{
-      opacity:0.5;
+    .order-wizard-footer-btn--submit:disabled{
+      opacity:0.4;
       cursor:not-allowed;
     }
-    /* Mobile two-row footer */
-    @media (max-width: 540px){
+    @media (max-width: 480px){
       .order-wizard-footer{
-        flex-direction:column;
-        gap:10px;
-        padding:12px 16px 16px;
+        gap:20px;
+        padding:14px 16px calc(14px + env(safe-area-inset-bottom));
       }
-      .order-wizard-footer-left,
-      .order-wizard-footer-right{
-        width:100%;
-        justify-content:stretch;
-      }
-      .order-wizard-footer-left{
-        order:1;
-      }
-      .order-wizard-footer-right{
-        order:2;
-      }
-      .order-wizard-footer-left .order-wizard-btn-prev{
-        flex:1;
-      }
-      .order-wizard-footer-left .btn-secondary{
-        flex:0 0 auto;
-        padding:10px 12px;
-      }
-      .order-wizard-footer-right{
-        gap:10px;
-      }
-      .order-wizard-footer-right .btn-secondary{
-        flex:1;
-      }
-      .order-wizard-footer-right .order-wizard-btn-next,
-      .order-wizard-footer-right .order-wizard-btn-submit{
-        flex:2;
-      }
-    }
-    @media (max-width: 360px){
-      .order-wizard-footer-left .btn-secondary span{
-        display:none;
-      }
-      .order-wizard-footer-left .btn-secondary svg{
-        margin-right:0;
-      }
-      .order-wizard-footer-left .btn-secondary{
-        padding:10px;
-        width:40px;
-        flex:0 0 40px;
+      .order-wizard-footer-btn{
+        min-width:60px;
+        padding:8px 12px;
       }
     }
     .order-review-preview-header{
@@ -13727,7 +13730,7 @@
                   <span class="order-pill-label">Items in Cart</span>
                 </span>
                 <div class="order-pill-actions">
-                  <button class="order-pill-btn" id="orderPillOpen" type="button" title="Create Order" aria-label="Create Order">
+                  <button class="order-pill-btn" id="orderPillOpen" type="button" title="Create Purchase Order" aria-label="Create Purchase Order">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                   </button>
                   <button class="order-pill-btn order-pill-btn--clear" id="orderPillClear" type="button" title="Clear Cart" aria-label="Clear Cart" data-order-reset>
@@ -13931,7 +13934,7 @@
                     <circle cx="20" cy="21" r="1"></circle>
                     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                   </svg>
-                  <span>Orders</span>
+                  <span>Purchase Orders</span>
                   <span class="menu-item-badges" id="menuOrderBadges" style="display:none;">
                     <span class="menu-item-badge menu-item-badge--accent" id="menuOrderDraftBadge" data-menu-badge="orders-draft" title="View draft orders" style="display:none;">
                       <span class="menu-item-badge-label">Draft</span>
@@ -13948,7 +13951,7 @@
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
-                  <span>Order History</span>
+                  <span>Purchase Order History</span>
                 </button>
               </div>
               <div class="menu-group">
@@ -14897,7 +14900,7 @@
             </svg>
           </span>
           <div class="modal-title-text">
-            <h2 id="orderModalTitle" class="modal-title">Create Order</h2>
+            <h2 id="orderModalTitle" class="modal-title">Create Purchase Order</h2>
             <div class="modal-subtitle">Build a cart and send the order.</div>
           </div>
         </div>
@@ -14988,8 +14991,14 @@
               <div id="orderLinesInfo" style="display:none;"></div>
             </div>
             <div class="order-cart-summary" id="orderCartSummary" style="display:none;">
-              <span class="order-cart-summary-label">Items in cart</span>
-              <span class="order-cart-summary-value" id="orderCartCount">0</span>
+              <div class="order-cart-summary-row">
+                <span class="order-cart-summary-label">Items in cart</span>
+                <span class="order-cart-summary-value" id="orderCartCount">0</span>
+              </div>
+              <div class="order-cart-summary-row" id="orderCartTotalRow" style="display:none;">
+                <span class="order-cart-summary-label">Estimated total</span>
+                <span class="order-cart-summary-value order-cart-summary-total" id="orderCartTotal">$0.00</span>
+              </div>
             </div>
             <div class="order-impact-card" id="orderImpactCard" style="display:none;"></div>
           </div>
@@ -15094,28 +15103,33 @@
 
         <!-- Wizard Footer -->
         <div class="order-wizard-footer">
-          <div class="order-wizard-footer-left">
-            <button class="order-wizard-btn order-wizard-btn-prev" id="btnOrderWizPrev" type="button" style="display:none;">Back</button>
-            <button class="btn-ghost" id="btnOrderCopy" type="button" style="display:none;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
-              Copy
-            </button>
-            <button class="btn-ghost" id="btnOrderHistory" type="button" style="display:none;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              History
-            </button>
-          </div>
-          <div class="order-wizard-footer-right">
-            <button class="btn-secondary" id="btnOrderCancel" type="button" data-modal-close="orderModal">Cancel</button>
-            <button class="order-wizard-btn order-wizard-btn-next" id="btnOrderWizNext" type="button">Next</button>
-            <button class="order-wizard-btn order-wizard-btn-submit" id="btnOrderSubmit" type="button" style="display:none;">Submit Order</button>
-          </div>
+          <button class="order-wizard-footer-btn order-wizard-footer-btn--back" id="btnOrderWizPrev" type="button" style="display:none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Back</span>
+          </button>
+          <button class="order-wizard-footer-btn order-wizard-footer-btn--cancel" id="btnOrderCancel" type="button" data-modal-close="orderModal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span>Cancel</span>
+          </button>
+          <button class="order-wizard-footer-btn order-wizard-footer-btn--next" id="btnOrderWizNext" type="button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+            <span>Next</span>
+          </button>
+          <button class="order-wizard-footer-btn order-wizard-footer-btn--submit" id="btnOrderSubmit" type="button" style="display:none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Submit</span>
+          </button>
         </div>
       </div>
     </div>
@@ -16392,7 +16406,7 @@
 				          <span class="order-pill-value" id="reportOrderCount">0</span>
 				          <span class="order-pill-label">Items in Cart</span>
 				          <div class="order-pill-actions">
-				            <button class="order-pill-btn" id="reportOrderPillOpen" type="button" title="Create Order" aria-label="Create Order">
+				            <button class="order-pill-btn" id="reportOrderPillOpen" type="button" title="Create Purchase Order" aria-label="Create Purchase Order">
 				              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.6a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6l1.65-8.6H6"></path></svg>
 				            </button>
 				            <button class="order-pill-btn order-pill-btn--clear" id="reportOrderPillClear" type="button" title="Clear Cart" aria-label="Clear Cart" data-order-reset>
@@ -16859,7 +16873,7 @@
             <select id="auditTableFilter">
               <option value="">All tables</option>
               <option value="inventory_items">Inventory Items</option>
-              <option value="orders">Orders</option>
+              <option value="orders">Purchase Orders</option>
               <option value="company_members">Company Members</option>
               <option value="invitations">Invitations</option>
             </select>
@@ -17864,6 +17878,9 @@
       _companyLocations:[],
       _companyLocationById:new Map(),
       _companyLocationsLoaded:false,
+      _inventoryLocations:[],
+      _inventoryLocationById:new Map(),
+      _inventoryLocationsLoaded:false,
       _companyLocationEditing:null,
       _companyLocationsContext:null,
 	      _trashItems:[],
@@ -18789,7 +18806,7 @@
 	    // ========================
 	    // Supabase (cloud sync) — optional
 	    // ========================
-    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null, companyId:null, company:null, companyTier:null, companies:[], permissions:null, itemsHasLowStockQty:null, itemsHasReorderEnabled:null, ordersHasReceipt:null, warnedLowStockSchema:false, warnedReorderSchema:false, warnedOrdersReceiptSchema:false, warnedTierMissing:false };
+    const SB = { client:null, ready:false, connected:false, session:null, user:null, authorized:false, profile:null, companyId:null, company:null, companyTier:null, companies:[], permissions:null, itemsHasLowStockQty:null, itemsHasReorderEnabled:null, itemsHasUnitCost:null, ordersHasReceipt:null, warnedLowStockSchema:false, warnedReorderSchema:false, warnedUnitCostSchema:false, warnedOrdersReceiptSchema:false, warnedTierMissing:false };
     const COMPANY_STORAGE_PREFIX = 'inv.company.v1';
     let _inviteCompanyId = '';
     let _userMgmtCompanyId = '';
@@ -20921,7 +20938,7 @@
             `<div class="metric-card"><div class="metric-value">${formatMetricValue(platform.total_companies)}</div><div class="metric-label">Companies</div></div>`+
             `<div class="metric-card"><div class="metric-value">${formatMetricValue(platform.total_users)}</div><div class="metric-label">Users</div></div>`+
             `<div class="metric-card"><div class="metric-value">${formatMetricValue(platform.total_items)}</div><div class="metric-label">Items</div></div>`+
-            `<div class="metric-card"><div class="metric-value">${formatMetricValue(platform.total_orders)}</div><div class="metric-label">Orders</div></div>`+
+            `<div class="metric-card"><div class="metric-value">${formatMetricValue(platform.total_orders)}</div><div class="metric-label">Purchase Orders</div></div>`+
           `</div>`+
         `</div>`+
         `<div class="metrics-section">`+
@@ -21398,12 +21415,12 @@
         { key: PERMISSIONS.ITEMS_EXPORT, label: 'Export Items' },
         { key: PERMISSIONS.ITEMS_IMPORT, label: 'Import Items' },
       ],
-      'Orders': [
-        { key: PERMISSIONS.ORDERS_VIEW, label: 'View Orders' },
-        { key: PERMISSIONS.ORDERS_CREATE, label: 'Create Orders' },
-        { key: PERMISSIONS.ORDERS_EDIT, label: 'Edit Orders' },
-        { key: PERMISSIONS.ORDERS_DELETE, label: 'Delete Orders' },
-        { key: PERMISSIONS.ORDERS_RESTORE, label: 'Restore Orders' },
+      'Purchase Orders': [
+        { key: PERMISSIONS.ORDERS_VIEW, label: 'View Purchase Orders' },
+        { key: PERMISSIONS.ORDERS_CREATE, label: 'Create Purchase Orders' },
+        { key: PERMISSIONS.ORDERS_EDIT, label: 'Edit Purchase Orders' },
+        { key: PERMISSIONS.ORDERS_DELETE, label: 'Delete Purchase Orders' },
+        { key: PERMISSIONS.ORDERS_RESTORE, label: 'Restore Purchase Orders' },
         { key: PERMISSIONS.ORDERS_MANAGE_SHIPPING, label: 'Manage Shipping Addresses' },
       ],
       'Receiving': [
@@ -24688,6 +24705,9 @@
       state._companyLocations = [];
       state._companyLocationById = new Map();
       state._companyLocationsLoaded = false;
+      state._inventoryLocations = [];
+      state._inventoryLocationById = new Map();
+      state._inventoryLocationsLoaded = false;
       state._companyLocationEditing = null;
       state._companyLocationsContext = null;
       state._locationsCompanies = [];
@@ -24802,6 +24822,7 @@
       void refreshMenuJobsBadge();
       await checkServerHealth();
       if(isOnline()){
+        await loadInventoryLocations();
         await sbLoadSnapshot();
         sbStartRealtime();
       }
@@ -26195,6 +26216,7 @@
 		        if(SB.itemsHasLowStockQty !== false) sel += ',low_stock_qty';
 		        if(SB.itemsHasReorderEnabled !== false) sel += ',reorder_enabled';
 		        if(SB.itemsHasUnitOfMeasure !== false) sel += ',unit_of_measure';
+		        if(SB.itemsHasUnitCost !== false) sel += ',unit_cost';
 		        return sel;
 		      }
 		
@@ -26211,6 +26233,7 @@
 		          if(sel.includes('low_stock_qty')) SB.itemsHasLowStockQty = true;
 		          if(sel.includes('reorder_enabled')) SB.itemsHasReorderEnabled = true;
 		          if(sel.includes('unit_of_measure')) SB.itemsHasUnitOfMeasure = true;
+		          if(sel.includes('unit_cost')) SB.itemsHasUnitCost = true;
 		          break;
 		        }
 		        const e = res.error;
@@ -26244,7 +26267,11 @@
 		            console.warn("Supabase schema cache missing inventory_items.unit_of_measure. Run: NOTIFY pgrst, 'reload schema';");
 		          }
 		        }
-		
+		        if(msg.includes('unit_cost')){
+		          if(SB.itemsHasUnitCost !== false) changed = true;
+		          SB.itemsHasUnitCost = false;
+		        }
+
 		        if(!changed){
 		          console.warn('Supabase load error', e);
 		          return;
@@ -26259,6 +26286,7 @@
 		        qty:toInt(r.quantity,0),
 		        sku: r.sku || '',
 		        unitOfMeasure: (r && Object.prototype.hasOwnProperty.call(r, 'unit_of_measure')) ? String(r.unit_of_measure || '').trim() : '',
+		        unitCost: (r && Object.prototype.hasOwnProperty.call(r, 'unit_cost') && r.unit_cost !== null) ? Number(r.unit_cost) : null,
 		        categoryId: String(r.category_id || '').trim(),
 		        locationId: String(r.location_id || '').trim(),
 		        reorderPoint: (r && Object.prototype.hasOwnProperty.call(r,'reorder_point') && r.reorder_point !== null && typeof r.reorder_point !== 'undefined') ? toInt(r.reorder_point,0) : null,
@@ -27258,7 +27286,7 @@ function adjustTitleSize(){
 		function inventoryLocationLabel(it){
 		  const id = String(it && it.locationId ? it.locationId : '').trim();
 		  if(!id) return '';
-		  const map = state._companyLocationById;
+		  const map = state._inventoryLocationById;
 		  const row = map && typeof map.get === 'function' ? map.get(id) : null;
 		  return row && row.name ? String(row.name) : id;
 		}
@@ -28234,7 +28262,7 @@ function emptyStateHtml(){
           if(orderBtn){
             const id = String(orderBtn.getAttribute('data-card-order') || '').trim();
             if(!id) return;
-            if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
+            if(!canOrdersCreate()){ toast('Purchase order creation not allowed'); return; }
             const selectedIds = getSelectedRowIds();
             if(selectedIds.length > 1 && selectedIds.includes(id)){
               let added = 0;
@@ -28808,9 +28836,9 @@ function emptyStateHtml(){
 	      const select = $('editItemLocation');
 	      if(!select) return;
 	      const current = String(selectedId || '').trim();
-	      const rows = Array.isArray(state._companyLocations) ? state._companyLocations : [];
+	      const rows = Array.isArray(state._inventoryLocations) ? state._inventoryLocations : [];
 	      const active = rows.filter(r => r && r.is_active);
-	      const byId = state._companyLocationById;
+	      const byId = state._inventoryLocationById;
 	      const currentRow = current && byId && typeof byId.get === 'function' ? byId.get(current) : null;
 	      select.innerHTML = `<option value="">Unassigned</option>` + active.map(row => (
 	        `<option value="${escapeHtmlAttr(String(row.id || ''))}">${escapeHtml(String(row.name || 'Location'))}</option>`
@@ -28822,7 +28850,7 @@ function emptyStateHtml(){
 	        opt.textContent = label ? `${label} (Archived)` : `${current} (Archived)`;
 	        opt.selected = true;
 	        select.appendChild(opt);
-	      }else if(current && !state._companyLocationsLoaded && !active.some(row => String(row.id || '') === current)){
+	      }else if(current && !state._inventoryLocationsLoaded && !active.some(row => String(row.id || '') === current)){
 	        const opt = document.createElement('option');
 	        opt.value = current;
 	        opt.textContent = current;
@@ -28851,13 +28879,13 @@ function emptyStateHtml(){
 	      renderEditItemLocationOptions(selectedLocationId);
 	      // Always refresh locations to ensure we have current company's locations
 	      try{
-	        await loadCompanyLocations();
+	        await loadInventoryLocations();
 	      }catch(e){}
 	      const current = String(selectedLocationId || '').trim();
-	      const map = state._companyLocationById;
+	      const map = state._inventoryLocationById;
 	      const hasLocation = !!(current && map && typeof map.has === 'function' && map.has(current));
-	      const nextLocationId = (!current || !state._companyLocationsLoaded || hasLocation) ? current : '';
-	      if(current && state._companyLocationsLoaded && !hasLocation){
+	      const nextLocationId = (!current || !state._inventoryLocationsLoaded || hasLocation) ? current : '';
+	      if(current && state._inventoryLocationsLoaded && !hasLocation){
 	        setEditItemMessage('Location no longer belongs to this company. Please select a valid location.');
 	      }
 	      renderEditItemLocationOptions(nextLocationId);
@@ -29137,11 +29165,20 @@ function emptyStateHtml(){
 	      const sku = $('editItemSku') ? $('editItemSku').value : '';
 	      const desc = $('editItemDesc') ? $('editItemDesc').value : '';
 	      const unitOfMeasure = $('editItemUom') ? $('editItemUom').value : '';
-	      const locationId = $('editItemLocation') ? $('editItemLocation').value : '';
+	      let locationId = $('editItemLocation') ? $('editItemLocation').value : '';
 	      const categoryId = $('editItemCategory') ? $('editItemCategory').value : '';
 	      const lowStockQty = $('editLowStockQty') ? $('editLowStockQty').value : '';
 	      const reorderQty = $('editItemReorderQty') ? $('editItemReorderQty').value : '';
 	      const reorderEnabled = $('editReorderEnabled') ? $('editReorderEnabled').checked : true;
+
+	      if(locationId && state._inventoryLocationsLoaded){
+	        const locId = String(locationId || '').trim();
+	        const map = state._inventoryLocationById;
+	        if(locId && !(map && typeof map.has === 'function' && map.has(locId))){
+	          locationId = '';
+	          setEditItemMessage('Location no longer belongs to this company. Please select a valid location.');
+	        }
+	      }
 
 	      const btnCancel = $('btnEditItemCancel');
 	      if(btnCancel) btnCancel.disabled = true;
@@ -30220,7 +30257,7 @@ function emptyStateHtml(){
 		      updateReportOrderBadge();
 		    }
 		    function batchAddLowStockToCart(){
-		      if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
+		      if(!canOrdersCreate()){ toast('Purchase order creation not allowed'); return; }
 		      const d = reportDataSnapshot();
 		      const rows = Array.isArray(d.lowStock) ? d.lowStock : [];
 		      if(!rows.length){ toast('No low stock items'); return; }
@@ -31629,7 +31666,6 @@ function emptyStateHtml(){
       const btnPrev = $('btnOrderWizPrev');
       const btnNext = $('btnOrderWizNext');
       const btnSubmit = $('btnOrderSubmit');
-      const btnCopy = $('btnOrderCopy');
 
       if(btnPrev){
         btnPrev.style.display = step > 0 ? '' : 'none';
@@ -31647,13 +31683,6 @@ function emptyStateHtml(){
       }
       if(btnSubmit){
         btnSubmit.style.display = step === ORDER_WIZARD_STEPS.length - 1 ? '' : 'none';
-      }
-      if(btnCopy){
-        btnCopy.style.display = step === ORDER_WIZARD_STEPS.length - 1 ? '' : 'none';
-      }
-      const btnHistory = $('btnOrderHistory');
-      if(btnHistory){
-        btnHistory.style.display = step === ORDER_WIZARD_STEPS.length - 1 ? '' : 'none';
       }
 
       // Update cart summary
@@ -31676,6 +31705,8 @@ function emptyStateHtml(){
       const summary = $('orderCartSummary');
       const countEl = $('orderCartCount');
       const countBadge = $('orderCartCountBadge');
+      const totalRow = $('orderCartTotalRow');
+      const totalEl = $('orderCartTotal');
       if(summary){
         summary.style.display = count > 0 ? 'flex' : 'none';
       }
@@ -31685,6 +31716,22 @@ function emptyStateHtml(){
       if(countBadge){
         countBadge.textContent = `${count} ${count === 1 ? 'item' : 'items'}`;
         countBadge.style.display = count > 0 ? 'inline-flex' : 'none';
+      }
+      // Calculate total cost
+      let totalCost = 0;
+      let hasAnyCost = false;
+      for(const line of ord.lines){
+        const inv = getInventoryById(line.id);
+        if(inv && inv.unitCost !== null && Number.isFinite(inv.unitCost)){
+          hasAnyCost = true;
+          totalCost += inv.unitCost * toInt(line.qty, 0);
+        }
+      }
+      if(totalRow){
+        totalRow.style.display = hasAnyCost ? 'flex' : 'none';
+      }
+      if(totalEl){
+        totalEl.textContent = hasAnyCost ? `$${totalCost.toFixed(2)}` : '$0.00';
       }
     }
 
@@ -33118,6 +33165,35 @@ function emptyStateHtml(){
       }).join('');
       list.innerHTML = cards;
       try{ initButtonSystem.refresh(); }catch(e){}
+    }
+    async function sbFetchInventoryLocations(){
+      if(!SB.ready || !SB.session || !SB.authorized || !SB.companyId) return [];
+      const { data, error } = await SB.client
+        .from('inventory_locations')
+        .select('id,company_id,name,description,is_active,deleted_at')
+        .eq('company_id', SB.companyId)
+        .is('deleted_at', null)
+        .order('is_active', { ascending:false })
+        .order('name', { ascending:true });
+      if(error) throw error;
+      return Array.isArray(data) ? data : [];
+    }
+    async function loadInventoryLocations(opts = {}){
+      if(!SB.companyId) return;
+      const force = !!(opts && opts.force);
+      if(state._inventoryLocationsLoaded && !force) return;
+      state._inventoryLocationsLoaded = false;
+      try{
+        const rows = await sbFetchInventoryLocations();
+        state._inventoryLocations = rows;
+        state._inventoryLocationById = new Map(rows.map(r => [String(r.id || '').trim(), r]).filter(x => x[0]));
+      }catch(e){
+        console.warn('Inventory locations load failed:', e);
+        state._inventoryLocations = [];
+        state._inventoryLocationById = new Map();
+      }finally{
+        state._inventoryLocationsLoaded = true;
+      }
     }
     async function sbFetchCompanyLocations(){
       if(!SB.ready || !SB.session) return [];
@@ -36626,8 +36702,16 @@ function emptyStateHtml(){
 	      if(!ok) return;
 
 	      const btn = $('btnReceiveOrderComplete');
-	      const prior = btn ? btn.textContent : '';
-	      if(btn){ btn.disabled = true; btn.textContent = 'Completing…'; }
+	      const labelEl = btn ? btn.querySelector('.footer-icon-label') : null;
+	      const prior = labelEl ? labelEl.textContent : (btn ? btn.textContent : '');
+	      if(btn){
+	        btn.disabled = true;
+	        if(labelEl){
+	          labelEl.textContent = 'Receiving...';
+	        }else{
+	          btn.textContent = 'Receiving...';
+	        }
+	      }
 	      try{
 	        const receiptId = draftLike
 	          ? await saveReceiptLines(ro, { requireLine:true })
@@ -36663,19 +36747,30 @@ function emptyStateHtml(){
 	          }
 	        }
 	        ro.receiptStatus = 'received';
-	        toast('Receipt received');
-	        setReceiveOrderMessage('Receipt received. Inventory updated on confirmation.');
+	        const hasRejections = Array.isArray(ro.lines) && ro.lines.some(l => toInt(l && l.qty_rejected, 0) > 0);
+	        toast(hasRejections ? 'Receipt received with exceptions' : 'Receipt received', 'success');
 	        await refreshInventoryAfterReceipt(ro);
-	        if(ro.mode === 'order'){
-	          await refreshReceiveOrderModal(ro.po && ro.po.id ? ro.po.id : ro.poId);
-	        }else{
-	          renderReceiveOrderModal();
+	        if(canAccessReceivingInbox()){
+	          try{ await loadDraftEmailReceipts(); }catch(e){}
 	        }
-        scheduleMenuActionBadgeRefresh({ force: true });
+	        try{ await refreshReceiveHistory(); }catch(e){}
+	        if(canOrdersView()){
+	          try{ await refreshOrderHistory(); }catch(e){}
+	        }
+	        scheduleMenuActionBadgeRefresh({ force: true });
+	        renderReceiptsInboxIndicator();
+	        closeReceiveOrderModal();
 	      }catch(e){
 	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to receive receipt');
 	      }finally{
-	        if(btn){ btn.disabled = false; btn.textContent = prior || 'Receive Receipt'; }
+	        if(btn){
+	          btn.disabled = false;
+	          if(labelEl){
+	            labelEl.textContent = prior || 'Receive';
+	          }else{
+	            btn.textContent = prior || 'Receive';
+	          }
+	        }
 	      }
 	    }
 	    async function handleVoidReceipt(receiptId, btnEl){
@@ -37735,7 +37830,7 @@ function emptyStateHtml(){
     async function forwardOrderFromHistory(orderId){
       const id = String(orderId || '').trim();
       if(!id) return;
-      if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
+      if(!canOrdersCreate()){ toast('Purchase order creation not allowed'); return; }
 
       const row = state._orderHistoryById && typeof state._orderHistoryById.get === 'function'
         ? (state._orderHistoryById.get(id) || null)
@@ -38946,7 +39041,7 @@ function emptyStateHtml(){
       if(!container || !menuOrder) return;
       if(!canOrdersView()){
         container.style.display = 'none';
-        menuOrder.setAttribute('aria-label', 'Orders');
+        menuOrder.setAttribute('aria-label', 'Purchase Orders');
         return;
       }
       const draftCount = normalizeMenuCountValue(counts && counts.draft);
@@ -38959,9 +39054,9 @@ function emptyStateHtml(){
         const parts = [];
         if(showDraft) parts.push(`Draft ${draftCount}`);
         if(showSubmitted) parts.push(`Submitted ${submittedCount}`);
-        menuOrder.setAttribute('aria-label', `Orders (${parts.join(', ')})`);
+        menuOrder.setAttribute('aria-label', `Purchase Orders (${parts.join(', ')})`);
       }else{
-        menuOrder.setAttribute('aria-label', 'Orders');
+        menuOrder.setAttribute('aria-label', 'Purchase Orders');
       }
     }
     function setMenuJobsBadgeCounts(counts){
@@ -42002,11 +42097,26 @@ function emptyStateHtml(){
                 : '')+
             `</div>`
           : '';
+        const itemSku = inv ? String(inv.sku || '').trim() : '';
+        const itemDesc = inv ? String(inv.desc || '').trim() : '';
+        const itemLocId = inv ? String(inv.locationId || '').trim() : '';
+        const itemLoc = itemLocId ? getLocationName(itemLocId) : '';
+        const itemUnitCost = inv && inv.unitCost !== null && Number.isFinite(inv.unitCost) ? inv.unitCost : null;
+        const lineQty = toInt(l.qty, 0);
+        const lineTotal = itemUnitCost !== null ? itemUnitCost * lineQty : null;
+        const detailParts = [];
+        if(itemSku) detailParts.push(`<span title="${escapeHtml(itemSku)}">${escapeHtml(itemSku)}</span>`);
+        if(itemDesc) detailParts.push(`<span title="${escapeHtml(itemDesc)}">${escapeHtml(itemDesc)}</span>`);
+        if(itemLoc) detailParts.push(`<span title="${escapeHtml(itemLoc)}">${escapeHtml(itemLoc)}</span>`);
+        if(itemUnitCost !== null) detailParts.push(`<span class="order-cart-item-cost">$${itemUnitCost.toFixed(2)}${lineTotal !== null && lineQty > 1 ? ` × ${lineQty} = $${lineTotal.toFixed(2)}` : ''}</span>`);
+        const detailsLine = detailParts.length ? `<div class="order-cart-item-details">${detailParts.join('')}</div>` : '';
+
         card.innerHTML =
           `<div class="order-cart-item-main">`+
             `<button class="order-cart-item-toggle" type="button" data-order-line-toggle="${escapeHtmlAttr(l.id)}" aria-label="Toggle item details">${ICONS.chevronDown}</button>`+
             `<div class="order-cart-item-info" data-order-line-toggle="${escapeHtmlAttr(l.id)}">`+
               `<div class="order-cart-item-name" title="${escapeHtml(l.name||'')}">${escapeHtml(l.name||'')}</div>`+
+              `${detailsLine}`+
               `${metaLine}`+
             `</div>`+
             `<div class="order-cart-item-stepper">`+
@@ -42068,10 +42178,6 @@ function emptyStateHtml(){
         const e = getSignedInEmail();
         replyEl.textContent = e ? `Reply-To: ${e}` : 'Reply-To: (sign in to set)';
       }
-      const histBtn = $('btnOrderHistory');
-      if(histBtn){
-        histBtn.disabled = !(SB.ready && SB.session && SB.authorized && canOrdersView());
-      }
       const btn = $('btnOrderSubmit');
       if(btn){
         const okEmail = !!String(ord.email||'').trim();
@@ -42081,7 +42187,7 @@ function emptyStateHtml(){
       }
     }
     async function openOrderModal(opts = {}){
-		      if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
+		      if(!canOrdersCreate()){ toast('Purchase order creation not allowed'); return; }
 		      const ord = orderState();
 		      const addSelected = !isMobileUx() && !(opts && Object.prototype.hasOwnProperty.call(opts, 'addSelected') && opts.addSelected === false);
 		      if(addSelected){
@@ -42126,7 +42232,7 @@ function emptyStateHtml(){
 	    const menuQuickOrder = $('menuQuickOrder');
 	    const openOrderFromMenu = () => {
 	      toggleMenu(false);
-	      if(!requirePermission(PERMISSIONS.ORDERS_CREATE, 'Order creation not allowed')) return;
+	      if(!requirePermission(PERMISSIONS.ORDERS_CREATE, 'Purchase order creation not allowed')) return;
 	      openOrderModal();
 	    };
 	    if(menuOrder) menuOrder.addEventListener('click', openOrderFromMenu);
@@ -42747,8 +42853,6 @@ function emptyStateHtml(){
 		        btnReportEmailSend.textContent = prior || 'Send';
 		      }
 		    });
-	    const btnOrderHistory = $('btnOrderHistory');
-	    if(btnOrderHistory) btnOrderHistory.addEventListener('click', ()=> openOrderHistoryModal({ returnToOrder: true }));
 	    const btnOrderHistoryClose = $('btnOrderHistoryClose');
 	    if(btnOrderHistoryClose) btnOrderHistoryClose.addEventListener('click', closeOrderHistoryModal);
 	    const btnOrderHistoryDownload = $('btnOrderHistoryDownload');
@@ -43670,17 +43774,16 @@ function emptyStateHtml(){
     if(orderDraftSelect) orderDraftSelect.addEventListener('change', ()=>{
       setActiveOrderDraft(orderDraftSelect.value);
     });
-    const btnOrderCopy = $('btnOrderCopy');
-    if(btnOrderCopy) btnOrderCopy.addEventListener('click', copyOrderToClipboard);
     const btnOrderSubmit = $('btnOrderSubmit');
     if(btnOrderSubmit) btnOrderSubmit.addEventListener('click', async ()=>{
       const url = buildMailtoUrl();
       if(!url){ toast('Add at least 1 item and an email'); return; }
-      if(!requirePermission(PERMISSIONS.ORDERS_CREATE, 'Order creation not allowed')) return;
+      if(!requirePermission(PERMISSIONS.ORDERS_CREATE, 'Purchase order creation not allowed')) return;
 
       const btn = $('btnOrderSubmit');
-      const priorText = btn ? btn.textContent : '';
-      if(btn){ btn.disabled = true; btn.textContent = 'Submitting…'; }
+      const btnSpan = btn?.querySelector('span');
+      const priorText = btnSpan?.textContent || '';
+      if(btn){ btn.disabled = true; if(btnSpan) btnSpan.textContent = 'Submitting…'; }
 
 	      try{
 	        const sendRes = await sendOrderViaApi();
@@ -43695,7 +43798,7 @@ function emptyStateHtml(){
 	        }catch(historyErr){
 	          console.error('Order history save failed:', historyErr);
 	        }
-	        toast(historySaved ? 'Order sent' : 'Order sent (history not saved - check console)');
+	        toast(historySaved ? 'Purchase order sent' : 'Purchase order sent (history not saved - check console)');
 	        try{
 	          clearAllOrderLines();
 	          renderOrderResults();
@@ -43712,7 +43815,7 @@ function emptyStateHtml(){
 	        if(fallback){ window.location.href = url; }
 	        else { toast(msg); }
 	      }finally{
-	        if(btn){ btn.textContent = priorText || 'Submit Order'; }
+	        if(btn){ btn.disabled = false; if(btnSpan) btnSpan.textContent = priorText || 'Submit'; }
         renderOrderPreview();
       }
     });
@@ -44266,7 +44369,7 @@ function emptyStateHtml(){
       if(!btn) return;
       const id = String(btn.dataset.id || '').trim();
       if(!id) return;
-      if(!canOrdersCreate()){ toast('Order creation not allowed'); return; }
+      if(!canOrdersCreate()){ toast('Purchase order creation not allowed'); return; }
       try{ e.preventDefault(); e.stopPropagation(); }catch(_){}
       const selectedIds = getSelectedRowIds();
       if(selectedIds.length > 1 && selectedIds.includes(id)){
