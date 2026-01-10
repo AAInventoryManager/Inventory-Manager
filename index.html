@@ -1765,27 +1765,106 @@
     }
     #editItemModal .edit-footer-right{
       display:flex;
-      gap:10px;
+      gap:12px;
     }
-    #editItemModal .btn-delete{
-      padding:10px 16px;
-      border-radius:10px;
-      border:1px solid rgba(239,68,68,0.3);
-      background:rgba(239,68,68,0.1);
-      color:#f87171;
-      font-size:14px;
-      font-weight:600;
-      cursor:pointer;
-      transition:all 0.15s ease;
-    }
-    #editItemModal .btn-delete:hover{
-      background:rgba(239,68,68,0.2);
-      border-color:rgba(239,68,68,0.4);
+    #editItemModal .edit-autosave-status{
+      flex:1;
+      justify-content:center;
     }
     #editItemModal #editItemMsg{
       padding:0 20px 12px;
       font-size:13px;
       color:var(--muted);
+    }
+
+    /* Edit modal autosave status */
+    #editItemModal .edit-autosave-status{
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:6px;
+      opacity:0;
+      transition:opacity 0.2s ease;
+    }
+    #editItemModal .edit-autosave-status.visible{
+      opacity:1;
+    }
+    #editItemModal .edit-autosave-status.saving{
+      color:var(--muted);
+    }
+    #editItemModal .edit-autosave-status.saved{
+      color:#4ade80;
+    }
+    #editItemModal .edit-autosave-status.error{
+      color:#f87171;
+    }
+    #editItemModal .edit-autosave-status svg{
+      width:14px;
+      height:14px;
+    }
+    #editItemModal .edit-autosave-status .autosave-spinner{
+      animation:autosave-spin 1s linear infinite;
+    }
+    #editItemModal .edit-autosave-status.saved .autosave-spinner,
+    #editItemModal .edit-autosave-status.error .autosave-spinner{
+      display:none;
+    }
+    @keyframes autosave-spin{
+      from{ transform:rotate(0deg); }
+      to{ transform:rotate(360deg); }
+    }
+
+    /* Edit modal footer icon buttons */
+    #editItemModal .footer-icon-btn{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      background:transparent;
+      border:none;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:600;
+      cursor:pointer;
+      padding:8px 16px;
+      border-radius:12px;
+      transition:all 0.15s ease;
+      min-width:70px;
+    }
+    #editItemModal .footer-icon-btn svg{
+      width:24px;
+      height:24px;
+      stroke-width:2;
+    }
+    #editItemModal .footer-icon-btn--delete{
+      color:#f87171;
+      background:rgba(239,68,68,0.1);
+      border:1px solid rgba(239,68,68,0.2);
+    }
+    #editItemModal .footer-icon-btn--delete:hover{
+      background:rgba(239,68,68,0.2);
+      border-color:rgba(239,68,68,0.3);
+    }
+    #editItemModal .footer-icon-btn--cancel{
+      color:var(--muted);
+    }
+    #editItemModal .footer-icon-btn--cancel:hover{
+      background:rgba(255,255,255,0.05);
+      color:var(--fg);
+    }
+    #editItemModal .footer-icon-btn--done{
+      color:#4ade80;
+      background:rgba(34,197,94,0.1);
+      border:1px solid rgba(34,197,94,0.2);
+    }
+    #editItemModal .footer-icon-btn--done:hover{
+      background:rgba(34,197,94,0.2);
+      border-color:rgba(34,197,94,0.3);
+    }
+    #editItemModal .footer-icon-btn:disabled{
+      opacity:0.4;
+      cursor:not-allowed;
     }
 
     /* Edit modal body override for tabs */
@@ -1835,16 +1914,21 @@
         flex-wrap:wrap;
         gap:10px;
       }
-      #editItemModal .btn-delete{
+      #editItemModal .footer-icon-btn--delete{
         order:3;
         width:100%;
-        text-align:center;
         margin-top:4px;
+      }
+      #editItemModal .edit-autosave-status{
+        order:2;
+        width:100%;
+        justify-content:center;
+        padding:4px 0;
       }
       #editItemModal .edit-footer-right{
         order:1;
         width:100%;
-        justify-content:flex-end;
+        justify-content:space-between;
       }
     }
     @media (max-width: 360px){
@@ -14567,10 +14651,33 @@
 
       <!-- Footer -->
       <div class="edit-footer">
-        <button class="btn-delete" id="btnEditItemDelete" type="button">Delete</button>
+        <button class="footer-icon-btn footer-icon-btn--delete" id="btnEditItemDelete" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span>Delete</span>
+        </button>
+        <div class="edit-autosave-status" id="editAutosaveStatus">
+          <svg class="autosave-spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4" stroke-dashoffset="0"></circle>
+          </svg>
+          <span class="autosave-text">Saving...</span>
+        </div>
         <div class="edit-footer-right">
-          <button class="btn-secondary" id="btnEditItemCancel" type="button" data-modal-close="editItemModal">Cancel</button>
-          <button class="btn-primary" id="btnEditItemDone" type="button">Done</button>
+          <button class="footer-icon-btn footer-icon-btn--cancel" id="btnEditItemCancel" type="button" data-modal-close="editItemModal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span>Cancel</span>
+          </button>
+          <button class="footer-icon-btn footer-icon-btn--done" id="btnEditItemDone" type="button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Done</span>
+          </button>
         </div>
       </div>
     </div>
@@ -28632,6 +28739,7 @@ function emptyStateHtml(){
       _editItemCtx = null;
       _editItemSnapshot = null;
       setEditItemMessage('');
+      hideEditAutosaveStatus();
       show('editItemModal', false);
     }
 	    const DEFAULT_UOM_OPTIONS = ['Each','Box','Case','Pack','Pallet','Set','Pair','Roll','Foot','Meter'];
@@ -28956,6 +29064,23 @@ function emptyStateHtml(){
       throw Error('Unknown field');
     }
 
+	    function showEditAutosaveStatus(state, text){
+	      const el = $('editAutosaveStatus');
+	      if(!el) return;
+	      const textEl = el.querySelector('.autosave-text');
+	      if(textEl) textEl.textContent = text || '';
+	      el.classList.remove('saving', 'saved', 'error');
+	      if(state) el.classList.add(state);
+	      el.classList.add('visible');
+	      if(state === 'saved'){
+	        setTimeout(()=> el.classList.remove('visible'), 2000);
+	      }
+	    }
+	    function hideEditAutosaveStatus(){
+	      const el = $('editAutosaveStatus');
+	      if(el) el.classList.remove('visible', 'saving', 'saved', 'error');
+	    }
+
 	    async function autoSaveEditItem(){
 	      if(!_editItemCtx) return false;
 	      const modal = $('editItemModal');
@@ -28976,17 +29101,18 @@ function emptyStateHtml(){
 	      const btnCancel = $('btnEditItemCancel');
 	      if(btnCancel) btnCancel.disabled = true;
 	      setEditItemMessage('');
+	      showEditAutosaveStatus('saving', 'Saving...');
 
 	      try{
 	        await commitItemUpdate(id, { name, sku, desc, unitOfMeasure, locationId, categoryId, lowStockQty, reorderPoint: lowStockQty, reorderQty, reorderEnabled });
 	        try{ syncLowStockOverrideIndicatorForRow(id); }catch(e){}
 	        try{ syncLowStockIndicatorForRow(id); }catch(e){}
-	        toast('Auto-saved', 'success');
+	        showEditAutosaveStatus('saved', 'Saved');
 	        return true;
 	      }catch(e){
 	        const msg = (e && e.message) ? e.message : 'Update failed';
 	        setEditItemMessage(msg);
-	        toast(msg);
+	        showEditAutosaveStatus('error', 'Error');
 	        return false;
       }finally{
         if(btnCancel) btnCancel.disabled = false;
