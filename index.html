@@ -4728,6 +4728,60 @@
     #receiveHistoryModal .receipt-line-qty--rejected{
       color:#ef4444;
     }
+    #receiveHistoryModal .receipt-line-link{
+      background:none;
+      border:none;
+      padding:0;
+      margin:0;
+      font:inherit;
+      color:inherit;
+      cursor:pointer;
+      text-align:left;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      width:100%;
+    }
+    #receiveHistoryModal .receipt-line-link span{
+      display:block;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      flex:1;
+      min-width:0;
+    }
+    #receiveHistoryModal .receipt-line-link svg{
+      width:12px;
+      height:12px;
+      flex-shrink:0;
+    }
+    #receiveHistoryModal .receipt-line-link:hover{
+      color:var(--primary);
+      text-decoration:underline;
+    }
+    #receiveHistoryModal .receipt-card-po-link{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.1);
+      background:rgba(15,23,42,0.6);
+      color:#94a3b8;
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      cursor:pointer;
+    }
+    #receiveHistoryModal .receipt-card-po-link svg{
+      width:12px;
+      height:12px;
+    }
+    #receiveHistoryModal .receipt-card-po-link:hover{
+      color:#e2e8f0;
+      border-color:rgba(59,130,246,0.35);
+    }
     #receiveHistoryModal .receive-history-empty{
       text-align:center;
       padding:40px 20px;
@@ -5975,6 +6029,73 @@
       font-size:12px;
       font-weight:700;
     }
+    .receive-review-summary,
+    .receive-completion-summary{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(12,16,22,0.6);
+      font-size:12px;
+      color:#cbd5f5;
+    }
+    .receive-review-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:600;
+    }
+    .receive-review-row span{ color:#94a3b8; font-weight:600; }
+    .receive-review-row strong{ color:#e2e8f0; font-weight:700; }
+    .receive-review-list{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .receive-review-item{
+      display:flex;
+      align-items:flex-start;
+      gap:8px;
+      color:#fbbf24;
+      font-weight:600;
+    }
+    .receive-review-item svg{
+      width:14px;
+      height:14px;
+      flex-shrink:0;
+      margin-top:2px;
+    }
+    .receive-review-muted{
+      color:#94a3b8;
+      font-weight:600;
+    }
+    .receive-review-ack{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:10px;
+      font-size:12px;
+      color:#cbd5f5;
+      font-weight:600;
+    }
+    .receive-review-ack input{
+      width:16px;
+      height:16px;
+      accent-color:var(--primary);
+    }
+    .receive-review-actions{
+      display:flex;
+      justify-content:flex-end;
+      margin-top:10px;
+    }
+    .receive-lines-expand{
+      margin-top:10px;
+      display:flex;
+      justify-content:center;
+    }
     @media (max-width:480px){
       .po-header-top{
         flex-direction:column;
@@ -7103,8 +7224,13 @@
       cursor:pointer;
       border-bottom:1px solid var(--border-subtle);
     }
+    #receiveOrderModal .parsed-item-search-result.is-disabled{
+      cursor:not-allowed;
+      opacity:0.6;
+    }
     #receiveOrderModal .parsed-item-search-result:last-child{ border-bottom:none; }
     #receiveOrderModal .parsed-item-search-result:hover{ background:rgba(255,255,255,0.04); }
+    #receiveOrderModal .parsed-item-search-result.is-disabled:hover{ background:transparent; }
     #receiveOrderModal .parsed-item-search-result-name{
       font-size:13px;
       font-weight:500;
@@ -16251,6 +16377,18 @@
                   <div id="receiveReceiptAttachmentsGate" class="receive-attachments-gate" style="display:none;">Receipt scans/storage on Pro plans.</div>
                 </div>
                 <div id="receiveReceiptAttachmentsList" class="receive-attachments-list"></div>
+              </div>
+              <div class="form-section" id="receiveReviewGateSection" style="display:none;">
+                <div class="section-label">Review &amp; Confirm</div>
+                <div id="receiveReviewSummary" class="receive-review-summary"></div>
+                <label class="receive-review-ack" id="receiveReviewAckWrap" style="display:none;">
+                  <input type="checkbox" id="receiveReviewAck" />
+                  <span>I have reviewed discrepancies and confirm these quantities.</span>
+                </label>
+              </div>
+              <div class="form-section" id="receiveCompletionSummarySection" style="display:none;">
+                <div class="section-label">Completion Summary</div>
+                <div id="receiveCompletionSummaryBody" class="receive-completion-summary"></div>
               </div>
               <div class="form-section" id="receiveLinesSection">
                 <div class="section-label">Lines</div>
@@ -34602,21 +34740,101 @@ function emptyStateHtml(){
 	      const el = $('receiveOrderWarning'); if(!el) return;
 	      el.textContent = String(msg || '');
 	    }
-	    function shortId(value){
-	      const id = String(value || '').trim();
-	      return id ? id.slice(0, 8) : '';
-	    }
-	    function receiveLineOverBy(line){
-	      const remainingRaw = line ? line.remaining_qty : null;
-	      if(remainingRaw === null || typeof remainingRaw === 'undefined') return 0;
-	      const remaining = Number(remainingRaw);
+    function shortId(value){
+      const id = String(value || '').trim();
+      return id ? id.slice(0, 8) : '';
+    }
+    const RECEIVE_LINE_RENDER_LIMIT = 50;
+    function receiveLineOverBy(line){
+      const remainingRaw = line ? line.remaining_qty : null;
+      if(remainingRaw === null || typeof remainingRaw === 'undefined') return 0;
+      const remaining = Number(remainingRaw);
 	      if(!Number.isFinite(remaining)) return 0;
 	      const total = toInt(line && line.qty_received, 0) + toInt(line && line.qty_rejected, 0);
 	      return total - remaining;
 	    }
-	    function receiveLineHasOverage(line){
-	      return receiveLineOverBy(line) > 0;
-	    }
+    function receiveLineHasOverage(line){
+      return receiveLineOverBy(line) > 0;
+    }
+    function getReceiveLineByItemId(itemId, opts = {}){
+      const ro = state._receiveOrder;
+      if(!ro || !Array.isArray(ro.lines)) return null;
+      const id = String(itemId || '').trim();
+      if(!id) return null;
+      const excludeKey = String(opts.excludeKey || '').trim();
+      return ro.lines.find(l => {
+        if(!l || l.disabled) return false;
+        if(String(l.item_id || '').trim() !== id) return false;
+        if(excludeKey && String(l.key || '').trim() === excludeKey) return false;
+        return true;
+      }) || null;
+    }
+    function scrollReceiveLineIntoView(itemId){
+      const ro = state._receiveOrder;
+      const id = String(itemId || '').trim();
+      if(!ro || !id) return;
+      const lineIndex = Array.isArray(ro.lines)
+        ? ro.lines.findIndex(l => String(l && l.item_id ? l.item_id : '').trim() === id)
+        : -1;
+      if(lineIndex >= 0 && !ro.showAllLines && ro.lines.length > RECEIVE_LINE_RENDER_LIMIT && lineIndex >= RECEIVE_LINE_RENDER_LIMIT){
+        ro.showAllLines = true;
+        renderReceiveOrderModal();
+      }
+      setTimeout(()=>{
+        let selector = `.receive-line[data-receive-line-item="${id}"]`;
+        try{
+          if(window.CSS && CSS.escape){
+            selector = `.receive-line[data-receive-line-item="${CSS.escape(id)}"]`;
+          }
+        }catch(e){}
+        const row = document.querySelector(selector);
+        if(row) row.scrollIntoView({ behavior:'smooth', block:'center' });
+      }, 0);
+    }
+    function notifyDuplicateReceiveItem(itemId){
+      scrollReceiveLineIntoView(itemId);
+      toast('Item already added. Jumped to existing line.');
+    }
+    function buildReceiveReviewData(receiveState){
+      const lines = Array.isArray(receiveState && receiveState.lines) ? receiveState.lines : [];
+      let totalReceived = 0;
+      let totalRejected = 0;
+      let lineCount = 0;
+      const discrepancies = [];
+      lines.forEach(line => {
+        if(!line || line.disabled) return;
+        const received = toInt(line.qty_received, 0);
+        const rejected = toInt(line.qty_rejected, 0);
+        const expected = (line.expected_qty === null || typeof line.expected_qty === 'undefined')
+          ? null
+          : toInt(line.expected_qty, 0);
+        const actual = received + rejected;
+        totalReceived += received;
+        totalRejected += rejected;
+        if(actual > 0) lineCount += 1;
+        const name = String(line.item_name || line.item_sku || line.item_id || 'Item').trim();
+        if(expected !== null && expected !== actual){
+          const label = actual < expected
+            ? `${formatQty(actual)} of ${formatQty(expected)} received`
+            : `${formatQty(actual)} vs ${formatQty(expected)} expected`;
+          discrepancies.push({ itemId: line.item_id, label: `${name}: ${label}` });
+        }
+        if(rejected > 0){
+          discrepancies.push({ itemId: line.item_id, label: `${name}: ${formatQty(rejected)} rejected` });
+        }
+        if(receiveLineHasOverage(line)){
+          const overBy = receiveLineOverBy(line);
+          discrepancies.push({ itemId: line.item_id, label: `${name}: over by ${formatQty(overBy)}` });
+        }
+      });
+      return {
+        totalReceived,
+        totalRejected,
+        totalQty: totalReceived + totalRejected,
+        lineCount,
+        discrepancies
+      };
+    }
 	    function updateReceiveLineDom(line){
 	      const key = String(line && line.key ? line.key : '').trim();
 	      if(!key) return;
@@ -34663,12 +34881,14 @@ function emptyStateHtml(){
 	      if(!id) return null;
 	      return ro.lines.find(l => String(l && l.key ? l.key : '').trim() === id) || null;
 	    }
-	    function updateReceiveLineFromInput(input, opts = {}){
-	      const el = input;
-	      if(!el) return null;
-	      const key = String(el.dataset.receiveLineKey || '').trim();
-	      const field = String(el.dataset.receiveField || '').trim();
-	      if(!key || (field !== 'received' && field !== 'rejected' && field !== 'reason')) return null;
+    function updateReceiveLineFromInput(input, opts = {}){
+      const el = input;
+      if(!el) return null;
+      const ro = state._receiveOrder;
+      if(ro && ro.reviewing) return null;
+      const key = String(el.dataset.receiveLineKey || '').trim();
+      const field = String(el.dataset.receiveField || '').trim();
+      if(!key || (field !== 'received' && field !== 'rejected' && field !== 'reason')) return null;
 	      const line = getReceiveOrderLineByKey(key);
 	      if(!line || line.disabled) return null;
 	      if(field === 'reason'){
@@ -34892,18 +35112,22 @@ function emptyStateHtml(){
 	        });
 	      }
 
-	      return {
-	        po,
-	        lines,
-	        receipts: Array.isArray(receipts) ? receipts : [],
-	        receiptLines: normalizedReceiptLines,
-	        receiptLinesByReceipt,
-	        receiptId: activeReceiptId,
-	        receiptStatus,
-	        receiptNotes,
-          possibleDuplicate,
-	        mode: opts && opts.mode ? opts.mode : 'order',
-	      };
+      return {
+        po,
+        lines,
+        receipts: Array.isArray(receipts) ? receipts : [],
+        receiptLines: normalizedReceiptLines,
+        receiptLinesByReceipt,
+        receiptId: activeReceiptId,
+        receiptStatus,
+        receiptNotes,
+        possibleDuplicate,
+        reviewing: false,
+        reviewAck: false,
+        showAllLines: false,
+        receivedAt: activeReceipt && activeReceipt.received_at ? activeReceipt.received_at : '',
+        mode: opts && opts.mode ? opts.mode : 'order',
+      };
 	    }
       function getReceiptForwardingDomain(){
         const rawSettings = SB.company && (SB.company.settings || SB.company.company_settings);
@@ -35565,6 +35789,11 @@ function emptyStateHtml(){
           receiptTotal: '',
           parsedLineItems: [],
           possibleDuplicate: false,
+          reviewing: false,
+          reviewAck: false,
+          showAllLines: false,
+          receivedAt: '',
+          scrollToReceiptId: '',
           manualSearch: '',
           loading:true,
           rawReceiptText: '',
@@ -35696,6 +35925,12 @@ function emptyStateHtml(){
       const receiptIdEl = $('receiveReceiptId');
       const notesEl = $('receiveReceiptNotes');
       const reviewSection = $('receiptReviewSection');
+      const reviewGateSection = $('receiveReviewGateSection');
+      const reviewSummaryEl = $('receiveReviewSummary');
+      const reviewAckWrap = $('receiveReviewAckWrap');
+      const reviewAckInput = $('receiveReviewAck');
+      const completionSection = $('receiveCompletionSummarySection');
+      const completionSummaryEl = $('receiveCompletionSummaryBody');
       const vendorEl = $('receiveReceiptVendor');
       const dateEl = $('receiveReceiptDate');
       const totalEl = $('receiveReceiptTotal');
@@ -35746,6 +35981,12 @@ function emptyStateHtml(){
         if(receiptIdEl) receiptIdEl.textContent = '';
         if(notesEl){ notesEl.value = ''; notesEl.disabled = true; }
         if(reviewSection) reviewSection.style.display = 'none';
+        if(reviewGateSection) reviewGateSection.style.display = 'none';
+        if(reviewSummaryEl) reviewSummaryEl.innerHTML = '';
+        if(reviewAckWrap) reviewAckWrap.style.display = 'none';
+        if(reviewAckInput) reviewAckInput.checked = false;
+        if(completionSection) completionSection.style.display = 'none';
+        if(completionSummaryEl) completionSummaryEl.innerHTML = '';
         if(vendorEl){ vendorEl.value = ''; vendorEl.disabled = true; }
         if(dateEl){ dateEl.value = ''; dateEl.disabled = true; }
         if(totalEl){ totalEl.value = ''; totalEl.disabled = true; }
@@ -35798,12 +36039,13 @@ function emptyStateHtml(){
 	      const mode = String(ro.mode || 'order');
 	      const isOrderMode = mode === 'order';
 	      const isInboxMode = mode === 'inbox';
-	      const receiptStatusRaw = String(ro.receiptStatus || 'draft').trim().toLowerCase();
-	      const receiptStatus = normalizeReceiptStatus(receiptStatusRaw);
-	      const statusText = formatReceiptStatusLabel(receiptStatus || 'draft');
-	      const isDraftLike = isReceiptDraftLike(receiptStatus);
-	      const isEditable = isDraftLike && canReceivingEdit();
-	      const planBlocked = isReceiptPlanBlocked(receiptStatus);
+      const receiptStatusRaw = String(ro.receiptStatus || 'draft').trim().toLowerCase();
+      const receiptStatus = normalizeReceiptStatus(receiptStatusRaw);
+      const statusText = formatReceiptStatusLabel(receiptStatus || 'draft');
+      const isDraftLike = isReceiptDraftLike(receiptStatus);
+      const isReviewing = !!ro.reviewing;
+      const isEditable = isDraftLike && canReceivingEdit() && !isReviewing;
+      const planBlocked = isReceiptPlanBlocked(receiptStatus);
 
 	      if(statusEl){
 	        statusEl.textContent = isInboxMode ? 'Inbox' : (statusText || 'Draft');
@@ -35859,7 +36101,7 @@ function emptyStateHtml(){
             }else if(ro.attachmentsError){
               attachmentsList.innerHTML = `<div class="receive-attachments-empty">${escapeHtml(ro.attachmentsError)}</div>`;
             }else{
-              const allowDelete = canManageReceiptAttachments();
+              const allowDelete = canManageReceiptAttachments() && !isReviewing;
               attachmentsList.innerHTML = attachments.map(att => {
                 const id = String(att.id || '').trim();
                 const name = String(att.file_name || 'Attachment').trim() || 'Attachment';
@@ -35976,6 +36218,10 @@ function emptyStateHtml(){
               const disabledAttr = disabled ? ' disabled' : '';
               const itemId = line && line.item_id ? String(line.item_id).trim() : '';
               const isMatched = !!itemId;
+              const itemLocked = !!itemId;
+              const allowMatchChange = allowDetailsEdit && !itemLocked;
+              const searchDisabled = disabled || itemLocked;
+              const searchDisabledAttr = searchDisabled ? ' disabled' : '';
               const matchedItem = isMatched ? getInventoryById(itemId) : null;
               const matchedName = matchedItem ? String(matchedItem.name || '').trim() : '';
               const matchedSku = matchedItem ? String(matchedItem.sku || '').trim() : '';
@@ -35993,11 +36239,13 @@ function emptyStateHtml(){
                       `<span class="parsed-item-matched-name" title="${escapeHtmlAttr(matchedName)}">${escapeHtml(matchedName || 'Matched item')}</span>`+
                       (matchedSku ? `<span class="parsed-item-matched-sku">SKU: ${escapeHtml(matchedSku)}</span>` : '')+
                     `</div>`+
-                    (allowDetailsEdit ? `<button class="btn-unmatch" type="button" data-parsed-line-unmatch="${idx}">Unmatch</button>` : '')+
+                    (allowMatchChange
+                      ? `<button class="btn-unmatch" type="button" data-parsed-line-unmatch="${idx}">Unmatch</button>`
+                      : `<span class="muted">Locked</span>`) +
                   `</div>`
                 : `<div class="parsed-item-match-row">`+
                     `<div class="parsed-item-search" data-parsed-line-search="${idx}">`+
-                      `<input type="text" placeholder="Search inventory to match..." data-parsed-line-search-input="${idx}"${disabledAttr}>`+
+                      `<input type="text" placeholder="Search inventory to match..." data-parsed-line-search-input="${idx}"${searchDisabledAttr}>`+
                       `<div class="parsed-item-search-results" data-parsed-line-results="${idx}" style="display:none;"></div>`+
                     `</div>`+
                   `</div>`;
@@ -36103,6 +36351,70 @@ function emptyStateHtml(){
       if(receiptsSection) receiptsSection.style.display = (isPoTab && isOrderMode) ? '' : 'none';
       if(manualSection) manualSection.style.display = isQuickTab ? '' : 'none';
       if(linesSection) linesSection.style.display = showDetailPanel ? '' : 'none';
+      if(reviewGateSection && reviewSummaryEl && reviewAckWrap && reviewAckInput){
+        const reviewData = buildReceiveReviewData(ro);
+        const showReviewGate = showDetailPanel && !isInboxMode && isReviewing;
+        if(showReviewGate){
+          const discrepancyHtml = reviewData.discrepancies.length
+            ? `<div class="receive-review-list">`+
+                reviewData.discrepancies.map(entry => (
+                  `<div class="receive-review-item">`+
+                    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+                      `<circle cx="12" cy="12" r="10"></circle>`+
+                      `<line x1="12" y1="8" x2="12" y2="12"></line>`+
+                      `<line x1="12" y1="16" x2="12.01" y2="16"></line>`+
+                    `</svg>`+
+                    `<span>${escapeHtml(entry.label)}</span>`+
+                  `</div>`
+                )).join('')+
+              `</div>`
+            : `<div class="receive-review-muted">No discrepancies detected.</div>`;
+          const editAction = (isDraftLike && canReceivingEdit())
+            ? `<div class="receive-review-actions">`+
+                `<button class="btn-tertiary btn-sm btn-icon" type="button" data-receive-review-edit>`+
+                  `${ICONS.pencil}`+
+                  `<span>Edit</span>`+
+                `</button>`+
+              `</div>`
+            : '';
+          reviewSummaryEl.innerHTML =
+            `<div class="receive-review-row"><span>Lines</span><strong>${reviewData.lineCount}</strong></div>`+
+            `<div class="receive-review-row"><span>Received</span><strong>${formatQty(reviewData.totalReceived)}</strong></div>`+
+            `<div class="receive-review-row"><span>Rejected</span><strong>${formatQty(reviewData.totalRejected)}</strong></div>`+
+            discrepancyHtml +
+            editAction;
+          reviewGateSection.style.display = '';
+          const hasDiscrepancies = reviewData.discrepancies.length > 0;
+          reviewAckWrap.style.display = hasDiscrepancies ? '' : 'none';
+          reviewAckInput.checked = !!ro.reviewAck;
+        }else{
+          reviewGateSection.style.display = 'none';
+          reviewSummaryEl.innerHTML = '';
+          reviewAckWrap.style.display = 'none';
+          reviewAckInput.checked = false;
+        }
+      }
+      if(completionSection && completionSummaryEl){
+        const showCompletion = showDetailPanel && !isInboxMode && receiptStatus === 'received';
+        if(showCompletion){
+          const completionData = buildReceiveReviewData(ro);
+          const receivedAt = ro.receivedAt ? formatEasternDateTime(ro.receivedAt) : '';
+          const summaryMeta = [
+            ro.receiptVendor ? `Vendor: ${escapeHtml(ro.receiptVendor)}` : '',
+            ro.receiptDate ? `Date: ${escapeHtml(formatDateShort(ro.receiptDate))}` : '',
+            receivedAt ? `Received: ${escapeHtml(receivedAt)}` : ''
+          ].filter(Boolean).join(' • ');
+          completionSummaryEl.innerHTML =
+            `<div class="receive-review-row"><span>Lines</span><strong>${completionData.lineCount}</strong></div>`+
+            `<div class="receive-review-row"><span>Received</span><strong>${formatQty(completionData.totalReceived)}</strong></div>`+
+            `<div class="receive-review-row"><span>Rejected</span><strong>${formatQty(completionData.totalRejected)}</strong></div>`+
+            (summaryMeta ? `<div class="receive-review-muted">${summaryMeta}</div>` : '');
+          completionSection.style.display = '';
+        }else{
+          completionSection.style.display = 'none';
+          completionSummaryEl.innerHTML = '';
+        }
+      }
 
       let poListCount = 0;
       if(poList){
@@ -36276,11 +36588,14 @@ function emptyStateHtml(){
 	      if(!ro.lines || !ro.lines.length){
 	        linesWrap.innerHTML = `<div class="order-empty">${isOrderMode ? 'No line items found.' : 'No items added yet.'}</div>`;
 	      }else{
+          const allLines = ro.lines.slice();
+          const showAllLines = !!ro.showAllLines || allLines.length <= RECEIVE_LINE_RENDER_LIMIT;
+          const visibleLines = showAllLines ? allLines : allLines.slice(0, RECEIVE_LINE_RENDER_LIMIT);
 	        const incomingMap = state._incomingByItemId && typeof state._incomingByItemId.get === 'function'
 	          ? state._incomingByItemId
 	          : buildInventoryIncomingMap();
 	        state._incomingByItemId = incomingMap;
-	        linesWrap.innerHTML = ro.lines.map(line => {
+	        const linesHtml = visibleLines.map(line => {
 	          const name = line.item_name || '(Unnamed item)';
 	          const sku = line.item_sku || '';
 	          const remainingNum = (line.remaining_qty === null || typeof line.remaining_qty === 'undefined') ? 0 : toInt(line.remaining_qty, 0);
@@ -36302,7 +36617,7 @@ function emptyStateHtml(){
 	          const stepperMinusSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
 	          const stepperPlusSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
 	          return (
-	            `<div class="receive-line${disabled ? ' disabled' : ''}" data-receive-line-key="${escapeHtmlAttr(line.key)}">`+
+	            `<div class="receive-line${disabled ? ' disabled' : ''}" data-receive-line-key="${escapeHtmlAttr(line.key)}"${line.item_id ? ` data-receive-line-item="${escapeHtmlAttr(line.item_id)}"` : ''}>`+
 	              `<div class="receive-line-header">`+
 	                `<div class="receive-line-info">`+
 	                  `<div class="receive-line-title" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>`+
@@ -36360,7 +36675,17 @@ function emptyStateHtml(){
 	            `</div>`
 	          );
 	        }).join('');
-	        ro.lines.forEach(updateReceiveLineDom);
+          const remainingCount = allLines.length - visibleLines.length;
+          const expandHtml = (!showAllLines && remainingCount > 0)
+            ? `<div class="receive-lines-expand">`+
+                `<button class="btn-tertiary btn-sm btn-icon" type="button" data-receive-lines-expand>`+
+                  `${ICONS.chevronDown}`+
+                  `<span>Show ${remainingCount} more line${remainingCount === 1 ? '' : 's'}</span>`+
+                `</button>`+
+              `</div>`
+            : '';
+	        linesWrap.innerHTML = linesHtml + expandHtml;
+	        visibleLines.forEach(updateReceiveLineDom);
 	      }
 
 	      if(isOrderMode){
@@ -36382,7 +36707,7 @@ function emptyStateHtml(){
 	              const totalRejected = lines.reduce((sum, l) => sum + toInt(l.rejected_qty, 0), 0);
 	              const canVoid = (normalizeReceiptStatus(rStatus) === 'received') && canReceivingVoid();
 	              return (
-	                `<div class="receive-receipt">`+
+	                `<div class="receive-receipt" data-receipt-id="${escapeHtmlAttr(receiptId)}">`+
 	                  `<div class="receive-receipt-header">`+
 	                    `<div>`+
 	                      `<div class="receive-receipt-title">Receipt ${escapeHtml(shortId(receiptId) || receiptId)}</div>`+
@@ -36413,6 +36738,22 @@ function emptyStateHtml(){
 	                `</div>`
 	              );
 	            }).join('');
+	          if(ro.scrollToReceiptId){
+	            const targetId = String(ro.scrollToReceiptId || '').trim();
+	            ro.scrollToReceiptId = '';
+	            if(targetId){
+	              setTimeout(()=>{
+	                let selector = `[data-receipt-id="${targetId}"]`;
+	                try{
+	                  if(window.CSS && CSS.escape){
+	                    selector = `[data-receipt-id="${CSS.escape(targetId)}"]`;
+	                  }
+	                }catch(e){}
+	                const target = receiptsWrap.querySelector(selector);
+	                if(target) target.scrollIntoView({ behavior:'smooth', block:'nearest' });
+	              }, 0);
+	            }
+	          }
 	        }
 	      }else{
 	        receiptsWrap.innerHTML = '';
@@ -36420,6 +36761,8 @@ function emptyStateHtml(){
 
       if(isInboxMode){
         setReceiveOrderMessage('Review before inventory is updated. Receipts are never received automatically.');
+      }else if(isReviewing){
+        setReceiveOrderMessage('Review the summary and confirm to receive inventory.');
       }else if(receiptStatus === 'pending'){
         setReceiveOrderMessage('Receipt is pending approval.');
       }else if(receiptStatus === 'received'){
@@ -36442,17 +36785,28 @@ function emptyStateHtml(){
         planUpgrade.style.display = receiptStatus === 'blocked_by_plan' ? '' : 'none';
       }
 
-	      updateReceiveOrderWarning();
-	      const saveBtn = $('btnReceiveOrderSave');
-	      const completeBtn = $('btnReceiveOrderComplete');
-	      const cancelBtn = $('btnReceiveOrderCancel');
-	      const canSave = showDetailPanel && !isInboxMode && isEditable;
-	      const canComplete = showDetailPanel && !isInboxMode && ((isDraftLike && canCompleteReceipt()) ||
-	        (receiptStatus === 'pending' && canReceivingApprove()));
-	      if(saveBtn) saveBtn.disabled = !canSave;
-	      if(completeBtn) completeBtn.disabled = !canComplete;
-	      if(cancelBtn) cancelBtn.disabled = false;
-	    }
+      updateReceiveOrderWarning();
+      const saveBtn = $('btnReceiveOrderSave');
+      const completeBtn = $('btnReceiveOrderComplete');
+      const cancelBtn = $('btnReceiveOrderCancel');
+      const canSave = showDetailPanel && !isInboxMode && isEditable;
+      const reviewData = buildReceiveReviewData(ro);
+      const canCompleteBase = showDetailPanel && !isInboxMode && reviewData.totalQty > 0 && ((isDraftLike && canCompleteReceipt()) ||
+        (receiptStatus === 'pending' && canReceivingApprove()));
+      const needsAck = reviewData.discrepancies.length > 0;
+      const canComplete = canCompleteBase && (!isReviewing || !needsAck || !!ro.reviewAck);
+      if(saveBtn) saveBtn.disabled = !canSave;
+      if(completeBtn){
+        const labelEl = completeBtn.querySelector('.footer-icon-label');
+        let label = 'Receive';
+        if(receiptStatus === 'received') label = 'Received';
+        else if(isReviewing) label = 'Confirm';
+        else if(canCompleteBase) label = 'Review';
+        if(labelEl) labelEl.textContent = label;
+        completeBtn.disabled = !canComplete;
+      }
+      if(cancelBtn) cancelBtn.disabled = false;
+    }
 	    async function refreshReceiveOrderModal(poId){
 	      const id = String(poId || '').trim();
 	      if(!id) return;
@@ -36473,6 +36827,12 @@ function emptyStateHtml(){
         mode: 'order'
       });
       next.loading = false;
+      if(existingState && existingState.scrollToReceiptId){
+        next.scrollToReceiptId = existingState.scrollToReceiptId;
+      }
+      if(existingState && existingState.showAllLines){
+        next.showAllLines = true;
+      }
       next.attachments = [];
       next.attachmentsLoading = false;
       next.attachmentsError = '';
@@ -36561,6 +36921,19 @@ function emptyStateHtml(){
 	    async function saveReceiptLines(receiveState, opts = {}){
 	      const lines = receiveState.lines || [];
 	      const requireLine = !!opts.requireLine;
+      const seenItems = new Set();
+      const duplicateItems = new Set();
+      lines.forEach(line => {
+        if(!line || line.disabled || !line.item_id) return;
+        if(line.po_line_id) return;
+        const id = String(line.item_id || '').trim();
+        if(!id) return;
+        if(seenItems.has(id)) duplicateItems.add(id);
+        else seenItems.add(id);
+      });
+      if(duplicateItems.size){
+        throw new Error('Duplicate items detected. Remove duplicates before receiving.');
+      }
       const hasAny = lines.some(l => !l.disabled && (toInt(l.qty_received, 0) > 0 || toInt(l.qty_rejected, 0) > 0));
       if(requireLine && !hasAny) throw new Error('Enter at least one received or rejected quantity.');
       const receiptId = await ensureDraftReceiptId(receiveState);
@@ -36641,9 +37014,60 @@ function emptyStateHtml(){
 	        }
 	      }catch(e){}
 	    }
+    async function syncPurchaseOrderStatusAfterReceipt(receiveState){
+      if(!receiveState) return;
+      const poId = String(receiveState.poId || (receiveState.po && receiveState.po.id) || '').trim();
+      if(!poId) return;
+      if(!SB.ready || !SB.session || !SB.authorized) return;
+      let lineMap = new Map();
+      try{
+        lineMap = await sbFetchPurchaseOrderLinesByPoIds([poId]);
+      }catch(e){
+        return;
+      }
+      const totals = getPurchaseOrderLineTotalsById(poId, lineMap);
+      if(!totals || !totals.hasLines) return;
+      const nextStatus = (totals.remaining <= 0 && totals.ordered > 0)
+        ? 'fully_received'
+        : (totals.received > 0 && totals.remaining > 0 ? 'partially_received' : '');
+      if(!nextStatus) return;
+      let currentRow = receiveState.po || getOrderHistoryRowById(poId);
+      if(!currentRow){
+        try{ currentRow = await sbFetchPurchaseOrderById(poId); }catch(e){}
+      }
+      const currentStatus = normalizePurchaseOrderStatus(currentRow && currentRow.status);
+      if(currentStatus === nextStatus) return;
+      const patch = {
+        status: nextStatus,
+        updated_at: new Date().toISOString(),
+        updated_by: SB.user ? SB.user.id : null
+      };
+      let query = SB.client
+        .from('purchase_orders')
+        .update(patch)
+        .eq('id', poId);
+      if(SB.companyId){
+        query = query.eq('company_id', SB.companyId);
+      }
+      const { error } = await query;
+      if(error) throw error;
+      if(currentRow) currentRow.status = nextStatus;
+      if(state._orderHistoryById && state._orderHistoryById.has(poId)){
+        const historyRow = state._orderHistoryById.get(poId);
+        if(historyRow) historyRow.status = nextStatus;
+      }
+      const toastLabel = nextStatus === 'fully_received' ? 'Received' : 'Partially received';
+      toast(`PO marked as ${toastLabel}`, 'success');
+    }
 	    async function handleSaveReceiptDraft(){
 	      const ro = state._receiveOrder;
 	      if(!ro) return;
+        if(ro.reviewing){
+          ro.reviewing = false;
+          ro.reviewAck = false;
+          renderReceiveOrderModal();
+          return;
+        }
 	      if(!isReceiptDraftLike(String(ro.receiptStatus || '').trim().toLowerCase())){
 	        toast('Receipt is locked');
 	        return;
@@ -36694,12 +37118,21 @@ function emptyStateHtml(){
 	        toast('Receive receipt permission required');
 	        return;
 	      }
-	      const ok = await openConfirmModal(
-        'Confirm & receive inventory?',
-        'Review before inventory is updated. Receipts are never received automatically.',
-	        { okText:'Receive', cancelText:'Cancel' }
-	      );
-	      if(!ok) return;
+	      const reviewData = buildReceiveReviewData(ro);
+	      if(!ro.reviewing){
+	        if(reviewData.totalQty <= 0){
+	          toast('Enter at least one received or rejected quantity.');
+	          return;
+	        }
+	        ro.reviewing = true;
+	        ro.reviewAck = false;
+	        renderReceiveOrderModal();
+	        return;
+	      }
+	      if(reviewData.discrepancies.length && !ro.reviewAck){
+	        toast('Acknowledge discrepancies before receiving.');
+	        return;
+	      }
 
 	      const btn = $('btnReceiveOrderComplete');
 	      const labelEl = btn ? btn.querySelector('.footer-icon-label') : null;
@@ -36747,6 +37180,9 @@ function emptyStateHtml(){
 	          }
 	        }
 	        ro.receiptStatus = 'received';
+	        ro.reviewing = false;
+	        ro.reviewAck = false;
+	        ro.receivedAt = new Date().toISOString();
 	        const hasRejections = Array.isArray(ro.lines) && ro.lines.some(l => toInt(l && l.qty_rejected, 0) > 0);
 	        toast(hasRejections ? 'Receipt received with exceptions' : 'Receipt received', 'success');
 	        await refreshInventoryAfterReceipt(ro);
@@ -36754,19 +37190,24 @@ function emptyStateHtml(){
 	          try{ await loadDraftEmailReceipts(); }catch(e){}
 	        }
 	        try{ await refreshReceiveHistory(); }catch(e){}
+	        try{ await syncPurchaseOrderStatusAfterReceipt(ro); }
+          catch(e){ toast(e && e.message ? e.message : 'PO status update failed'); }
 	        if(canOrdersView()){
 	          try{ await refreshOrderHistory(); }catch(e){}
 	        }
 	        scheduleMenuActionBadgeRefresh({ force: true });
 	        renderReceiptsInboxIndicator();
-	        closeReceiveOrderModal();
+	        renderReceiveOrderModal();
 	      }catch(e){
 	        setReceiveOrderMessage(e && e.message ? e.message : 'Failed to receive receipt');
 	      }finally{
 	        if(btn){
 	          btn.disabled = false;
 	          if(labelEl){
-	            labelEl.textContent = prior || 'Receive';
+            const statusLabel = ro && normalizeReceiptStatus(String(ro.receiptStatus || '').trim()) === 'received'
+              ? 'Received'
+              : (prior || 'Receive');
+	          labelEl.textContent = statusLabel;
 	          }else{
 	            btn.textContent = prior || 'Receive';
 	          }
@@ -36843,14 +37284,14 @@ function emptyStateHtml(){
 	      setReceiveOrderWarning('');
 	      show('receiveOrderModal', false);
 	    }
-	    async function openReceiveOrderModal(orderId){
+	    async function openReceiveOrderModal(orderId, opts = {}){
 	      const id = String(orderId || '').trim();
 	      if(!id) return;
 	      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
 	      if(!SB.session){ toast('Sign in required', 'warning'); show('authModal', true); return; }
 	      if(!SB.authorized){ toast('Not authorized'); show('profileModal', true); return; }
 	      if(!canReceiveOrders()){ toast('Receiving access required'); return; }
-
+      const receiptOverride = String(opts.receiptId || '').trim();
 	      setReceiveOrderMessage('');
 	      setReceiveOrderWarning('');
       state._receiveOrder = {
@@ -36863,7 +37304,7 @@ function emptyStateHtml(){
         receipts: [],
         receiptLines: [],
         receiptLinesByReceipt: new Map(),
-        receiptId: '',
+        receiptId: receiptOverride,
         receiptStatus: 'draft',
         receiptNotes: '',
         receiptVendor: '',
@@ -36871,6 +37312,11 @@ function emptyStateHtml(){
         receiptTotal: '',
         parsedLineItems: [],
         possibleDuplicate: false,
+        reviewing: false,
+        reviewAck: false,
+        showAllLines: false,
+        receivedAt: '',
+        scrollToReceiptId: receiptOverride,
         manualSearch: '',
         loading:true,
         rawReceiptText: '',
@@ -36889,11 +37335,16 @@ function emptyStateHtml(){
         await loadDraftEmailReceipts();
         await ensureDraftReceiptId(state._receiveOrder);
         await refreshReceiveOrderModal(id);
-      }catch(e){
+	      }catch(e){
         setReceiveOrderMessage(e && e.message ? e.message : 'Failed to load receipt data');
         renderReceiveOrderModal();
 	      }
 	    }
+    async function openReceiveOrderModalForReceipt(orderId, receiptId){
+      const id = String(orderId || '').trim();
+      if(!id) return;
+      await openReceiveOrderModal(id, { receiptId });
+    }
 
 	    async function openReceiveInboxModal(){
 	      if(!SB.ready){ toast('Supabase not configured', 'error'); return; }
@@ -36921,6 +37372,11 @@ function emptyStateHtml(){
         receiptTotal: '',
         parsedLineItems: [],
         possibleDuplicate: false,
+        reviewing: false,
+        reviewAck: false,
+        showAllLines: false,
+        receivedAt: '',
+        scrollToReceiptId: '',
         manualSearch: '',
         loading:true,
         rawReceiptText: '',
@@ -36971,6 +37427,11 @@ function emptyStateHtml(){
         receiptTotal: '',
         parsedLineItems: [],
         possibleDuplicate: false,
+        reviewing: false,
+        reviewAck: false,
+        showAllLines: false,
+        receivedAt: '',
+        scrollToReceiptId: '',
         manualSearch: '',
         loading:true,
         rawReceiptText: '',
@@ -37025,6 +37486,11 @@ function emptyStateHtml(){
         receiptTotal: '',
         parsedLineItems: [],
         possibleDuplicate: false,
+        reviewing: false,
+        reviewAck: false,
+        showAllLines: false,
+        receivedAt: '',
+        scrollToReceiptId: '',
         manualSearch: '',
         loading:true,
         rawReceiptText: '',
@@ -37083,7 +37549,7 @@ function emptyStateHtml(){
 	        return;
 	      }
 	      const status = String(ro.receiptStatus || '').trim().toLowerCase();
-	      const canEdit = isReceiptDraftLike(status) && canReceivingEdit();
+      const canEdit = isReceiptDraftLike(status) && canReceivingEdit() && !ro.reviewing;
 	      const max = 20;
 	      wrap.innerHTML = matches.slice(0, max).map(it => {
 	        const id = String(it && it.id ? it.id : '').trim();
@@ -37110,17 +37576,24 @@ function emptyStateHtml(){
 	      }).join('');
 	    }
 
-	    async function addManualReceiveLine(itemId){
-	      const ro = state._receiveOrder;
-	      if(!ro || ro.mode !== 'manual') return;
-	      const status = String(ro.receiptStatus || '').trim().toLowerCase();
-	      if(!isReceiptDraftLike(status)){
-	        toast('Receipt is locked');
-	        return;
-	      }
-	      const id = String(itemId || '').trim();
-	      if(!id) return;
-	      if(ro.lines && ro.lines.some(l => String(l && l.item_id ? l.item_id : '').trim() === id)) return;
+    async function addManualReceiveLine(itemId){
+      const ro = state._receiveOrder;
+      if(!ro || ro.mode !== 'manual') return;
+      if(ro.reviewing){
+        toast('Exit review to edit receipt lines.');
+        return;
+      }
+      const status = String(ro.receiptStatus || '').trim().toLowerCase();
+      if(!isReceiptDraftLike(status)){
+        toast('Receipt is locked');
+        return;
+      }
+      const id = String(itemId || '').trim();
+      if(!id) return;
+      if(ro.lines && ro.lines.some(l => String(l && l.item_id ? l.item_id : '').trim() === id)){
+        notifyDuplicateReceiveItem(id);
+        return;
+      }
 	      const item = getInventoryById(id);
 	      if(!item){
 	        toast('Item not found', 'error');
@@ -38075,6 +38548,17 @@ function emptyStateHtml(){
         const lines = Array.isArray(r.receipt_lines) ? r.receipt_lines : [];
         const totalReceived = lines.reduce((s, l) => s + toInt(l.received_qty, 0), 0);
         const totalRejected = lines.reduce((s, l) => s + toInt(l.rejected_qty, 0), 0);
+        const poId = String(r.purchase_order_id || '').trim();
+        const poRow = poId ? getOrderHistoryRowById(poId) : null;
+        const poLabel = poId ? (poRow ? formatOrderHistoryId(poRow) : `PO-${shortId(poId)}`) : '';
+        const poLinkHtml = poId
+          ? `<button class="receipt-card-po-link" type="button" data-receipt-po-id="${escapeHtmlAttr(poId)}" data-receipt-id="${escapeHtmlAttr(id)}">`+
+              `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+                `<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>`+
+              `</svg>`+
+              `<span>${escapeHtml(poLabel || 'PO')}</span>`+
+            `</button>`
+          : '';
         const iconClass = status === 'voided' ? 'receipt-card-icon--voided' : (status === 'pending' ? 'receipt-card-icon--pending' : '');
         return `
           <div class="receipt-card" data-receipt-id="${escapeHtmlAttr(id)}">
@@ -38094,6 +38578,7 @@ function emptyStateHtml(){
                 <div class="receipt-card-meta">
                   <span>${escapeHtml(dateStr)}</span>
                   <span>${lines.length} line${lines.length === 1 ? '' : 's'}</span>
+                  ${poLinkHtml}
                 </div>
               </div>
               <div class="receipt-card-stats">
@@ -38117,9 +38602,18 @@ function emptyStateHtml(){
                 ${lines.length ? lines.map(line => {
                   const item = line.item_id ? getInventoryById(line.item_id) : null;
                   const name = item ? (item.name || item.sku || 'Item') : '(Unknown item)';
+                  const itemId = line.item_id ? String(line.item_id).trim() : '';
+                  const nameHtml = itemId
+                    ? `<button class="receipt-line-link" type="button" data-receipt-item-id="${escapeHtmlAttr(itemId)}">`+
+                        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`+
+                          `<polyline points="9 18 15 12 9 6"></polyline>`+
+                        `</svg>`+
+                        `<span>${escapeHtml(name)}</span>`+
+                      `</button>`
+                    : `<span>${escapeHtml(name)}</span>`;
                   return `
                     <div class="receipt-line-row">
-                      <div class="receipt-line-name" title="${escapeHtmlAttr(name)}">${escapeHtml(name)}</div>
+                      <div class="receipt-line-name" title="${escapeHtmlAttr(name)}">${nameHtml}</div>
                       <div class="receipt-line-qty">+${formatQty(line.received_qty || 0)}</div>
                       ${toInt(line.rejected_qty, 0) > 0 ? `<div class="receipt-line-qty receipt-line-qty--rejected">-${formatQty(line.rejected_qty)}</div>` : ''}
                     </div>
@@ -42263,6 +42757,33 @@ function emptyStateHtml(){
     const receiveHistoryList = $('receiveHistoryList');
     if(receiveHistoryList){
       receiveHistoryList.addEventListener('click', (e)=>{
+        const poBtn = e.target.closest('[data-receipt-po-id]');
+        if(poBtn){
+          e.preventDefault();
+          e.stopPropagation();
+          const poId = String(poBtn.getAttribute('data-receipt-po-id') || '').trim();
+          const receiptId = String(poBtn.getAttribute('data-receipt-id') || '').trim();
+          if(poId){
+            closeReceiveHistoryModal();
+            openReceiveOrderModalForReceipt(poId, receiptId);
+          }
+          return;
+        }
+        const itemBtn = e.target.closest('[data-receipt-item-id]');
+        if(itemBtn){
+          e.preventDefault();
+          e.stopPropagation();
+          const itemId = String(itemBtn.getAttribute('data-receipt-item-id') || '').trim();
+          if(itemId){
+            if(!canItemsView()){
+              toast('Inventory access required');
+              return;
+            }
+            closeReceiveHistoryModal();
+            openEditItemModal(itemId);
+          }
+          return;
+        }
         const toggle = e.target.closest('[data-toggle-receipt]');
         if(toggle){
           const id = toggle.dataset.toggleReceipt;
@@ -42867,6 +43388,27 @@ function emptyStateHtml(){
 	    if(btnReceiveOrderSave) btnReceiveOrderSave.addEventListener('click', handleSaveReceiptDraft);
 	    const btnReceiveOrderComplete = $('btnReceiveOrderComplete');
 	    if(btnReceiveOrderComplete) btnReceiveOrderComplete.addEventListener('click', handleCompleteReceipt);
+    const receiveReviewAck = $('receiveReviewAck');
+    if(receiveReviewAck){
+      receiveReviewAck.addEventListener('change', ()=>{
+        if(state._receiveOrder){
+          state._receiveOrder.reviewAck = !!receiveReviewAck.checked;
+          renderReceiveOrderModal();
+        }
+      });
+    }
+    const receiveReviewGate = $('receiveReviewGateSection');
+    if(receiveReviewGate && !receiveReviewGate._wired){
+      receiveReviewGate._wired = true;
+      receiveReviewGate.addEventListener('click', (e)=>{
+        const btn = e.target.closest('[data-receive-review-edit]');
+        if(btn && state._receiveOrder){
+          state._receiveOrder.reviewing = false;
+          state._receiveOrder.reviewAck = false;
+          renderReceiveOrderModal();
+        }
+      });
+    }
     const receiveReceiptNotes = $('receiveReceiptNotes');
     if(receiveReceiptNotes) receiveReceiptNotes.addEventListener('input', ()=>{
       if(state._receiveOrder) state._receiveOrder.receiptNotes = String(receiveReceiptNotes.value || '');
@@ -43071,6 +43613,11 @@ function emptyStateHtml(){
         if(resultBtn && state._receiveOrder){
           const idx = toInt(resultBtn.getAttribute('data-parsed-line-idx'), -1);
           const itemId = String(resultBtn.getAttribute('data-parsed-line-match-item') || '').trim();
+          const isDuplicate = resultBtn.getAttribute('data-receipt-duplicate') === 'true';
+          if(itemId && isDuplicate){
+            notifyDuplicateReceiveItem(itemId);
+            return;
+          }
           if(idx >= 0 && itemId){
             matchParsedLineToInventory(idx, itemId);
           }
@@ -43153,8 +43700,13 @@ function emptyStateHtml(){
         const name = String(it.name || '').trim() || '(Unnamed)';
         const sku = String(it.sku || '').trim();
         const onHand = formatQty(toInt(it.qty, 0));
-        const meta = [sku ? `SKU: ${sku}` : '', `On Hand: ${onHand}`].filter(Boolean).join(' • ');
-        return `<div class="parsed-item-search-result" data-parsed-line-match-item="${escapeHtmlAttr(id)}" data-parsed-line-idx="${idx}">`+
+        const duplicate = !!getReceiveLineByItemId(id);
+        const meta = [
+          sku ? `SKU: ${sku}` : '',
+          `On Hand: ${onHand}`,
+          duplicate ? 'Already on receipt' : ''
+        ].filter(Boolean).join(' • ');
+        return `<div class="parsed-item-search-result${duplicate ? ' is-disabled' : ''}" data-parsed-line-match-item="${escapeHtmlAttr(id)}" data-parsed-line-idx="${idx}"${duplicate ? ' data-receipt-duplicate="true"' : ''}>`+
           `<div>`+
             `<div class="parsed-item-search-result-name">${escapeHtml(name)}</div>`+
             `<div class="parsed-item-search-result-meta">${escapeHtml(meta)}</div>`+
@@ -43180,6 +43732,9 @@ function emptyStateHtml(){
         if(!sku) return;
         const item = getInventoryBySku(sku);
         if(item){
+          if(getReceiveLineByItemId(item.id)){
+            return;
+          }
           line.item_id = item.id;
           if(typeof line.qty_received === 'undefined' || line.qty_received === null){
             line.qty_received = toInt(line.qty, 0);
@@ -43192,11 +43747,24 @@ function emptyStateHtml(){
     }
     function matchParsedLineToInventory(idx, itemId){
       if(!state._receiveOrder) return;
+      if(state._receiveOrder.reviewing){
+        toast('Exit review to edit receipt lines.');
+        return;
+      }
       const lines = Array.isArray(state._receiveOrder.parsedLineItems) ? state._receiveOrder.parsedLineItems : [];
       const line = lines[idx];
       if(!line) return;
+      if(line.item_id){
+        toast('Item is locked.');
+        return;
+      }
       const item = getInventoryById(itemId);
       if(!item) return;
+      const existing = getReceiveLineByItemId(itemId);
+      if(existing){
+        notifyDuplicateReceiveItem(itemId);
+        return;
+      }
       line.item_id = itemId;
       // Default qty_received to parsed qty if not set
       if(typeof line.qty_received === 'undefined'){
@@ -43210,9 +43778,17 @@ function emptyStateHtml(){
     }
     function unmatchParsedLine(idx){
       if(!state._receiveOrder) return;
+      if(state._receiveOrder.reviewing){
+        toast('Exit review to edit receipt lines.');
+        return;
+      }
       const lines = Array.isArray(state._receiveOrder.parsedLineItems) ? state._receiveOrder.parsedLineItems : [];
       const line = lines[idx];
       if(!line) return;
+      if(line.item_id){
+        toast('Item identity is locked.');
+        return;
+      }
       const oldItemId = line.item_id;
       delete line.item_id;
       delete line.qty_received;
@@ -43233,6 +43809,17 @@ function emptyStateHtml(){
       if(!parsedLine || !parsedLine.item_id) return;
       if(!Array.isArray(state._receiveOrder.lines)) state._receiveOrder.lines = [];
       const key = `parsed-${idx}-${parsedLine.item_id}`;
+      const duplicate = getReceiveLineByItemId(parsedLine.item_id, { excludeKey: key });
+      if(duplicate){
+        const dupId = parsedLine.item_id;
+        delete parsedLine.item_id;
+        delete parsedLine.qty_received;
+        delete parsedLine.qty_rejected;
+        delete parsedLine.rejection_reason;
+        notifyDuplicateReceiveItem(dupId);
+        renderReceiveOrderModal();
+        return;
+      }
       let existing = state._receiveOrder.lines.find(l => l.key === key);
       const item = getInventoryById(parsedLine.item_id);
       if(!existing){
@@ -43328,10 +43915,16 @@ function emptyStateHtml(){
 	        if(!inp) return;
 	        updateReceiveLineFromInput(inp, { format:true, showError:true });
 	      });
-	      // Stepper button handlers
-	      receiveOrderLines.addEventListener('click', (e)=>{
-	        // Handle stepper inc/dec buttons
-	        const stepperBtn = e.target.closest('[data-receive-stepper]');
+      // Stepper button handlers
+      receiveOrderLines.addEventListener('click', (e)=>{
+        const expandBtn = e.target.closest('[data-receive-lines-expand]');
+        if(expandBtn && state._receiveOrder){
+          state._receiveOrder.showAllLines = true;
+          renderReceiveOrderModal();
+          return;
+        }
+        // Handle stepper inc/dec buttons
+        const stepperBtn = e.target.closest('[data-receive-stepper]');
 	        if(stepperBtn && !stepperBtn.disabled){
 	          const action = stepperBtn.dataset.receiveStepper;
 	          const lineKey = stepperBtn.dataset.receiveLineKey;
