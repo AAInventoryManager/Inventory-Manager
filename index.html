@@ -1051,6 +1051,9 @@
       height:32px;
       padding:0;
 	    }
+	    .clear-input-btn:hover{
+	      transform:translateY(calc(-50% - 2px));
+	    }
 	    .clear-input-btn:disabled{ opacity:.55; }
 	    .input-wrap > input{ padding-right:52px; }
 	    #filterBox{
@@ -2327,6 +2330,7 @@
     }
     #orderModal .modal{
       max-width:540px;
+      height:min(calc(100vh - 48px), 700px);
     }
     #orderModal .modal-title{
       font-size:17px;
@@ -2417,7 +2421,7 @@
     /* Tab Panels */
     .order-wizard-panels{
       flex:1;
-      min-height:0;
+      min-height:280px;
       overflow:hidden;
       position:relative;
     }
