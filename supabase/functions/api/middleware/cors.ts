@@ -29,7 +29,11 @@ const defaultConfig: CorsConfig = {
   allowedMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
     'Authorization',
+    'authorization',
+    'apikey',
+    'x-client-info',
     'Content-Type',
+    'content-type',
     'Idempotency-Key',
     'X-Request-Id',
     'X-Company-Id',
